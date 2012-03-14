@@ -1,0 +1,60 @@
+ltt-control package README
+--------------------------
+Mathieu Desnoyers 
+Last update: 2007/05/14
+
+
+This package contains the lttd, lttctl and liblttctl programs which are
+necessary to obtain a trace. It also contains the facilities directory, where
+sits the trace metainformation.
+
+* Compiling
+
+gcc 3.2 or better
+glib 2.4 or better development libraries
+  (Debian : libglib2.0-0, libglib2.0-dev)
+  (Fedora : glib2, glib2-devel)
+libc6 development librairies 
+  (Debian : libc6, libc6-dev)
+  (Fedora : glibc, glibc)
+
+
+To compile the source tree from a tarball, simply follow these steps :
+
+- ./configure
+- make
+- make install
+
+After running ./configure, you can also go in specific subdirectories and
+use make, make install.
+
+
+* Quick Start
+
+See the LTTV package QUICKSTART file.
+
+
+* Source Tree Structure
+
+Here is the tree structure of the ltt-control package.
+
+ltt/		New trace format reading library.
+liblttctl/	Library to communicate with the kernel tracer control module.
+lttctl/		Command line program to use the liblttctl library.
+lttd/		Linux Trace Toolkit daemon.
+README		This file.
+
+
+* For Developers
+
+This source tree is based on the autotools suite from GNU to simplify
+portability. Here are some things you should have on your system in order to
+compile the subversion repository tree :
+
+- GNU autotools (automake >=1.7, autoconf >=2.50, autoheader >=2.50)
+  (make sure your system wide "automake" points to a recent version!)
+- GNU Libtool
+  (for more information, go to http://www.gnu.org/software/autoconf/)
+
+If you get the tree from the repository, you will need to use the autogen.sh
+script. It calls all the GNU tools needed to prepare the tree configuration.

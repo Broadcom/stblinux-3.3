@@ -1,0 +1,361 @@
+.\" Hey Emacs! This file is -*- nroff -*- source.
+.\"
+.\" This man page is Copyright (C) 2002 Sven Neumann <neo@directfb.org>
+
+.TH DIRECTFBRC 5 "23 May 2002" "Version 0.9.13" "DirectFB Manual Pages"
+
+.SH NAME
+directfbrc \- DirectFB configuration file
+
+
+.SH DESCRIPTION
+
+The
+.B directfbrc
+file is a configuration file read by all DirectFB applications on startup.
+There are two of these: a system-wide one stored in
+.I /etc/directfbrc
+and a per-user
+.I
+\fB$HOME\fP/.directfbrc
+which may override system settings.
+
+The same parameters that can be used in the
+.B directfbrc
+file can also be passed to DirectFB applications on the command-line
+by prefixing them with 
+.BR --dfb:
+
+
+.SH SYNTAX
+
+The
+.B directfbrc
+file contains one parameter per line. Comments are introduced by a
+hash sign (#), and continue until the end of the line.  Blank lines
+are ignored.
+
+Most parameters are switches that turn certain features on or off.
+These switches have a no- variant that disables the feature. This
+man-page describes the positive variant and will also note which
+setting is the compiled-in default.
+
+
+.SH PARAMETERS
+
+The following parameters may be specified in the
+.B directfbrc
+file:
+
+.TP
+.BI fbdev=<device>
+Opens the given frame buffer device instead of /dev/fb0.
+
+.TP
+.BI mode=<width>x<height>
+Sets the default screen resolution. If unspecified DirectFB will use
+the first mode from
+.I /etc/fb.modes
+Some frame buffer devices (namely vesafb) don't support mode switches
+and can only be used in the resolution that is set on boot time.
+
+.TP
+.BI depth=<pixeldepth>
+Sets the default pixel depth in bits per pixel. If unspecified
+DirectFB will use the depth specified in the first mode from
+.I /etc/fb.modes
+DirectFB supports color depths of 15, 16, 24 and 32 (support for 8 bit
+can optionally be compiled in as well). What values are available
+depends on the frame buffer device you are using. Some frame buffer
+devices (namely vesafb) don't support mode switches at all and can
+only be used in the pixel depth that is set on boot time.
+
+.TP
+.BI quiet
+Suppresses console output from DirectFB. Only error messages will be
+displayed.
+
+.TP
+.BI [no-]banner
+Enables the output of the DirectFB banner at startup. This is on by
+default.
+
+.TP
+.BI [no-]debug
+Enables debug output. This is on by default but you won't see any
+debug output unless you compiled DirectFB with debugging support.
+
+.TP
+.BI force-windowed
+Forces the primary surface to be a window. This allows to run
+applications that were written to do full-screen access in a window.
+
+.TP
+.BI [no-]hardware
+Turns hardware acceleration on. By default hardware acceleration is
+auto-detected. If you disable hardware acceleration, the driver for
+your graphics card will not be loaded and all graphics operations will
+be performed by the software renderer.
+
+.TP
+.BI [no-]sync
+Flushes all disk buffers before initializing DirectFB. This can be
+useful if you working with experimental device drivers and expect
+crashes. The default is not to sync.
+
+.TP
+.BI [no-]mmx
+The no-mmx options allows to disable the use of MMX routines even if
+support for MMX was detected. By default MMX is used if is available
+and support for MMX was compiled in.
+
+.TP
+.BI [no-]argb-font
+Instead of using A8 surfaces (alpha masks), load glyphs into ARGB
+surfaces. This uses more memory but some graphics cards do weird
+things with A8 surfaces. Try this option if your fonts look strange.
+
+.TP
+.BI [no-]sighandler
+By default DirectFB installs a signal handler for a number of signals
+that cause an application to exit. This signal handler tries to
+deinitialize the DirectFB engine before quitting the application.
+Use this option to enable/disable this feature.
+
+.TP
+.BI dont-catch=<num>[[,<num>]...]
+As described with the
+.B
+sighandler
+option, DirectFB installs a signal handler for a number of signals.
+By using this option you may specify a list of signals that shouldn't
+be handled this way.
+
+.TP
+.BI [no-]deinit-check
+By default DirectFB checks if the application has released all allocated
+resources on exit. If it didn't, it will clean up after the application.
+This option allows to switch this feature on or off.
+
+.TP
+.BI [no-]vt-switch
+By default DirectFB allocates a new virtual terminal and switches to
+it.
+
+.TP
+.BI [no-]vt-switching
+Allow to switch virtual terminals using <Ctrl>+<Alt>+<F?>. This is an
+experimental feature that is usually disabled; use at your own risk.
+
+.TP
+.BI [no-]graphics-vt
+Puts the virtual terminal into graphics mode. This has the advantage
+that kernel messages won't show up on your screen while the DirectFB
+application is running.
+
+.TP
+.BI [no-]motion-compression
+Usually DirectFB compresses mouse motion events. This means that
+subsequent mouse motions are delivered to the application as a single
+mouse motion event. This leads to a more responsive but less exact
+mouse handling.
+
+.TP
+.BI mouse-protocol=<protocol>
+Specifies the mouse protocol to use for a serial mouse. The following
+protocols are supported: 
+
+.BI MS
+Two button mouse using the Microsoft mouse protocol.
+
+.BI MS3
+Three button mouse using an extended Microsoft mouse protocol.
+
+.BI MouseMan
+Three button mouse using a different extension to the Microsoft mouse
+protocol introduced by Logitech.
+
+.BI MouseSystems
+The most commonly used protocol for three button mice.
+
+The different protocols for serial mice are described in more detail
+in mouse(4).
+
+.TP
+.BI [no-]lefty
+Swaps left and right mouse buttons. Useful for left-handers.
+
+.TP
+.BI [no-]cursor
+By default DirectFB shows a mouse cursor when an application makes use
+of windows. This options allows to switch the cursor off. Note that
+applications may nevertheless switch it on explicitly.
+
+.TP
+.BI disable-module=<modulename>
+Suppress loading of this module. The module name is the filename
+without the \fBlibdirectfb_\fP prefix and without extension (for
+example \fBkeyboard\fP to disable loading of the keyboard input
+module).
+
+.TP
+.BI bg-none
+Completely disables background handling. Doesn't make much sense since
+the mouse and moving windows will leave ugly traces on the background.
+
+.TP
+.BI bg-color=AARRGGBB
+Controls the color of the background. The color is specified in
+hexadecimal notation. The alpha value defaults to full opacity and may
+be omitted. For example to choose a bright magenta background, you'd
+use bg-color=FF00FF.
+
+.TP
+.BI bg-image=<filename>
+Fills the background with the given image file. The image is stretched to
+fit to the screen dimensions.
+
+.TP
+.BI bg-tile=<filename>
+Like
+.B bg-image
+but tiles the image to fit to the screen dimensions instead of
+stretching it.
+
+.TP
+.BI [no-]translucent-windows
+By default DirectFB windows may be translucent. If you disable this
+feature, windows are forced to be either fully opaque or fully
+transparent. This is useful if your graphics card doesn't support
+alpha-transparent blits.
+
+.TP
+.BI videoram-limit=<amount>
+Limits the amount of Video RAM used by DirectFB. The amount of Video
+RAM is specified in Kilobytes.
+
+.TP
+.BI [no-]matrox-sgram
+Some older Matrox G400 cards have SGRAM and a number of graphics
+operations are considerably faster on these cards if this feature
+is enabled. Don't try to enable it if your card doesn't have SGRAM!
+
+.TP
+.BI screenshot-dir=<directory>
+If specified DirectFB will dump the screen contents in PPM format
+into this directory when the <Print> key gets pressed.
+
+.TP
+.BI fbdebug=<device>
+Allows to specify a second frame buffer device that is used to display
+how surface memory is allocated on the video card. This is highly
+experimental and only useful for debugging.
+
+.TP
+.BI window-surface-policy=<policy>
+Allows to control where window surfaces are stored. Supported values
+for <policy> are:
+
+.BI auto
+DirectFB decides depending on hardware capabilities. This is the
+default.
+
+.BI videohigh
+Swapping system/video with high priority.
+
+.BI videolow
+Swapping system/video with low priority.
+
+.BI systemonly
+Window surfaces are stored in system memory.
+
+.BI videoonly
+Window surfaces are stored in video memory.
+
+.TP
+.BI desktop-buffer-mode=<mode>
+Allows to control the desktop buffer mode. Whenever a window is moved,
+opened, closed, resized or its contents change DirectFB recomposites
+the window stack at the affected region. This is done by blitting the
+windows together that are visible within that region. Opaque windows
+are blitted directly while translucent windows are blitted using alpha
+blending or color keying. If there's a back buffer the recomposition is
+not visible since only the final result is copied into the front
+buffer. Without a back buffer each step of the recomposition is visible.
+This causes noticeable flicker unless all windows are opaque.
+
+Supported values for <mode> are:
+
+.BI auto
+DirectFB decides depending on hardware capabilities. This is the
+default. DirectFB chooses a back buffer in video memory if the hardware
+supports simple blitting (copying from back to front buffer). If
+there's no acceleration at all the back buffer is allocated in system
+memory since that gives much better performance for alpha blended
+recomposition in software and avoids reading from the video memory
+when the result is copied to the front buffer.
+
+.BI backsystem
+The back buffer is allocated in system memory. This is the recommend
+choice if your hardware supports simple blitting but no alpha blending
+and you are going to have many alpha blended windows.
+
+.BI backvideo
+Front and back buffer are allocated in video memory. It's not required
+to set this mode explicitly because the 'auto' mode chooses it if
+blits are accelerated. Without accelerated blits this mode is not
+recommended.
+
+.BI frontonly
+There is no back buffer. This is the best choice if you are using
+opaque windows only and don't use any color keying.
+
+.TP
+.BI vsync-after
+Wait for the vertical retrace after flipping. The default is to wait
+before doing the flip.
+
+.TP
+.BI vsync-none
+Disables polling for vertical retrace.
+
+
+.SH EXAMPLES
+
+Here are some examples that demonstrates how the parameters described
+above are passed to DirectFB application on the command-line.
+
+.TP
+.B df_neo --dfb:no-hardware
+Starts df_neo without hardware acceleration.
+.TP
+.B df_neo --dfb:help
+Lists the DirectFB options that can be passed to df_neo.
+
+
+.SH OTHER INFO
+
+The canonical place to find informations about DirectFB is at
+http://www.directfb.org/.  Here you can find the FAQ, tutorials,
+mailing list archives, the CVS tree and can download the latest
+version of the DirectFB library as well as a number of applications.
+
+
+.SH FILES
+
+.TP
+.I /etc/directfbrc
+system-wide DirectFB configuration file
+.TP
+.I $HOME/.directfbrc
+per-user DirectFB configuration file
+.TP
+.I /etc/fb.modes
+frame buffer modes file
+
+
+.SH SEE ALSO
+.BR fb.modes (5),
+.BR fbset (8),
+.BR mouse (4),
+.BR ppm (5)

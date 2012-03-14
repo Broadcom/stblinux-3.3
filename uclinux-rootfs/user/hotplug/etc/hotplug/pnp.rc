@@ -1,0 +1,119 @@
+#!/bin/sh
+# vim: syntax=sh
+#
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+# Copyright (C) 2004 Alexander E. Patrakov (patrakov@ums.usu.ru)
+# Copyright (C) 2004 Simone Gotti (simone.gotti@email.it)
+# All Rights Reserved.
+#
+# Based on scripts by Simone Gotti, from:
+# http://members.xoom.virgilio.it/motaboy/hotplug-isapnp-0.2.1.tar.bz2
+#
+
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+if [ "$(echo /sys/bus/pnp/devices/*)" = "/sys/bus/pnp/devices/*" ]
+then
+	exit 0
+fi
+
+cd /etc/hotplug
+. ./hotplug.functions
+
+MAP_CURRENT=$MODULE_DIR/modules.isapnpmap
+DRIVERS=
+
+# WARNING: od and printf are in /usr/bin
+decode_isapnp_vendor() {
+    echo -n $1 | od -A n -t d1 | ( read A B C
+    printf '%x\n' $(( 	( ( $A & 0x3f ) << 2) | \
+            		( ( $B & 0x18 ) >> 3) | \
+			( ( $B & 0x07 ) <<13) | \
+			( ( $C & 0x1f ) << 8) )) )
+}
+
+hex_swab() {
+    echo `echo $1 | cut -b3-4``echo $1 | cut -b1-2`
+}
+
+#
+# stdin is "modules.isapnpmap" syntax
+# on return, ONE matching module was added to $DRIVERS
+#
+isapnp_map_modules ()
+{
+    local module ignored
+
+    CHECKED_ID="0x`echo $ISAPNP_ID | cut -b1-4`0x`echo $ISAPNP_ID | cut -b5-8`"
+    # comment line lists (current) isapnp_device_id field names
+    read ignored
+
+    while read module cardvendor carddevice driver_data therest
+    do
+    # comments are lines that start with "#" ...
+    # be careful, they still get parsed by bash!
+        case "$module" in
+	\#*) continue ;;
+	esac
+	: checkmatch $module
+	set $therest
+	while [ $# -gt 0 ] 
+	do
+		id_temp=$2$1
+		if [ "$id_temp" = "$CHECKED_ID" ] ; then
+        	    DRIVERS="$module $DRIVERS"
+        	    : drivers $DRIVERS
+	            break
+		fi
+	        shift
+	        shift
+	done
+    done
+}
+
+
+isapnp_boot_events ()
+{
+    cd /sys/bus/pnp/devices/
+    for ISAPNP_DEVICE in * ; do
+	ISAPNP_STRINGS=`cat $ISAPNP_DEVICE/id`
+	for ISAPNP_STRING in $ISAPNP_STRINGS ; do
+	    rawcardvendor=`echo $ISAPNP_STRING | cut -b1-3`
+	    rawcarddevice=`echo $ISAPNP_STRING | cut -b4-7`
+	    cardvendor=`decode_isapnp_vendor $rawcardvendor`
+	    carddevice=`hex_swab $rawcarddevice`
+    	    ISAPNP_ID=$carddevice$cardvendor
+	    LABEL="ISAPNP id $ISAPNP_ID"
+	    load_drivers isapnp $MAP_CURRENT "$LABEL"
+	    load_drivers isapnp /etc/hotplug/pnp.distmap "$LABEL"
+	done
+    done
+    return 0
+}
+
+
+# See how we were called.
+case "$1" in
+    start)
+        isapnp_boot_events
+    ;;
+    stop)
+    # echo $"isapnp stop -- ignored"
+    ;;
+    status)
+    # echo $"isapnp status -- ignored"
+    ;;
+    restart)
+    # always invoke by absolute path, else PATH=$PATH:
+    $0 stop && $0 start
+    ;;
+    *)
+    echo $"Usage: $0 {start|stop|status|restart}"
+    exit 1
+esac

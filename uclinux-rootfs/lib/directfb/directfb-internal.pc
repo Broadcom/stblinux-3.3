@@ -1,0 +1,10 @@
+prefix=/home/sjhill/uClinux-dist-patched/romfs
+exec_prefix=${prefix}
+moduledir=${exec_prefix}/lib/directfb-0.9.13
+includedir=${prefix}/include/directfb-internal
+
+Name: DirectFB-Internal
+Description: Third party module support package for DirectFB.
+Version: 0.9.13
+Requires: directfb = 0.9.13
+Cflags:  -DFUSION_FAKE -I${prefix}/include/directfb-internal

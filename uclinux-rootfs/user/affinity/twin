@@ -1,0 +1,19 @@
+#!/bin/bash
+#     Copyright (c) 2007, Broadcom Corporation
+#
+# Written by Troy Trammel (ttrammel@Broadcom.com)
+# Date: Feb 21, 2007
+# Name: twin
+# Function: This script demonstrates the use of the affinity utility for
+# running processes on seperate threads.  It takes two arguments, it runs
+# the first command on thread 1 and the second command on thread 2.
+##########################################################################
+if [ $# -eq 2 ]; then
+	$1 &
+	affinity $! 1
+	$2 &
+	affinity $! 2
+else
+	echo "usage: twin cmd1 cmd2"
+	echo "Runs cmd1 on thread 1, cmd2 on thread 2"
+fi

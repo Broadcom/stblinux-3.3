@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ ! -e /sbin/brctl ]; then
+	echo "ERROR: brctl not present"
+	exit 1
+fi
+
+if ifconfig br0 >& /dev/null; then
+	echo "ERROR: bridge already present; run bridge-stop to tear it down"
+	exit 1
+fi
+
+echo -n "Bringing down network interfaces... "
+
+ifaces=""
+for x in $(ls /sys/class/net); do
+	if [ -e /sys/class/net/$x/device ]; then
+		ifaces="$ifaces $x"
+		ifdown $x;
+	fi
+done
+
+killall udhcpc &> /dev/null
+usleep 200000
+killall -9 udhcpc &> /dev/null
+echo "done"
+
+echo -n "Creating bridge... "
+brctl addbr br0 || exit 1
+brctl setfd br0 1 || exit 1
+echo "done"
+
+echo -n "Adding interfaces... "
+for x in $ifaces; do
+	ifconfig $x 0.0.0.0 up
+	brctl addif br0 $x
+done
+
+echo "done"
+
+echo -n "Bringing up the bridge... "
+ifup br0
+echo "done"
+
+exit 0

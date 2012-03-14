@@ -1,0 +1,474 @@
+Thu Sep 23 2004 kroah
+	- fixed typo in README thanks to Micha Wiedenmann <mw-u2@gmx.de>
+	- From Alexander E. Patrakov <patrakov@ums.usu.ru>
+		Replaces ISAPNP hardware detection script with a better version
+
+Mon Sep 20 2004 kroah
+	- 2004_09_20 release
+	- added README.modules to the makefile
+	- added support for blacklists easier
+	  http://bugs.gentoo.org/show_bug.cgi?id=60214
+	- ifrename is in /usr/sbin, not /sbin.
+	  http://bugs.gentoo.org/show_bug.cgi?id=46760
+	- added isapnp support based on work from Simone Gotti
+	  <simone.gotti@email.it> and Marco d'Itri
+	- fix minor debug message in net.agent for Gentoo boxes
+	- allow *.usermap to have blank lines. (patch from Francesco Ferrara
+	  <ferrara@despammed.com>) at
+	  http://bugs.gentoo.org/show_bug.cgi?id=49748
+	- add usbhid to the list of modules to unload on stop.
+	- fix issue with input devices (joysticks specifically) not being
+	  loaded properly. (lots of gentoo bug ids...)
+	- fixed minor issue with usbfs being mounted but no host drivers loaded
+	  yet <http://bugs.gentoo.org/show_bug.cgi?id=56599>
+	- From Marcel Holtmann <marcel@holtmann.org>
+		- fix location of FIRMWARE_DIR to /lib/firmware
+	- From Bill Nottingham <notting@redhat.com>
+		- support a a TwinMos mobile disk, as per https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=111506
+	- Posix compliant changes From David Weinehall <tao@kernel.org>
+		- changes tests using `-o' and `-a' to use || and && respectively.
+		- changes bash-specific functions to generic sh-functions, adds
+		  a missing newline at the end of a file, does a few `-o'
+		  substitutions and changes /bin/bash to /bin/sh, since the
+		  changes removes the need to use /bin/bash.
+		- Modifies the remaining non-bash scripts to remove use of the
+		  bash:ism local (a quick audit shows that it's not needed),
+		  substitutes `-a' and `-o', changes fgrep to grep -F (this
+		  change is not strictly necessary, but recommended by the
+		  POSIX standard), and one occurence of egrep to grep (since
+		  this particular occurence didn't make use of extended regexps
+		  anyway)
+		- Modifies the remaining bash scripts to use generic
+		  sh-functions instead of bash-specific functions, does `-a'
+		  and `-o' substitutions, removes use of local, and finally
+		  changes /bin/bash to /bin/sh
+	- From Alexander E. Patrakov
+		- Remove bogus dependency upon "which" and "usbmodules"
+		  programs in 2.6 code path
+		- Add README.modules file
+		- Provide the correct DEVICE variable for USB coldplug events
+		  for 2.6.x kernels. The grep ...\$ is used instead of tail -c 4 
+		  because LFS has the tail command in /usr/bin. That's even
+		  more illogical because head is in /bin.
+		  This requires a 2.6.6 kernel. 2.6.4 is too old.
+
+Thu Apr  1 2004 kroah
+	- 2004_04_01 release
+	- From Martin Hicks <mort@bork.org>
+		- fix hotplug.spec file, adding clean rule.
+	- Sync up with fixes in Gentoo tree:
+		- return proper error value in pci.rc
+		- handle system overrides properly in usb.rc
+		- handle system overrides properly in usb.agent
+		- fix LOADED test in hotplug.functions
+		- add ability to start network scripts properly.
+		- add ability to stop network scripts properly.
+
+Thu Apr  1 2004 ukai
+	- hotplug.functions: $MODULE need s/-/_/g to match with lsmod output
+	- usb.agent: use $DEVPATH for $REMOVER if $DEVPATH is defined.
+	   when coldplugging on 2.6.*, we don't know $DEVICE, but $DEVPATH,
+	   so $DEVPATH should be used for unique string to device.
+	
+Web Mar 31 2004 ukai
+	- input.agent: don't try to check empty $dev_bits in input_match_bits
+	   some posix shell may complain on it.
+
+Mon Mar 29 2004 kroah
+	- 2004_03_29 release
+	- make test on network start for /var/... a Red Hat specific test
+	- make modprobe use '-q' to get rid of some unneeded messages at
+	  times.  Reported by upstream users at:
+		http://bugs.gentoo.org/show_bug.cgi?id=37086
+
+Sat Mar 27 2004 ukai
+
+	- usb.rc: fix usb coldplugging on linux 2.6.*
+		  sleep to wait usb data propagated at usb boot
+
+Fri Mar 26 2004 kroah
+	- more messages quieted (in scsi.agent this time.)
+	- make "... no modules for..." messages not print out except if
+	  debugging is enabled.
+	- From Jean Tourrilhes <jt@bougret.hpl.hp.com>:
+		add support for ifrename if present.
+	- From Stephen Hemminger <shemminger@osdl.org>:
+		add stir4200 to the usb.distmap file.
+	- From Rolf Eike Beer <eike-hotplug@sf-tec.de>:
+		fix detection of kernel series for older machines with no USB
+		or PCI busses.
+
+Mon Mar 15 2004 ukai
+	- firmware.agent: quote firmware name
+	- usb.agent: sysfs usb attribute value is hex
+	- scsi.agent: remove bashism
+	- input.rc: do not even try if /proc/bus/input is missing 
+	  in input_boot_events
+	- input.agent: use input_match_bits for bits parameters
+	- default.hotplug: provides open file descriptors for stdin, stdout 
+	  and stderr
+	
+Sun Mar 14 2004 ukai
+	- ieee1394.agent: fix misplaced conversion code for module map 
+			parameters
+	- pci.rc: fix [: missing ']'
+	
+Thu Mar 11 2004 kroah
+	- 2004_03_11 release
+	- From Dmitry Torokhov <dtor_core@ameritech.net>:
+		add evbug to the blacklist of modules
+	- From Kay Sievers <kay.sievers@vrfy.org>:
+		We should mention the DEVPATH in the hotplug man page too,
+		as someone missed it and got confused.
+	- 5 patches from Marco d'Itri <md@Linux.IT>:
+		- 000_small_fixes: fixed some small bugs.
+		- 001_no_bashisms: removed bashisms from all scripts.
+		- 003_no_useless_includes: removed some unused code.
+		- 004_2.6_pci_synthesis: added sysfs support to pci.rc,
+		  enabling boot time events synthesis on lacking the
+		  pcimodules program.
+		- 004_2.6_usb_sysfs: improved sysfs support in the USB
+		  scripts. Please review the changes marked with the FIXME
+		  comment: this works on my system and others, but I'm not
+		  sure that it's the proper way.
+
+Fri Feb 13 2004 dbrownell
+	- scsi.agent waits for /sys$DEVPATH/type to appear before
+	  modprobing higher level drivers.  Patch from Patrick
+	  Mansfield <patmans@us.ibm.com>
+
+Mon Jan 5 2004 kroah
+	- 2004_01_05 release
+
+Mon Oct 13 2003 kroah
+	- sysfs entries for usb devices are in hex.  Patch from Andrey
+	  Borzenkov <arvidjaar@mail.ru>
+	- add input.rc and input.agent for input systems.  Patch from Andrey
+	  Borzenkov <arvidjaar@mail.ru>
+
+Tue Oct 7 2003 kroah
+	- keep already loaded modules from causing messages in the syslog.
+	- added firmware.agent file from Marcel Holtmann <marcel@holtmann.org>
+	- Lots of patches from Bill Nottingham <notting@redhat.com> to try to
+	  sync back up with the Red Hat hotplug package:
+		- hotplug-2003_08_05-networkdown.patch
+		  Don't bring up network devices if the network service isn't
+		  started.
+		- hotplug-2002_04_01-joydev.patch
+		  Some extra joystick devices.
+		- hotplug-2003_08_05-tunnel.patch
+		  Exclude tunl*/tun*/tap* from being brought up via hotplug
+		  events
+		- hotplug-2002_04_01-wacom.patch
+		  Some wacom tablets for evdev.
+		- hotplug-2002_04_01-usblcd.patch
+		  usblcd mappings
+		- hotplug-2002_04_01-inhotplug.patch
+		  Set IN_HOTPLUG environment variable as something users can
+		  check in case they don't want some interface to be
+		  automatically brought up.
+		- hotplug-2003_08_05-updfstab.patch
+		  Run updfstab on usb-storage insertion, and general removal
+		  (Probably needs to run on firewire, and other sorts of
+		  removal devices). upfstab is a Red Hat specific program that
+		  edits /etc/fstab to add entries for removable devices.
+	- added dasd (s390 stuff) tape and dasd agent files from SuSE and Red
+	  Hat's hotplug package.
+
+Wed Sep 24 2003 kroah
+	- fixed status display of usb drivers in the 2.6 kernel as
+	  /proc/bus/usb/drivers is no longer present.
+	- fixed typo in the /sbin/hotplug comments as found by
+	  Gary_Lerhaupt@Dell.com
+
+Tue Sep 16 2003 kroah
+	- remove devlabel calls, it should just put its own link in
+	  /etc/hotplug.d
+
+Tue Aug 5 2003 kroah
+	- 2003_08_05 release
+
+Sun Aug 3 2003 kroah
+	- fix usb autoloading of modules for 2.6 (it wasn't working).
+
+Fri Jun 27 2003 kroah
+	- changed network code to accept 2.5's change to the way network
+	  interfaces are brought up and down (now "add" and "remove" like all
+	  the other hotplug types.)
+
+Fri Jun 6 2003 dbrownell
+    hotplug.functions fixes from:
+	- Olaf Hering:  #!/bin/bash gone, VIM modeline,
+	  logger location can vary, and should include PID
+	- Ian Abbot: correct init of LOADED (fixes sf.net bug filing)
+    Other sf.net bugs resolved
+	- pointless pci.rc message [538243]
+	- Makefile should ignore tape drives [578462]
+
+Thu May 1 2003 kroah
+	- 2003_05_01 release
+	- made /sbin/hotplug a tiny multiplexer program, moving the original
+	  /sbin/hotplug program to /etc/hotplug.d/default/default.hotplug
+	- split the rpms generated into two: hotplug and hotplug-base.
+	  hotplug-base contains /sbin/hotplug and /etc/hotplug.d/ only
+	  hotplug contains everything else
+	  hotplug depends on hotplug-base to be present to be able to be
+	  loaded.
+
+Thu Apr 17 2003 dbrownell
+	- from Dan Dennedy <dan@dennedy.org>, firewire agent now loads
+	  multiple modules.  video control and data can be separate.
+
+Fri Jan 17 2003 dbrownell
+	- call devlabel if it's present; <Gary_Lerhaupt@Dell.com>
+
+Thu Dec 12 2002 dbrownell
+	- handle some sysfs timing and sequencing quirks
+	- if it's there, sysfs can provide some missing usb data
+
+Mon Dec  2 2002 dbrownell
+	- update README
+	- updates from suse's patches
+	- DEBUG messages should be off by default!
+	- clean up "make install"
+	- LSB says init scripts in /etc/init.d, and handle 'force-reload'
+
+Fri Nov 29 2002 dbrownell
+	- initial scsi.agent for 2.5, modprobes sd_mod or sr_mod
+
+Wed Nov 21 2002 dbrownell
+    more updates for 2.5 kernels:
+	- handle additional "device mode" usb hotplug, ignoring it for now
+	  unless /sys/$DEVPATH/bNumConfigurations says we have choice of
+	  configurations (the first one might not be best).
+	- handle the improved "interface mode" usb hotplug in 2.5: don't
+	  use 'usbmodules', each interface gets its own event report.
+	- don't slow down usb hotplug, all hcds now do control queueing.
+	- flag usb and pci 'coldplug' cleanups, needed now that we can
+	  finally eliminate usbmodules (pcimodules too?)
+    other fixes:
+	- patch from <Reinhold.May@gmx.de> to address fact that usbmodules
+	  can fail where the script parsing works
+	- /sbin/hotplug can now save events to a logfile for later use,
+	  suitable for debugging, collecting as test data, sending to a
+	  daemon, and so on.
+	- better fix for 'always run setup scripts', handling cases where
+	  modprobe fails until the setup script renumerates to new usb ids.
+	- usb.rc, comment the usbdevfs versioning issue (counting files in
+	  /proc/bus/usb became fragile recently) and handle some similar
+	  config-dependent startup issues
+
+Tue Oct 1 2002 kroah
+	- fix for the lack of a drivers file in usbfs in 2.5.  Patch is from
+	  Duncan Sands <duncan.sands@wanadoo.fr>
+
+Mon Aug 26 2002 kroah
+	- 2002_08_26 release
+
+Thu Aug  8 2002 dbrownell
+	- load_drivers(): variables are local, and doesn't try
+	  usbmodules unless the $DEVICE file exists (it'd fail)
+	- update hotplug.8 manpage to mention Max'patch
+	- patch from Max Krasnyanskiy, now  usb hotplugging also
+	  searches /etc/hotplug/usb/*.usermap
+
+Sat May 04 2002 ukai
+	- etc/hotplug/hotplug.functions: grep -q redirect to /dev/null 
+	  closes: debian Bug#145484
+	
+Mon Apr 01 2002 kroah
+	- 2002_04_01 release
+
+Mon Apr 01 2002 dbrownell
+	- hotplug.functions: always run setup scripts
+	- ieee1394.agent: rm another explicit /etc/hotplug pathname
+	- usb.agent: doesn't skip usb.usermap
+	- usb.rc: hooks for other "new style" HCDs (2.5)
+	- distro should now include /etc/hotplug/{usb,pci} directories
+	- remove obsolete USBD_ENABLE option
+	- comments/diagnostics say "usbfs" not "usbdevfs"
+	- various comment/doc updates, including for USB "coldplug"
+
+Tue Mar 26 2002 kroah
+	- usb.rc: updated the list of modules that we should be trying to
+	  remove.
+	- moved fxload to a separate directory, out of this package.
+	- updated the Makefile and .spec file to handle fxload moving away
+	- cleaned Makefile up, now 'make distrib' works much nicer.
+	- applied some minor cleanup patches from Landon Curt Noll.
+	- ieee1394.agent: made more like other .agent files.  Removed /tmp
+	  check entirely as it's not needed.
+
+Web Mar 20 2002 ukai
+	- etc/hotplug/ieee1394.agent: fix /tmp writable check
+	
+Fri Jan 18 2002 ukai
+	- usb.agent: match algorithm in usb_map_modules() should be the 
+		     same as in kernel.
+	
+Thu Jan 17 2002 dbrownell
+	- fxload:
+	    * fix bug in handling first hex record: nothing to merge with!
+	    * add '-Wall' to build and resolve warnings
+	    * Makefile installs fxload.8 man page
+
+Mon Jan 14 2002 kroah
+	- 2001_01_14 release
+
+Mon Jan 14 2002 kroah
+	- created hotplug-fxload.spec to split the .rpm up into two packages
+	  which lets the hotplug rpm be "noarch" again.
+	- changed hotplug.spec to only be one package again.
+
+Mon Jan 14 2002	ukai
+	- usb.agent: fix work around 2.2 brokenness. it didn't handle
+	  ab.c or ab.cd propoerly (it becomes PRODUCT=X/Y/ab.c0, X/Y/ab.cd)
+	  It should be PRODUCT=X/Y/abc0, X/Y/abcd
+	
+Wed Jan 9 2002	ukai
+	- usb.agent: define REMOVER for system without usbdevfs
+	- update debian/ files
+
+Fri Jan 4 2001  kroah
+	- fixed type on ieee1394.agent that prevented version matches from
+	  working properly.
+
+Sat Dec 29 2001	dbrownell
+	- updated the hotplug.8 man page
+	- rmmod boot protocol drivers too
+	- mention environment variables in the hotplug core script's comments
+
+Fri Dec 28 2001 dbrownell
+	- created the fxload.8 man page
+
+Thu Dec 27 2001 dbrownell
+	- fxload changes:
+		- fail on firmware download errors; add "-v" flag
+		- merge adjacent hex records, and optionally show writes
+
+Fri Dec 14 2001 dbrownell 
+	- fxload changes:
+		- Add sanity check: reject requests to load off-chip memory,
+		  The EZ-USB devices just fail silently in these cases.
+
+Wed Sep 19 2001 kroah
+	- 2001_09_19 release
+
+Sun Sep 16 2001 kroah/dbrownell
+	- Added ieee1394.agent from Kristian Hogsberg
+	  <hogsberg@users.sourceforge.net>
+	- with docs, "sh -x" debug support, minor fix.
+	  Needs kernel 2.4.10 and modutils 2.4.9 to hotplug.
+
+Fri Sep 7 2001  dbrownell
+	- Some of the updates from SuSE: 
+	    * add/use debug_msg macro in hotplug_functions
+	    * modprobe -s (to syslog)
+	    * various agent tweaks/fixes
+	    * more usb.handmap entries (from usbmgr)
+
+Mon Jun 11 2001  Stephen Williams  <steve@icarus.com>
+
+	- Added the fxload program
+	- Rework root makefile and hotplug.spec to install in prefix
+	  location without need of spec file for install.
+
+Fri Jun 8 2001  Stephen Williams  <steve@icarus.com>
+
+	- Added installation directions to make the /var/run/usb
+	  directory, and updated the rpm spec file to match.
+
+Thu Jun 6 2001 kroah
+	- added half of Stephen Williams <steve@icarus.com> REMOVER
+	  patch. It is up to the install script to create the
+	  /var/run/usb directory.  Something like the following would be
+	  enough:
+	  	mkdir /var/run/usb
+		chmod 0700 /var/run/usb
+
+Tue Apr 24 2001 kroah
+	- added debian directory filled with things needed to package 
+	  the scripts for a debian release.
+
+Tue Apr 03 2001 dbrownell
+	- make sure setup scripts (for usermode drivers/apps) will
+	  run even without a kernel driver
+
+Fri Mar 30 2001 dbrownell
+	- bugfix match_flags support from Gioele Barabuci; might
+	  require bash2-isms
+	- add kernel 2.2.18 bcdDevice bug workaround (Ben Woodard)
+
+Wed Mar 21 2001 dbrownell
+	- cleanups from Gioele Barabuci
+
+Fri Mar 2 2001 kroah
+	- tweaked the post and preun sections to fix problem of hotplug
+	  not starting automatically when the package is upgraded.
+
+Wed Feb 28 2001 kroah
+	- added keyspan to the list of modules to be unloaded
+	- 2001_02_28 release
+
+Mon Feb 26 2001 dbrownell
+	- more network interface special cases: lo, plip
+	- cleanup, enable '#' comment lines (Gioele Barabuci)
+	- add 'usbcore' and comments to usb.handmap for hub device class
+	- cope with bash1 vs bash2 issue ("unset IFS")
+	- add /etc/hotplug/blacklist
+	- update README 
+
+Fri Feb 23 2001 kroah
+	- added patch from Trond Glomsrød to make the scripts able to
+	  handle i18n properly.  Might not work so well on older
+	  initscript packages, especially non-redhat based systems.
+	  Tweaked the patch to handle different locations of the
+	  'functions' script.
+	  
+Fri Feb 16 2001 kroah
+	- added patch from Trond Glomsrød to keep the ppp, ippp, and isdn 
+	  network interfaces from being called in the network script.
+
+Fri Feb 16 2001 dbrownell
+	- added patch from Adam Richter that removes dependancy on /tmp
+	  being writable.
+
+Wed Feb 14 2001 kroah
+	- 2001_02_14 release
+
+Wed Feb 14 2001	dbrownell
+	-  Fixes some problems seen with Redhat 7 systems when the  partial
+	   USB setup in /etc/rc.sysinit was not disabled.  The failure mode
+	   was that all USB modules got loaded, rather than only modules
+	   for the devices that were connected.
+ 	-  In conjunction with the "usbmodules" and "pcimodules" patches to
+	   "usbutils-0.7" and "pciutils-2.1.8", devices that are connected
+	   at boot time will also be configured.  If you don't have those
+	   utilities, you'll need to plug USB and CardBus devices in after
+	   the system is booted, otherwise they can't be properly
+	   configured.
+
+Tue Jan 23 2001 kroah
+	- 2001_01_23 release
+
+Tue Jan 23 2001 dbrownell
+	- log "ifup" invocations when debugging for net.agent script
+	- address some problems with hotplugging USB on 2.2
+
+Mon Jan 22 2001 Greg Kroah-Hartman <greg@kroah.com>
+	- added this ChangeLog to the project and the spec file.
+
+Wed Jan 17 2001 Greg Kroah-Hartman <greg@kroah.com>
+	- changed specfile based on Chmouel Boudjnah's
+	  <chmouel@mandrakesoft.com> comments.
+
+Tue Jan 16 2001 Greg Kroah-Hartman <greg@kroah.com>
+	- 2001_01_16 release
+	- tweaked the file locations due to the change in the tarball
+	  structure.
+
+Mon Jan 15 2001 Greg Kroah-Hartman <greg@kroah.com>
+	- First cut at a spec file for the hotplug scripts.
+	- added patch to usb.rc to allow chkconfig to install and remove
+	  it.
+

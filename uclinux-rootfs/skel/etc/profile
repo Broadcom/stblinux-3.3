@@ -1,0 +1,3 @@
+[ -e /bin/stty ] && stty brkint erase ^H
+export PATH=.:$PATH
+export PS1='\$ '

@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# set defaults
+loops=1
+mode=none
+tp1=1
+flags=5
+cycle_tp=
+sleep_sec=
+command=
+pm_mode=standby
+cpu_rate=1
+
+function usage
+{
+	echo "pml: power management script version 1.0"
+	echo "Usage: pml [-lN] [-mMODE] [-tchd] [-fX] [-sN] [-rN]"
+	echo "where:"
+	echo "    -lN    - number of loops (decimal:1); negative value - infinite loop"
+	echo "    -mMODE - system suspend debug mode (none, core, platform, devices, freezer:none)"
+	echo "    -d     - deep standby (s3)"
+	echo "    -rN    - change cpu clock divider while executing suspend (1,2,4,8,16 default:1)"
+	echo "    -t     - turn TP1 off before test (no)"
+	echo "    -c     - hotplug-cycle TP1 after each iteration (no)"
+	echo "    -fX    - option flags to pass to system suspend (hex:0)"
+	echo "    -sN    - seconds to sleep between iterations (decimal:0)"
+	echo "    -xCMD  - execute command after each iteration"
+	echo "    -XCMD  - execute command after each iteration, quit if the command fails"
+	echo "    -h     - show this message"
+}
+
+function failure
+{
+	echo "Command \"$command\" failed"
+	exit
+}
+
+quit_on_failure=false
+while getopts "hl:m:tf:cs:x:X:dr:" option
+do
+	case $option in
+	r)
+		cpu_rate=$OPTARG ;;
+	d)
+		pm_mode=mem ;;
+	x)
+		command=$OPTARG ;;
+	X)
+		quit_on_failure=true
+		command=$OPTARG ;;
+	i)
+		interval=$OPTARG ;;
+	l)
+		loops=$OPTARG ;;
+	m)
+		mode=$OPTARG ;;
+	t)
+		tp1=0 ;;
+	f)
+		flags=$OPTARG ;;
+	c)
+		cycle_tp=1 ;;
+	s)
+	sleep_sec=$OPTARG ;;
+	h|*)
+	usage
+	exit ;;
+	esac
+done
+
+if [ ! -f /sys/power/pm_test ] ; then
+	echo "Debug PM is not enabled. To enable partial suspend, rebuild kernel with CONFIG_PM_DEBUG"
+else
+	echo $mode > /sys/power/pm_test
+fi
+
+pmtest tp1 $tp1
+
+function one_pass
+{
+	passnum=$1
+	totalnum=$2	
+	echo Pass $passnum$totalnum, mode=$mode, tp1=$tp1, flags=$flags, cycle_tp=$cycle_tp, sleep=$sleep_sec
+	echo $cpu_rate > /sys/devices/platform/brcmstb/cpu_div
+	echo $flags > /sys/devices/platform/brcmstb/standby_flags
+	echo $pm_mode > /sys/power/state
+	echo 1 > /sys/devices/platform/brcmstb/cpu_div
+	if [ ! -z "$cycle_tp" ] ; then
+		echo "Hotplug-cycling tp1..."
+		pmtest tp1 0; pmtest tp1 1; pmtest tp1 $tp1;
+	fi
+	if [ ! -z "$command" ] ; then
+		eval $command
+		[ $? -ne 0 ] && [ "$quit_on_failure" == "true" ] && failure
+	fi
+	if [ ! -z "$sleep_sec" ] ; then
+		sleep $sleep_sec
+	fi
+	echo "------------------------------"
+}
+
+curloop=0
+if [ "$loops" -lt "0" ] ; then
+        while :
+        do
+                 (( curloop++ ))
+                one_pass $curloop "" 
+        done
+else
+        for curloop in `seq 1 $loops`; do
+                one_pass $curloop " out of $loops"
+        done
+fi
+

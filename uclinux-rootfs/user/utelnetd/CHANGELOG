@@ -1,0 +1,36 @@
+2002-08-02	Robert Schwebel <r.schwebel@pengutronix.de
+
+		- Revision 0.1.3 released
+
+		Gabriel L. Somlo <somlo@cs.colostate.edu>
+		Julien Herfurth <jherfurth@easynet.be>
+
+		- Option '-i <interface>' added: makes it possible to
+		  restrict the access to one interface
+
+
+		Richard Wilson <rich_wilson@agilent.com>
+
+		- Segfault fixed: utelnetd broke when the argument after -l
+		  was no valid executable
+
+
+2002-05-25	Robert Schwebel <r.schwebel@pengutronix.de>
+
+		- Revision 0.1.2 released
+		- typo fixed
+		- Makefile fixed: DEBUG=1 works now 
+		  (thanks to Rich Wilson <rich_wilson@agilent.com>)
+
+
+2002-05-14      Robert Schwebel <r.schwebel@pengutronix.de>
+
+                - Revision 0.1.1 released (initial revision)
+                - port of Joerg Schmitz-Linneweber's telnetd
+                  for busybox
+                - getpty() adapted to devfs
+                - -d switch added (daemonize)
+                - help message added
+
+
+

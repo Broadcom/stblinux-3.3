@@ -1,0 +1,128 @@
+#!/bin/sh
+
+INTERFACE="default"
+CFG_FILE="/etc/moca/moca.conf.${INTERFACE}"
+MOCACTL="/bin/mocactl"
+MOCAD="/bin/mocad"
+
+function parse_opts()
+{
+	PARSING_INIT=1
+	PARSING_CFG=0
+	PARSING_TRACE=0
+
+	INIT_TIME=""
+	ANY_TIME=""
+	TRACE=""
+
+	while [ ! -z "$1" ]; do
+		case "$1" in
+			-c)
+				PARSING_CFG=1
+				PARSING_INIT=0
+				PARSING_TRACE=0
+				;;
+			-t)
+				PARSING_TRACE=1
+				PARSING_CFG=0
+				PARSING_INIT=0
+				;;
+			-i)
+				PARSING_TRACE=0
+				PARSING_CFG=0
+				PARSING_INIT=1
+				;;
+			*)
+				if [ $PARSING_CFG -eq 1 ]; then
+					ANY_TIME="${ANY_TIME}$1 "
+				elif [ $PARSING_INIT -eq 1 ]; then
+					INIT_TIME="${INIT_TIME}$1 " 
+				elif [ $PARSING_TRACE -eq 1 ]; then
+					TRACE="${TRACE}$1 "
+				fi
+				;;
+		esac
+		shift
+	done
+	echo "INIT_TIME=\"${INIT_TIME% }\"" > $CFG_FILE
+	echo "ANY_TIME=\"${ANY_TIME% }\"" >> $CFG_FILE
+	echo "TRACE=\"${TRACE% }\"" >> $CFG_FILE
+	sync
+}
+
+#
+# MAIN
+#
+
+INIT_TIME=""
+ANY_TIME=""
+TRACE=""
+[ -e $CFG_FILE ] && source $CFG_FILE
+
+cmd="$1"
+shift
+
+if [ ! -e $MOCACTL ]; then
+	echo "$0: MoCA utilities are not installed"
+	exit 1
+fi
+
+case "$cmd" in
+	set)
+		parse_opts "$@"
+		exit 0
+		;;
+	
+	show)
+		echo "INIT_TIME: $INIT_TIME"
+		echo "ANY_TIME: $ANY_TIME"
+		echo "TRACE: $TRACE"
+		exit 0
+		;;
+	
+	boot)
+		echo "Starting mocad"
+		$MOCAD -wD
+		$MOCACTL restore_defaults
+		$MOCACTL trace $TRACE
+		$MOCACTL config $ANY_TIME
+		exec $MOCACTL start $INIT_TIME
+		exit 1
+		;;
+
+	kill)
+		killall mocad >& /dev/null
+		sleep 1
+		exit 0
+		;;
+
+	start)
+		$MOCACTL restore_defaults
+		$MOCACTL trace $TRACE
+		$MOCACTL config $ANY_TIME
+		exec $MOCACTL start $INIT_TIME
+		exit 1
+		;;
+	
+	restart)
+		$MOCACTL stop
+		$MOCACTL restore_defaults
+		$MOCACTL trace $TRACE
+		$MOCACTL config $ANY_TIME
+		exec $MOCACTL start $INIT_TIME
+		exit 1
+		;;
+	
+	stop)
+		exec $MOCACTL stop
+		exit 1
+		;;
+esac
+
+echo "usage:"
+echo "  mocacfg set [<init_options>] [-c <config_options>] [-t <trace_options>]"
+echo "  mocacfg show"
+echo "  mocacfg { start | restart | stop }"
+echo "  mocacfg { boot | kill }"
+
+exit 1

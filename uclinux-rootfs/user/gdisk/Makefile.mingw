@@ -1,0 +1,36 @@
+CC=/usr/bin/i586-mingw32msvc-gcc
+CXX=/usr/bin/i586-mingw32msvc-g++
+STRIP=/usr/bin/i586-mingw32msvc-strip
+CFLAGS=-O2 -D_FILE_OFFSET_BITS=64 -g
+CXXFLAGS=-O2 -Wall -D_FILE_OFFSET_BITS=64 -g
+#CXXFLAGS=-O2 -Wall -D_FILE_OFFSET_BITS=64 -I /usr/local/include -I/opt/local/include -g
+LIB_NAMES=guid gptpart partnotes bsd parttypes attributes crc32 mbr gpt support diskio diskio-windows
+LIB_SRCS=$(NAMES:=.cc)
+LIB_OBJS=$(LIB_NAMES:=.o)
+LIB_HEADERS=$(LIB_NAMES:=.h)
+DEPEND= makedepend $(CFLAGS)
+
+all:	gdisk
+
+gdisk:	$(LIB_OBJS) gpttext.o gdisk.o
+	$(CXX) $(LIB_OBJS) gpttext.o gdisk.o -luuid -o gdisk.exe
+
+sgdisk: $(LIB_OBJS) sgdisk.o
+	$(CXX) $(LIB_OBJS) sgdisk.o -lpopt -o sgdisk.exe
+
+lint:	#no pre-reqs
+	lint $(SRCS)
+
+clean:	#no pre-reqs
+	rm -f core *.o *~ gdisk.exe sgdisk.exe
+
+strip:	#no pre-reqs
+	$(STRIP) gdisk.exe
+
+# what are the source dependencies
+depend: $(SRCS)
+	$(DEPEND) $(SRCS)
+
+$(OBJS):
+
+# DO NOT DELETE

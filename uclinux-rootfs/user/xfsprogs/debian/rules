@@ -1,0 +1,82 @@
+#!/usr/bin/make -f
+
+package = xfsprogs
+develop = xfslibs-dev
+bootpkg = xfsprogs-bf
+
+dirtmp = debian/tmp
+dirdev = debian/$(develop)
+dirbfs = debian/$(bootpkg)
+pkgtmp = DIST_ROOT=`pwd`/$(dirtmp); export DIST_ROOT;
+pkgdev = DIST_ROOT=`pwd`/$(dirdev); export DIST_ROOT;
+pkgbfs = DIST_ROOT=`pwd`/$(dirbfs); export DIST_ROOT;
+stdenv = @GZIP=-q; export GZIP;
+
+options = DEBUG=-DNDEBUG; DISTRIBUTION=debian; LOCAL_CONFIGURE_OPTIONS=--enable-readline=yes; export DEBUG DISTRIBUTION LOCAL_CONFIGURE_OPTIONS;
+bfsopts = $(options) OPTIMIZER=-Os; LOCAL_CONFIGURE_OPTIONS="--enable-shared-uuid=yes --enable-gettext=no"; export OPTIMIZER LOCAL_CONFIGURE_OPTIONS;
+checkdir = test -f debian/rules
+
+build: built
+built: bfbuild config
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default
+	touch built
+
+config: .census
+.census:
+	@echo "== dpkg-buildpackage: configure" 1>&2
+	$(checkdir)
+	$(options) $(MAKE) configure
+	touch .census
+
+bfbuild: 
+	$(checkdir)
+	@echo "== dpkg-buildpackage: bootfloppies" 1>&2
+	if [ ! -f mkfs/mkfs.xfs-$(bootpkg) ]; then \
+		$(bfsopts) $(MAKE) configure; \
+		for dir in include libxfs libdisk mkfs; do \
+			$(MAKE) -C $$dir; \
+		done; \
+		mv mkfs/mkfs.xfs mkfs/mkfs.xfs-$(bootpkg); \
+		$(MAKE) distclean; \
+	fi
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f built .census mkfs/mkfs.xfs-$(bootpkg)
+	$(MAKE) distclean
+	-rm -rf $(dirtmp) $(dirdev) $(dirbfs) debian/*substvars debian/files*
+
+binary-indep:
+
+# Note1: dev pkg with .so symlinks to base pkg confuses debstd;
+# so the .so 'Dangling symlink' message is benign.
+# Note2: absolute symlinks (required by policy) confuse debstd;
+# so we'll filter out symlink messages entirely now.
+# 
+binary-arch: checkroot built
+	@echo "== dpkg-buildpackage: binary-arch" 1>&2
+	$(checkdir)
+	-rm -rf $(dirtmp) $(dirdev) $(dirbfs)
+	$(pkgtmp) $(MAKE) -C . install
+	$(pkgdev) $(MAKE) -C . install-dev
+	$(pkgbfs) $(MAKE) -C debian install-boot
+	$(pkgtmp) $(MAKE) -C build src-manifest
+	@echo "== dpkg-buildpackage: debstd" 1>&2
+	$(stdenv) debstd -m | grep -v 'Dangling symlink'
+	dpkg-gencontrol -isp -p$(package) -P$(dirtmp)
+	dpkg-gencontrol -isp -p$(develop) -P$(dirdev)
+	dpkg-gencontrol -isp -p$(bootpkg) -P$(dirbfs)
+	chown -R root.root $(dirtmp) $(dirdev) $(dirbfs)
+	chmod -R go=rX $(dirtmp) $(dirdev) $(dirbfs)
+	dpkg --build $(dirtmp) .. 
+	dpkg --build $(dirdev) ..
+	dpkg --build $(dirbfs) ..
+
+binary: binary-indep binary-arch
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary binary-arch binary-indep clean checkroot

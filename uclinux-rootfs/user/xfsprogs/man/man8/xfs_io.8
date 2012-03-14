@@ -1,0 +1,169 @@
+.TH xfs_io 8
+.SH NAME
+xfs_io \- debug the IO path of an XFS filesystem
+.SH SYNOPSIS
+.nf
+\f3xfs_io\f1 [ \f3\-c\f1 cmd ] ... [ \f3\-p\f1 prog ] [ \f3\-r\f1 ] file
+.fi
+.SH DESCRIPTION
+\f2xfs_io\f1 is a debugging tool like \f2xfs_db\f1(8), but is aimed
+at examining the regular file IO path rather than the raw XFS volume
+itself.
+.PP
+The options to \f2xfs_io\f1 are:
+.TP 10
+\f3\-c\f1 \f2cmd\f1
+\f2xfs_io\f1 commands may be run interactively (the default)
+or as arguments on the command line.
+Multiple \f3\-c\f1 arguments may be given.
+The commands are run in the sequence given, then the program exits.
+This is the mechanism used to implement \f2xfs_bmap\f1(8).
+.TP
+\f3\-p\f1 \f2prog\f1
+Set the program name for prompts and some error messages,
+the default value is \f2xfs_io\f1.
+.TP
+\f3\-r\f1
+Open \f2file\f1 read-only, initially.
+.SH CONCEPTS
+\f2xfs_io\f1 always maintains one current open file in the filesystem.
+This is initially specified on the command line, but alternate files
+can be specified later (one at a time \- see the ``open'' command).
+.PP
+\f2xfs_io\f1 commands can be broken up into two distinct classes.
+Most commands are for doing IO to the file in some way - reads, writes,
+or space preallocation.
+Other commands are for the navigation and display of data structures
+relating to the open file or the filesystem it resides in.
+.SH COMMANDS
+.PP
+Many commands have extensive online help.
+Use the \f3help\f1 command for more details on any command.
+.TP 10
+\f3allocsp\f1 \f2offset\f1 \f2length\f1
+Allocates zeroed space for part of a file using the XFS_IOC_ALLOCSP
+system call described in \f2xfs\f1(5).
+.TP
+\f3freesp\f1 \f2offset\f1 \f2length\f1
+Frees space for part of a file using the XFS_IOC_FREESP
+system call described in \f2xfs\f1(5).
+.TP
+\f3bmap\f1 [ \f2-adlpv\f1 ] [ \f2-n nx\f1 ]
+Prints the block mapping for the open file.
+Refer to \f2xfs_bmap\f1(8) for complete documentation.
+.TP
+\f3fdatasync\f1
+Calls \f2fdatasync\f1(2) to flush the open file's in-core data to disk.
+.TP
+\f3fsync\f1
+Calls \f2fsync\f1(2) to flush all in-core file state to disk.
+.TP
+\f3o\f1
+See the \f3open\f1 command.
+.TP
+\f3open\f1 [ \f2-acdrstx\f1 ] [ \f2path\f1 ]
+Closes the current file, and opens the file specified by \f2path\f1 instead.
+Without any arguments, displays statistics about the currently open file \-
+see the \f3stat\f1 command.
+.br
+The \f3\-a\f1 option opens append-only (O_APPEND).
+.br
+The \f3\-c\f1 option creates the file if it doesn't already exist (O_CREAT).
+.br
+The \f3\-d\f1 option opens for direct IO (O_DIRECT).
+.br
+The \f3\-r\f1 option opens read-only (O_RDONLY).
+.br
+The \f3\-s\f1 option opens for synchronous IO (O_SYNC).
+.br
+The \f3\-t\f1 option truncates on open (O_TRUNC).
+.br
+The \f3\-x\f1 option marks the file as a realtime XFS file after
+opening it, if it is not already marked as such.
+.TP
+\f3pread\f1
+Reads a range of bytes in a specified blocksize from the given offset.
+.br
+The \f3\-b\f1 option can be used to set the blocksize into which the
+\f2read\f1(2) requests will be split.
+The default blocksize is 4096 bytes.
+.br
+The \f3\-v\f1 option will dump the contents of the buffer after reading,
+by default only the count of bytes actually read is dumped.
+.TP
+\f3pwrite\f1
+Writes a range of bytes in a specified blocksize from the given offset.
+The bytes written can be either a set pattern or read in from another
+file before writing.
+.br
+The \f3\-i\f1 option allows an input file to be specified as the source
+of the data to be written.
+.br
+The \f3\-d\f1 option will cause direct IO, rather than the usual buffered
+IO, to be used when reading the input file.
+.br
+The \f3\-s\f1 options specifies the number of bytes to skip from the
+start of the input file before starting to read.
+.br
+The \f3\-b\f1 option can be used to set the blocksize into which the
+\f2read\f1(2) requests will be split.
+The default blocksize is 4096 bytes.
+The \f3\-S\f1 option is used to set the (repeated) fill pattern which
+is used when the data to write is not coming from a file.
+The default buffer fill pattern value is 0xcdcdcdcd.
+.TP
+\f3q\f1
+See the \f3quit\f1 command.
+.TP
+\f3quit\f1
+Exit \f2xfs_io\f1.
+.TP
+\f3r\f1
+See the \f3pread\f1 command.
+.TP
+\f3resblks\f1 [ \f2blocks\f1 ]
+Get and/or set count of reserved filesystem blocks using the
+XFS_IOC_GET_RESBLKS or XFS_IOC_SET_RESBLKS system calls, as
+described in \f2xfs\f1(5).
+Note \-\- this can be useful for exercising out of space behavior.
+.TP
+\f3resvsp\f1 \f2offset\f1 \f2length\f1
+Allocates reserved, unwritten space for part of a file using the XFS_IOC_RESVSP
+system call described in \f2xfs\f1(5).
+.TP
+\f3unresvsp\f1 \f2offset\f1 \f2length\f1
+Frees reserved space for part of a file using the XFS_IOC_UNRESVSP
+system call described in \f2xfs\f1(5).
+.TP
+\f3s\f1
+See the \f3fsync\f1 command.
+.TP
+\f3stat\f1 [ \f2-v\f1 ]
+Selected statistics from \f2stat\f1(2) and the XFS_IOC_GETXATTR
+system call from \f2xfs\f1(5) on the currently open file.
+If the \f2-v\f1 option is specified, the atime (last access), mtime
+(last modify), and ctime (last change) timestamps are also displayed.
+.TP
+\f3statfs\f1
+Selected statistics from \f2statfs\f1(2) and the XFS_IOC_FSGEOMETRY
+system call from \f2xfs\f1(5) on the filesystem where the currently
+open file resides.
+.TP
+\f3truncate\f1 \f2offset\f1
+Truncates the current file at the given offset using \f2ftruncate\f1(2).
+.TP
+\f3w\f1
+See the \f3pwrite\f1 command.
+.SH SEE ALSO
+fdatasync(2),
+fstat(2),
+fstatfs(2),
+fsync(2),
+ftruncate(2),
+mkfs.xfs(8),
+open(2),
+pread(2),
+pwrite(2),
+xfs_bmap(8),
+xfs_db(8),
+xfs(5).

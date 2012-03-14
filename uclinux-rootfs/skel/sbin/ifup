@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -e /etc/config/ifup.$1 ]; then
+	source /etc/config/ifup.$1 "$@"
+else
+	source /etc/config/ifup.default "$@"
+fi
+
+exit 0

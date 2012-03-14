@@ -1,0 +1,39 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* whois.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use whois_BUILD instead of BUILD_WHOIS.
+	
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* .cvsignore: Add Generated headers
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-10-25  Sergey Poznyakoff
+
+	* Makefile.am: Added missing LDADD.
+
+2001-09-05 Sergey Poznyakoff
+
+	* Makefile.am: List built headers in BUILT_SOURCES so the 
+	autodependency code works. Removed $(srcdir)/ prefix from
+	targets: the source directory might not be writable, so its
+	better to build headers in the build directory
+	if they are not present in srcdir. Restored EXTRA_DIST.
+
+2001-08-26  Alain Magloire
+
+	* ChangeLog: New File.
+	* Makefile.am: EXTRA_DIST = as_del.h ip_del.h tld_serv.h
+	So no need to have PERL in the distribution.
+	Add missing dependencies.
+	* whois.c: Guard <config.h> with the appropriate HAVE_CONFIG_H
+	Remove macors GETOP_LONG and HAVE_GETOPT_LONG.  inetutils always
+	provide a version even for platforms missing it.
+
+	* config.h: remove and merge in whois.h

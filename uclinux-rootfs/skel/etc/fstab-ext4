@@ -1,0 +1,4 @@
+/dev/sda1	/	ext4	data=ordered,commit=1,noatime	1 1
+/dev/sda2	swap	swap	noauto				0 0
+/dev/sda3	/opt	ext4	data=ordered,commit=1,noatime	1 2
+/dev/sda4	/data	ext4	data=writeback,commit=5,noatime	1 3

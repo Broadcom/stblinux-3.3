@@ -1,0 +1,1109 @@
+menu "Broadcom STB options"
+	depends on BRCMSTB
+
+
+#####################################################################
+# User options: Chipset selection
+#####################################################################
+
+
+config BRCM_LEGACY
+	bool "Enable legacy platforms"
+	depends on BRCMSTB
+	default n
+	help
+	  Reserved for future use.  Say N.
+
+
+choice
+	prompt "Chipset selection"
+	depends on BRCMSTB
+	help
+	  Select the Broadcom chipset you are building for.
+
+config BCM7231B0
+	bool "7231 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7231
+	select BRCM_HAS_BMIPS4380
+	select BRCM_HAS_XKS01
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_GENET_1
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7344B0
+	bool "7344 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7344
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11_PLUS
+	select BRCM_HAS_MOCA_MIDRF
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7346B0
+	bool "7346 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7346
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_11_PLUS
+	select BRCM_HAS_MOCA_MIDRF
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7358A0
+	bool "7358 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7358
+	select BRCM_HAS_BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7360A0
+	bool "7360 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7360
+	select BRCM_HAS_BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7425B0
+	bool "7425 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7425
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_PCIE
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_20
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_EDU
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	select BRCM_HAS_1GB_MEMC1
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7429A0
+	bool "7429 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7429
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_20
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_6
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_EDU
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	#select BRCM_HAS_AON
+	#select BRCM_PWR_HANDSHAKE_V1
+	#select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7435A0
+	bool "7435 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7435
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_HAS_DUALCORE
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_PCIE
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_20
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_6
+	select BRCM_HAS_NAND_MINOR_2
+	select BRCM_HAS_EDU
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	select BRCM_HAS_1GB_MEMC1
+	#select BRCM_HAS_AON
+	#select BRCM_PWR_HANDSHAKE_V1
+	#select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7445A0
+	bool "7445 Ax"
+	depends on ARM
+	select BRCM_ARM_DEFAULTS
+	select BCM7445
+	select BRCM_UARTA_IS_16550
+	#select BRCM_UARTB_IS_16550
+	#select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	#select BRCM_HAS_PCIE
+	select BRCM_HAS_GENET_0
+	#select BRCM_HAS_MOCA_20
+	#select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	#select BRCM_HAS_NOR
+	#select BRCM_HAS_NAND_MAJOR_6
+	#select BRCM_HAS_NAND_MINOR_0
+	#select BRCM_HAS_EDU
+	#select BRCM_HAS_BSPI_V4
+	#select BRCM_HAS_SDIO_V1
+	#select BRCM_HAS_EMMC
+	#select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	#select BRCM_HAS_2GB_MEMC0
+	#select BRCM_HAS_1GB_MEMC1
+	#select BRCM_HAS_AON
+	#select BRCM_PWR_HANDSHAKE_V1
+	#select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7552B0
+	bool "7552 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7552
+	select BRCM_HAS_BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+endchoice
+
+
+#####################################################################
+# User options: Memory configuration
+#####################################################################
+
+
+comment "Memory map"
+
+
+config BRCM_UPPER_MEMORY
+	bool "Large (>256MB) memory support"
+	depends on BRCM_HAS_UPPER_MEMORY
+	select ARCH_SPARSEMEM_ENABLE
+	select BRCM_UPPER_768MB if BRCM_HAS_XKS01
+	default y
+	help
+	  Say Y to use a special mapping scheme to access the STB's
+	  upper memory (all RAM above 256MB).  This supports up to 512MB
+	  of ZONE_NORMAL memory on 65nm chips, and 1024MB of ZONE_NORMAL
+	  memory on 40nm chips.
+
+	  On chips where HIGHMEM is available, this option should remain
+	  enabled since it will maximize the amount of memory in ZONE_NORMAL.
+
+	  If this option is disabled, you will only be able to use the
+	  first 256MB of RAM on the system (without HIGHMEM).  HIGHMEM is
+	  not available on most STB chips.
+
+	  It is recommended that this option be used in conjuction with
+	  SPARSEMEM (Kernel type -> Memory model -> Sparse memory).
+	  SPARSEMEM conserves about 2MB by omitting the page tables for the
+	  memory hole.
+
+
+config BRCM_OVERRIDE_RAM_SIZE
+	bool "Override memory size detection"
+	depends on BRCMSTB && MIPS
+	default n
+	help
+	  Say Y to use a compile-time default rather than detecting the
+	  RAM size from strap options or reading it from the bootloader.
+
+	  If unsure, say N.
+
+
+config BRCM_FORCED_DRAM0_SIZE
+	int "RAM on primary DRAM controller (MB)"
+	depends on BRCM_OVERRIDE_RAM_SIZE
+	default 32
+	help
+	  How many megabytes of RAM are on the primary DRAM controller?
+
+config BRCM_FORCED_DRAM1_SIZE
+	int "RAM on secondary DRAM controller (MB)"
+	depends on BRCM_OVERRIDE_RAM_SIZE && BRCM_HAS_1GB_MEMC1
+	default 256
+	help
+	  How many megabytes of RAM are on the secondary DRAM controller?
+
+
+#####################################################################
+# User options: Onchip peripherals
+#####################################################################
+
+
+comment "Onchip peripherals"
+	depends on BRCMSTB
+
+
+config BRCM_CONSOLE_DEVICE
+	int "Default serial console device"
+	depends on BRCMSTB
+	default 0
+	range 0 2
+	help
+	  Default UART to use for console output.  This can be overridden with
+	  "console=" on the kernel command line.
+
+	   0 = /dev/ttyS0 or /dev/ttyBCM0 (UARTA)
+	   1 = /dev/ttyS1 or /dev/ttyBCM1 (UARTB)
+	   2 = /dev/ttyS2 or /dev/ttyBCM2 (UARTC)
+
+	  If unsure, choose 0.
+
+
+config BRCM_FLASH
+	bool "Enable onboard flash devices"
+	depends on (BRCM_HAS_NOR || BRCM_HAS_NAND || BRCM_HAS_SPI) && MTD && \
+		!BRCM_IKOS
+	default y
+	help
+	  Say Y to enable NOR/ROM, NAND, and SPI flash devices.  The EBI
+	  and NAND chip select registers will be scanned at boot time to
+	  determine which devices are configured.
+
+	  NOR/ROM will be handled by the standard physmap driver
+	  (CONFIG_MTD_PHYSMAP) in the MTD menus.  NAND is handled by
+	  CONFIG_MTD_BRCMNAND in this menu.
+
+config BRCM_FIXED_MTD_PARTITIONS
+	bool "Use fixed MTD partition map"
+	depends on BRCM_FLASH
+	default n
+	help
+	  Say Y to use the hard-coded flash partition map from
+	  arch/mips/brcmstb/board.c .
+
+	  The default setting (N) constructs the rootfs/kernel partition
+	  boundaries from CFE environment variables.
+
+	  To use this option, please edit board_get_partition_map() and
+	  review brcmstb_mtd_setup().
+
+	  If unsure, say N.
+
+
+config MTD_BRCMNAND
+	tristate "Broadcom NAND controller support"
+	depends on BRCM_HAS_NAND && BRCM_FLASH
+	default y
+	help
+	  Say Y to enable the onchip NAND controller.
+
+
+config SPI_BRCMSTB
+	tristate "Broadcom HIF SPI controller support"
+	default y
+	depends on BRCM_HAS_SPI && BRCM_FLASH && SPI_MASTER
+	help
+	  Say Y to enable support for SPI (serial) flash devices.
+
+
+config BCMGENET
+	tristate "Broadcom STB 10/100/1000 MAC/PHY support"
+	depends on ETHERNET
+	depends on BRCMSTB && (BRCM_HAS_GENET || BRCM_HAS_MOCA) && !BRCM_IKOS
+	default y
+	select CRC32
+	select MII
+	help
+	  Say Y to support the internal 10/100/1000 GENET MAC/PHY on
+	  Broadcom set-top chips.  This driver also supports the datapath
+	  for the onchip MoCA transceiver.
+
+	  If your chipset supports power management, disabling this driver
+	  will keep the device permanently powered down.
+
+if BCMGENET
+	source drivers/net/ethernet/broadcom/genet/Kconfig
+endif
+
+config BRCM_MOCA
+	tristate "Broadcom MoCA character driver"
+	depends on BRCMSTB && BRCM_HAS_MOCA && !BRCM_IKOS
+	default y
+	help
+	  Say Y to build the MoCA control path driver.  This is a simple
+	  character driver that allows the MoCA daemon (mocad) to
+	  initialize and configure the MoCA interface.
+
+	  If your chipset supports power management, disabling this driver
+	  will keep the device permanently powered down.
+
+
+config SATA_BRCMSTB
+	tristate "Broadcom STB SATA support"
+	depends on BRCMSTB && PCI && ATA_SFF && !BRCM_IKOS && \
+		BRCM_HAS_SATA2
+	default y
+	help
+	  This option enables support for STB/DVD onchip SATA cores.
+
+	  If your chipset supports power management, disabling this driver
+	  will keep the device permanently powered down.
+
+	  If unsure, say Y.
+
+
+config BRCM_USB
+	tristate "Broadcom STB USB support"
+	depends on BRCMSTB && USB && !BRCM_IKOS
+	default y
+	help
+	  Say Y to enable the drivers for the onchip USB controllers.
+
+	  If your chipset supports power management, disabling this driver
+	  will keep the device permanently powered down.
+
+config BRCM_OVERRIDE_USB
+	bool "Override USB defaults"
+	depends on BRCM_USB
+	default n
+	help
+	  Say Y to see advanced USB configuration options.
+
+	  Normally the USB driver in the bootloader will enable the
+	  appropriate settings prior to Linux boot, but this step may be
+	  skipped if a customized bootloader is in use.
+
+	  If unsure, say N.
+
+choice
+	prompt "USB VBUS power enable polarity"
+	depends on BRCM_OVERRIDE_USB
+	default BRCM_FORCE_USB_PWR_LO
+
+config BRCM_FORCE_USB_PWR_LO
+	bool "Active low"
+	help
+	  The board's USB VBUS control IC will have either an active low
+	  or an active high enable.  On most Broadcom reference boards,
+	  active low is used; however, on customer designs this may vary.
+	  The output of the hardware signal USBx_PWRON is affected by
+	  this setting, and it applies to all ports and controllers.
+
+config BRCM_FORCE_USB_PWR_HI
+	bool "Active high"
+
+endchoice
+
+choice
+	prompt "USB overcurrent polarity"
+	depends on BRCM_OVERRIDE_USB
+	default BRCM_FORCE_USB_OC_LO
+
+config BRCM_FORCE_USB_OC_LO
+	bool "Active low"
+	help
+	  Controls the handling of the overcurrent indicator line (input
+	  to BCM7xxx).  Active low is typically used when USBx_PWRFLT is
+	  connected to a power switch chip, as is the case on Broadcom
+	  reference boards.  Active high may be used if USBx_PWRFLT is
+	  connected "downstream" from a fuse.
+
+	  This setting applies to all USB ports and controllers.
+
+config BRCM_FORCE_USB_OC_HI
+	bool "Active high"
+
+endchoice
+
+config BRCM_USB_DISABLE_MASK
+	hex "Bitmask of disabled USB hosts"
+	depends on BRCM_OVERRIDE_USB
+	default 0x00
+	help
+	  This is a bitmask to indicate which controllers should be
+	  disabled.  Disabling unused controllers may reduce boot time
+	  and free up system resources.
+
+	  Setting bit 0 will disable the first USB host.
+	  Setting bit 1 will disable the second USB host.
+	  Setting bit 2 will disable the third USB host.
+	  ...
+
+	  If unsure, say 0x00.
+
+
+# NOTE: SDIO_V1 hardware only (vanilla kernel driver sdhci-pltfm.c)
+config BRCM_SDIO
+	bool "Broadcom SDHCI (SDIO) support"
+	depends on BRCM_HAS_SDIO_V1 && MMC_SDHCI && !BRCM_IKOS
+	default y
+	select MMC_SDHCI_IO_ACCESSORS
+	help
+	  Say Y to enable the driver for the onchip SDIO controller.
+
+	  If you do not plan on using this device, disabling CONFIG_MMC
+	  will save about 75KB.
+
+	  If unsure, say Y.
+
+
+config BRCM_PM
+	bool "Power management for onchip peripherals"
+	default y
+	help
+	  Say Y to enable power management (clock gating) for onchip
+	  peripherals like USB, ENET/GENET, MoCA, and SATA.
+
+
+choice
+	prompt "System clocksource"
+	depends on BRCMSTB && MIPS
+	default CSRC_R4K if !SMP && !BRCM_CPU_DIV
+	default CSRC_WKTMR if BRCM_HAS_WKTMR
+	default CSRC_UPG
+	help
+	  The clocksource is used to maintain the real-time clock and
+	  calculate delays.
+
+config CSRC_WKTMR
+	bool "WKTMR"
+	depends on BRCM_HAS_WKTMR
+	help
+	  Say Y to use the 27Mhz "WKTMR" clocksource.  This is usually
+	  the best choice.
+
+config CSRC_R4K
+	bool "CP0 COUNT/COMPARE"
+	depends on !BRCM_CPU_DIV
+	help
+	  Say Y to use the CP0 COUNT/COMPARE timer.  This should not be
+	  used in SMP mode because each CPU (TP) has its own independent
+	  counter which is not coherent with the other TP's counter.
+
+config CSRC_UPG
+	bool "UPG TIMER3"
+	help
+	  Say Y to use the 27Mhz UPG TIMER3 as the system clocksource.
+	  On most older chips with no WKTMR, this is the best
+	  choice.  However, this timer will be owned by the kernel
+	  so applications will not be able to use it.
+
+endchoice
+
+
+#####################################################################
+# User options: Miscellaneous options
+#####################################################################
+
+
+comment "Miscellaneous options"
+	depends on BRCMSTB
+
+# PR10860 - Allow long long types to be used in modules
+config BRCM_LIBGCC
+	bool "Enable libgcc functions"
+	depends on BRCMSTB && MIPS
+	default y
+	help
+	  This will build and export several libgcc functions that are
+	  useful for 64-bit (long long) arithmetic.
+
+	  If unsure, say Y.
+
+
+config BRCM_SCSI_NO_RW10_RETRIES
+	bool "No retries on SCSI READ/WRITE10 command"
+	depends on SCSI
+	default n
+	help
+	  Certain applications prefer minimal retries on reading/writing
+	  bad sectors that will be performed at lower level like libata.
+	  Say Y to abort the transaction early instead of attempting
+	  potentially time-consuming retries.
+
+config BRCM_WLAN_MODULES
+	bool "Enable wireless extensions for external modules"
+	default y
+	select WIRELESS_EXT
+	select WEXT_PRIV
+	help
+	  Say Y to enable support for wireless drivers compiled out of tree.
+
+
+#####################################################################
+# User options: Debugging options
+#####################################################################
+
+
+config BRCM_DEBUG_OPTIONS
+	bool "Debugging options"
+	depends on BRCMSTB
+	default n
+	help
+	  Show extra debugging options.
+
+
+config NO_INLINE
+	bool "Disable inlining"
+	depends on BRCM_DEBUG_OPTIONS
+	default n
+	help
+	  Say Y here if you want to disable inlining.  This can make it easier
+	  to step through disassembled code.
+
+
+config BRCM_IKOS
+	bool "Enable IKOS/Veloce emulation"
+	depends on BRCM_DEBUG_OPTIONS
+	select BRCM_OVERRIDE_RAM_SIZE
+	help
+	  Configure kernel for IKOS/Veloce emulation.  This has the
+	  following effects:
+
+	  Disable any drivers not supported in emulation
+	  Prevent UART drivers from changing the divisor set by the bootloader
+
+config BRCM_IKOS_DEBUG
+	bool "Extra debug output during boot"
+	depends on BRCM_IKOS
+	default y
+	help
+	  Enable additional debugging output on the console by adding
+	  "initcall_debug debug" to the kernel command line.  This will slow
+	  down the emulation but can help troubleshoot boot failures.
+
+
+#####################################################################
+# Hidden options: MIPS
+#####################################################################
+
+
+config BRCM_HAS_BMIPS3300
+	bool
+	select SYS_HAS_CPU_BMIPS3300
+	select BRCM_CPU_DIV
+
+config BRCM_HAS_BMIPS4380
+	bool
+	select SYS_HAS_CPU_BMIPS4380
+	select BRCM_CPU_DIV
+
+config BRCM_HAS_BMIPS5000
+	bool
+	select SYS_HAS_CPU_BMIPS5000
+	select BRCM_CPU_DIV
+	select BRCM_ZSCM_L2
+	select SYS_SUPPORTS_HIGHMEM
+
+
+#####################################################################
+# Hidden options: UART
+#####################################################################
+
+
+config BRCM_HAS_16550
+	bool
+	select SERIAL_8250
+	select SERIAL_8250_CONSOLE
+
+config BRCM_HAS_UARTA
+	bool
+
+config BRCM_HAS_UARTB
+	bool
+
+config BRCM_HAS_UARTC
+	bool
+
+config BRCM_UARTA_IS_16550
+	bool
+	select BRCM_HAS_16550
+	select BRCM_HAS_UARTA
+
+config BRCM_UARTB_IS_16550
+	bool
+	select BRCM_HAS_16550
+	select BRCM_HAS_UARTB
+
+config BRCM_UARTC_IS_16550
+	bool
+	select BRCM_HAS_16550
+	select BRCM_HAS_UARTC
+
+
+#####################################################################
+# Hidden options: Onchip peripherals/capabilities
+#####################################################################
+
+
+config BRCM_HAS_PCIE
+	bool
+	select HW_HAS_PCI if !BRCM_IKOS
+
+config BRCM_GENET_V1
+	bool
+
+config BRCM_GENET_V2
+	bool
+
+config BRCM_GENET_V3
+	bool
+
+config BRCM_GENET_VERSION
+	int
+	default 1 if BRCM_GENET_V1
+	default 2 if BRCM_GENET_V2
+	default 3 if BRCM_GENET_V3
+
+# standalone or MoCA GENET controller
+config BRCM_HAS_GENET
+	bool
+
+# select for standalone GENET_0
+config BRCM_HAS_GENET_0
+	bool
+	select BRCM_HAS_GENET
+
+# select for standalone GENET_1
+config BRCM_HAS_GENET_1
+	bool
+	select BRCM_HAS_GENET
+
+# MoCA controller
+config BRCM_HAS_MOCA
+	bool
+
+# Original MoCA 1.1
+config BRCM_HAS_MOCA_11
+	bool
+	select BRCM_HAS_MOCA
+
+# Cost-reduced MoCA 1.1 with limited TX RAM
+config BRCM_HAS_MOCA_11_LITE
+	bool
+	select BRCM_HAS_MOCA
+
+# MoCA 1.1 with selected 2.0 features
+config BRCM_HAS_MOCA_11_PLUS
+	bool
+	select BRCM_HAS_MOCA
+
+# MoCA 2.0
+config BRCM_HAS_MOCA_20
+	bool
+	select BRCM_HAS_MOCA
+
+config BRCM_MOCA_VERS
+	hex
+	default 0x1100 if BRCM_HAS_MOCA_11
+	default 0x1101 if BRCM_HAS_MOCA_11_LITE
+	default 0x1102 if BRCM_HAS_MOCA_11_PLUS
+	default 0x2000 if BRCM_HAS_MOCA_20
+
+# select for MoCA on GENET_0
+config BRCM_MOCA_ON_GENET_0
+	bool
+	select BRCM_HAS_GENET_0
+
+# select for MoCA on GENET_1
+config BRCM_MOCA_ON_GENET_1
+	bool
+	select BRCM_HAS_GENET_1
+
+# MoCA is MidRF (default is HighRF)
+config BRCM_HAS_MOCA_MIDRF
+	bool
+
+config BRCM_HAS_DVD
+	bool
+
+config BRCM_HAS_SATA
+	bool
+
+config BRCM_HAS_SATA2
+	bool
+	select BRCM_HAS_SATA
+	select HW_HAS_PCI if !BRCM_IKOS
+
+config BRCM_HAS_SATA3
+	bool
+	select BRCM_HAS_SATA
+	select SATA_AHCI_PLATFORM if ATA
+
+config BRCM_SATA_75MHZ_PLL
+	bool
+	default n
+
+config BRCM_SATA_SINGLE_PORT
+	bool
+	default n
+
+config BRCM_HAS_NOR
+	bool
+
+config BRCM_HAS_NAND_MINOR_0
+	bool
+
+config BRCM_HAS_NAND_MINOR_1
+	bool
+
+config BRCM_HAS_NAND_MINOR_2
+	bool
+
+config BRCM_HAS_NAND_MINOR_3
+	bool
+
+config BRCM_HAS_NAND_MINOR_4
+	bool
+
+# major versions 0, 1, 2 are unsupported.
+config BRCM_HAS_NAND_MAJOR_0
+	bool
+
+config BRCM_HAS_NAND_MAJOR_1
+	bool
+
+config BRCM_HAS_NAND_MAJOR_2
+	bool
+
+config BRCM_HAS_NAND_MAJOR_3
+	bool
+	select BRCM_HAS_NAND
+
+config BRCM_HAS_NAND_MAJOR_4
+	bool
+	select BRCM_HAS_NAND
+
+config BRCM_HAS_NAND_MAJOR_5
+	bool
+	select BRCM_HAS_NAND
+
+config BRCM_HAS_NAND_MAJOR_6
+	bool
+	select BRCM_HAS_NAND
+
+
+config BRCMNAND_MAJOR_VERS
+	int
+	default "6" if BRCM_HAS_NAND_MAJOR_6
+	default "5" if BRCM_HAS_NAND_MAJOR_5
+	default "4" if BRCM_HAS_NAND_MAJOR_4
+	default "3" if BRCM_HAS_NAND_MAJOR_3
+	default "2" if BRCM_HAS_NAND_MAJOR_2
+	default "1" if BRCM_HAS_NAND_MAJOR_1
+	default "0" if BRCM_HAS_NAND_MAJOR_0
+
+config BRCMNAND_MINOR_VERS
+	int
+	default "4" if BRCM_HAS_NAND_MINOR_4
+	default "3" if BRCM_HAS_NAND_MINOR_3
+	default "2" if BRCM_HAS_NAND_MINOR_2
+	default "1" if BRCM_HAS_NAND_MINOR_1
+	default "0" if BRCM_HAS_NAND_MINOR_0
+
+config BRCM_HAS_NAND
+	bool
+
+config BRCM_HAS_EDU
+	bool
+
+config BRCM_HAS_SPI
+	bool
+
+# v2 is not supported on 2.6.31
+config BRCM_HAS_BSPI_V2
+	bool
+
+config BRCM_HAS_BSPI_V3
+	bool
+	select BRCM_HAS_SPI
+
+config BRCM_HAS_BSPI_V4
+	bool
+	select BRCM_HAS_SPI
+
+config BRCM_BSPI_MAJOR_VERS
+	int
+	default "4" if BRCM_HAS_BSPI_V4
+	default "3" if BRCM_HAS_BSPI_V3
+	default "2" if BRCM_HAS_BSPI_V2
+
+config BRCM_HAS_WKTMR
+	bool
+
+config BRCM_HAS_SDIO
+	bool
+
+# V0 hardware is ignored on 2.6.37+
+config BRCM_HAS_SDIO_V0
+	bool
+
+config BRCM_HAS_SDIO_V1
+	bool
+	select BRCM_HAS_SDIO
+
+config BRCM_HAS_EMMC
+	bool
+
+config BRCM_ZSCM_L2
+	bool
+	select MIPS_CPU_SCACHE
+
+# PM: adjustable CPU clock divisor
+config BRCM_CPU_DIV
+	bool
+
+# PM: low power "halt" state with IR wakeup
+config BRCM_IRW_HALT
+	bool
+
+# MIPS: extended kseg0/kseg1 feature
+config BRCM_HAS_XKS01
+	bool
+
+# MIPS: eXecute Inhibit (for no-exec stack)
+config BRCM_HAS_XI
+	bool
+
+# MIPS: 2-core * 2-thread = 4-way SMP (BMIPS5200)
+config BRCM_HAS_DUALCORE
+	bool
+
+config BRCM_HAS_UPPER_MEMORY
+	bool
+
+config BRCM_UPPER_768MB
+	bool
+	select XKS01
+
+# physical address maps supporting 256MB, 512MB, or 1GB on MEMC0
+config BRCM_HAS_1GB_MEMC0
+	bool
+
+# physical address map supporting 2GB on MEMC0
+config BRCM_HAS_2GB_MEMC0
+	bool
+
+# MEMC1 is accessible to the CPU and all Linux peripherals
+config BRCM_HAS_1GB_MEMC1
+	bool
+
+config BRCM_HAS_ANALOG_DDR_PHY
+	bool
+
+config BRCM_HAS_DIGITAL_DDR_PHY
+	bool
+
+config BRCM_HAS_STANDBY
+	bool
+
+config BRCM_HAS_AON
+	bool
+	select BRCM_HAS_STANDBY
+
+# no handshake (no bsp_rdy signal) means the SW has to manually set SSPD
+config BRCM_PWR_HANDSHAKE
+	bool
+
+# 40nm A0; 65nm
+config BRCM_PWR_HANDSHAKE_V0
+	bool
+	select BRCM_PWR_HANDSHAKE
+
+# 40nm B0
+config BRCM_PWR_HANDSHAKE_V1
+	bool
+	select BRCM_PWR_HANDSHAKE
+
+# USB_CAPS controller enumeration - 40nm
+config BRCM_HAS_USB_CAPS
+	bool
+
+config BRCM_MIPS_DEFAULTS
+	bool
+	select SYS_SUPPORTS_32BIT_KERNEL
+	select SYS_SUPPORTS_BIG_ENDIAN
+	select SYS_SUPPORTS_LITTLE_ENDIAN
+	select SYS_HAS_EARLY_PRINTK
+	select SERIAL
+	select SYS_SUPPORTS_KGDB
+	select CEVT_R4K
+	select BOOT_RAW
+	select CFE
+	# select ARCH_SUSPEND_POSSIBLE
+
+config BRCM_ARM_DEFAULTS
+	bool
+	select ARCH_REQUIRE_GPIOLIB
+	select ARM_PATCH_PHYS_VIRT
+	select ARM_VIC
+	select CPU_V7
+	select DW_APB_TIMER
+	select GENERIC_CLOCKEVENTS
+	select GENERIC_GPIO
+	select HAVE_SCHED_CLOCK
+	select HAVE_TCM
+	select NO_IOPORT
+	select SPARSE_IRQ
+	select USE_OF
+
+
+#####################################################################
+# Hidden options: Chip shortcuts
+#####################################################################
+
+
+config BCM7231
+	bool
+
+config BCM7344
+	bool
+
+config BCM7346
+	bool
+
+config BCM7358
+	bool
+
+config BCM7360
+	bool
+
+config BCM7425
+	bool
+
+config BCM7429
+	bool
+
+config BCM7435
+	bool
+
+config BCM7445
+	bool
+
+config BCM7552
+	bool
+
+endmenu

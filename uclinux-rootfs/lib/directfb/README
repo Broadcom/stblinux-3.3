@@ -1,0 +1,181 @@
+DirectFB README
+---------------
+
+   This is a developers release of DirectFB.
+
+   DirectFB is a graphics library which was designed with embedded systems 
+   in mind. It offers maximum hardware accelerated performance at a
+   minimum of resource usage and overhead. 
+
+   Check http://www.directfb.org/ for more and uptodate infos.
+
+
+Requirements
+------------
+
+   - Linux kernel 2.2.x or newer with working frame buffer device
+     (check /proc/fb).
+
+   - freetype (version >= 2.0.1)
+   - libpng2
+   - libjpeg62
+   - zlib
+
+   The build of the image and font providers can be disabled but we
+   strongly suggest that you don't do this since the code examples and a
+   lot of DirectFB apps depend on the functionality provided by them.
+
+   The video providers require some libraries (avifile, libflash and
+   libmpeg3) that are not commonly installed. We have provided packages
+   on our web-site at http://www.directfb.org/download/contrib/. If for
+   some reason the build of one of the video providers fails, you can
+   disable it explicitely. Check the output of 'configure --help'.
+
+
+Additional Requirements for some Demos
+--------------------------------------
+
+   - A PS/2 or serial mouse (MS protocol) for windowing, USB and ADB mice
+     also work via PS/2 emulation.
+     Please stop gpm before using the mouse in DirectFB.
+   - A video card supported by video4linux for df_video.
+   - A joystick for df_joystick.
+
+
+Recommendations
+---------------
+
+   To take full advantage of hardware acceleration, 
+   a Matrox G200/G400/G450/G550 graphics card is recommened for this 
+   version of DirectFB. The drivers for ATI128, Voodoo 3/4/5/Banshee,
+   NeoMagic and S3 Savage cards included with this release are work in
+   progress and only yet support a subset of the possible accelerations.
+
+
+Installation
+------------
+
+   1) In the DirectFB directory type:
+
+	./configure
+	make
+	make install (as superuser)
+
+      Use 'configure --help' to get a list of possible configure options. 
+
+   2) Make sure that /usr/local/lib is listed in your /etc/ld.so.conf.
+      If you added it you have to run 'ldconfig' as superuser.
+
+   3) Copy fb.modes to /etc or merge it with your existing /etc/fb.modes
+      file. The first entry will be used by default - copy other entries
+      you may need.
+
+   4) If you want to use a serial mouse, create a link called /dev/mouse
+      that points to serial device (e.g. /dev/ttyS0). Then add a line
+      describing your mouse-protocol to /etc/directfbrc or ~/.directfbrc:
+      "mouse-protocol=[ms|ms3|mouseman|mousesystems]".
+
+   5) If you are cross compiling and have installed the required libraries
+      someplace other than /usr/local/lib be sure to add the bin directory
+      for those libraries to the front of your 'PATH'.
+
+        For instance if you configured using:
+          --prefix=/dfb/usr/local
+        then be sure to
+          export PATH=/dfb/usr/local/bin:$PATH
+        before compiling and installing.
+
+
+Configuring the Linux framebuffer device
+----------------------------------------
+
+   DirectFB needs a Linux kernel with framebuffer support. Check the 
+   documentation in the kernel tree (/usr/src/linux/Documentation/fb/) on 
+   how to enable the framebuffer device for your graphics card. 
+
+   The generic vesa fbdev driver does not support mode switching and you 
+   will not get hardware acceleration. To make DirectFB work with veasfb, 
+   you should add the following lines to /etc/lilo.conf:
+
+	append="video=vesa:ywrap,mtrr"
+
+   'ywrap' enables panning with wraparound.
+   'mtrr' enables setting caching type for the framebuffer to write-combining.
+
+	vga=791
+
+   This sets the mode on startup. 791 means 1024x768@16, 788 means 800x600@16.
+
+   All VESA Video Modes:
+
+   Bits    640x480 800x600 1024x768 1280x1024 1600x1200
+   8       769     771     773      775       796
+   16      785     788     791      794       798
+   32      786     789     792      795       799
+
+   Other framebuffer devices support mode switching. DirectFB will only 
+   support modes listed in your /etc/fb.modes file. By default the first 
+   entry found is used. Make sure that it is a mode with at least 15bpp 
+   bitdepth (16bpp recommened).
+
+   If you have a Matrox G200/G400 you may try the highly experimental vsync 
+   patch found in the patches/ directory that enables applications to 
+   "idle wait" for the vertical retrace.
+
+Documentation
+-------------
+
+   A complete API reference documentation in HTML format is created during 
+   the build in the docs directory. You may also access the API reference
+   as well as a concepts overview, tutorials and the FAQ online at
+   http://www.directfb.org/documentation/. 
+
+
+Thanks to
+---------
+
+   Johannes Zellner <johannes@zellner.org>
+   Till Adam <till@adam-lilienthal.de>
+   Joachim Steiger <roh@hyte.de>
+   Felix von Leitner <leitner@fefe.de>
+   Johannes Stezenbach <js@convergence.de>
+   Michael Natterer <mitch@convergence.de>
+   Holger Waechtler <holger@convergence.de>
+   Kim JeongHoe <king@mizi.com>
+   Jason Gaiser <jasno@san.rr.com>
+   W. Michael Petullo <mike@flyn.org>
+   Jiri Svoboda <Jiri.Svoboda@seznam.cz>
+   Hallvar Helleseth <hallvar@ii.uib.no>
+   Topi Kanerva <topi.kanerva@eke.fi>
+   Daniel Mack <daniel@convergence.de>
+   Ara Hacopian <ahacop@anthrotronix.com>
+   Mike Haertel <mike@albert.ai.mit.edu>
+   Enno Brehm <enno@convergence.de>
+   Martin Mueller <mm@convergence.de>
+   Sebastian Klemke <packet@convergence.de>
+   Fredrik Hallenberg <hallon@lysator.liu.se>
+   Antonino Daplas <adaplas@users.sourceforge.net>
+   Scott A McConnell <samcconn@cotw.com>
+   Alex SONG <zzaleson@uqconnect.net>
+   Ville Syrjala <syrjala@sci.fi>
+   Brian J. Murrell <a40e8119bbddbe7b3d281db117f19b32@interlinx.bc.ca>
+   Tim Janik <timj@gtk.org>
+
+
+Legal stuff
+-----------
+
+   (c) Copyright 2000-2002  convergence integrated media GmbH.
+   (c) Copyright 2002       convergence GmbH.
+   All rights reserved.
+
+   Written by Denis Oliver Kropp <dok@directfb.org> and
+              Andreas Hundt <andi@fischlustig.de> and
+              Sven Neumann <neo@directfb.org>.
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+
+   The complete text of the license is found in the file COPYING. 

@@ -1,0 +1,21 @@
+Makefile
+config.h
+config.log
+config.status
+gdbreplay
+gdbserver
+stamp-h
+stamp-xml
+version.c
+xml-builtin.c
+
+# MIPS
+mips-linux.c
+mips64-linux.c
+
+# ARM
+arm-with-iwmmxt.c
+arm-with-neon.c
+arm-with-vfpv2.c
+arm-with-vfpv3.c
+reg-arm.c

@@ -1,0 +1,40 @@
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
+
+        * icmp.h: Fixed coding style to comply with GNU.
+	* icmp_address.c: Likewise.
+	* icmp_cksum.c: Likewise.
+	* icmp_echo.c: Likewise.
+	* icmp_timestamp.c: Likewise.
+	* libping.c: Likewise.
+	* ping.h: Likewise.
+
+2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
+	Patches by Alain:
+	* icmp_cksum.c,icmp_echo.c,icmp_timestamp.c,libping.c:
+		use <signal.h> instead of <sys/signal.h>,
+		truncate pid_t before using as ping_ident.
+
+2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
+	* icmp_timestamp.c: forgotten to commit yesterday :^)
+	* ping.h: changed counters in struct PING from int to longs.
+	* icmp.h,libping.c,
+
+2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
+	* Makefile.am: added icmp_address.c
+	* icmp_address.c: added.
+	* icmp.h: added new protos
+	* icmp_echo.c: eliminated unused variable
+	* icmp_timestamp.c: implemented
+	* libping.c: changes too numerous to mention.
+	* ping.h: reflect changes to libping.c
+
+2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
+	* libicmp(Makefile.am, icmp.h, icmp_cksum.c, icmp_echo.c,
+	  icmp_timestamp.c,libping.c,ping.h): added to repository.
+	  Currently it is more libping than libicmp, I will be adding
+          required functionality latter.
+

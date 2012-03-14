@@ -1,0 +1,8 @@
+#
+# MIPS bmips5000 possible unit masks
+#
+name:tp type:bitmask default:0x0
+	0x0 TP0 and TP1
+	0x1 TP0 only
+	0x2 TP1 only
+	0x3 TP0 and TP1

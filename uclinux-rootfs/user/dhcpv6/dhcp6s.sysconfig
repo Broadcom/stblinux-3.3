@@ -1,0 +1,4 @@
+# specify the interface for dhcp6s
+DHCP6SIF=
+# Command line options here
+DHCP6CARGS=

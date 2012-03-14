@@ -1,0 +1,97 @@
+.TH HOTPLUG 8 "August 2002" "" "Linux Programmer's Manual"
+.SH NAME
+hotplug \- Linux hotplugging support scripts
+.SH SYNOPSIS
+.B hotplug
+[ help | --help |
+.I NAME
+]
+.P
+.B /etc/init.d/hotplug
+[start|stop|status|restart]
+.SH "DESCRIPTION"
+.B hotplug
+is a program which is used by the kernel to notify user mode software
+when some significant (usually hardware-related) events take place.
+An example is when a USB or Cardbus device has just been plugged in.
+This is useful for automatically loading and setting up drivers,
+packaged either as kernel modules or as user mode programs.
+.P
+The hotplug program path name is registered in
+.IR /proc/sys/kernel/hotplug ,
+and normally holds the value
+.IR /sbin/hotplug .
+Except for specialized configurations such as
+.BR initrd (4)
+configurations,
+that identifies a shell script which delegates to specific "policy agents",
+.IR /etc/hotplug/NAME.agent .
+The name of the agent is given by the kernel as the first command-line
+parameter.  The name corresponds to a specific kernel subsystem whose
+events it processes (e.g. "usb", "pci", "net" etc.).
+.P
+Information about an event is passed in the form of environment variables.
+Most agents accept a "ACTION" variable that describes the type of the event.
+It is set to "add" or "remove" to signify that some device has just been
+connected to or disconnected from the system.
+.br
+The location of the device is provided in the variable "DEVPATH".
+With kernel version 2.5 and later it is set to the corresponding sysfs device
+path without the mountpoint but a leading slash.
+.P
+.B hotplug
+agents aren't necessarily called only by the kernel though.  While the OS
+is initializing, the "cold-plugging" case, the hotplug script in
+.I /etc/init.d/hotplug
+is invoked to make sure that all device connected at boot are properly
+configured, applying the same rules as if they were connected later.
+.P
+Hotplug agents should be used to dynamically adapt to system
+configuration changes.
+It helps to think of them as just delivering events from
+different layers of the Linux software.
+So low level bus framework code will deliver events when new physical
+devices are  plugged in, and bus agents make sure the 
+device's driver is loaded, configured, and activated.
+(They use
+.BR depmod (8)
+style device descriptions, used among other things to publish
+MODULE_DEVICE_TABLE entries found in
+the source to kernel mode device drivers.)
+Then other layers in the Linux stack will take over, reporting
+higher level events like "there is a new network interface".
+Agents at those levels tend to have more complex tasks.
+.P
+When used during system initialization, hotplugging may be
+called "coldplugging" to highlight certain problems.
+For example, program files and data needed to run hotplug
+agents might be on filesystems that aren't yet available.
+.SH "FILES"
+.nf
+.ft B
+.ft
+/lib/modules/*/modules.*map      depmod output
+/proc/sys/kernel/hotplug         specifies hotplug program path
+/sbin/hotplug                    hotplug program (default path name)
+/etc/hotplug/*                   hotplug files
+/etc/hotplug/NAME.agent          hotplug subsystem-specific agents
+/etc/hotplug/NAME*               subsystem-specific files, for agents
+/etc/hotplug/NAME/DRIVER         driver setup scripts, invoked by agents
+/etc/hotplug/usb/DRIVER.usermap  depmod data for user-mode drivers
+/etc/init.d/hotplug              hotplug system service script
+.fi
+.LP
+.SH "SEE ALSO"
+.BR initrd "(4) "
+.PP
+The
+.I http://linux-hotplug.sourceforge.net/
+web site.
+.SH AUTHORS
+hotplug is developed by Linux Hotplugging Project
+.I http://linux-hotplug.sourceforge.net/
+.LP
+This manual page was originally
+written by Fumitoshi UKAI <ukai@debian.or.jp>,
+for the Debian GNU/Linux system (but may be used by others), based
+on original Japanese version of manpage.

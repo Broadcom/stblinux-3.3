@@ -1,0 +1,71 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* rlogin.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use rlogin_BUILD instead of
+	BUILD_RLOGIN.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-11-22  Sergey Poznyakoff
+
+	* rlogin.c: Fixed syntax error: sizeof int. Should be:
+        sizeof(int).
+
+2001-11-03  Alain Magloire
+
+	* rlogin.c: Removed copyryght and sccsid.
+	#include <err.h>.
+	short_options add -V.
+	(main): Check if we are setuid root, if not
+	bail out early.
+	(usage): Add -l, -V and -h info.
+
+2001-11-03  Alain Magloire
+
+	* rlogin.c: #include <version.h>
+	Reindent to comply to GNU coding style.
+	Implemented long version options.
+	Call seteeuid() not only setuid() when rcmd is finish.
+	Get rid of __STDC__ for function prototype, it was not
+	use consistently anyways.
+	Nuked -L option 'litout' the code was commented out
+	and nowadays nobody cares.
+	(usage): Changed for long option output.
+
+2001-10-28  Alain Magloire
+
+	Unfortunately some platforms, like QNX/Neutrino does not implement flow
+	control packet mode TIOCPKT.  If it is not defined, provide the
+	constant. It should not affect the functionnality, but the server
+	will not be able to process CTRL-Q CTRL-S.
+
+	* rlogin/rlogin.c: Define the  macros TIOCPKT_XXX.
+	(speed_translate): This did not work on QNX/Neutrino, since we were
+	assuming things that does not hold true.  We were assuming that B0,
+	B50 etc .. were ascending constant corresponding to 0, 1, etc ...
+	This is not portable POSIX only says that cfgetispeed() return
+	symbolic functions. To correct use approximatively the same code in
+	telnet/sys_bsd.c.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."

@@ -1,0 +1,660 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(include/directfb.h)
+
+# Save this values here, since automake will set cflags later
+cflags_set="${CFLAGS}set"
+cxxflags_set="${CXXFLAGS}set"
+
+#
+# Making releases:
+#   DIRECTFB_MICRO_VERSION += 1;
+#   DIRECTFB_INTERFACE_AGE += 1;
+#   DIRECTFB_BINARY_AGE += 1;
+# if any functions have been added, set DIRECTFB_INTERFACE_AGE to 0.
+# if backwards compatibility has been broken,
+# set DIRECTFB_BINARY_AGE and DIRECTFB_INTERFACE_AGE to 0.
+#
+DIRECTFB_MAJOR_VERSION=0
+DIRECTFB_MINOR_VERSION=9
+DIRECTFB_MICRO_VERSION=13
+DIRECTFB_INTERFACE_AGE=0
+DIRECTFB_BINARY_AGE=0
+DIRECTFB_VERSION=$DIRECTFB_MAJOR_VERSION.$DIRECTFB_MINOR_VERSION.$DIRECTFB_MICRO_VERSION
+
+AC_SUBST(DIRECTFB_MAJOR_VERSION)
+AC_SUBST(DIRECTFB_MINOR_VERSION)
+AC_SUBST(DIRECTFB_MICRO_VERSION)
+AC_SUBST(DIRECTFB_INTERFACE_AGE)
+AC_SUBST(DIRECTFB_BINARY_AGE)
+AC_SUBST(DIRECTFB_VERSION)
+
+AC_DEFINE_UNQUOTED(DIRECTFB_VERSION,"$DIRECTFB_VERSION",[The DirectFB version])
+
+# libtool versioning
+LT_RELEASE=$DIRECTFB_MAJOR_VERSION.$DIRECTFB_MINOR_VERSION
+LT_CURRENT=`expr $DIRECTFB_MICRO_VERSION - $DIRECTFB_INTERFACE_AGE`
+LT_REVISION=$DIRECTFB_INTERFACE_AGE
+LT_AGE=`expr $DIRECTFB_BINARY_AGE - $DIRECTFB_INTERFACE_AGE`
+
+AC_SUBST(LT_RELEASE)
+AC_SUBST(LT_CURRENT)
+AC_SUBST(LT_REVISION)
+AC_SUBST(LT_AGE)
+
+# The earliest version that this release has binary compatibility with.
+# This is used for module locations.
+BINARY_VERSION=$DIRECTFB_MAJOR_VERSION.$DIRECTFB_MINOR_VERSION.$LT_CURRENT
+
+
+VERSION=$DIRECTFB_VERSION
+PACKAGE=DirectFB
+
+AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
+
+AM_CONFIG_HEADER(config.h)
+AM_MAINTAINER_MODE
+AC_DISABLE_STATIC
+AM_PROG_LIBTOOL
+AM_SANITY_CHECK
+AC_ISC_POSIX
+AM_PROG_CC_STDC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_HEADER_STDC
+AC_C_CONST
+
+AC_PATH_PROGS(PERL, perl5 perl)
+
+
+DFB_CFLAGS="-D_REENTRANT"
+
+
+dnl Linux framebuffer
+AC_CHECK_HEADER(linux/fb.h,,
+  AC_MSG_ERROR([
+*** DirectFB requires Linux with framebuffer support.]))
+
+dnl Threads
+AC_CHECK_LIB(pthread, pthread_attr_init, ,
+  AC_MSG_ERROR([
+*** DirectFB requires libpthread.]))
+
+dnl Dynamic Linker
+if test x$enable_shared = xyes; then
+  AC_CHECK_LIB(dl, dlopen, ,
+    AC_MSG_ERROR([
+*** DirectFB requires libdl.]))
+fi
+
+if test "x$GCC" = xyes; then
+  DFB_CFLAGS="$DFB_CFLAGS -ffast-math -Wall"
+fi
+
+#
+# check target architecture
+#
+have_x86=no
+
+case x"$target" in
+  i*86-*-*)
+    have_x86=yes
+    AC_DEFINE(ARCH_X86,1,[Define to 1 if you are compiling for ix86.])
+    ;;
+
+  mipsel-*)
+    AC_DEFINE(ARCH_MIPS,1,[Define to 1 if you are compiling for MIPS.])
+    ;;
+
+  xNONE | x)
+    target="$host" 
+    ;;
+  *)
+    ;;
+esac
+
+if test "x$have_x86" = xyes; then
+##
+## HACK HACK HACK automake uses @AS@ like a gcc
+##
+  AS=$CC
+  ASFLAGS=$CFLAGS
+  AC_SUBST(AS)
+  AC_SUBST(ASFLAGS)
+
+  AC_DEFINE(HAVE_INB_OUTB_IOPL,1,
+            [Define to 1 if inb, outb and iopl are available.])
+  AC_MSG_CHECKING([for sysio.h])
+  AC_TRY_COMPILE([#include <sys/io.h>], [char x = inb(0);], 
+    AC_DEFINE(HAVE_SYSIO,1,
+              [Define to 1 if you have the <sys/io.h> header file.])
+    neomagic="yes"
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+else
+  neomagic=no
+fi
+
+dnl Necessary for assembler sources
+save_ac_ext="$ac_ext"
+ac_ext=S
+
+
+AC_ARG_ENABLE(profiling, [  --enable-profiling      enable profiling support [default=no]],,enable_profiling=no)
+if test "x$enable_profiling" = xyes; then
+    DFB_CFLAGS="$DFB_CFLAGS -pg -g3"
+fi
+
+
+AC_ARG_ENABLE(debug, [  --enable-debug          enable debugging support [default=no]],,enable_debug=no)
+if test "x$enable_debug" = xyes; then
+    AC_DEFINE(DFB_DEBUG,1,[Define to 1 if you want debugging support.])
+    DFB_INTERNAL_CFLAGS="$DFB_INTERNAL_CFLAGS -DDFB_DEBUG"
+    DFB_CFLAGS="$DFB_CFLAGS -O3 -g3"
+else
+    DFB_CFLAGS="$DFB_CFLAGS -O3"
+    if test "x$enable_profiling" = xno; then
+        DFB_CFLAGS_OMIT_FRAME_POINTER="-fomit-frame-pointer"
+    fi
+fi
+AM_CONDITIONAL(ENABLE_DEBUG, test "x$enable_debug" = xyes)
+
+
+AC_ARG_ENABLE(multi, [  --enable-multi          enable experimental multi application core [default=no]],,enable_multi=no)
+if test "x$enable_multi" = xyes; then
+    AC_MSG_WARN([
+
+*** Multi application support is highly experimental, you have been warned. ***
+
+])
+else
+    DFB_INTERNAL_CFLAGS="$DFB_INTERNAL_CFLAGS -DFUSION_FAKE"
+    AC_DEFINE(FUSION_FAKE,1,
+              [Define to 1 if fusion should be faked (for single-application core).])
+fi
+
+AM_CONDITIONAL(ENABLE_MULTI, test "x$enable_multi" = xyes)
+
+
+AC_ARG_ENABLE(rgb332, [  --enable-rgb332         enable RGB332 pixel format support [default=no]],,enable_rgb332=no)
+if test "x$enable_rgb332" = xyes; then
+    AC_DEFINE(SUPPORT_RGB332,1,
+              [Define to 1 to enable support for RGB332 surfaces.])
+fi
+AM_CONDITIONAL(ENABLE_RGB332, test "x$enable_rgb332" = xyes)
+
+
+have_mmx=$have_x86
+AC_ARG_ENABLE(mmx,
+[  --enable-mmx            enable MMX support [default=autodetect]],
+  have_mmx=$enableval)
+
+MMX=no
+
+if test "x$have_mmx" = xyes; then
+  AC_MSG_CHECKING(whether the binutils support MMX)
+  cp "$srcdir/src/gfx/generic/Cacc_add_to_Dacc_MMX.s" conftest.S
+  if AC_TRY_EVAL(ac_compile); then
+    AC_DEFINE(USE_MMX,1,[Define to 1 if MMX assembly is available.])
+    MMX=yes
+    have_mmx=yes
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+    AC_MSG_WARN([
+****************************************************************
+ The installed assembler does not supports the MMX command set. 
+ Update your binutils package, if you want to compile MMX code. 
+****************************************************************])
+    MMX=no
+  fi
+  rm conftest*
+fi
+
+AM_CONDITIONAL(BUILDMMX, test x$MMX = xyes)
+ac_ext="$save_ac_ext"
+
+
+dnl Test for libjpeg
+  JPEG=no
+
+  AC_ARG_ENABLE(jpeg, [  --enable-jpeg           build JPEG image provider [default=yes]], enable_jpeg="$enableval", enable_jpeg=yes)
+
+  if test x$enable_jpeg = xyes; then
+    if test -z "$LIBJPEG"; then
+      AC_CHECK_LIB(jpeg, jpeg_destroy_decompress,
+        jpeg_ok=yes,
+        jpeg_ok=no)
+      if test "$jpeg_ok" = yes; then
+        AC_CHECK_HEADER(jpeglib.h,
+	  jpeg_ok=yes,
+          jpeg_ok=no)
+        if test "$jpeg_ok" = yes; then
+	  JPEG=yes
+	  LIBJPEG='-ljpeg'
+        else
+	  JPEG=no
+	  AC_MSG_WARN([
+*** JPEG header files not found. JPEG image provider will not be built.])
+        fi
+      else
+	JPEG=no
+        AC_MSG_WARN([
+*** JPEG library not found. JPEG image provider will not be built.])
+      fi
+    fi
+  fi
+
+  AM_CONDITIONAL(JPEG_PROVIDER, test x$JPEG = xyes)
+
+  if test x$enable_jpeg != xno && test x$JPEG != xyes; then
+    jpeg_warning="
+JPEG support is missing - many applications won't work correctly!"
+  fi
+
+
+dnl Test for libpng and libz
+  PNG=no
+
+  AC_ARG_ENABLE(png, [  --enable-png            build PNG image provider [default=yes]], enable_png="$enableval", enable_png=yes)
+
+  if test x$enable_png = xyes; then
+
+  dnl Test for libz
+    if test -z "$LIBZ"; then
+      AC_CHECK_LIB(z, gzsetparams,
+        AC_CHECK_HEADER(zlib.h,
+	  LIBZ='-lz',
+	  AC_MSG_WARN([
+*** libz header files not found. PNG image provider will not be built.])),
+        AC_MSG_WARN([
+*** libz not found. PNG image provider will not be built.]))
+    fi
+
+  dnl Test for libpng
+    if test -z "$LIBPNG" && test -n "$LIBZ"; then
+      AC_CHECK_LIB(png, png_read_info,
+        AC_CHECK_HEADER(png.h,
+	  png_ok=yes,
+	  AC_MSG_WARN([
+*** PNG header files not found. PNG image provider will not be built.])),
+        AC_MSG_WARN([
+*** PNG library not found. PNG image provider will not be built.]), $LIBZ -lm)
+      if test "$png_ok" = yes; then
+        AC_MSG_CHECKING([for png_structp in png.h])
+        AC_TRY_COMPILE([#include <png.h>],
+          [png_structp pp;
+	   png_infop info;
+	   png_colorp cmap;
+	   png_create_read_struct;],
+          png_ok=yes, png_ok=no)
+        AC_MSG_RESULT($png_ok)
+        if test "$png_ok" = yes; then
+	  PNG=yes
+          LIBPNG="-lpng $LIBZ"
+        else
+	  PNG=no
+          AC_MSG_WARN([
+*** PNG library is too old. PNG image provider will not be built.])
+        fi
+      else
+	PNG=no
+      fi
+    fi
+  fi
+
+  AM_CONDITIONAL(PNG_PROVIDER, test x$PNG = xyes)
+  AM_CONDITIONAL(DIRECTFB_CSOURCE, test x$PNG = xyes)
+
+  if test x$enable_png != xno && test x$PNG != xyes; then
+    png_warning="
+PNG support is missing - many applications won't work correctly!"
+  fi
+
+
+dnl Allow to disable GIF support
+  AC_ARG_ENABLE(gif, [  --enable-gif            build GIF image provider [default=yes]], enable_gif="$enableval", enable_gif=yes)
+ 
+  AM_CONDITIONAL(GIF_PROVIDER, test x$enable_gif = xyes)
+
+
+dnl Test for freetype
+  AC_ARG_ENABLE(freetype, [  --enable-freetype       build FreeType2 font provider [default=yes]], enable_freetype="$enableval", enable_freetype=yes)
+
+  if test x$enable_freetype = xyes; then
+    AC_PATH_PROG(FREETYPE_CONFIG, freetype-config, no)
+    if test "$FREETYPE_CONFIG" = no; then
+      FREETYPE=no
+      AC_MSG_WARN([
+*** freetype-config not found -- FreeType font provider will not be built.])
+    else
+      FREETYPE=yes
+      FREETYPE_CFLAGS=`freetype-config --cflags`
+      FREETYPE_LIBS=`freetype-config --libs`
+    fi
+  fi
+
+  AM_CONDITIONAL(FREETYPE_PROVIDER, test x$FREETYPE = xyes)
+
+  if test x$enable_freetype != xno && test x$FREETYPE != xyes; then
+    freetype_warning="
+FreeType2 support is missing - many applications won't work correctly!"
+  fi
+
+
+dnl Test for avifile
+AVIFILE=no
+  AC_ARG_ENABLE(avifile, [  --enable-avifile        build AviFile video provider [default=yes]], enable_avifile="$enableval", enable_avifile=yes)
+
+  if test x$enable_avifile = xyes; then
+    AC_PATH_PROG(AVIFILE_CONFIG, avifile-config, no)
+    if test x$AVIFILE_CONFIG = xno; then
+      AC_MSG_WARN([
+*** avifile-config not found -- AVI media provider will not be built.])
+    else
+      AC_PROG_CXX
+      AVIFILE=yes
+      AVIFILE_CFLAGS=`avifile-config --cflags`
+      AVIFILE_LIBS="`avifile-config --libs` -lstdc++"
+    fi
+  fi
+
+  AM_CONDITIONAL(AVIFILE_PROVIDER, test x$AVIFILE = xyes)
+
+
+dnl Test for libflash
+  FLASH=no
+  AC_ARG_ENABLE(flash, [  --enable-flash          build Flash media provider [default=yes]], enable_flash="$enableval", enable_flash=yes)
+
+  if test x$enable_flash = xyes; then
+    AC_CHECK_LIB(flash, FlashGetInfo,
+      AC_CHECK_HEADER(flash.h,
+	FLASH=yes
+	LIBFLASH='-lflash',
+	AC_MSG_WARN([
+*** libflash headers not found -- Flash media provider will not be built.])),
+      AC_MSG_WARN([
+*** libflash not found -- Flash media provider will not be built.]), $LIBJPEG $LIBZ -lm)
+  fi
+
+AM_CONDITIONAL(FLASH_PROVIDER, test x$FLASH = xyes)
+
+
+dnl Test for libmpeg3
+  MPEG3=no
+  AC_ARG_ENABLE(libmpeg3, [  --enable-libmpeg3       build Libmpeg3 video provider [default=yes]], enable_mpeg3="$enableval", enable_mpeg3=yes)
+
+  if test x$enable_mpeg3 = xyes; then
+    AC_CHECK_LIB(mpeg3, mpeg3_open,
+      AC_CHECK_HEADER(libmpeg3.h,
+        MPEG3=yes
+        LIBMPEG3='-lmpeg3',
+        AC_MSG_WARN([
+*** libmpeg3 headers not found -- Libmpeg3 video provider will not be built.])),
+      AC_MSG_WARN([
+*** libmpeg3 not found -- Libmpeg3 video provider will not be build.]), -lm -lpthread)
+  fi
+
+AM_CONDITIONAL(LIBMPEG3_PROVIDER, test x$MPEG3 = xyes)
+
+
+
+dnl Test for ati framebuffer support in the kernel
+AC_EGREP_CPP(yes, [
+#include <linux/fb.h>
+#ifdef FB_ACCEL_ATI_RAGE128
+  yes
+#endif
+], ati=yes, 
+  ati=no
+  AC_MSG_WARN([
+*** ATI Rage 128 gfxdriver will not be built.]))
+
+AM_CONDITIONAL(GFX_ATI, test x$ati = xyes)
+
+
+dnl Test for matrox framebuffer support in the kernel
+AC_EGREP_CPP(yes, [
+#include <linux/fb.h>
+#ifdef FB_ACCEL_MATROX_MGAG200
+  yes
+#endif
+], matrox=yes, 
+  matrox=no  
+  AC_MSG_WARN([
+*** Matrox G200/400/450/550 gfxdriver will not be built.]))
+
+AM_CONDITIONAL(GFX_MATROX, test x$matrox = xyes)
+
+
+dnl Test for tdfx framebuffer support in the kernel
+AC_EGREP_CPP(yes, [
+#include <linux/fb.h>
+#ifdef FB_ACCEL_3DFX_BANSHEE
+  yes
+#endif
+], tdfx=yes, 
+  tdfx=no  
+  AC_MSG_WARN([
+*** 3DFX Voodoo/Banshee gfxdriver will not be built.]))
+
+AM_CONDITIONAL(GFX_TDFX, test x$tdfx = xyes)
+
+
+dnl Test for nvidia framebuffer support in the kernel
+AC_EGREP_CPP(yes, [
+#include <linux/fb.h>
+#ifdef FB_ACCEL_NV4
+  yes
+#endif
+], nvidia=yes, 
+  nvidia=no  
+  AC_MSG_WARN([
+*** nVidia RIVA TNT gfxdriver will not be built.]))
+
+AM_CONDITIONAL(GFX_NVIDIA, test x$nvidia = xyes)
+
+
+dnl Test for savage framebuffer support in the kernel
+AC_EGREP_CPP(yes, [
+#include <linux/fb.h>
+#ifdef FB_ACCEL_SAVAGE3D
+  yes
+#endif
+], savage=yes,
+  savage=no   
+  AC_MSG_WARN([
+*** Savage gfxdriver will not be built.]))
+
+AM_CONDITIONAL(GFX_SAVAGE, test x$savage = xyes)
+
+
+dnl Only compile NeoMagic driver when HAVE_SYSIO is defined
+AM_CONDITIONAL(GFX_NEOMAGIC, test x$neomagic = xyes)
+
+AC_ARG_ENABLE(linux-input, [  --enable-linux-input    build Linux Input driver [default=no]], enable_linux_input="$enableval", enable_linux_input=no)
+AM_CONDITIONAL(LINUX_INPUT, test x$enable_linux_input = xyes)
+
+
+dnl Test for H3600 Touchscreen support
+AC_CHECK_HEADER( [linux/h3600_ts.h], h3600_ts=yes, h3600_ts=no  
+  AC_MSG_WARN([
+*** H3600 Touchscreen driver will not be built.]))
+
+AM_CONDITIONAL(H3600_TS, test x$h3600_ts = xyes)
+
+
+dnl Test for SonyPI Jogdial support
+AC_CHECK_HEADER( [linux/sonypi.h], sonypi=yes, sonypi=no  
+  AC_MSG_WARN([
+*** SonyPI Jogdial driver will not be built.]))
+
+AM_CONDITIONAL(SONYPI, test x$sonypi = xyes)
+
+
+dnl Test for DBox2 Remote support
+AC_CHECK_HEADER( [dbox/fp.h], dbox2remote=yes, dbox2remote=no
+  AC_MSG_WARN([
+*** DBox2 Remote driver will not be built.]))
+
+AM_CONDITIONAL(DBOX2REMOTE, test x$dbox2remote = xyes)
+
+
+DFB_CFLAGS="$DFB_CFLAGS $DFB_INTERNAL_CFLAGS"
+DFB_CXXFLAGS="$DFB_CFLAGS"
+
+if test x$cflags_set != xset ; then
+  DFB_CFLAGS="$DFB_CFLAGS $CFLAGS"
+fi
+
+if test x$cxxflags_set != xset ; then
+  DFB_CXXFLAGS="$DFB_CXXFLAGS $CXXFLAGS"
+fi
+
+DFB_LDFLAGS="$LDFLAGS"
+
+
+# Honor aclocal flags
+ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
+
+
+AM_CONDITIONAL(BUILD_STATIC, test x$enable_static = xyes)
+
+
+
+if test "x$enable_debug" = xyes; then
+  MODULEDIR=$libdir/directfb-$BINARY_VERSION-debug
+else
+  MODULEDIR=$libdir/directfb-$BINARY_VERSION
+fi
+
+DATADIR=$datadir/directfb-$VERSION
+INCLUDEDIR=$includedir/directfb
+INTERNALINCLUDEDIR=$includedir/directfb-internal
+
+SOPATH=$libdir/libdirectfb-$LT_RELEASE.so.$LT_CURRENT
+AC_SUBST(SOPATH)
+
+AC_SUBST(DFB_CFLAGS)
+AC_SUBST(DFB_CFLAGS_OMIT_FRAME_POINTER)
+AC_SUBST(DFB_LDFLAGS)
+AC_SUBST(DFB_CXXFLAGS)
+AC_SUBST(DFB_INTERNAL_CFLAGS)
+AC_SUBST(GIF_PROVIDER)
+AC_SUBST(JPEG_PROVIDER)
+AC_SUBST(PNG_PROVIDER)
+AC_SUBST(LIBJPEG)
+AC_SUBST(LIBZ)
+AC_SUBST(LIBPNG)
+AC_SUBST(FREETYPE_PROVIDER)
+AC_SUBST(FREETYPE_CFLAGS)
+AC_SUBST(FREETYPE_LIBS)
+AC_SUBST(AVIFILE_PROVIDER)
+AC_SUBST(AVIFILE_CFLAGS)
+AC_SUBST(AVIFILE_LIBS)
+AC_SUBST(LIBMPEG3)
+AC_SUBST(LIBFLASH)
+AC_SUBST(GFX_ATI)
+AC_SUBST(GFX_MATROX)
+AC_SUBST(GFX_TDFX)
+
+AC_SUBST(DATADIR)
+AC_SUBST(MODULEDIR)
+AC_SUBST(INCLUDEDIR)
+AC_SUBST(INTERNALINCLUDEDIR)
+
+AC_OUTPUT([
+directfb-config
+directfb.pc
+directfb-internal.pc
+Makefile
+include/Makefile
+include/directfb_version.h
+patches/Makefile
+src/Makefile
+src/display/Makefile
+src/media/Makefile
+src/windows/Makefile
+src/input/Makefile
+src/misc/Makefile
+src/gfx/Makefile
+src/gfx/generic/Makefile
+src/core/Makefile
+src/core/fbdev/Makefile
+src/core/fusion/Makefile
+src/core/fusion/shmalloc/Makefile
+gfxdrivers/Makefile
+gfxdrivers/ati128/Makefile
+gfxdrivers/matrox/Makefile
+gfxdrivers/neomagic/Makefile
+gfxdrivers/tdfx/Makefile
+gfxdrivers/nvidia/Makefile
+gfxdrivers/savage/Makefile
+inputdrivers/Makefile
+inputdrivers/h3600_ts/Makefile
+inputdrivers/sonypi/Makefile
+inputdrivers/joystick/Makefile
+inputdrivers/keyboard/Makefile
+inputdrivers/linux_input/Makefile
+inputdrivers/lirc/Makefile
+inputdrivers/dbox2remote/Makefile
+inputdrivers/ps2mouse/Makefile
+inputdrivers/serialmouse/Makefile
+interfaces/Makefile
+interfaces/IDirectFBFont/Makefile
+interfaces/IDirectFBImageProvider/Makefile
+interfaces/IDirectFBVideoProvider/Makefile
+data/Makefile
+tools/Makefile
+docs/Makefile
+docs/directfbrc.5
+docs/directfb-csource.1
+docs/html/Makefile
+], [chmod +x directfb-config])
+
+
+AC_MSG_RESULT([
+
+Build options:
+  Version             $VERSION
+  Install prefix      $prefix
+  Build shared libs   $enable_shared
+  Build static libs   $enable_static
+  Module directory    $MODULEDIR
+
+Misc options:
+  MMX support         $MMX
+  Debug mode          $enable_debug
+  RGB332 support      $enable_rgb332
+  Multi App support   $enable_multi
+
+Building Image Providers:
+  JPEG                $JPEG
+  PNG                 $PNG
+  GIF                 $enable_gif 
+
+Building Video Providers:
+  AviFile             $AVIFILE
+  Libmpeg3            $MPEG3
+  Flash               $FLASH
+  Video4Linux         yes
+
+Building Font implementations:
+  FreeType2           $FREETYPE
+  DirectFB font       yes
+
+Building Graphics Drivers:
+  Matrox              $matrox
+  ATI Rage 128        $ati
+  NeoMagic            $neomagic
+  3Dfx Voodoo         $tdfx
+  nVidia RIVA TNT     $nvidia
+  S3 Savage           $savage
+
+Building Input Drivers:
+  Linux Input         $enable_linux_input
+  DBox2 Remote        $dbox2remote
+  H3600 Touchscreen   $h3600_ts
+  SonyPI Jogdial      $sonypi
+$png_warning $jpeg_warning $freetype_warning
+]);

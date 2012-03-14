@@ -1,0 +1,74 @@
+# Makefile for uClibc (libubacktrace)
+#
+# Copyright (C) 2010 STMicroelectronics Ltd
+# Author: Carmelo Amoroso <carmelo.amoroso@st.com>
+
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+subdirs += libubacktrace
+
+CFLAGS-libubacktrace := -DNOT_IN_libc -DIS_IN_libubacktrace $(SSP_ALL_CFLAGS)
+
+LDFLAGS-libubacktrace.so := $(LDFLAGS) $(top_builddir)lib/libdl-$(VERSION).so
+
+ifeq ($(UCLIBC_HAS_BACKTRACE)$(CONFIG_ARM_EABI),yy)
+LIBGCC += $(shell $(CC) -print-file-name=libgcc_eh.a)
+endif
+
+LIBS-libubacktrace.so := $(LIBS)
+
+libubacktrace_FULL_NAME := libubacktrace-$(VERSION).so
+
+libubacktrace_DIR := $(top_srcdir)libubacktrace
+libubacktrace_OUT := $(top_builddir)libubacktrace
+
+libubacktrace_SRC-y :=
+libubacktrace_SRC-$(UCLIBC_HAS_BACKTRACE) := backtrace.c backtracesyms.c backtracesymsfd.c
+
+# -fexections is required for backtrace to work using dwarf2
+CFLAGS-backtrace.c := -fexceptions
+
+
+libubacktrace_SRCS := $(addprefix $(libubacktrace_DIR)/,$(libubacktrace_SRC-y))
+libubacktrace_OBJS := $(patsubst $(libubacktrace_DIR)/%.c,$(libubacktrace_OUT)/%.o,$(libubacktrace_SRCS))
+
+ifeq ($(DOPIC),y)
+libubacktrace-a-y := $(libubacktrace_OBJS:.o=.os)
+else
+libubacktrace-a-y := $(libubacktrace_OBJS)
+endif
+libubacktrace-so-y := $(libubacktrace_OBJS:.o=.os)
+
+lib-a-$(UCLIBC_HAS_BACKTRACE) += $(top_builddir)lib/libubacktrace.a
+lib-so-$(UCLIBC_HAS_BACKTRACE) += $(top_builddir)lib/libubacktrace.so
+
+objclean-y += CLEAN_libubacktrace
+
+ifeq ($(DOMULTI),n)
+ifeq ($(DOPIC),y)
+$(top_builddir)lib/libubacktrace.so: $(top_builddir)lib/libubacktrace.a $(libdl.depend)
+else
+$(top_builddir)lib/libubacktrace.so: $(libubacktrace_OUT)/libubacktrace_so.a $(libdl.depend)
+endif
+	$(call link.so,$(libubacktrace_FULL_NAME),$(ABI_VERSION))
+else
+$(top_builddir)lib/libubacktrace.so: $(libubacktrace_OUT)/libubacktrace.oS | $(libdl.depend)
+	$(call linkm.so,$(libubacktrace_FULL_NAME),$(ABI_VERSION))
+endif
+
+$(libubacktrace_OUT)/libubacktrace_so.a: $(libubacktrace-so-y)
+	$(Q)$(RM) $@
+	$(do_ar)
+
+$(libubacktrace_OUT)/libubacktrace.oS: $(libubacktrace_SRCS)
+	$(Q)$(RM) $@
+	$(compile-m)
+
+$(top_builddir)lib/libubacktrace.a: $(libubacktrace-a-y)
+	$(Q)$(INSTALL) -d $(dir $@)
+	$(Q)$(RM) $@
+	$(do_ar)
+
+CLEAN_libubacktrace:
+	$(do_rm) $(addprefix $(libubacktrace_OUT)/*., o os oS a)

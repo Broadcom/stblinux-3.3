@@ -1,0 +1,126 @@
+#!/bin/sh
+version="1.5.1"
+base_path=/sys/bus/usb/devices
+
+query_mode=true
+as_control=
+timeout=
+control_mask=".*"
+runtime_status_mask=".*"
+recursive=false
+
+usage()
+{
+	echo "USB power management utility $version"
+	echo "Usage: pmusb [OPTIONS] [DEVICES]"
+	echo "  -r           - recursive (including all the children)"
+	echo "  -m MODE      - on|auto. If omitted, status is displayed (query mode)"
+	echo "  -t TIMEOUT   - autosuspend timeout in seconds"
+	echo "  -c CMASK     - control file mask (query mode only)"
+	echo "  -s SMASK     - runtime status file mask (query mode only)"
+	echo "  -t TIMEOUT   - autosuspend timeout in seconds"
+	echo "  DEVICES      - names of USB device (usb1, usb2, usb1/1-1 ...). If omitted, all devices"
+}
+
+as_control()
+{
+	local dev_path=${1%%/.}
+	local dev_name=`basename $dev_path`;
+
+	autosuspend_file=$dev_path/power/autosuspend 
+	control_file=$dev_path/power/control 
+	level_file=$dev_path/power/level 
+	runtime_status_file=$dev_path/power/runtime_status
+	[ ! -f $control_file ] && control_file=$level_file
+	if [ -f "$control_file" -o -f "$level_file" ] ; then
+		supported_device=1
+		if [ -f "$runtime_status_file" ] ; then
+			[ ! -z `grep 'active\|suspended' $runtime_status_file` ] || supported_device=
+		fi 
+		if [ ! -z "$supported_device" ] ; then
+			if [ "$query_mode" = "true" ] ; then
+				filter_out=0
+				[ -z "`grep $control_mask $control_file`" ] && filter_out=1
+				if [ -f "$runtime_status_file" ] ; then
+					[ -z "`grep $runtime_status_mask $runtime_status_file`" ] && filter_out=1
+				fi
+				if [ $filter_out -eq 0 ] ; then
+					echo "$dev_name ($dev_path):"
+					if [ -r "$control_file" ] ; then
+						echo -n "  control       : " ; cat $control_file
+					fi
+					if [ -r "$runtime_status_file" ] ; then
+						echo -n "  runtime_status: " ; cat $runtime_status_file
+					fi
+					if [ -r "$autosuspend_file" ] ; then
+						echo -n "  autosuspend   : " ; cat $autosuspend_file
+					fi
+				fi
+			else
+				[ -f "$autosuspend_file" -a ! -z "$timeout" ] && echo $timeout > $autosuspend_file
+				if [ ! -z "$as_control" ] ; then
+					[ -w "$control_file" ] && echo $as_control > $control_file
+				fi
+			fi
+		fi
+	fi
+}
+
+while getopts "m:t:h?rc:s:" option
+do
+	case $option in
+	m)
+		query_mode=false
+		as_control=$OPTARG 
+		if [ ! "$as_control" = "auto" -a ! "$as_control" = "on" ] ; then
+			usage
+			exit 1	
+		fi
+		;;
+	r)
+		recursive=true ;;
+	c)
+		control_mask=$OPTARG ;;
+	s)
+		runtime_status_mask=$OPTARG ;;
+	t)
+		query_mode=false
+		timeout=$OPTARG ;;
+	h|?|*)
+		usage
+		exit 1 ;;
+	esac
+done
+
+# the rest are device names
+shift $(($OPTIND-1));
+
+# no pushd/popd in ash
+save_pwd=`pwd`
+cd $base_path
+
+if [ -z "$1" ] ; then
+	# all usb controllers
+	dev_name_list=`ls -d usb*`
+else
+	# some usb controllers
+	dev_name_list="$*"
+fi
+
+for dev_name in $dev_name_list ; do
+	if [ "$recursive" = "true" ] ; then
+		save_pwd2=`pwd`
+		cd $base_path/$dev_name
+		ch_dev_name_list=`find . -type d`
+		for ch_dev_name in $ch_dev_name_list ; do
+			as_control $base_path/$dev_name/$ch_dev_name
+		done
+		cd $save_pwd2
+	else
+		as_control $base_path/$dev_name
+	fi
+done
+
+cd $save_pwd
+
+

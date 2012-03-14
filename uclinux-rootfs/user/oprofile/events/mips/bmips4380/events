@@ -1,0 +1,24 @@
+#
+# BMIPS4380 events
+#
+# See the Broadcom application note for details
+#
+# 0xXYZZ: X = ModuleID, Y = SetID, Z = EventID
+#
+
+event:0x0012 counters:0,1,2,3 um:zero minimum:500 name:CYCLES : Processor cycles (PClock)
+event:0x0011 counters:0,1,2,3 um:zero minimum:500 name:INSTRUCTIONS : Instructions executed
+
+event:0x2101 counters:0,1,2,3 um:zero minimum:500 name:CPU_STALL_CYCLES : Stall cycles
+event:0x2203 counters:0,1,2,3 um:zero minimum:500 name:CPU_KERNEL_CYCLES : Cycles spent in kernel mode
+event:0x2201 counters:0,1,2,3 um:zero minimum:500 name:CPU_USER_CYCLES : Cycles spent in user mode
+event:0x210a counters:0,1,2,3 um:zero minimum:500 name:EXCEPTIONS : Number of exceptions and interrupts
+event:0x6005 counters:0,1,2,3 um:zero minimum:500 name:ICACHE_MISSES : Instruction cache misses (no D-cache misses)
+event:0x6006 counters:0,1,2,3 um:zero minimum:500 name:ICACHE_HITS : Instruction cache hits
+event:0x4109 counters:0,1,2,3 um:zero minimum:500 name:DCACHE_MISSES : Data cache miss
+event:0x410a counters:0,1,2,3 um:zero minimum:500 name:DCACHE_HITS : Data cache hit
+event:0xb042 counters:0,1,2,3 um:zero minimum:500 name:L1_CACHE_MISSES : RAC lookup or read accesses due to L1 cache misses
+event:0xb14b counters:0,1,2,3 um:zero minimum:500 name:RAC_BLOCK_REQUEST : Block requests due to prefetch
+event:0x1245 counters:0,1,2,3 um:zero minimum:500 name:RAC_HITS : RAC hit
+event:0xd001 counters:0,1,2,3 um:zero minimum:500 name:L2_HITS : L2 cache hits
+event:0xd000 counters:0,1,2,3 um:zero minimum:500 name:L2_MISSES : L2 cache misses

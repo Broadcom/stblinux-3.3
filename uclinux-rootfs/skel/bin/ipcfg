@@ -1,0 +1,69 @@
+#!/bin/sh
+
+function usage()
+{
+	echo "usage: ipcfg <interface> static <ip> <netmask> [ <gateway> ]"
+	echo "       ipcfg <interface> dhcp"
+	echo "       ipcfg <interface> dhcp_ll"
+	echo "       ipcfg <interface> dhcp6"
+	echo "       ipcfg <interface> default"
+	echo "       ipcfg <interface> none"
+	echo ""
+	echo "Available modes:"
+	echo ""
+	echo "  static:  Fixed IP address"
+	echo "  dhcp:    DHCP without Link Local"
+	echo "  dhcp_ll: DHCP with Link Local"
+	echo "  dhcp6:   DHCPv6"
+	echo "  default: Use default configuration (typically DHCP)"
+	echo "  none:    Do not attempt to configure the interface"
+	exit 1
+}
+
+[ -z "$1" ] && usage
+iface="$1"
+shift
+
+file="/etc/config/ifup.${iface}"
+
+cmd="$1"
+shift
+
+case "$cmd" in
+	static)
+		ip="$1"
+		netmask="$2"
+		gateway="$3"
+		[ -z "$netmask" ] && usage
+
+		echo "ifconfig $iface $ip netmask $netmask up" > $file
+
+		[ ! -z "$gateway" ] && \
+			echo "route add default gw $gateway $iface" >> $file
+		;;
+	dhcp)
+		echo "ifconfig $iface 0.0.0.0 up" > $file
+		echo "udhcpc -i $iface -p /tmp/udhcpc.$iface.pid >& /dev/null &" >> $file
+		;;
+	dhcp_ll)
+		echo "ifconfig $iface 0.0.0.0 up" > $file
+		echo "zcip $iface /etc/zcip.script" >> $file
+		echo "udhcpc -i $iface -p /tmp/udhcpc.$iface.pid >& /dev/null &" >> $file
+		;;
+	dhcp6)
+		echo "dhcp6c -dDf $iface &" > $file
+		;;
+	default)
+		rm -f $file
+		;;
+	none)
+		rm -f $file
+		touch $file
+		;;
+	*)
+		usage
+		;;
+esac
+
+sync
+exit 0

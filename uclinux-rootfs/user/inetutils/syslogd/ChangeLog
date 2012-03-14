@@ -1,0 +1,740 @@
+2002-09-30  Sergey Poznyakoff 
+
+	* syslogd.c: Fix processing accumulated messages from
+	  /proc/kmsg (patch provided by Michael Deutschmann).
+
+2002-09-02  Sergey Poznyakoff 
+
+	* syslogd.c: '**' extension (Michael Deutschmann
+	  <michael@talamasca.ocis.net> allows to catch all facilities
+	  not specified explicitely in the configuration file.
+
+2002-08-21  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* syslogd.c (main): Fixed memory overrun when writing long
+	  data blocks from /proc/kmsg. Thanks to Michael Deutschmann
+	  <michael@talamasca.ocis.net>
+
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* syslogd.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use syslogd_BUILD instead of
+	BUILD_SYSLOGD.
+
+2002-03-05  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): New variables KLINE and KLINE_LEN, to store
+	partial lines from the kernel log device.  Collect partial lines
+	until we either have a maximum partial line or a full line.  Log
+	that, and all following lines collected so far, and in the case of
+	the maximum partial line skip the remainder of the current line.
+	Reported by Davin McCall <davmac@iname.com>.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-11-21  Sergey Poznyakoff
+
+	* syslogd.c: Removed redeclaration of hstrerror: it is
+	provided in include/config.h when missing.
+
+2001-10-25  Alain Magloire
+
+	* syslogd/syslogd.c:  Use the same code in talkd/talkd.c to handle
+	utmp vs utmpx.
+	(wallmesg):  Use the macros when manipulating utmp functions.
+
+2001-01-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (usage): Add missing parentheses in help text.
+
+2000-11-25  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): Give reason for failure of waitdaemon.
+	(add_funix): Print program name and reason for failure in error
+	message.
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Remove PROGRAM, declare __PROGNAME.
+	Prototype waitdaemon(). Remove COPYRIGHT (it's in the
+	comment at the top). Replace "#ifndef lint" with "#if 0"
+	for SCCSID to avoid gcc warning.
+	(main): Initialize __PROGNAME if not HAVE___PROGNAME.
+	Use __PROGNAME instead PROGRAM.
+	(usage): Likewise.
+	(crunch_list): Likewise.
+	(die): Likewise.
+
+2000-08-16  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (usage): If err != 0, print Usage: ... line to stdout.
+	Uppercase all sentences.
+	(main): Fix indentation in while condition and add a newline after
+	a break statement.
+	
+2000-08-13  Alain Magloire
+
+	* syslogd.c (main): Error in the code the inet file descriptor
+	was not initialize correctely.
+
+2000-08-13  Alain Magloire
+
+	* syslogd.c (main):  New variable short_options.
+	Removed of reap_child() and SIGCHLD signal handler.
+	ttymsg() now double fork() and do itself the waitpid()
+	to clean up.
+	Remove all those little loops that uses tolower()
+	to bring the string to loser case for a comparison
+	and use strcasecmp() when comparison are needed.
+
+2000-08-11  Alain Magloire
+
+	* syslogd.c: Include unconditionnaly <utmpx.h> and
+	<poll.h>, we (will) provide a stub when the OS is lacking.
+
+2000-08-10  Alain Magloire
+
+	* syslogd.c (wallmsg):  Only check for the type USER_PROCESS
+	The others on GNU/Linux generate errors.  And we only need
+	to alert legitimate users that are login.
+	* syslogd.c : New option '-S, --sync' to behave like GNU/Linux
+	syslogd that sync on every line.  Syncing on every lines can
+	bring a machine to its knees if an application is trying to
+	be malicious.
+
+2000-08-10  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): When -d option is given, set NoDetach to 1.
+	Only test for !NoDetach when daemonising, and no longer for !Debug.
+
+2000-08-09  Marcus Brinkmann  <marcus@gnu.org>
+
+	Fix ChangeLog weirdness.
+	* syslogd.c: "New" prototype reap_childs.
+	(main): Install SIGCHLD handler.
+	(reap_childs): Function back. We do fork for blocking I/O.
+	This time use waitpid unconditionally.
+
+2000-08-08  Alain Magloire
+
+	* syslogd.c (dbg_printf): [HAVE_STDARG_H][_STDC__] to
+	palliate for OS not having ANSI C.
+	[HAVE_UTMPX_H] before including <utmpx.h>.
+	(usage): Some of the strings where missing newlines.
+	[IOVCNT]: new macro to define the size of the iovec array.
+	(fprintlog): Clear the iovec before using it.
+	(logmsg): get rid of ugly hardcode and use sizeof (f->f_lastime) - 1
+	intead for the len of the f_lastime string.
+	(fprintlog): use sizeof(f->lastime) - 1.
+
+2000-08-08  Marcus Brinkmann <marcus@gnu.org>
+
+	* syslogd.c: Don't prototype reapchild.
+	(main): Don't install SIGCHLD handler.
+	(reapchild): Function removed. It is cruft needed for
+	the linux wallmsg implementation, which we don't useb.
+
+2000-08-06  Alain Magloire
+
+Adding poll() bring to light that we do the creation of sockets
+inside init(), this has the unfortunate side effect of close()ing
+and  recreating the sockets at every SIGHUP.  This was done to
+speedup initialization of syslogd, since on GNU/Linux the rc.*
+files would start klogd also.  This is also the reason for a waitdaemon():
+"Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
+Parent process of syslogd does not exit until child process has
+finished initialization process.  This allows rc.* startup to
+pause until syslogd facility is up and operating."
+
+	* syslogd.c (init): Remove call to creation of sockets
+	and move it to the main() before going in the loop.
+
+2000-08-06  Alain Magloire
+
+	* syslogd.c (main): Use of poll() instead of select()
+	for better modularity.
+
+2000-08-06  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (add_funix): New function to add new
+	unix sockets.
+
+2000-08-06  Alain Magloire
+
+	* syslogd.c (init): Remove restriction of LINE_MAX
+	by reallocating the buffer when the line is too long,
+	by doing this the continuation line feature was more
+	straightforward.  The downfall is dealing with out of
+	memory errors.  But the code, so far, does not deal
+	with this anywhere.
+	(domark): signo ignored.
+	(init): signo ignored.
+	(dbg_toggle): signo ignored.
+	(trigger_restart): signo ignored.
+	Remove superfluous initializations of global
+	and static variables.
+
+2000-08-05  Alain Magloire
+
+Remove restrictions on options -l, -s, better compliance to GNU
+coding rules .i.e no limits in the number of possible open sockets.
+Code indenting to conform to GNU style.
+
+	* syslogd.c: Use ``const'' consistenly for readonly
+	strings; cfline(), dbg_printf(), logerror(), etc ...
+	Prototypes/declarations use ``void'' for consistency.
+	Standardise all function definitions, so ansi2knr could
+	do its job properly.
+	(create_inet_socket): Variable ``on'' unuse.
+	(usage): try_help() and help() merge to usage (int).
+	usage() is pass an integer and exit(err);
+	(main): Remove setlinebuf() use setvbuf() only.
+	(main): Regroup unix sockets and fd's into the same
+	structure easier to carry. Remove restriction
+	on 19 + 1 possible open unix sockets.
+	(crunch_list): Take one more argument, the oldlist
+	so it can be reallocated for new entries.  This removed
+	the restrictions of the number of LocalHosts and StripDomains.
+
+2000-08-05  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (help): --no-forward does not override -r,
+	but -h.
+	(init): Create inet socket if either AcceptRemote or
+	Forwarding is true, but with Forwarding only if not
+	--no-forward was provided. This is less restrictive than
+	before, where --no-forward would prevent incoming messages
+	allowed with -r, which was documented but not intended.
+	* syslogd.8: Document (badly) all the new options from
+	last change.
+
+2000-08-04  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: In the whole file, change the formatting
+	to conform to the GNU coding standards. Also clean up
+	some debug and error messages. All further functional
+	changes are listed below.
+
+	Initialize finet and fklog to -1.
+	New variables NoKLog, NoUnixAF, NoForward, long_options,
+	program_name. New symbols USAGE, TTYMSGTIME.
+	(help): New function.
+	(try_help): New function.
+	(usage): Use try_help.
+	(main): Don't initialize finet, fklog here.
+	Initialize program_name. Use getopt_long instead getopt.
+	Handle option '&' (--help). Handle unknown options with try_help
+	and usage. Handle long options 'P' (--pidfile), 'F' (--no-foward),
+	'K' (--no-klog), 'U' (--no-unixaf).
+	Move initialization of tv into the main loop. select meddles with
+	the timeval on some systems (Linux) and we don't want to take any
+	risk.
+	(init): (Re-) Initialize fklog here if not NoKLog.
+	Only open unix sockets if not NoUnixAF. Failing to open
+	the primary socket is fatal.
+	Only open inet socket if not NoForward.
+	(fprintlog): More diagnostic in case F_FORW: Show debug info
+	when forwarding is disabled or finet is invalid for other reasons.
+	(wallmsg): Use TTYMSGTIME instead hard coded default.
+	(cfline): In case '|' fix nasty bug in if clause.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (waitdaemon): Removed.
+	(timedout): Removed.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: If HAVE_SYS_TYPES_H, include <sys/types> for pid_t.
+	New global variable fklog.
+	(main): Fix comment. Remove local variables fklog, sunx, sin.
+	(die): Close fklog if open.
+	(waitdaemon): Ansify.
+	(timedout): Likewise. Drop __unused attribute.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (waitdaemon, timedout): New prototype and functions
+	from FreeBSD syslogd (rev 1.66).
+	(main): Remove conditional MSG_BSIZE on line variable.
+	New variables tv, tvp, ppid.
+	Call waitdaemon instead daemon to fork into background.
+	Before main loop, initialize tv and tvp to zero.
+	In main loop, pass tvp to select. This will make syslogd return
+	immediately until we set tvp to NULL.
+	Check return value of select. If it is zero (no messages),
+	and tvp is not NULL, set it to NULL and send parent a SIGALRM.
+	This will be its signal to terminate.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Include <stdarg.h>.
+	(struct msg_part): Fix type declaration.
+	(main): Rename variable c to l.
+	Initialize all of funix, finet to -1.
+	Remove dangling closing brace.
+	Main loop: Declare variable nfds.
+	Pass argument to init.
+	Add missing parentheses to if-clause.
+	Back out from using printchopped in unix and inet socket handling,
+	not only because it doesn't work, but also because it is utterly
+	nonsense without the S_STREAM patch.
+	(make_part): Add missing brace.
+	(die): Add missing variable i.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+This covers the following Linux changes:
+Thu Jan  6 12:07:36 CST 1994:  Dr. Wettstein
+Also thanks to Juha for a patch to exclude users with a class
+of LOGIN from receiving messages.
+Mon Oct 12 20:22:59 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Added support for setutent()/getutent()/endutend() instead of
+binary reading the UTMP file.  This is the the most portable
+way.  This allows /var/run/utmp format to change, even to a
+real database or utmp daemon. Also if utmp file locking is
+implemented in libc, syslog will use it immediately.  Thanks
+to Topi Miettinen <tom@medialab.sonera.net>.
+
+	* syslogd.c: Include <utmpx.h> instead <utmp.h>.
+	(wallmsg): Use pointer to struct utmpx, not struct utmp.
+	Fix the size of line accoridngly.
+	Use setutxent instead opening the utmp file ourself.
+	Use getutxent instead fread.
+	Don't log to ut_type LOGIN_PROCESS, and don't log to
+	ut_user LOGIN (paranoia check).
+	Use ut_user instead ut_name.
+	Use endutxent instead fclose.
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+This is among others the equivalent to the following Linux change:
+Thu Jan  6 12:07:36 CST 1994:  Dr. Wettstein
+Added support for proper decomposition and re-assembly of
+fragment messages on UNIX domain sockets.  Lack of this capability
+was causing 'partial' messages to be output.  Since facility and
+priority information is encoded as a leader on the messages this
+was causing lines to be placed in erroneous files.
+
+	* syslogd.c: New symbol INITIAL_PARTS.
+	New struct msg_part, new global variables parts, nparts.
+	(get_part): New prototype, new function.
+	(free_part): Likewise.
+	(make_part): Likewise.
+	(printchopped): Likewise.
+	(main): New variable c. Allocate initial parts table
+	after installing signal handlers. In main loop,
+	use c instead i to count through funices. If a read
+	from a unx domain socket returns 0, close this fd.
+	Use printchopped instead printline to support partial
+	messages (a bit messy though).
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Remove global variable InetInuse.
+	(main): Check finet instead InetInuse.
+	(fprintlog): Case F_FORW: Only try to forward message
+	when finet is valid.
+	(die): Check finet instead InetInuse.
+	(init): Don't fiddle InetInuse.
+	(cfline): Case '@': Don't check InetInuse (instead we
+	check finet in fprintlog, see above).
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c: New global variable restart.
+	(main): Main loop: If restart is set, call init()
+	and reset restart.
+	Install sighup_handler as SIGHUP handler.
+	(sighup_handler): New prototype, new function.
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+I think this is among others the equivalent to the following Linux change:
+Mon Feb 23 23:32:35 CET 1998: Topi Miettinen <Topi.Miettinen@ml.tele.fi>
+Re-worked handling of Unix and UDP sockets to support closing /
+opening of them in order to have it open only if it is needed
+either for forwarding to a remote host or by receiption from
+the network.
+
+	* syslogd.c (FDMASK): Removed.
+	(create_unix_socket): New prototype, new function.
+	(create_inet_socket): Likewise.
+	(main): Remove variables funix, inetm, klogm.
+	Move SUN_LEN and creation of unix domaim sockets/inet socket
+	to create_*_socket and init().
+	When opening PATH_KLOG, use fklog to store result.
+	Main loop: Rediddle code to use a fd_set and FD_*
+	operations instead an int and bit operations.
+	New variable maxfds to store highest fd.
+	Check fklog before checking fklog fd bit.
+	Check InetInuse before checking inet fd bit.
+	Clear buffer line before reading inet message.
+	(die): Close inet socket.
+	(init): New variable Forwarding and sp.
+	Check here for service syslog/udp instead in main.
+	Set Forwarding when appropriate (one of F_FORW* types).
+	Looping over funix here, closing and (re)opening unix
+	sockets using create_unix_socket.
+	Closing and opening inet socet as appropriate.
+
+2000-08-02  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux change:
+Mon Oct 12 14:02:51 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Applied patch provided vom Topi Miettinen with regard to the
+people from OpenBSD.  This provides the additional '-a'
+argument used for specifying additional UNIX domain sockets to
+listen to.  This is been used with chroot()'ed named's for
+example.  See for http://www.psionic.com/papers/dns.html
+
+	* Note: The above link is actually ".../papers/dns/".
+	* syslogd.c (LogName): Remove global variable.
+	(nfunix, funixn, funix): New global variables.
+	(MAXFUNIX): New symbol.
+	(main): Add option '-a' to getopt() invocation.
+	Learn the alphabet.
+	Add '-a' option processing.
+	Convert '-p' option to funixn.
+	Don't unlink LogName (doesn't exist anymore).
+	Create nfunix unix sockets in funix (using funixn)
+	(also unlink funixn here).
+	Main loop: Diddle the readfds initialization a bit.
+	Initialize nfds on the way.
+	Loop over all funix sockets and add their descriptors.
+	In select call, use nfds+1 and not arbitrary 20.
+	Later, check all funix for available reads.
+	(usage): Document '-a' option.
+	(die): Don't unlink LogName, instead close and unlink
+	all unix sockets in funix.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux change:
+Mon Oct 12 20:49:18 MET DST 1998: Martin Schulze <joey@infodrom.north.de>
+Avoid logging of SIGCHLD when syslogd is in the process of
+exiting and closing its files.  Again thanks to Topi.
+
+	* syslogd.c (init): New variable was_initialized.
+	Set Initialize to 0 temporarily to avoid logging of SIGCHLD.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): Really fix getopt argument this time.
+	Break after acting on option '-n'.
+	(crunch_list): Remove semicolon that makes a prototype from
+	the implementation (doh!).
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (usage): Beautify with package name and version number.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (cvthname): Fix some really stupid errors in last change.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (domark): Don't log mark if MarkInterval is <= 0.
+	* syslogd.8 (SYNOPSIS): Add '-l', '-r', '-n' and '-s' (oops).
+	Document behaviour of '-m 0'.
+
+2000-08-01  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c: Fix prototype of debug_switch.
+	(cfline): In case '|', check for terminal and console.
+	In case '/', rearrange this very check.
+	(debug_switch): Fix parameter list to match prototype.
+	Don't install signal handler here.
+
+	* syslogd.c (repeatinterval): Shorten from 30, 120, 600
+	to 30, 60. This is what Linux sysklogd 1.3 uses.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux change:
+Mon Feb 10 00:09:11 MET DST 1997:  Martin Schulze
+Improved debug code to decode the numeric facility/priority
+pair into textual information.
+
+	* syslogd.c (textpri): New prototype and function.
+	(logmsg): Use textpri in log message.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (cfline): Instead number 0 use char '\0'.
+	Make debug output nicer by better alignment.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (init): Replace hard coded "/dev/console"
+	by PATH_CONSOLE.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (cfline): Fix off-by-one error. We have to
+	take into account "LOG_MARK" which has facility number
+	LOG_NFACILITIES.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (main): Add "-s" option to getopt invocation.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+This is based on the equivalent Linux change:
+Thu Oct 19 00:02:07 MET 1995:  Martin Schulze
+The default behavior has changed for security reasons. The
+syslogd will not receive any remote message unless you turn
+reception on with the "-r" option.
+
+	* syslogd.c (AllowRemote): New global variable.
+	(main): New option "-r" to set AllowRemote.
+	Only if AllowRemote is true add inetm to readfds
+	and check for messages from there.
+	(usage): Document new option "-r".
+	(init): In start-up message, show if we allow remote messages.
+	* syslogd.8: Document new option "-r".
+
+	(init): In start-up message, show package name and version
+	number (like: "GNU inetutils 1.3.2c").
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+This is the equivalent to the following Linux changes:
+Wed Nov 22 22:32:55 1995:  Martin Schulze
+Added the fabulous strip-domain feature that allows us to
+strip off (several) domain names from the fqdn and only log
+the simple hostname. This is useful if you're in a LAN that
+has a central log server and also different domains.
+
+I have also also added the -l switch do define hosts as
+local. These will get logged with their simple hostname, too.
+
+	* syslogd.c (LIST_DELIMITER): New symbol.
+	(StripDomains, LocalHosts): New variables.
+	(crunch_list): New prototype and function.
+	(main): New options "-s" and "-l".
+	(usage): Document "-s" and "-l".
+	(cvthname): Use StripDomains and LocalHosts to frob
+	the hostname before returning.
+	* syslogd.8: Document new options "-s" and "-l".
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c (debugging_on): New global variable to toggle debug output.
+	(debug_switch, dprintf): New prototypes, new functions. Redefine dprintf
+	to mydprintf when __GLIBC__ is defined.
+	Remove macro for dprintf.
+	(main): Set debugging_on to true early, and to false again before
+	entering main loop. Install debug_switch as SIGUSR1 handler.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	Merged from the Linux source (sysklogd 1.3):
+	* syslogd.c (F_FORW_SUSP): New symbol.
+	(F_FORW_UNKN, F_PIPE): Increment value, to make space for F_FORW_SUSP.
+	(TypeNames): Insert name for F_FORW_SUSP.
+	(fprintlog): Add case for F_FORW_SUSP.
+	In case F_FORW use F_FORW_SUSP on error (and not F_FORW_UNKN).
+	Add debug message.
+	(init): Handle case F_FORW_SUSP in debug output like F_FORW.
+
+2000-07-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslogd.c (NoDetach): New global variable.
+	(main): New option "-n". If NoDetach is true, don't
+	background and detach from controlling terminal.
+	(usage): Document new option n.
+	* syslogd.8: Document new option "-n".
+
+2000-07-05 Alain Magloire
+
+	*: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3.All advertising materials mentioning features or use of this software
+	must display the following acknowledgement:
+	This product includes software developed by the University of
+	California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd.c (main): Type of len changed from int to size_t.
+	(usage): Add -V option, make output consistent with other GNU tools.
+
+	* syslogd.8: Document "-V" option.
+
+	* syslogd.c (logmsg): Only accept priority if the exact bit
+	is set (instead of an inequality).
+	(cfline): negate_pri, excl_pri, pri_set, pri_clear: New variables.
+	Allow '!' and '=' prepended to priority specification to exclude
+	these resp. higher priorities.
+
+	* syslogd.c (printline): Add SYNC_FILE to logmsg
+	invocation for more reliability.
+	(struct filed): New member f_flags to hold new macro OMIT_SYNC.
+	(logmsg): Only fsync if OMIT_SYNC is not set.
+	(cfline): Clear f_flags at initialization.
+	Set OMIT_SYNC in f_flags if action is prepended by `-' in
+	the conf file.
+
+	* syslog.conf.5: Document level modifiers '!' and '='.
+	Add `-' rule.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+
+Wed Feb 14 12:42:09 CST 1996:  Dr. Wettstein
+Allowed forwarding of messages received from remote hosts to
+be controlled by a command-line switch.  Specifying -h allows
+forwarding.  The default behavior is to disable forwarding of
+messages which were received from a remote host.
+
+	* syslogd.c: New global variable "NoHops".
+	(main): New option "-h" to clear NoHops.
+	(usage): Document new "-h" option.
+	(fprintlog): New argument (char *) from.
+	If from != LocalHostName and NoHops set, don't forward
+	message.
+	(logmsg): Add from argument to fprintlog invocation.
+	(domark): Likewise.
+	(die): Likewise.
+	(init): Likewise.
+
+	* syslogd.8: Document new "-h" option.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Wed Jul 26 18:57:23 MET DST 1995:  Martin Schulze
+The 'LocalDomain' and the hostname of a remote machine is
+converted to lower case, because the original caused some
+inconsistency, because the (at least my) nameserver did respond an
+fqdn containing of upper- _and_ lowercase letters while
+'LocalDomain' consisted only of lowercase letters and that didn't
+match.
+
+	* syslogd.c (main): Try harder to get the FQDN of
+	localhost and convert LocalDomain to lowercase. (This should
+	probably be in libinetutils).
+	(cvthname): Add "." to output strings.
+	Convert hostname to lowercase before comparing with LocalDomain.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Tue May 28 00:58:45 MET DST 1996:  Martin Schulze
+Corrected behaviour of blocking pipes - i.e. the whole system
+hung.  Michael Nonweiler <mrn20@hermes.cam.ac.uk> has sent us
+a patch to correct this.  A new logfile type F_PIPE has been
+introduced.
+
+	* syslogd.c: New macro F_PIPE.
+	(TypeNames): New logfile type PIPE.
+	(fprintlog): Support for F_PIPE added.
+	(init): Likewise.
+	(cfline): Likewise, use '|' in conf file.
+	(cfline): Open log files with O_CREAT and
+	permission 0644.
+
+	* syslog.conf.5: Add documentation for new logfile type PIPE.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon May 20 13:29:32 MET DST 1996:  Miquel van Smoorenburg <miquels@cistron.nl>
+Added continuation line support.
+
+	* syslogd.c (init): Add support for continuated lines
+          (implemented by Miquel van Smoorenburg <miquels@cistron.nl>).
+
+	* syslog.conf.5: Mention continuated line feature.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon Aug 21 22:10:35 MET DST 1995:  Martin Schulze
+Corrected a strange behavior during parsing of configuration
+file. The original BSD syslogd doesn't understand spaces as
+separators between specifier and action. This syslogd now
+understands them. The old behavior caused some confusion over
+the Linux community.
+
+	* syslogd.c (cfline): Allow space as delimiter.
+
+	* syslog.conf.5: Seperator can now be a space, too.
+
+1999-10-01  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Thu Oct 26 13:14:06 MET 1995:  Martin Schulze
+Added another logfile type F_FORW_UNKN.  The problem I ran into
+was a name server that runs on my machine and a forwarder of
+kern.crit to another host.  The hosts address can only be
+fetched using the nameserver.  But named is started after
+syslogd, so syslogd complained.
+This logfile type will retry to get the address of the
+hostname ten times and then complain.  This should be enough to
+get the named up and running during boot sequence.
+Sat Jan 10 01:33:06 CET 1998: Martin Schulze <joey@infodrom.north.de>
+Fixed small bugs in F_FORW_UNKN meachanism.  Thanks to Torsten
+Neumann <torsten@londo.rhein-main.de> for pointing me to it.
+
+	* syslogd.c: INET_SUSPEND_TIME, INET_RETRY_MAX,
+	F_FORW_UNKN: New macros.
+	TypeNames: Add "FORW(UNKNOWN)". If gethostbyname fails for some host,
+	this type will retry INET_RETRY_TIMES times before it finally fails.
+	(fprintlog): New variable hp. Move clearing f_time inside every
+	case it is appropriate for. Add new case F_FORW_UNKN. New goto
+	target f_forw. Only clear f_prevcount if appropriate.
+	(init): Do not close f_file for F_FORW. Add debug output for
+	F_FORW_UNKN.
+	(cfline): If gethostbyname fails, set f_type to F_FORW_UNKN instead
+	giving up instantly.
+
+1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (MAXSVLINE): Increase number.
+	(cfline): Double size of ebuf.
+
+	* syslogd/syslogd.c (decode): Double buffer size.
+
+199-08-07  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (usage): Add -V option,
+	make output consistent with other GNU tools.
+
+1999-08-07  Marcus Brinkmann  <brinkmd@debian.org>
+
+This is the equivalent to the following Linux change:
+Mon Oct 12 22:18:34 CEST 1998: Martin Schulze <joey@infodrom.north.de>
+Modified printline() to support 8bit characters - such as
+russion letters.  Thanks to Vladas Lapinskas <lapinskas@mail.iae.lt>.
+
+	* syslogd/syslogd.c (printline): Make eight bit clean for our
+	friends in Russia (and other).
+
+1999-06-08  Marcus Brinkmann  <brinkmd@debian.org>
+
+	* syslogd/syslogd.c (fprintlog): Use snprintf instead of sprintf.
+	* syslogd/syslogd.c: Fixed typo in comment.
+	* syslogd/syslogd.c: Include <version.h>.
+	(main): Add option -V (version).
+

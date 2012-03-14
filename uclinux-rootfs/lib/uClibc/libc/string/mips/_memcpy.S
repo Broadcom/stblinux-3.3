@@ -1,0 +1,2048 @@
+/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Hartvig Ekner <hartvige@mips.com>, 2002.
+
+   Copyright (C) 2011 Broadcom Corporation
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, write to the Free
+   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+   02111-1307 USA.  */
+
+#include <features.h>
+#include <endian.h>
+#include "sysdep.h"
+#include <sys/asm.h>
+#include <sys/regdef.h>
+
+#if !defined(__mips64)
+
+/* void *memcpy(void *s1, const void *s2, size_t n);  */
+
+#if __BYTE_ORDER == __BIG_ENDIAN
+#  define LWHI	lwl		/* high part is left in big-endian	*/
+#  define SWHI	swl		/* high part is left in big-endian	*/
+#  define LWLO	lwr		/* low part is right in big-endian	*/
+#  define SWLO	swr		/* low part is right in big-endian	*/
+#else
+#  define LWHI	lwr		/* high part is right in little-endian	*/
+#  define SWHI	swr		/* high part is right in little-endian	*/
+#  define LWLO	lwl		/* low part is left in little-endian	*/
+#  define SWLO	swl		/* low part is left in little-endian	*/
+#endif
+
+#ifdef __PIC__
+	.option	pic2
+#endif
+
+	.data
+	.align  2
+	.type	__cputype, @object
+	.size	__cputype, 4
+__cputype:
+	.word	0
+
+__str_bmips4380:
+	.string	"bmips4380"
+__str_bmips5000:
+	.string	"bmips5000"
+
+
+	.text
+
+ENTRY (memcpy)
+	.set	noreorder
+#ifdef __PIC__
+	.cpload	t9
+#endif
+
+	lw	t0, __cputype
+	beqz	t0, detect_cpu		# based on cpu type
+	nop
+
+detect_done:
+	li	t1, 4380
+	beq	t0, t1, _4380_memcpy
+	nop
+
+	li	t1, 5000
+	beq	t0, t1, _5000_memcpy
+	nop
+
+	/* default case: BMIPS3300 memcpy() */
+
+#undef L
+#define	L(x)	__BMIPS3300_memcpy_##x
+
+	slti	t0, a2, 8		# Less than 8?
+	bne	t0, zero, L(last8)
+	move	v0, a0			# Setup exit value before too late
+
+	xor	t0, a1, a0		# Find a0/a1 displacement
+	andi	t0, 0x3
+	bne	t0, zero, L(shift)	# Go handle the unaligned case
+	subu	t1, zero, a1
+	andi	t1, 0x3			# a0/a1 are aligned, but are we
+	beq	t1, zero, L(chk8w)	#  starting in the middle of a word?
+	subu	a2, t1
+	LWHI	t0, 0(a1)		# Yes we are... take care of that
+	addu	a1, t1
+	SWHI	t0, 0(a0)
+	addu	a0, t1
+
+L(chk8w):
+	andi	t0, a2, 0x1f		# 32 or more bytes left?
+	beq	t0, a2, L(chk1w)
+	subu	a3, a2, t0		# Yes
+
+	addu	a3, a0			# a3 = end address of loop
+	subu	a3, a3, 0x10
+	.align 4
+	move	a2, t0			# a2 = what will be left after loop
+
+	lw	t0,  0(a1)		# Loop taking 8 words at a time
+	sw	t0,  0(a0)
+L(lop8w):
+	lw	t1,  0x10(a1)
+	pref	30,  0x10(a0)
+	lw	t2,  0x4(a1)
+	lw	t3,  0x8(a1)
+	lw	t4, 0xc(a1)
+	sw	t1,  0x10(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4, 0xc(a0)
+	add	a0, a0, 0x10
+	bne	a0, a3, L(lop8w)
+	add	a1, a1, 0x10
+	lw	t2,  0x4(a1)
+	lw	t3,  0x8(a1)
+	lw	t4, 0xc(a1)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4, 0xc(a0)
+	add	a1, a1, 0x10
+	add	a0, a0, 0x10
+
+L(chk1w):
+	andi	t0, a2, 0x3		# 4 or more bytes left?
+	beq	t0, a2, L(last8)
+	subu	a3, a2, t0		# Yes, handle them one word at a time
+	addu	a3, a1			# a3 again end address
+	move	a2, t0
+L(lop1w):
+	lw	t0, 0(a1)
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a1, a3, L(lop1w)
+	sw	t0, -4(a0)
+
+L(last8):
+	blez	a2, L(lst8e)		# Handle last 8 bytes, one at a time
+	addu	a3, a2, a1
+L(lst8l):
+	lb	t0, 0(a1)
+	addiu	a0, 1
+	addiu	a1, 1
+	bne	a1, a3, L(lst8l)
+	sb	t0, -1(a0)
+L(lst8e):
+	jr	ra			# Bye, bye
+	nop
+
+L(shift):
+	subu	a3, zero, a0		# Src and Dest unaligned
+	andi	a3, 0x3			#  (unoptimized case...)
+	beq	a3, zero, L(shft1)
+	subu	a2, a3			# a2 = bytes left
+	LWHI	t0, 0(a1)		# Take care of first odd part
+	LWLO	t0, 3(a1)
+	addu	a1, a3
+	SWHI	t0, 0(a0)
+	addu	a0, a3
+L(shft1):
+	andi	t0, a2, 0x3
+	subu	a3, a2, t0
+	addu	a3, a1
+L(shfth):
+	LWHI	t1, 0(a1)		# Limp through, word by word
+	LWLO	t1, 3(a1)
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a1, a3, L(shfth)
+	sw	t1, -4(a0)
+	b	L(last8)		# Handle anything which may be left
+	move	a2, t0
+
+_4380_memcpy:
+
+#undef L
+#define	L(x)	__BMIPS4380_memcpy_##x
+
+	slti	t0, a2, 8		# Less than 8 bytes?
+	bne	t0, zero, L(last8ByteCopy) #  Yes, proceed to process 8 bytes.
+	move	v0, a0			# setup exit value before too late
+
+	xor	t0, a1, a0		# find a0/a1 displacement
+	andi	t0, 0x3
+	beq	t0, zero, L(wordAlign)	# go handle the word-aligned case
+	subu	t1, zero, a1
+	b	L(unAlignSrcDest)
+	subu	a3, zero, a0
+
+	/*********************************************************************
+	 * SRC and DEST are Word-Aligned.
+	 *********************************************************************/
+L(wordAlign):
+	andi	t1, 0x3		# a0/a1 are aligned, but r we
+	beq	t1, zero, L(intCheck8w) #  starting in middle of a word?
+	subu	a2, t1
+
+	LWHI	t0, 0(a1)	# src is in the middle of a word...
+	addu	a1, t1
+	SWHI	t0, 0(a0)
+	addu	a0, t1
+
+L(intCheck8w): 			# SRC is at begin of word
+	andi	t0, a2, 0x1ff	# 512 or more bytes left ?
+	beq	t0, a2, L(check4w)	#   NO, less than 512, proceed to process 4w/16B
+	subu	a3, a2, t0	#   Yes, more than 512, maybe we can use FPU copy
+
+	addu	a3, a0		# a3 = end address of loop
+	subu	a3, a3, 0x100
+	.align 4
+	move	a2, t0		# a2 = what will be left after loop
+
+	lw	t6,  0(a1)	# Loop taking 32 words at a time
+
+	/*--------------------------------------------------------------------
+	 * Integer Copy Loop
+	 *--------------------------------------------------------------------*/
+L(intLoopBack):
+	pref	30,  0x40(a0)
+	lw	t5,  0x40(a1)
+
+	lw	t2,  0x4(a1)
+	lw	t3,  0x8(a1)
+	lw	t4,  0xc(a1)
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	lw	t1,  0x10(a1)
+	lw	t2,  0x14(a1)
+	lw	t3,  0x18(a1)
+	lw	t4,  0x1c(a1)
+	sw	t1,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	lw	t1,  0x20(a1)
+	lw	t2,  0x24(a1)
+	lw	t3,  0x28(a1)
+	lw	t4,  0x2c(a1)
+	sw	t1,  0x20(a0)
+	sw	t2,  0x24(a0)
+	sw	t3,  0x28(a0)
+	sw	t4,  0x2c(a0)
+
+	lw	t1,  0x30(a1)
+	lw	t2,  0x34(a1)
+	lw	t3,  0x38(a1)
+	lw	t4,  0x3c(a1)
+	sw	t1,  0x30(a0)
+	sw	t2,  0x34(a0)
+	sw	t3,  0x38(a0)
+	sw	t4,  0x3c(a0)
+
+	pref	30,  0x80(a0)
+	lw	t6,  0x80(a1)
+
+	lw	t2,  0x44(a1)
+	lw	t3,  0x48(a1)
+	lw	t4,  0x4c(a1)
+	sw	t5,  0x40(a0)
+	sw	t2,  0x44(a0)
+	sw	t3,  0x48(a0)
+	sw	t4,  0x4c(a0)
+
+	lw	t1,  0x50(a1)
+	lw	t2,  0x54(a1)
+	lw	t3,  0x58(a1)
+	lw	t4,  0x5c(a1)
+	sw	t1,  0x50(a0)
+	sw	t2,  0x54(a0)
+	sw	t3,  0x58(a0)
+	sw	t4,  0x5c(a0)
+
+	lw	t1,  0x60(a1)
+	lw	t2,  0x64(a1)
+	lw	t3,  0x68(a1)
+	lw	t4,  0x6c(a1)
+	sw	t1,  0x60(a0)
+	sw	t2,  0x64(a0)
+	sw	t3,  0x68(a0)
+	sw	t4,  0x6c(a0)
+
+	lw	t1,  0x70(a1)
+	lw	t2,  0x74(a1)
+	lw	t3,  0x78(a1)
+	lw	t4,  0x7c(a1)
+	sw	t1,  0x70(a0)
+	sw	t2,  0x74(a0)
+	sw	t3,  0x78(a0)
+	sw	t4,  0x7c(a0)
+
+	pref	30,  0xc0(a0)
+	lw	t5,  0xc0(a1)
+
+	lw	t2,  0x84(a1)
+	lw	t3,  0x88(a1)
+	lw	t4,  0x8c(a1)
+	sw	t6,  0x80(a0)
+	sw	t2,  0x84(a0)
+	sw	t3,  0x88(a0)
+	sw	t4,  0x8c(a0)
+
+	lw	t1,  0x90(a1)
+	lw	t2,  0x94(a1)
+	lw	t3,  0x98(a1)
+	lw	t4,  0x9c(a1)
+	sw	t1,  0x90(a0)
+	sw	t2,  0x94(a0)
+	sw	t3,  0x98(a0)
+	sw	t4,  0x9c(a0)
+
+	lw	t1,  0xa0(a1)
+	lw	t2,  0xa4(a1)
+	lw	t3,  0xa8(a1)
+	lw	t4,  0xac(a1)
+	sw	t1,  0xa0(a0)
+	sw	t2,  0xa4(a0)
+	sw	t3,  0xa8(a0)
+	sw	t4,  0xac(a0)
+
+	lw	t1,  0xb0(a1)
+	lw	t2,  0xb4(a1)
+	lw	t3,  0xb8(a1)
+	lw	t4,  0xbc(a1)
+	sw	t1,  0xb0(a0)
+	sw	t2,  0xb4(a0)
+	sw	t3,  0xb8(a0)
+	sw	t4,  0xbc(a0)
+
+	pref	30,  0x100(a0)
+	lw	t6,  0x100(a1)
+
+	lw	t2,  0xc4(a1)
+	lw	t3,  0xc8(a1)
+	lw	t4,  0xcc(a1)
+	sw	t5,  0xc0(a0)
+	sw	t2,  0xc4(a0)
+	sw	t3,  0xc8(a0)
+	sw	t4,  0xcc(a0)
+
+	lw	t1,  0xd0(a1)
+	lw	t2,  0xd4(a1)
+	lw	t3,  0xd8(a1)
+	lw	t4,  0xdc(a1)
+	sw	t1,  0xd0(a0)
+	sw	t2,  0xd4(a0)
+	sw	t3,  0xd8(a0)
+	sw	t4,  0xdc(a0)
+
+	lw	t1,  0xe0(a1)
+	lw	t2,  0xe4(a1)
+	lw	t3,  0xe8(a1)
+	lw	t4,  0xec(a1)
+	sw	t1,  0xe0(a0)
+	sw	t2,  0xe4(a0)
+	sw	t3,  0xe8(a0)
+	sw	t4,  0xec(a0)
+
+	lw	t1,  0xf0(a1)
+	lw	t2,  0xf4(a1)
+	lw	t3,  0xf8(a1)
+	lw	t4,  0xfc(a1)
+	sw	t1,  0xf0(a0)
+	sw	t2,  0xf4(a0)
+	sw	t3,  0xf8(a0)
+	sw	t4,  0xfc(a0)
+
+	add	a0, a0, 0x100
+	bne	a0, a3, L(intLoopBack)
+	add	a1, a1, 0x100
+
+	lw	t2,  0x4(a1)
+	lw	t3,  0x8(a1)
+	lw	t4,  0xc(a1)
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	lw	t1,  0x10(a1)
+	lw	t2,  0x14(a1)
+	lw	t3,  0x18(a1)
+	lw	t4,  0x1c(a1)
+	sw	t1,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	lw	t1,  0x20(a1)
+	lw	t2,  0x24(a1)
+	lw	t3,  0x28(a1)
+	lw	t4,  0x2c(a1)
+	sw	t1,  0x20(a0)
+	sw	t2,  0x24(a0)
+	sw	t3,  0x28(a0)
+	sw	t4,  0x2c(a0)
+
+	lw	t1,  0x30(a1)
+	lw	t2,  0x34(a1)
+	lw	t3,  0x38(a1)
+	lw	t4,  0x3c(a1)
+	sw	t1,  0x30(a0)
+	sw	t2,  0x34(a0)
+	sw	t3,  0x38(a0)
+	sw	t4,  0x3c(a0)
+
+	lw	t1,  0x40(a1)
+	lw	t2,  0x44(a1)
+	lw	t3,  0x48(a1)
+	lw	t4,  0x4c(a1)
+	sw	t1,  0x40(a0)
+	sw	t2,  0x44(a0)
+	sw	t3,  0x48(a0)
+	sw	t4,  0x4c(a0)
+
+	lw	t1,  0x50(a1)
+	lw	t2,  0x54(a1)
+	lw	t3,  0x58(a1)
+	lw	t4,  0x5c(a1)
+	sw	t1,  0x50(a0)
+	sw	t2,  0x54(a0)
+	sw	t3,  0x58(a0)
+	sw	t4,  0x5c(a0)
+
+	lw	t1,  0x60(a1)
+	lw	t2,  0x64(a1)
+	lw	t3,  0x68(a1)
+	lw	t4,  0x6c(a1)
+	sw	t1,  0x60(a0)
+	sw	t2,  0x64(a0)
+	sw	t3,  0x68(a0)
+	sw	t4,  0x6c(a0)
+
+	lw	t1,  0x70(a1)
+	lw	t2,  0x74(a1)
+	lw	t3,  0x78(a1)
+	lw	t4,  0x7c(a1)
+	sw	t1,  0x70(a0)
+	sw	t2,  0x74(a0)
+	sw	t3,  0x78(a0)
+	sw	t4,  0x7c(a0)
+
+	lw	t1,  0x80(a1)
+	lw	t2,  0x84(a1)
+	lw	t3,  0x88(a1)
+	lw	t4,  0x8c(a1)
+	sw	t1,  0x80(a0)
+	sw	t2,  0x84(a0)
+	sw	t3,  0x88(a0)
+	sw	t4,  0x8c(a0)
+
+	lw	t1,  0x90(a1)
+	lw	t2,  0x94(a1)
+	lw	t3,  0x98(a1)
+	lw	t4,  0x9c(a1)
+	sw	t1,  0x90(a0)
+	sw	t2,  0x94(a0)
+	sw	t3,  0x98(a0)
+	sw	t4,  0x9c(a0)
+
+	lw	t1,  0xa0(a1)
+	lw	t2,  0xa4(a1)
+	lw	t3,  0xa8(a1)
+	lw	t4,  0xac(a1)
+	sw	t1,  0xa0(a0)
+	sw	t2,  0xa4(a0)
+	sw	t3,  0xa8(a0)
+	sw	t4,  0xac(a0)
+
+	lw	t1,  0xb0(a1)
+	lw	t2,  0xb4(a1)
+	lw	t3,  0xb8(a1)
+	lw	t4,  0xbc(a1)
+	sw	t1,  0xb0(a0)
+	sw	t2,  0xb4(a0)
+	sw	t3,  0xb8(a0)
+	sw	t4,  0xbc(a0)
+
+	lw	t1,  0xc0(a1)
+	lw	t2,  0xc4(a1)
+	lw	t3,  0xc8(a1)
+	lw	t4,  0xcc(a1)
+	sw	t1,  0xc0(a0)
+	sw	t2,  0xc4(a0)
+	sw	t3,  0xc8(a0)
+	sw	t4,  0xcc(a0)
+
+	lw	t1,  0xd0(a1)
+	lw	t2,  0xd4(a1)
+	lw	t3,  0xd8(a1)
+	lw	t4,  0xdc(a1)
+	sw	t1,  0xd0(a0)
+	sw	t2,  0xd4(a0)
+	sw	t3,  0xd8(a0)
+	sw	t4,  0xdc(a0)
+
+	lw	t1,  0xe0(a1)
+	lw	t2,  0xe4(a1)
+	lw	t3,  0xe8(a1)
+	lw	t4,  0xec(a1)
+	sw	t1,  0xe0(a0)
+	sw	t2,  0xe4(a0)
+	sw	t3,  0xe8(a0)
+	sw	t4,  0xec(a0)
+
+	lw	t1,  0xf0(a1)
+	lw	t2,  0xf4(a1)
+	lw	t3,  0xf8(a1)
+	lw	t4,  0xfc(a1)
+	sw	t1,  0xf0(a0)
+	sw	t2,  0xf4(a0)
+	sw	t3,  0xf8(a0)
+	sw	t4,  0xfc(a0)
+
+	add	a1, a1, 0x100
+	add	a0, a0, 0x100
+
+	/*--------------------------------------------------------------------
+	 * copy if >16 and <512 bytes left-over
+	 *--------------------------------------------------------------------*/
+L(check4w): andi	t0, a2, 0xf		# 16 or more bytes left?
+	beq	t0, a2, L(check1w)		#   NO, less than 16, proceed to check1w (4bytes loop)
+	subu	a3, a2, t0			#   Yes, handle them in 16 bytes loop.
+
+	addu	a3, a1				# a3 = end address.
+	move	a2, t0
+
+L(loop4w):	lw	t0, 0(a1)		# loop for 16 bytes/4 words at a time.
+	lw	t1, 4(a1)
+	lw	t2, 8(a1)
+	lw	t3, 0xc(a1)
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	addiu	a0, 16
+	addiu	a1, 16
+	bne	a1, a3, L(loop4w)
+	sw	t3, -4(a0)
+
+L(check1w): andi	t0, a2, 0x3		# 4 or more bytes left?
+	beq	t0, a2, L(last8ByteCopy)	#   NO, less than 4 bytes, proceed to process 3 bytes
+	subu	a3, a2, t0			#   Yes, handle them 1 word at a time
+	addu	a3, a1				# a3 = end address.
+	move	a2, t0
+
+L(loop1w):	lw	t0, 0(a1)		# loop 4 bytes/1 word at a time.
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a1, a3, L(loop1w)
+	sw	t0, -4(a0)
+
+L(last8ByteCopy):	blez	a2, L(last8BCExit)	# handle last 8 bytes, one byte at a time.
+	addu	a3, a2, a1
+
+L(last8BCLoopBack): lb	t0, 0(a1)	# last 8 bytes copy loop.
+	addiu	a0, 1
+	addiu	a1, 1
+	bne	a1, a3, L(last8BCLoopBack)
+	sb	t0, -1(a0)
+
+L(last8BCExit):
+	jr	$31			# return to caller.
+	nop
+
+
+
+	/*********************************************************************
+	 * SRC and DEST are NOT Aligned.
+	 *********************************************************************/
+L(unAlignSrcDest):				# SRC and DEST are NOT aligned.
+	andi	a3, 0x3			# Is DEST word aligned?
+	beq	a3, zero, L(uaCheck512)	#   YES, DEST is word-aligned, SW may be used.
+					#   NO, DEST is NOT word-aligned, has to adjust.
+
+	subu	a2, a3			# a2 = number of bytes left
+
+	LWHI	t0, 0(a1)		# DEST is NOT word aligned...
+	LWLO	t0, 3(a1)		#   adjust so DEST will be aligned.
+	addu	a1, a3
+	SWHI	t0, 0(a0)
+	addu	a0, a3
+L(uaCheck512):				# DEST is word-aligned.
+	andi	t0, a2, 0x1ff		# 512 or more bytes left ?
+	beq	t0, a2, L(uaCheck4w)	#   No, less than 512, cannot execute "pref"
+	subu	a3, a2, t0		#   Yes, more than 512, loop & "pref"
+
+	addu	a3, a0			# a3 = end address of loop
+	subu	a3, a3, 0x100
+	.align 4
+	move	a2, t0			# a2 = what will be left after loop
+	LWHI	t6,  0(a1)		# Loop taking 32 words at a time
+
+	/*--------------------------------------------------------------------
+	 * SRC and DEST are NOT Aligned, >512B, copy using LW/SW WITH pref
+	 *--------------------------------------------------------------------*/
+	add	t7, a0, 0x300		# prefetch dest 2 line size ahead.
+L(uaLoopBack):
+	pref	30,  0x40(a0)
+	LWHI	t5,  0x40(a1)
+
+	LWHI	t2,  0x4(a1)
+	LWHI	t3,  0x8(a1)
+	LWHI	t4,  0xc(a1)
+
+	LWLO	t6,  3(a1)
+	LWLO	t2,  0x7(a1)
+	LWLO	t3,  0xb(a1)
+	LWLO	t4,  0xf(a1)
+
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	# preload source
+	bge	t7, a3, L(uaSkip)
+	add	t7, t7, 0x100
+	lb	zero, 0x300(a1)
+L(uaSkip):
+	LWHI	t1,  0x10(a1)
+	LWHI	t2,  0x14(a1)
+	LWHI	t3,  0x18(a1)
+	LWHI	t4,  0x1c(a1)
+	LWLO	t1,  0x13(a1)
+	LWLO	t2,  0x17(a1)
+	LWLO	t3,  0x1b(a1)
+	LWLO	t4,  0x1f(a1)
+
+	sw	t1,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	LWHI	t1,  0x20(a1)
+	LWHI	t2,  0x24(a1)
+	LWHI	t3,  0x28(a1)
+	LWHI	t4,  0x2c(a1)
+	LWLO	t1,  0x23(a1)
+	LWLO	t2,  0x27(a1)
+	LWLO	t3,  0x2b(a1)
+	LWLO	t4,  0x2f(a1)
+
+	sw	t1,  0x20(a0)
+	sw	t2,  0x24(a0)
+	sw	t3,  0x28(a0)
+	sw	t4,  0x2c(a0)
+
+	LWHI	t1,  0x30(a1)
+	LWHI	t2,  0x34(a1)
+	LWHI	t3,  0x38(a1)
+	LWHI	t4,  0x3c(a1)
+	LWLO	t1,  0x33(a1)
+	LWLO	t2,  0x37(a1)
+	LWLO	t3,  0x3b(a1)
+	LWLO	t4,  0x3f(a1)
+
+	sw	t1,  0x30(a0)
+	sw	t2,  0x34(a0)
+	sw	t3,  0x38(a0)
+	sw	t4,  0x3c(a0)
+
+	pref	30,  0x80(a0)
+	LWHI	t6,  0x80(a1)
+
+	LWHI	t2,  0x44(a1)
+	LWHI	t3,  0x48(a1)
+	LWHI	t4,  0x4c(a1)
+	LWLO	t5,  0x43(a1)
+	LWLO	t2,  0x47(a1)
+	LWLO	t3,  0x4b(a1)
+	LWLO	t4,  0x4f(a1)
+
+	sw	t5,  0x40(a0)
+	sw	t2,  0x44(a0)
+	sw	t3,  0x48(a0)
+	sw	t4,  0x4c(a0)
+
+	LWHI	t1,  0x50(a1)
+	LWHI	t2,  0x54(a1)
+	LWHI	t3,  0x58(a1)
+	LWHI	t4,  0x5c(a1)
+	LWLO	t1,  0x53(a1)
+	LWLO	t2,  0x57(a1)
+	LWLO	t3,  0x5b(a1)
+	LWLO	t4,  0x5f(a1)
+
+	sw	t1,  0x50(a0)
+	sw	t2,  0x54(a0)
+	sw	t3,  0x58(a0)
+	sw	t4,  0x5c(a0)
+
+	LWHI	t1,  0x60(a1)
+	LWHI	t2,  0x64(a1)
+	LWHI	t3,  0x68(a1)
+	LWHI	t4,  0x6c(a1)
+	LWLO	t1,  0x63(a1)
+	LWLO	t2,  0x67(a1)
+	LWLO	t3,  0x6b(a1)
+	LWLO	t4,  0x6f(a1)
+
+	sw	t1,  0x60(a0)
+	sw	t2,  0x64(a0)
+	sw	t3,  0x68(a0)
+	sw	t4,  0x6c(a0)
+
+	LWHI	t1,  0x70(a1)
+	LWHI	t2,  0x74(a1)
+	LWHI	t3,  0x78(a1)
+	LWHI	t4,  0x7c(a1)
+	LWLO	t1,  0x73(a1)
+	LWLO	t2,  0x77(a1)
+	LWLO	t3,  0x7b(a1)
+	LWLO	t4,  0x7f(a1)
+
+	sw	t1,  0x70(a0)
+	sw	t2,  0x74(a0)
+	sw	t3,  0x78(a0)
+	sw	t4,  0x7c(a0)
+
+	pref	30,  0xc0(a0)
+	LWHI	t5,  0xc0(a1)
+
+	LWHI	t2,  0x84(a1)
+	LWHI	t3,  0x88(a1)
+	LWHI	t4,  0x8c(a1)
+	LWLO	t6,  0x83(a1)
+	LWLO	t2,  0x87(a1)
+	LWLO	t3,  0x8b(a1)
+	LWLO	t4,  0x8f(a1)
+
+	sw	t6,  0x80(a0)
+	sw	t2,  0x84(a0)
+	sw	t3,  0x88(a0)
+	sw	t4,  0x8c(a0)
+
+	LWHI	t1,  0x90(a1)
+	LWHI	t2,  0x94(a1)
+	LWHI	t3,  0x98(a1)
+	LWHI	t4,  0x9c(a1)
+	LWLO	t1,  0x93(a1)
+	LWLO	t2,  0x97(a1)
+	LWLO	t3,  0x9b(a1)
+	LWLO	t4,  0x9f(a1)
+
+	sw	t1,  0x90(a0)
+	sw	t2,  0x94(a0)
+	sw	t3,  0x98(a0)
+	sw	t4,  0x9c(a0)
+
+	LWHI	t1,  0xa0(a1)
+	LWHI	t2,  0xa4(a1)
+	LWHI	t3,  0xa8(a1)
+	LWHI	t4,  0xac(a1)
+	LWLO	t1,  0xa3(a1)
+	LWLO	t2,  0xa7(a1)
+	LWLO	t3,  0xab(a1)
+	LWLO	t4,  0xaf(a1)
+
+	sw	t1,  0xa0(a0)
+	sw	t2,  0xa4(a0)
+	sw	t3,  0xa8(a0)
+	sw	t4,  0xac(a0)
+
+	LWHI	t1,  0xb0(a1)
+	LWHI	t2,  0xb4(a1)
+	LWHI	t3,  0xb8(a1)
+	LWHI	t4,  0xbc(a1)
+	LWLO	t1,  0xb3(a1)
+	LWLO	t2,  0xb7(a1)
+	LWLO	t3,  0xbb(a1)
+	LWLO	t4,  0xbf(a1)
+
+	sw	t1,  0xb0(a0)
+	sw	t2,  0xb4(a0)
+	sw	t3,  0xb8(a0)
+	sw	t4,  0xbc(a0)
+
+	pref	30,  0x100(a0)
+	LWHI	t6,  0x100(a1)
+
+	LWHI	t2,  0xc4(a1)
+	LWHI	t3,  0xc8(a1)
+	LWHI	t4,  0xcc(a1)
+	LWLO	t5,  0xc3(a1)
+	LWLO	t2,  0xc7(a1)
+	LWLO	t3,  0xcb(a1)
+	LWLO	t4,  0xcf(a1)
+
+	sw	t5,  0xc0(a0)
+	sw	t2,  0xc4(a0)
+	sw	t3,  0xc8(a0)
+	sw	t4,  0xcc(a0)
+
+	LWHI	t1,  0xd0(a1)
+	LWHI	t2,  0xd4(a1)
+	LWHI	t3,  0xd8(a1)
+	LWHI	t4,  0xdc(a1)
+	LWLO	t1,  0xd3(a1)
+	LWLO	t2,  0xd7(a1)
+	LWLO	t3,  0xdb(a1)
+	LWLO	t4,  0xdf(a1)
+
+	sw	t1,  0xd0(a0)
+	sw	t2,  0xd4(a0)
+	sw	t3,  0xd8(a0)
+	sw	t4,  0xdc(a0)
+
+	LWHI	t1,  0xe0(a1)
+	LWHI	t2,  0xe4(a1)
+	LWHI	t3,  0xe8(a1)
+	LWHI	t4,  0xec(a1)
+	LWLO	t1,  0xe3(a1)
+	LWLO	t2,  0xe7(a1)
+	LWLO	t3,  0xeb(a1)
+	LWLO	t4,  0xef(a1)
+
+	sw	t1,  0xe0(a0)
+	sw	t2,  0xe4(a0)
+	sw	t3,  0xe8(a0)
+	sw	t4,  0xec(a0)
+
+	LWHI	t1,  0xf0(a1)
+	LWHI	t2,  0xf4(a1)
+	LWHI	t3,  0xf8(a1)
+	LWHI	t4,  0xfc(a1)
+	LWLO	t1,  0xf3(a1)
+	LWLO	t2,  0xf7(a1)
+	LWLO	t3,  0xfb(a1)
+	LWLO	t4,  0xff(a1)
+
+	sw	t1,  0xf0(a0)
+	sw	t2,  0xf4(a0)
+	sw	t3,  0xf8(a0)
+	sw	t4,  0xfc(a0)
+
+	add	a0, a0, 0x100
+	bne		a0, a3, L(uaLoopBack)
+	add	a1, a1, 0x100
+
+	addu	a3, 0x100	# add 0x100 back
+
+	#
+	# copy loop 32 words at a time.
+	#
+L(uaRemain64LoopBack):
+	LWHI	t6,  0(a1)		# Loop taking 32 words at a time
+	LWHI	t2,  0x4(a1)
+	LWHI	t3,  0x8(a1)
+	LWHI	t4,  0xc(a1)
+	LWLO	t6,  3(a1)
+	LWLO	t2,  0x7(a1)
+	LWLO	t3,  0xb(a1)
+	LWLO	t4,  0xf(a1)
+
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	LWHI	t6,  0x10(a1)
+	LWHI	t2,  0x14(a1)
+	LWHI	t3,  0x18(a1)
+	LWHI	t4,  0x1c(a1)
+	LWLO	t6,  0x13(a1)
+	LWLO	t2,  0x17(a1)
+	LWLO	t3,  0x1b(a1)
+	LWLO	t4,  0x1f(a1)
+
+	sw	t6,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	addiu	a0,  0x20
+	bne	a0,  a3, L(uaRemain64LoopBack)
+	addiu	a1,  0x20
+
+	addu	a3,  a2
+
+	/*--------------------------------------------------------------------
+	 * SRC and DEST are NOT Aligned, <512B, copy using LW/SW WITHOUT pref
+	 *--------------------------------------------------------------------*/
+L(uaCheck4w): andi	t0, a2, 0xf		# 16 or more bytes left?
+	beq	t0, a2, L(uaCheck1w)	#   NO, <16 bytes, proceed to process 1w
+	subu	a3, a2, t0		#   Yes, >16, copy 16 bytes at a time.
+
+	addu	a3, a1			# a3 = end address.
+	move	a2, t0
+
+L(ua4wLoopBack):				# loop 16 bytes/4 words at a time.
+	LWHI	t0, 0(a1)
+	LWHI	t1, 4(a1)
+	LWHI	t2, 8(a1)
+	LWHI	t3, 0xc(a1)
+	LWLO	t0, 3(a1)
+	LWLO	t1, 7(a1)
+	LWLO	t2, 0xb(a1)
+	LWLO	t3, 0xf(a1)
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	addiu	a0, 16
+	addiu	a1, 16
+	bne	a1, a3, L(ua4wLoopBack)
+	sw	t3, -4(a0)
+
+L(uaCheck1w): andi	t0, a2, 0x3		# 4 or more bytes left?
+	beq	t0, a2, L(last8ByteCopy)	#   NO, <4 bytes, proceed to 8-bytes-copy
+	subu	a3, a2, t0
+
+	addu	a3, a0			#   YES, >4 bytes, can use LW/SW.
+
+L(uaRemain):
+	LWHI	t1, 0(a1)		# copy 1 word/4 bytes at a time.
+	LWLO	t1, 3(a1)
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a0, a3, L(uaRemain)
+	sw	t1, -4(a0)
+
+	b	L(last8ByteCopy)		# handle anything that may be left.
+	move	a2, t0
+
+#undef L
+#define	L(x)	__BMIPS5000_memcpy_##x
+
+_5000_memcpy:
+
+	slti	t0, a2, 8		# Less than 8 bytes?
+	bne	t0, zero, L(last8ByteCopy) #  Yes, proceed to process 8 bytes.
+	move	v0, a0			# setup exit value before too late
+
+	xor	t0, a1, a0		# find a0/a1 displacement
+	andi	t0, 0x7
+	beq	t0, zero, L(doubleWordAlign)  # go handle the double-aligned case
+	subu	t1, zero, a1
+
+	andi	t0, 0x3
+	beq	t0, zero, L(wordAlign)	# go handle the word-aligned case
+	nop
+	b	L(unAlignSrcDest)	# go handle the un-aligned case.
+	subu	a3, zero, a0
+
+	/*********************************************************************
+	 * SRC and DEST are Double Word Aligned.
+	 *********************************************************************/
+L(doubleWordAlign):
+	andi	t1, 0x7		# a0/a1 are aligned, but r we
+	beq	t1, zero, L(dwCheck8w) #  starting in middle of a word?
+	subu	a2, t1
+
+L(adjust):
+	andi	t2, t1, 0x3
+	LWHI	t0, 0(a1)	# src is in the middle of a word...
+	addu	a1, t1
+	SWHI	t0, 0(a0)
+	addu	a0, t1
+
+	andi	t1, 0x4		# if extra word, then adjust again.
+	beq	t1, zero, L(dwCheck8w)
+	nop
+	lw	t0, -4(a1)
+	sw	t0, -4(a0)
+
+L(dwCheck8w): 			# SRC is at begin of word
+	andi	t0, a2, 0x1ff	# 512 or more bytes left ?
+	beq	t0, a2, L(check4w)	#   NO, less than 512, proceed to process 4w/16B
+	subu	a3, a2, t0	#   Yes, more than 512, maybe we can use FPU copy
+
+	addu	a3, a0		# a3 = end address of loop
+	subu	a3, a3, 0x100
+	.align 4
+	move	a2, t0		# a2 = what will be left after loop
+
+	/*--------------------------------------------------------------------- *
+	 * Floating Point Copy 							*
+	 * memory copy for 64B D-Cache line size				*
+	 *--------------------------------------------------------------------- */
+
+	/* save f12, f14, f20, f24, f26 */
+	subu	sp, sp, 40
+	sdc1	$f12, 0(sp)
+	sdc1	$f14, 8(sp)
+	sdc1	$f20, 16(sp)
+	sdc1	$f24, 24(sp)
+	sdc1	$f26, 32(sp)
+
+	/* fpu copy start */
+	ldc1	$f4,  0x0(a1)
+	ldc1	$f20, 0x80(a1)
+	ldc1	$f6,  0x20(a1)
+	ldc1	$f8,  0x40(a1)
+	ldc1	$f10, 0x60(a1)
+	ldc1	$f18, 0xa0(a1)
+	ldc1	$f24, 0xc0(a1)
+	ldc1	$f26, 0xe0(a1)
+
+	pref	30, 0x20(a0)		# (prepare for store)
+	pref	30, 0x40(a0)
+	pref	30, 0x60(a0)
+
+L(fmCopyLoopBack):
+	/* first L2 line */
+	ldc1	$f12, 0x8(a1)
+	ldc1	$f14, 0x10(a1)
+	ldc1	$f16, 0x18(a1)
+	sdc1	$f4,  0x0(a0)
+	ldc1	$f4,  0x100(a1)
+	sdc1	$f12, 0x8(a0)
+	sdc1	$f14, 0x10(a0)
+	sdc1	$f16, 0x18(a0)
+
+	pref	30, 0x80(a0)
+
+	ldc1	$f12, 0x28(a1)
+	ldc1	$f14, 0x30(a1)
+	ldc1	$f16, 0x38(a1)
+	sdc1	$f6,  0x20(a0)
+	ldc1	$f6,  0x120(a1)
+	sdc1	$f12, 0x28(a0)
+	sdc1	$f14, 0x30(a0)
+	sdc1	$f16, 0x38(a0)
+
+	pref	30, 0xa0(a0)
+
+	ldc1	$f12, 0x48(a1)
+	ldc1	$f14, 0x50(a1)
+	ldc1	$f16, 0x58(a1)
+	sdc1	$f8,  0x40(a0)
+	ldc1	$f8,  0x140(a1)
+	sdc1	$f12, 0x48(a0)
+	sdc1	$f14, 0x50(a0)
+	sdc1	$f16, 0x58(a0)
+
+	pref	30, 0xc0(a0)
+
+	ldc1	$f12, 0x68(a1)
+	ldc1	$f14, 0x70(a1)
+	ldc1	$f16, 0x78(a1)
+	sdc1	$f10, 0x60(a0)
+	ldc1	$f10, 0x160(a1)
+	sdc1	$f12, 0x68(a0)
+	sdc1	$f14, 0x70(a0)
+	sdc1	$f16, 0x78(a0)
+
+	pref	30, 0xe0(a0)
+
+	/* 2nd L2 line */
+	ldc1	$f12, 0x88(a1)
+	ldc1	$f14, 0x90(a1)
+	ldc1	$f16, 0x98(a1)
+	sdc1	$f20, 0x80(a0)
+	ldc1	$f20, 0x180(a1)
+	sdc1	$f12, 0x88(a0)
+	sdc1	$f14, 0x90(a0)
+	sdc1	$f16, 0x98(a0)
+
+	pref	30, 0x100(a0)
+
+	ldc1	$f12, 0xa8(a1)
+	ldc1	$f14, 0xb0(a1)
+	ldc1	$f16, 0xb8(a1)
+	sdc1	$f18, 0xa0(a0)
+	ldc1	$f18, 0x1a0(a1)
+	sdc1	$f12, 0xa8(a0)
+	sdc1	$f14, 0xb0(a0)
+	sdc1	$f16, 0xb8(a0)
+
+	pref	30, 0x120(a0)
+
+	ldc1	$f12, 0xc8(a1)
+	ldc1	$f14, 0xd0(a1)
+	ldc1	$f16, 0xd8(a1)
+	sdc1	$f24, 0xc0(a0)
+	ldc1	$f24, 0x1c0(a1)
+	sdc1	$f12, 0xc8(a0)
+	sdc1	$f14, 0xd0(a0)
+	sdc1	$f16, 0xd8(a0)
+
+	pref	30, 0x140(a0)
+
+	ldc1	$f12, 0xe8(a1)
+	ldc1	$f14, 0xf0(a1)
+	ldc1	$f16, 0xf8(a1)
+	sdc1	$f26, 0xe0(a0)
+	ldc1	$f26, 0x1e0(a1)
+	sdc1	$f12, 0xe8(a0)
+	sdc1	$f14, 0xf0(a0)
+	sdc1	$f16, 0xf8(a0)
+
+	pref	30, 0x160(a0)
+
+	add	a0, a0, 0x100
+	bne	a0, a3, L(fmCopyLoopBack)
+	add	a1, a1, 0x100
+
+	/* last 256 bytes */
+	ldc1	$f4,  0x0(a1)
+	ldc1	$f20, 0x80(a1)
+	ldc1	$f6,  0x20(a1)
+	ldc1	$f8,  0x40(a1)
+	ldc1	$f10, 0x60(a1)
+	ldc1	$f18, 0xa0(a1)
+	ldc1	$f24, 0xc0(a1)
+	ldc1	$f26, 0xe0(a1)
+
+	ldc1	$f12, 0x8(a1)
+	ldc1	$f14, 0x10(a1)
+	ldc1	$f16, 0x18(a1)
+	sdc1	$f4,  0x0(a0)
+	sdc1	$f12, 0x8(a0)
+	sdc1	$f14, 0x10(a0)
+	sdc1	$f16, 0x18(a0)
+
+	ldc1	$f12, 0x28(a1)
+
+	ldc1	$f14, 0x30(a1)
+	ldc1	$f16, 0x38(a1)
+	sdc1	$f6,  0x20(a0)
+	sdc1	$f12, 0x28(a0)
+	sdc1	$f14, 0x30(a0)
+	sdc1	$f16, 0x38(a0)
+
+	ldc1	$f12, 0x48(a1)
+	ldc1	$f14, 0x50(a1)
+	ldc1	$f16, 0x58(a1)
+	sdc1	$f8,  0x40(a0)
+	sdc1	$f12, 0x48(a0)
+	sdc1	$f14, 0x50(a0)
+	sdc1	$f16, 0x58(a0)
+
+	ldc1	$f12, 0x68(a1)
+	ldc1	$f14, 0x70(a1)
+	ldc1	$f16, 0x78(a1)
+	sdc1	$f10, 0x60(a0)
+	sdc1	$f12, 0x68(a0)
+	sdc1	$f14, 0x70(a0)
+	sdc1	$f16, 0x78(a0)
+
+	/* last 128 bytes */
+	ldc1	$f12, 0x88(a1)
+	ldc1	$f14, 0x90(a1)
+	ldc1	$f16, 0x98(a1)
+	sdc1	$f20, 0x80(a0)
+	sdc1	$f12, 0x88(a0)
+	sdc1	$f14, 0x90(a0)
+	sdc1	$f16, 0x98(a0)
+
+	ldc1	$f12, 0xa8(a1)
+	ldc1	$f14, 0xb0(a1)
+	ldc1	$f16, 0xb8(a1)
+	sdc1	$f18, 0xa0(a0)
+	sdc1	$f12, 0xa8(a0)
+	sdc1	$f14, 0xb0(a0)
+	sdc1	$f16, 0xb8(a0)
+
+	ldc1	$f12, 0xc8(a1)
+	ldc1	$f14, 0xd0(a1)
+	ldc1	$f16, 0xd8(a1)
+	sdc1	$f24, 0xc0(a0)
+	sdc1	$f12, 0xc8(a0)
+	sdc1	$f14, 0xd0(a0)
+	sdc1	$f16, 0xd8(a0)
+
+	ldc1	$f12, 0xe8(a1)
+	ldc1	$f14, 0xf0(a1)
+	ldc1	$f16, 0xf8(a1)
+	sdc1	$f26, 0xe0(a0)
+	sdc1	$f12, 0xe8(a0)
+	sdc1	$f14, 0xf0(a0)
+	sdc1	$f16, 0xf8(a0)
+
+	add	a1, a1, 0x100
+	add	a0, a0, 0x100
+
+	/* restore f12, f14, f20, f24, f26 */
+	ldc1	$f12, 0(sp)
+	ldc1	$f14, 8(sp)
+	ldc1	$f20, 16(sp)
+	ldc1	$f24, 24(sp)
+	ldc1	$f26, 32(sp)
+	addu	sp, sp, 40
+
+	#
+	# Check if we could use LW/SW to copy.
+	#
+L(check4w): andi	t0, a2, 0xf		# 16 or more bytes left?
+	beq	t0, a2, L(check1w)	#   NO, less than 16, proceed to check1w (4bytes loop)
+	subu	a3, a2, t0		#   Yes, handle them in 16 bytes loop.
+
+	addu	a3, a1			# a3 = end address.
+	move	a2, t0
+
+L(loop4w): lw	t0, 0(a1)		# loop for 16 bytes/4 words at a time.
+	lw	t1, 4(a1)
+	lw	t2, 8(a1)
+	lw	t3, 0xc(a1)
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	addiu	a0, 16
+	addiu	a1, 16
+	bne	a1, a3, L(loop4w)
+	sw	t3, -4(a0)
+
+L(check1w): andi	t0, a2, 0x3		# 4 or more bytes left?
+	beq	t0, a2, L(last8ByteCopy)	#   NO, less than 4 bytes, proceed to process 3 bytes
+	subu	a3, a2, t0			#   Yes, handle them 1 word at a time
+	addu	a3, a1				# a3 = end address.
+	move	a2, t0
+
+L(loop1w): lw	t0, 0(a1)		# loop 4 bytes/1 word at a time.
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a1, a3, L(loop1w)
+	sw	t0, -4(a0)
+
+L(last8ByteCopy): blez	a2, L(last8BCExit)  # handle last 8 bytes, one byte at a time.
+	addu	a3, a2, a1
+
+L(last8BCLoopBack): lb	t0, 0(a1)	# last 8 bytes copy loop.
+	addiu	a0, 1
+	addiu	a1, 1
+	bne	a1, a3, L(last8BCLoopBack)
+	sb	t0, -1(a0)
+
+L(last8BCExit):
+	jr	$31			# return to caller.
+	nop
+
+
+	/*********************************************************************
+	 * SRC and DEST are Word-Aligned.
+	 *********************************************************************/
+L(wordAlign):
+	andi	t1, 0x3		# a0/a1 are aligned, but r we
+	beq	t1, zero, L(intCheck8w) #  starting in middle of a word?
+	subu	a2, t1
+
+	LWHI	t0, 0(a1)	# src is in the middle of a word...
+	addu	a1, t1
+	SWHI	t0, 0(a0)
+	addu	a0, t1
+
+L(intCheck8w): 			# SRC is at begin of word
+	andi	t0, a2, 0x1ff	# 512 or more bytes left ?
+	beq	t0, a2, L(check4w)	#   NO, less than 512, proceed to process 4w/16B
+	subu	a3, a2, t0	#   Yes, more than 512, maybe we can use FPU copy
+
+				# a3 = copy size
+	subu	a3, a3, 0x100
+	.align 4
+	move	a2, t0		# a2 = what will be left after loop
+
+	/*--------------------------------------------------------------------- *
+	 * Integer Copy								*
+	 * mcopy: D-Cache line size = 32, unroll 8 D-Cache line, 		*
+	 *	  prefetch 2 L2 line, using integer registers 			*
+	 * memory copy for 64B D-Cache line size				*
+	 *--------------------------------------------------------------------- */
+	add	v1, a0, a3	#start address B(a0), end address B(v1)
+
+	/* save stable registers */
+	subu	sp, sp, 28
+	sw	$16, 0(sp)
+	sw	$17, 4(sp)
+	sw	$18, 8(sp)
+	sw	$19, 12(sp)
+	sw	$20, 16(sp)
+	sw	$21, 20(sp)
+	sw	$22, 24(sp)
+
+	lw	$8,  0x0(a1)	# The first 2 to trigger h/w prefetch
+	lw	$9,  0x20(a1)
+	lw	$12, 0x80(a1)	# trigger double prefetch
+	lw	$10,  0x40(a1)
+	lw	$11, 0x60(a1)
+	lw	$13, 0xa0(a1)
+	lw	$14, 0xc0(a1)
+	lw	$15, 0xe0(a1)
+
+	pref	30, 0x20(a0)	# (prepare for store)
+	pref	30, 0x40(a0)
+	pref	30, 0x60(a0)
+
+L(intCopyLoopBack):
+	/* first L2 line */
+	lw	$16,  0x4(a1)
+	lw	$17,  0x8(a1)
+	lw	$18,  0xc(a1)
+	lw	$19,  0x10(a1)
+	lw	$20,  0x14(a1)
+	lw	$21,  0x18(a1)
+	lw	$22,  0x1c(a1)
+
+	sw	$8, 0x0(a0)
+	lw	$8, 0x100(a1)
+
+	sw	$16,  0x4(a0)
+	sw	$17,  0x8(a0)
+	sw	$18,  0xc(a0)
+	sw	$19,  0x10(a0)
+	sw	$20,  0x14(a0)
+	sw	$21,  0x18(a0)
+	sw	$22,  0x1c(a0)
+
+	pref	30, 0x80(a0)
+
+	lw	$16,  0x24(a1)
+	lw	$17,  0x28(a1)
+	lw	$18,  0x2c(a1)
+	lw	$19,  0x30(a1)
+	lw	$20,  0x34(a1)
+	lw	$21,  0x38(a1)
+	lw	$22,  0x3c(a1)
+
+	sw	$9, 0x20(a0)
+	lw	$9, 0x120(a1)
+
+	sw	$16,  0x24(a0)
+	sw	$17,  0x28(a0)
+	sw	$18,  0x2c(a0)
+	sw	$19,  0x30(a0)
+	sw	$20,  0x34(a0)
+	sw	$21,  0x38(a0)
+	sw	$22,  0x3c(a0)
+
+	pref	30, 0xa1(a0)
+
+	lw	$16,  0x44(a1)
+	lw	$17,  0x48(a1)
+	lw	$18,  0x4c(a1)
+	lw	$19,  0x50(a1)
+	lw	$20,  0x54(a1)
+	lw	$21,  0x58(a1)
+	lw	$22,  0x5c(a1)
+
+	sw	$10,  0x40(a0)
+	lw	$10,  0x140(a1)
+
+	sw	$16,  0x44(a0)
+	sw	$17,  0x48(a0)
+	sw	$18,  0x4c(a0)
+	sw	$19,  0x50(a0)
+	sw	$20,  0x54(a0)
+	sw	$21,  0x58(a0)
+	sw	$22,  0x5c(a0)
+
+	pref	30, 0xc0(a0)
+
+	lw	$16,  0x64(a1)
+	lw	$17,  0x68(a1)
+	lw	$18,  0x6c(a1)
+	lw	$19,  0x70(a1)
+	lw	$20,  0x74(a1)
+	lw	$21,  0x78(a1)
+	lw	$22,  0x7c(a1)
+
+	sw	$11,  0x60(a0)
+	lw	$11,  0x160(a1)
+
+	sw	$16,  0x64(a0)
+	sw	$17,  0x68(a0)
+	sw	$18,  0x6c(a0)
+	sw	$19,  0x70(a0)
+	sw	$20,  0x74(a0)
+	sw	$21,  0x78(a0)
+	sw	$22,  0x7c(a0)
+
+	pref	30, 0xe0(a0)
+
+	/* 2nd L2 line */
+	lw	$16,  0x84(a1)
+	lw	$17,  0x88(a1)
+	lw	$18,  0x8c(a1)
+	lw	$19,  0x90(a1)
+	lw	$20,  0x94(a1)
+	lw	$21,  0x98(a1)
+	lw	$22,  0x9c(a1)
+
+	sw	$12,  0x80(a0)
+	lw	$12,  0x180(a1)
+
+	sw	$16,  0x84(a0)
+	sw	$17,  0x88(a0)
+	sw	$18,  0x8c(a0)
+	sw	$19,  0x90(a0)
+	sw	$20,  0x94(a0)
+	sw	$21,  0x98(a0)
+	sw	$22,  0x9c(a0)
+
+	pref	30, 0x100(a0)
+
+	lw	$16,  0xa4(a1)
+	lw	$17,  0xa8(a1)
+	lw	$18,  0xac(a1)
+	lw	$19,  0xb0(a1)
+	lw	$20,  0xb4(a1)
+	lw	$21,  0xb8(a1)
+	lw	$22,  0xbc(a1)
+
+	sw	$13,  0xa0(a0)
+	lw	$13,  0x1a0(a1)
+
+	sw	$16,  0xa4(a0)
+	sw	$17,  0xa8(a0)
+	sw	$18,  0xac(a0)
+	sw	$19,  0xb0(a0)
+	sw	$20,  0xb4(a0)
+	sw	$21,  0xb8(a0)
+	sw	$22,  0xbc(a0)
+
+	pref	30, 0x120(a0)
+
+	lw	$16,  0xc4(a1)
+	lw	$17,  0xc8(a1)
+	lw	$18,  0xcc(a1)
+	lw	$19,  0xd0(a1)
+	lw	$20,  0xd4(a1)
+	lw	$21,  0xd8(a1)
+	lw	$22,  0xdc(a1)
+
+	sw	$14,  0xc0(a0)
+	lw	$14,  0x1c0(a1)
+
+	sw	$16,  0xc4(a0)
+	sw	$17,  0xc8(a0)
+	sw	$18,  0xcc(a0)
+	sw	$19,  0xd0(a0)
+	sw	$20,  0xd4(a0)
+	sw	$21,  0xd8(a0)
+	sw	$22,  0xdc(a0)
+
+	pref	30, 0x140(a0)
+
+	lw	$16,  0xe4(a1)
+	lw	$17,  0xe8(a1)
+	lw	$18,  0xec(a1)
+	lw	$19,  0xf0(a1)
+	lw	$20,  0xf4(a1)
+	lw	$21,  0xf8(a1)
+	lw	$22,  0xfc(a1)
+
+	sw	$15,  0xe0(a0)
+	lw	$15,  0x1e0(a1)
+
+	sw	$16,  0xe4(a0)
+	sw	$17,  0xe8(a0)
+	sw	$18,  0xec(a0)
+	sw	$19,  0xf0(a0)
+	sw	$20,  0xf4(a0)
+	sw	$21,  0xf8(a0)
+	sw	$22,  0xfc(a0)
+
+	pref	30, 0x160(a0)
+
+	add	a0, a0, 0x100
+	bne	a0, v1, L(intCopyLoopBack)		/* loop back. */
+	add	a1, a1, 0x100
+
+	/* last 256 bytes */
+	lw	$16,  0x4(a1)
+	lw	$17,  0x8(a1)
+	lw	$18,  0xc(a1)
+	lw	$19,  0x10(a1)
+	lw	$20,  0x14(a1)
+	lw	$21,  0x18(a1)
+	lw	$22,  0x1c(a1)
+
+	sw	$8, 0x00(a0)
+
+	sw	$16,  0x04(a0)
+	sw	$17,  0x08(a0)
+	sw	$18,  0x0c(a0)
+	sw	$19,  0x10(a0)
+	sw	$20,  0x14(a0)
+	sw	$21,  0x18(a0)
+	sw	$22,  0x1c(a0)
+
+	lw	$16,  0x24(a1)
+	lw	$17,  0x28(a1)
+	lw	$18,  0x2c(a1)
+	lw	$19,  0x30(a1)
+	lw	$20,  0x34(a1)
+	lw	$21,  0x38(a1)
+	lw	$22,  0x3c(a1)
+
+	sw	$9, 0x20(a0)
+
+	sw	$16,  0x24(a0)
+	sw	$17,  0x28(a0)
+	sw	$18,  0x2c(a0)
+	sw	$19,  0x30(a0)
+	sw	$20,  0x34(a0)
+	sw	$21,  0x38(a0)
+	sw	$22,  0x3c(a0)
+
+	lw	$16,  0x44(a1)
+	lw	$17,  0x48(a1)
+	lw	$18,  0x4c(a1)
+	lw	$19,  0x50(a1)
+	lw	$20,  0x54(a1)
+	lw	$21,  0x58(a1)
+	lw	$22,  0x5c(a1)
+
+	sw	$10,  0x40(a0)
+
+	sw	$16,  0x44(a0)
+	sw	$17,  0x48(a0)
+	sw	$18,  0x4c(a0)
+	sw	$19,  0x50(a0)
+	sw	$20,  0x54(a0)
+	sw	$21,  0x58(a0)
+	sw	$22,  0x5c(a0)
+
+	lw	$16,  0x64(a1)
+	lw	$17,  0x68(a1)
+	lw	$18,  0x6c(a1)
+	lw	$19,  0x70(a1)
+	lw	$20,  0x74(a1)
+	lw	$21,  0x78(a1)
+	lw	$22,  0x7c(a1)
+
+	sw	$11,  0x60(a0)
+
+	sw	$16,  0x64(a0)
+	sw	$17,  0x68(a0)
+	sw	$18,  0x6c(a0)
+	sw	$19,  0x70(a0)
+	sw	$20,  0x74(a0)
+	sw	$21,  0x78(a0)
+	sw	$22,  0x7c(a0)
+
+	/* last 128 bytes */
+	lw	$16,  0x84(a1)
+	lw	$17,  0x88(a1)
+	lw	$18,  0x8c(a1)
+	lw	$19,  0x90(a1)
+	lw	$20,  0x94(a1)
+	lw	$21,  0x98(a1)
+	lw	$22,  0x9c(a1)
+
+	sw	$12,  0x80(a0)
+
+	sw	$16,  0x84(a0)
+	sw	$17,  0x88(a0)
+	sw	$18,  0x8c(a0)
+	sw	$19,  0x90(a0)
+	sw	$20,  0x94(a0)
+	sw	$21,  0x98(a0)
+	sw	$22,  0x9c(a0)
+
+	lw	$16,  0xa4(a1)
+	lw	$17,  0xa8(a1)
+	lw	$18,  0xac(a1)
+	lw	$19,  0xb0(a1)
+	lw	$20,  0xb4(a1)
+	lw	$21,  0xb8(a1)
+	lw	$22,  0xbc(a1)
+
+	sw	$13,  0xa0(a0)
+
+	sw	$16,  0xa4(a0)
+	sw	$17,  0xa8(a0)
+	sw	$18,  0xac(a0)
+	sw	$19,  0xb0(a0)
+	sw	$20,  0xb4(a0)
+	sw	$21,  0xb8(a0)
+	sw	$22,  0xbc(a0)
+
+	lw	$16,  0xc4(a1)
+	lw	$17,  0xc8(a1)
+	lw	$18,  0xcc(a1)
+	lw	$19,  0xd0(a1)
+	lw	$20,  0xd4(a1)
+	lw	$21,  0xd8(a1)
+	lw	$22,  0xdc(a1)
+
+	sw	$14,  0xc0(a0)
+
+	sw	$16,  0xc4(a0)
+	sw	$17,  0xc8(a0)
+	sw	$18,  0xcc(a0)
+	sw	$19,  0xd0(a0)
+	sw	$20,  0xd4(a0)
+	sw	$21,  0xd8(a0)
+	sw	$22,  0xdc(a0)
+
+	lw	$16,  0xe4(a1)
+	lw	$17,  0xe8(a1)
+	lw	$18,  0xec(a1)
+	lw	$19,  0xf0(a1)
+	lw	$20,  0xf4(a1)
+	lw	$21,  0xf8(a1)
+	lw	$22,  0xfc(a1)
+
+	sw	$15,  0xe0(a0)
+
+	sw	$16,  0xe4(a0)
+	sw	$17,  0xe8(a0)
+	sw	$18,  0xec(a0)
+	sw	$19,  0xf0(a0)
+	sw	$20,  0xf4(a0)
+	sw	$21,  0xf8(a0)
+	sw	$22,  0xfc(a0)
+
+	add	a0, a0, 0x100
+	add	a1, a1, 0x100
+
+	/* restore stable registers */
+	lw	$16, 0(sp)
+	lw	$17, 4(sp)
+	lw	$18, 8(sp)
+	lw	$19, 12(sp)
+	lw	$20, 16(sp)
+	lw	$21, 20(sp)
+	lw	$22, 24(sp)
+	addu	sp, sp, 28
+
+	b	L(check4w)
+	nop
+
+	/*--------------------------------------------------------------------
+	 * END Integer Copy Loop
+	 *--------------------------------------------------------------------*/
+
+	/*********************************************************************
+	 * SRC and DEST are NOT Aligned.
+	 *********************************************************************/
+L(unAlignSrcDest):			# SRC and DEST are NOT aligned.
+	andi	a3, 0x3			# Is DEST word aligned?
+	beq	a3, zero, L(uaCheck512)	#   YES, DEST is word-aligned, SW may be used.
+					#   NO, DEST is NOT word-aligned, has to adjust.
+
+	subu	a2, a3			# a2 = number of bytes left
+
+	LWHI	t0, 0(a1)		# DEST is NOT word aligned...
+	LWLO	t0, 3(a1)		#   adjust so DEST will be aligned.
+	addu	a1, a3
+	SWHI	t0, 0(a0)
+	addu	a0, a3
+L(uaCheck512):				# DEST is word-aligned.
+	andi	t0, a2, 0x1ff		# 512 or more bytes left ?
+	beq	t0, a2, L(uaCheck4w)	#   No, less than 512, cannot execute "pref"
+	subu	a3, a2, t0		#   Yes, more than 512, loop & "pref"
+
+	addu	a3, a0			# a3 = end address of loop
+	subu	a3, a3, 0x100
+	.align 4
+	move	a2, t0			# a2 = what will be left after loop
+	LWHI	t6,  0(a1)		# Loop taking 32 words at a time
+
+	/*--------------------------------------------------------------------
+	 * SRC and DEST are NOT Aligned, >512B, copy using LW/SW WITH pref
+	 *--------------------------------------------------------------------*/
+	add	t7, a0, 0x300		# prefetch dest 2 line size ahead.
+L(uaLoopBack):
+	pref	30,  0x40(a0)
+	LWHI	t5,  0x40(a1)
+
+	LWHI	t2,  0x4(a1)
+	LWHI	t3,  0x8(a1)
+	LWHI	t4,  0xc(a1)
+
+	LWLO	t6,  3(a1)
+	LWLO	t2,  0x7(a1)
+	LWLO	t3,  0xb(a1)
+	LWLO	t4,  0xf(a1)
+
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	# preload source
+	bge	t7, a3, L(uaSkip)
+	add	t7, t7, 0x100
+	lb	zero, 0x300(a1)
+L(uaSkip):
+	LWHI	t1,  0x10(a1)
+	LWHI	t2,  0x14(a1)
+	LWHI	t3,  0x18(a1)
+	LWHI	t4,  0x1c(a1)
+	LWLO	t1,  0x13(a1)
+	LWLO	t2,  0x17(a1)
+	LWLO	t3,  0x1b(a1)
+	LWLO	t4,  0x1f(a1)
+
+	sw	t1,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	LWHI	t1,  0x20(a1)
+	LWHI	t2,  0x24(a1)
+	LWHI	t3,  0x28(a1)
+	LWHI	t4,  0x2c(a1)
+	LWLO	t1,  0x23(a1)
+	LWLO	t2,  0x27(a1)
+	LWLO	t3,  0x2b(a1)
+	LWLO	t4,  0x2f(a1)
+
+	sw	t1,  0x20(a0)
+	sw	t2,  0x24(a0)
+	sw	t3,  0x28(a0)
+	sw	t4,  0x2c(a0)
+
+	LWHI	t1,  0x30(a1)
+	LWHI	t2,  0x34(a1)
+	LWHI	t3,  0x38(a1)
+	LWHI	t4,  0x3c(a1)
+	LWLO	t1,  0x33(a1)
+	LWLO	t2,  0x37(a1)
+	LWLO	t3,  0x3b(a1)
+	LWLO	t4,  0x3f(a1)
+
+	sw	t1,  0x30(a0)
+	sw	t2,  0x34(a0)
+	sw	t3,  0x38(a0)
+	sw	t4,  0x3c(a0)
+
+	pref	30,  0x80(a0)
+	LWHI	t6,  0x80(a1)
+
+	LWHI	t2,  0x44(a1)
+	LWHI	t3,  0x48(a1)
+	LWHI	t4,  0x4c(a1)
+	LWLO	t5,  0x43(a1)
+	LWLO	t2,  0x47(a1)
+	LWLO	t3,  0x4b(a1)
+	LWLO	t4,  0x4f(a1)
+
+	sw	t5,  0x40(a0)
+	sw	t2,  0x44(a0)
+	sw	t3,  0x48(a0)
+	sw	t4,  0x4c(a0)
+
+	LWHI	t1,  0x50(a1)
+	LWHI	t2,  0x54(a1)
+	LWHI	t3,  0x58(a1)
+	LWHI	t4,  0x5c(a1)
+	LWLO	t1,  0x53(a1)
+	LWLO	t2,  0x57(a1)
+	LWLO	t3,  0x5b(a1)
+	LWLO	t4,  0x5f(a1)
+
+	sw	t1,  0x50(a0)
+	sw	t2,  0x54(a0)
+	sw	t3,  0x58(a0)
+	sw	t4,  0x5c(a0)
+
+	LWHI	t1,  0x60(a1)
+	LWHI	t2,  0x64(a1)
+	LWHI	t3,  0x68(a1)
+	LWHI	t4,  0x6c(a1)
+	LWLO	t1,  0x63(a1)
+	LWLO	t2,  0x67(a1)
+	LWLO	t3,  0x6b(a1)
+	LWLO	t4,  0x6f(a1)
+
+	sw	t1,  0x60(a0)
+	sw	t2,  0x64(a0)
+	sw	t3,  0x68(a0)
+	sw	t4,  0x6c(a0)
+
+	LWHI	t1,  0x70(a1)
+	LWHI	t2,  0x74(a1)
+	LWHI	t3,  0x78(a1)
+	LWHI	t4,  0x7c(a1)
+	LWLO	t1,  0x73(a1)
+	LWLO	t2,  0x77(a1)
+	LWLO	t3,  0x7b(a1)
+	LWLO	t4,  0x7f(a1)
+
+	sw	t1,  0x70(a0)
+	sw	t2,  0x74(a0)
+	sw	t3,  0x78(a0)
+	sw	t4,  0x7c(a0)
+
+	pref	30,  0xc0(a0)
+	LWHI	t5,  0xc0(a1)
+
+	LWHI	t2,  0x84(a1)
+	LWHI	t3,  0x88(a1)
+	LWHI	t4,  0x8c(a1)
+	LWLO	t6,  0x83(a1)
+	LWLO	t2,  0x87(a1)
+	LWLO	t3,  0x8b(a1)
+	LWLO	t4,  0x8f(a1)
+
+	sw	t6,  0x80(a0)
+	sw	t2,  0x84(a0)
+	sw	t3,  0x88(a0)
+	sw	t4,  0x8c(a0)
+
+	LWHI	t1,  0x90(a1)
+	LWHI	t2,  0x94(a1)
+	LWHI	t3,  0x98(a1)
+	LWHI	t4,  0x9c(a1)
+	LWLO	t1,  0x93(a1)
+	LWLO	t2,  0x97(a1)
+	LWLO	t3,  0x9b(a1)
+	LWLO	t4,  0x9f(a1)
+
+	sw	t1,  0x90(a0)
+	sw	t2,  0x94(a0)
+	sw	t3,  0x98(a0)
+	sw	t4,  0x9c(a0)
+
+	LWHI	t1,  0xa0(a1)
+	LWHI	t2,  0xa4(a1)
+	LWHI	t3,  0xa8(a1)
+	LWHI	t4,  0xac(a1)
+	LWLO	t1,  0xa3(a1)
+	LWLO	t2,  0xa7(a1)
+	LWLO	t3,  0xab(a1)
+	LWLO	t4,  0xaf(a1)
+
+	sw	t1,  0xa0(a0)
+	sw	t2,  0xa4(a0)
+	sw	t3,  0xa8(a0)
+	sw	t4,  0xac(a0)
+
+	LWHI	t1,  0xb0(a1)
+	LWHI	t2,  0xb4(a1)
+	LWHI	t3,  0xb8(a1)
+	LWHI	t4,  0xbc(a1)
+	LWLO	t1,  0xb3(a1)
+	LWLO	t2,  0xb7(a1)
+	LWLO	t3,  0xbb(a1)
+	LWLO	t4,  0xbf(a1)
+
+	sw	t1,  0xb0(a0)
+	sw	t2,  0xb4(a0)
+	sw	t3,  0xb8(a0)
+	sw	t4,  0xbc(a0)
+
+	pref	30,  0x100(a0)
+	LWHI	t6,  0x100(a1)
+
+	LWHI	t2,  0xc4(a1)
+	LWHI	t3,  0xc8(a1)
+	LWHI	t4,  0xcc(a1)
+	LWLO	t5,  0xc3(a1)
+	LWLO	t2,  0xc7(a1)
+	LWLO	t3,  0xcb(a1)
+	LWLO	t4,  0xcf(a1)
+
+	sw	t5,  0xc0(a0)
+	sw	t2,  0xc4(a0)
+	sw	t3,  0xc8(a0)
+	sw	t4,  0xcc(a0)
+
+	LWHI	t1,  0xd0(a1)
+	LWHI	t2,  0xd4(a1)
+	LWHI	t3,  0xd8(a1)
+	LWHI	t4,  0xdc(a1)
+	LWLO	t1,  0xd3(a1)
+	LWLO	t2,  0xd7(a1)
+	LWLO	t3,  0xdb(a1)
+	LWLO	t4,  0xdf(a1)
+
+	sw	t1,  0xd0(a0)
+	sw	t2,  0xd4(a0)
+	sw	t3,  0xd8(a0)
+	sw	t4,  0xdc(a0)
+
+	LWHI	t1,  0xe0(a1)
+	LWHI	t2,  0xe4(a1)
+	LWHI	t3,  0xe8(a1)
+	LWHI	t4,  0xec(a1)
+	LWLO	t1,  0xe3(a1)
+	LWLO	t2,  0xe7(a1)
+	LWLO	t3,  0xeb(a1)
+	LWLO	t4,  0xef(a1)
+
+	sw	t1,  0xe0(a0)
+	sw	t2,  0xe4(a0)
+	sw	t3,  0xe8(a0)
+	sw	t4,  0xec(a0)
+
+	LWHI	t1,  0xf0(a1)
+	LWHI	t2,  0xf4(a1)
+	LWHI	t3,  0xf8(a1)
+	LWHI	t4,  0xfc(a1)
+	LWLO	t1,  0xf3(a1)
+	LWLO	t2,  0xf7(a1)
+	LWLO	t3,  0xfb(a1)
+	LWLO	t4,  0xff(a1)
+
+	sw	t1,  0xf0(a0)
+	sw	t2,  0xf4(a0)
+	sw	t3,  0xf8(a0)
+	sw	t4,  0xfc(a0)
+
+	add	a0, a0, 0x100
+	bne		a0, a3, L(uaLoopBack)
+	add	a1, a1, 0x100
+
+	addu	a3, 0x100	# add 0x100 back
+
+	#
+	# copy loop 32 words at a time.
+	#
+L(uaRemain64LoopBack):
+	LWHI	t6,  0(a1)		# Loop taking 32 words at a time
+	LWHI	t2,  0x4(a1)
+	LWHI	t3,  0x8(a1)
+	LWHI	t4,  0xc(a1)
+	LWLO	t6,  3(a1)
+	LWLO	t2,  0x7(a1)
+	LWLO	t3,  0xb(a1)
+	LWLO	t4,  0xf(a1)
+
+	sw	t6,  0x0(a0)
+	sw	t2,  0x4(a0)
+	sw	t3,  0x8(a0)
+	sw	t4,  0xc(a0)
+
+	LWHI	t6,  0x10(a1)
+	LWHI	t2,  0x14(a1)
+	LWHI	t3,  0x18(a1)
+	LWHI	t4,  0x1c(a1)
+	LWLO	t6,  0x13(a1)
+	LWLO	t2,  0x17(a1)
+	LWLO	t3,  0x1b(a1)
+	LWLO	t4,  0x1f(a1)
+
+	sw	t6,  0x10(a0)
+	sw	t2,  0x14(a0)
+	sw	t3,  0x18(a0)
+	sw	t4,  0x1c(a0)
+
+	addiu	a0,  0x20
+	bne	a0,  a3, L(uaRemain64LoopBack)
+	addiu	a1,  0x20
+
+	addu	a3,  a2
+
+	/*--------------------------------------------------------------------
+	 * SRC and DEST are NOT Aligned, <512B, copy using LW/SW WITHOUT pref
+	 *--------------------------------------------------------------------*/
+L(uaCheck4w): andi	t0, a2, 0xf	# 16 or more bytes left?
+	beq	t0, a2, L(uaCheck1w)	#   NO, <16 bytes, proceed to process 1w
+	subu	a3, a2, t0		#   Yes, >16, copy 16 bytes at a time.
+
+	addu	a3, a1			# a3 = end address.
+	move	a2, t0
+
+L(ua4wLoopBack):			# loop 16 bytes/4 words at a time.
+	LWHI	t0, 0(a1)
+	LWHI	t1, 4(a1)
+	LWHI	t2, 8(a1)
+	LWHI	t3, 0xc(a1)
+	LWLO	t0, 3(a1)
+	LWLO	t1, 7(a1)
+	LWLO	t2, 0xb(a1)
+	LWLO	t3, 0xf(a1)
+	sw	t0, 0(a0)
+	sw	t1, 4(a0)
+	sw	t2, 8(a0)
+	addiu	a0, 16
+	addiu	a1, 16
+	bne	a1, a3, L(ua4wLoopBack)
+	sw	t3, -4(a0)
+
+L(uaCheck1w): andi	t0, a2, 0x3		# 4 or more bytes left?
+	beq	t0, a2, L(last8ByteCopy)	#   NO, <4 bytes, proceed to 8-bytes-copy
+	subu	a3, a2, t0
+
+	addu	a3, a0			#   YES, >4 bytes, can use LW/SW.
+
+L(uaRemain):
+	LWHI	t1, 0(a1)		# copy 1 word/4 bytes at a time.
+	LWLO	t1, 3(a1)
+	addiu	a0, 4
+	addiu	a1, 4
+	bne	a0, a3, L(uaRemain)
+	sw	t1, -4(a0)
+
+	b	L(last8ByteCopy)		# handle anything that may be left.
+	move	a2, t0
+
+detect_cpu:
+	li	t0, 3300		# 3300 = default setting
+	lw	v0, __auxv_platform
+	beqz	v0, detect_done		# don't store the result, because
+	nop				# memcpy() can be called before
+					# uClibc_main()
+
+	li	t0, 4380
+	move	t1, v0
+	la	t2, __str_bmips4380
+
+1:
+	lb	t3, 0(t1)		# simple string compare
+	lb	t4, 0(t2)
+	bne	t3, t4, 2f
+	addiu	t1, 1
+	beqz	t3, 3f
+	addiu	t2, 1
+	bnez	t4, 1b
+	nop
+
+2:
+	li	t0, 5000
+	move	t1, v0
+	la	t2, __str_bmips5000
+
+1:
+	lb	t3, 0(t1)
+	lb	t4, 0(t2)
+	bne	t3, t4, 2f
+	addiu	t1, 1
+	beqz	t3, 3f
+	addiu	t2, 1
+	bnez	t4, 1b
+	nop
+
+2:
+	li	t0, 3300
+3:
+	sw	t0, __cputype
+	b	detect_done
+	nop
+
+	.set	reorder
+END (memcpy)
+
+libc_hidden_def (memcpy)
+
+#endif /* !defined(__mips64) */

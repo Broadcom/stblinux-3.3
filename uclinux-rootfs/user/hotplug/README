@@ -1,0 +1,212 @@
+$Id: README,v 1.8 2004/09/23 18:02:01 kroah Exp $
+
+WHAT DO WE HAVE HERE?
+---------------------
+Hotplugging scripts that should work on 2.2 and 2.4 kernels, and which
+understand some of the 2.5 hotplugging updates.
+
+This particular version won't work on test versions of the 2.4 kernels,
+which (NOTE!) need modutils 2.4.2 or later; for your two letter country
+code (cz, jp, tw, us, etc) use this FTP site:
+
+    ftp://ftp.COUNTRY.kernel.org/pub/linux/utils/kernel/modutils/v2.4/
+
+Linux kernel hotplugging support relies on kernels to be configured with
+HOTPLUG; and, for loading modular drivers, MODULES.  Configure USB, NET, and
+PCI (for Cardbus support) as appropriate for your environment.
+
+On 2.5 kernels, module support is changing, and you'll probably need new
+module tools (check Documentation/Changes).
+
+For more information about Linux hotplugging:
+
+    http://linux-hotplug.sourceforge.net/
+
+These tools are GPL'd, and are available at the web site above.
+
+
+
+NOTES ABOUT THIS VERSION
+------------------------
+There's partial support for some of the new 2.5 hotplug features,
+like SCSI hotplugging.  There's more hotplug-related work yet to
+be done as part of the 2.5 series; a 2.6 update will be required.
+
+File layout is the same, with a new /var/log/hotplug directory.
+USB setup scripts can have their own "usermaps".
+
+    /etc/hotplug/ ... holds scripts
+	*.agent ... for usb, pci, net, scsi and other events
+	usb/*.usermap ...
+	usb/*, pci/* ... device setup scripts
+	*.rc ... subsystem init during startup
+
+    /etc/rc.d/init.d/hotplug ... consistently start up usb, pci, etc
+
+    /sbin/hotplug ... invoked by kernel on add/remove/... events
+
+    /var/log/hotplug/ ... OPTIONAL, for recording events etc
+	*.events
+	events
+
+Some of the 2.5 related changes may cause trouble on 2.2 kernels,
+or even on older 2.4 kernels.
+
+Setup scripts should now be invoked correctly (after any kernel
+module had a chance to load) even when the script uses the same
+name as its kernel module (and there's no USB "usermap" entry).
+
+
+INSTALLING
+----------
+For all hotplug-enabled 2.2 and 2.4 kernels, try to use a fully modular
+USB configuration.  With 2.5, that's easier:  start with "make allmod".
+
+Since most folk now install these scripts from an RPM or a DEB, these
+instructions assume you got the tree from CVS or a tarball.
+
+ (1)  Make the root directory of that tree (with this file)
+      be the working directory for your root shell.
+
+ (2)  Install:
+
+	# make install
+
+ (3)  To collect ascii event logs for events that aren't handled
+      by some /etc/hotplug/*.agent (optional):
+
+	# touch /var/log/hotplug/events
+
+      Or touch /var/log/hotplug/input.events to filter out just
+      the unhandled "input" events.  (Similarly for other kinds
+      of hotplug events.)
+
+ (4)  Make sure modules are loaded, and device setup scripts are
+      run, for devices that were present while the system was
+      booting but which weren't handled by the initrd.  On RedHat:
+
+	# chkconfig --add hotplug
+
+These scripts aren't intentionally specific to RedHat; let us know if
+we accidentally create a problem.  Derived versions of hotplug tools
+are available from SuSE and Debian.   If distros started to converge
+the interfaces their init and config tools provide to hotplug, such
+problems could go away.
+
+There are updates to the "usbutils-0.7" package to incorporate a new
+"usbmodules" command, and to "pciutils-2.1.8" to incorporate a similar
+"pcimodules".  See the website above for more information, or search
+the web (list, rpmfind) for RPM or APT support.  Those programs help
+support "cold plugging".
+
+For 2.5, we're eliminating the "usbmodules" and "pcimodules" commands;
+but you may still want them when you run 2.4 kernels.  (2.5 coldplugging
+still needs updates.)
+
+
+"COLD" PLUGGING AT BOOT TIME
+----------------------------
+Initializing devices that are present at boot time is easy to handle if
+you install the "usbmodules" or "pcimodules" commands, and package most
+kernel components (such as "usbcore") as dynamically linked modules.
+(RedHat 7.1 handles this problem using "Kudzu" instead, which works more
+selectively than "pcimodules".)
+
+"Cold" plugging is different from hotplugging in that it happens while
+the system is still warming up ("booting").  That means module loading
+may not yet be possible when devices are first detected ... so these
+scripts may need to scan the busses later, and synthesise hotplug events
+to force the modules to load.  This is a particular issue for drivers
+that are statically linked into the system kernel (perhaps so that they
+can be used during system booting in some configuration).  Even in
+cases with an "initrd" setup, important moduels or other system resources
+may not be available until much later in the boot sequence.
+
+If coldplugging isn't working for you (some device present at boot
+time isn't properly set up), first try to unplug it and replug it.
+If that works (you hotplugged it) it was a coldboot-only problem.
+
+(Distributions won't necessarily use "hotplug" startup script, since
+that relates to system administration toolsets.)
+
+
+USB MICE AND KEYBOARDS
+----------------------
+If you need to use a USB mouse with X11, the X server needs to be able to
+open "/dev/input/mice".  That means you can't hotplug a mouse you plan
+to use with X11; it needs some modules preloaded.  If you haven't compiled
+them into your kernel, try putting this line into /etc/sysconfig/usb:
+
+    X11_USBMICE_HACK=true
+
+If you're booting with a USB keyboard and/or mouse, and want to defend
+against boot failures like missing modules, you should probably use
+static linking for the "hid", "keybdev" (and/or "mousedev"), "input",
+"usbcore", and USB Host Controller modules. 
+
+(Different Linux distributions may handle this in other ways, such as
+hard-wiring parts of USB initialization into an initrd or into scripts
+that init runs very early.)
+
+
+SELECTIVELY DISABLING HOTPLUGGING
+---------------------------------
+You can disable any particular kind of agent by marking it non-executable:
+
+    # chmod -x /etc/hotplug/pci.agent
+
+If you enabled event logging in /var/log/hotplug by creating the
+generic "events" file, or the pci-specific "pci-events" file, then
+those events will not be recorded in that file if there's an agent
+to handle the event.  The log files can help debug hotplug problems.
+
+
+SPECIALIZED USB DEVICE OR DRIVER SUPPORT
+----------------------------------------
+Devices often need specialized support, and this package is intended to
+support that in the same way for Linux 2.2, 2,4, and 2.5 systems.  The
+idea is that applications should be able to rely on the administrative
+conventions established by this package.
+
+Some of the mechanisms available are:
+
+    - For kernel drivers that don't have MODULE_DEVICE_TABLE hotplug
+      support add entries to /etc/hotplug/usb.handmap using the syntax
+      of /lib/modules/`uname -r`/modules.usbmap
+
+	  EXAMPLE:  With the 2.4.0 kernel, most HID devices (joysticks,
+	  tablets, etc) need such support.  Until 2.4.1, so did the
+	  usb-storage devices.
+
+	  (On 2.5 systems, an input.agent should eventually handle
+	  input drivers that aren't statically linked.)
+    
+    - Drivers may provide a per-device setup script that's invoked after
+      they modprobe:  /etc/hotplug/usb/MODULENAME is called for USB
+      devices, CardBus devices use /etc/hotplug/pci, and so on:
+
+	  EXAMPLE:  When you connect your USB PDA, you might want to
+	  automatically start its hotsync daemon.  (visor)
+    
+    - For usermode drivers (using /proc/bus/usb/BBB/DDD files), you can
+      add entries to /etc/hotplug/usb.usermap, again using the syntax of
+      "modules.usbmap".  The "module name" will just identify a setup
+      script (as above); it's not modprobed.
+	
+	  EXAMPLE:  This has been done with Rio MP3 players and with
+	  digital cameras supported by gPhoto2; a "chmod" can enforce
+	  more granular security policies than "usbdevfs" mount options.
+    
+    - Sometimes several kernel drivers may be able to handle a given
+      device, and you don't want some drivers to be automatically loaded.
+      (Only the first one will really hotplug, usually in alphabetical
+      order.)  Just add those driver names to /etc/hotplug/blacklist
+      and they won't be modprobed by these scripts.
+
+	  EXAMPLE:  uhci and usb-uhci; the many variants of tulip; and
+	  sometimes other vendor or development versions of drivers.
+
+If you add a new hotpluggable module to a 2.4 based system, "modutils"
+will make it automatically hotplug (using MODULE_DEVICE_TABLE).  For 2.2
+based systems, without such modutils support, you should add the device
+to /etc/hotplug/usb.handmap in order for it to hotplug.

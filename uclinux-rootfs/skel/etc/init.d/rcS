@@ -1,0 +1,86 @@
+#! /bin/sh
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:.
+
+echo "Mounting virtual filesystems"
+mkdir -p /sys /proc /dev
+mount -t proc proc /proc
+mount -t usbfs none /proc/bus/usb
+mount -t debugfs debugfs /proc/sys/debug
+mount -t sysfs sys /sys
+mount -t tmpfs -o size=64k,mode=0755 tmpfs /dev
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts
+mount -t tmpfs -o mode=01777 tmpfs /tmp
+
+echo "Starting mdev"
+echo "/sbin/stbhotplug" > /proc/sys/kernel/hotplug
+mdev -s
+
+if [ ! -z "$BASH_VERSION" ]; then
+	# Recovery from missing /dev/console (works on bash but not ash)
+	exec < /dev/console >& /dev/console
+fi
+
+# Don't let SCHED_FIFO / SCHED_RR realtime threads get preempted
+echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+
+# GPLv3 warning
+if [ -e /bin/gdbserver -o -e /bin/gdb ]; then
+	echo "* WARNING: THIS STB CONTAINS GPLv3 SOFTWARE"
+	echo "* GPLv3 programs must be removed in order to enable security."
+	echo "* See: http://www.gnu.org/licenses/gpl-faq.html#Tivoization"
+fi
+
+# -small configuration: do not start any other services automatically
+if [ ! -e /bin/login ]; then
+	[ -f /root/rc.user ] && sh /root/rc.user
+	exit 0
+fi
+
+# Set up MoCA link, if present
+[ -e /dev/bmoca0 ] && mocacfg boot
+
+cmdline=`cat /proc/cmdline`
+
+if [[ "$cmdline" != *nfsroot=* ]]; then
+	# set up networking if we are not on an NFS rootfs
+	for x in `ls /sys/class/net`; do
+		echo "Configuring $x interface"
+		/sbin/ifup $x
+	done
+else
+	# just configure loopback
+	/sbin/ifup lo
+fi
+
+# Set up WLAN, if present
+if [ -e /etc/wl/rtecdc.trx -a -x /bin/bcmdl ]; then
+	bcmdl /etc/wl/rtecdc.trx
+fi
+[ -e /lib/modules/wl.ko ] && insmod /lib/modules/wl.ko
+
+# rootfs on SATA hard disk (but not sda4-less thumbdrive)
+if [ -e /dev/root -a "`readlink /dev/root`" = "sda1" -a -e /dev/sda4 ]; then
+	mount -o remount,noatime,commit=1 /
+	mount -a
+	swapon -a
+fi
+
+echo "Starting network services"
+portmap &
+telnetd
+
+if [ -e /sbin/dropbear ]; then
+	if [ ! -e /etc/dropbear/dropbear_rsa_host_key ]; then
+		mkdir -p /etc/dropbear
+		dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
+		dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key
+	fi
+	dropbear
+fi
+
+if [ -f /root/rc.user ]; then
+	echo "Starting user services"
+	/bin/sh /root/rc.user
+fi

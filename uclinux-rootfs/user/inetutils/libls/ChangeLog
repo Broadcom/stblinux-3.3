@@ -1,0 +1,88 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (noinst_LIBRARIES): Use libls_BUILD instead of
+	BUILD_LIBLS.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-08-25  Alain Magloire
+
+	* Makefile.am: use BUILD_LS.
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ls.c (traverse): Fix format of error message.
+
+	* fts.c (fts_stat): Not all systems have S_IFWHT even if they have
+	DT_WHT, so check for this.
+
+2000-08-24  Alain Magloire
+
+	* fts.c: Check for HAVE_FCHDIR, and disable fchdir() for OS
+	lacking.  bcopy --> memmove, bzero --> memset.
+
+	* fts.c: Include <config.h>.
+	* cmp.c: Include <config.h>.
+	* ls.c: Include <config.h>.
+	* print.c: Include <config.h>.
+	* stat_flags.c: Include <config.h>.
+	* util.c: Include <config.h>.
+
+2000-08-01 Michael Vogt
+
+	* ls.h: Nuke u_quad_t, for unsigned long long.
+	* print.c: Use "%*llu" instead of "%*qd".
+
+2000-08-14 Alain Magloire
+
+	* print.c: Define [howmany] macro.
+	* bsdport.c: Remove [_XOPEN_SOURCE], [_BSD_SOURCE], [_GNU_SOURCE]
+	we have no business defining this.
+	* bsdport.h: Do not include <config.h> here.
+	* ls.c: Include <termios.h> not <sys/termios.h>
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	Someday I might learn how to use incremental search properly.
+	* ls.c (traverse): strerr -> strerror.
+	(display): Likewise.
+
+2000-08-03  Marcus Brinkmann  <marcus@gnu.org>
+
+	* ls.c (traverse): strerr -> strerror.
+	(display): Likewise.
+	* print.c (printlink): Likewise.
+
+2000-08-01 Michael Vogt
+
+	* bsdport.h: added dirfd() macro, add _D_EXACT_NAMLEN macro
+	* fts.h: minor portability changes
+	* ls.c: minor bugfix ( strerr() -> strerror() )
+	* print.c: added <sys/mkdev.h> if avaiable
+
+2000-07-31 Michael Vogt
+
+	* fts.c,ls.c,print.c: portability changes
+	(solaris lacks warn,warnx,err)
+
+2000-07-30 Alain Magloire
+
+	* print.c(printlink): ifdef MAXPATHLEN.
+
+2000-07-30 Michel Vogt
+
+	* fts.c: Change GNU Lib C specifics functions for
+	their standard counterpart example: __opendir() --> opendir().
+
+2000-07-27 Michel Vogt
+
+	* fts.c fts.h: new files to support BSD fts_*() functions.
+
+2000-07-06 Michel Vogt
+
+	This is a Linux port of the BSD ls program.  You probably aren't
+	interested in this, since GNU ls is much better (IMHO).  But this port
+	is needed for internal ls on inetutils-ftpd.
+

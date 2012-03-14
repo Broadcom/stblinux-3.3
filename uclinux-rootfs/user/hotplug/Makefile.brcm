@@ -1,0 +1,97 @@
+# $Id: Makefile,v 1.16 2004/09/23 17:46:57 kroah Exp $
+
+NAME=hotplug
+
+REV=$(shell date "+%Y_%m_%d"| awk '{print $$1}')
+
+# System locations
+prefix = $(ROOTDIR)/romfs
+exec_prefix = ${prefix}
+etcdir = ${prefix}/etc
+sbindir = ${exec_prefix}/sbin
+mandir = ${prefix}/usr/share/man
+srcdir = .
+
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL}
+INSTALL_DATA  = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+
+TOPDIR=/
+DIRS= 	/sbin \
+	/etc/hotplug \
+	/etc/init.d/ \
+	/var/run/usb \
+	/usr/share/man/man8
+
+# New style, /etc/hotplug
+# Driven by modutils output, and (for USB) exceptions
+DISTRIB_FILES =		\
+		README	\
+		README.modules	\
+		ChangeLog	\
+		hotplug.8	\
+		Makefile	\
+		mkinstalldirs	\
+		hotplug.spec
+
+DISTRIB_DIRS =		\
+		etc	\
+		sbin	\
+		debian
+
+
+RELEASE_DIR =		$(NAME)-$(REV)
+
+default:	distrib
+distrib: 	$(RELEASE_DIR).tar.gz
+
+# This rule simply makes a distribution tarball. It collects the files
+# from various distribution subdirectories.
+
+FILES_CORE = $(shell find . \( -not -name '.' \) -print | grep -v CVS | grep -v "\.tar\.gz" | grep -v "\/\." )
+
+$(RELEASE_DIR).tar.gz: clean
+	@chmod +x sbin/hotplug
+	@chmod +x etc/rc.d/init.d/hotplug
+	@chmod +x etc/hotplug/*.agent etc/hotplug/*.rc
+	@-rm -rf $(RELEASE_DIR)
+	@mkdir $(RELEASE_DIR)
+	@for file in $(FILES_CORE); do				\
+		if test -d $$file; then				\
+			mkdir $(RELEASE_DIR)/$$file;		\
+		else						\
+			cp -p $$file $(RELEASE_DIR)/$$file;	\
+		fi;						\
+	done
+	@tar -cf - $(RELEASE_DIR) | gzip -9 > $(RELEASE_DIR).tar.gz
+	@rm -rf $(RELEASE_DIR)
+	@echo "Built $(RELEASE_DIR).tar.gz"
+
+all:
+
+clean:
+	@-find . \( -not -type d \) -and \( -name '*~' -o -name '*.[oas]' \) -type f -print \
+	| xargs rm -f
+
+rpm:	hotplug.spec $(RELEASE_DIR).tar.gz
+	rpm -ta $(RELEASE_DIR).tar.gz
+
+# /etc/hotplug/usb.distmap is only for 2.2 kernels
+# /etc/hotplug/{usb,pci,...} directories are for setup scripts
+# /var/run/usb is optional (for $REMOVER)
+# so is /var/log/hotplug (for ascii event logs)
+
+install:
+	${INSTALL_SCRIPT} -D sbin/hotplug $(sbindir)/hotplug
+	$(INSTALL) -d $(etcdir)/hotplug/{usb,pci}
+	$(INSTALL) -D etc/hotplug.d/default/default.hotplug $(etcdir)/hotplug.d/default/default.hotplug
+	for F in etc/hotplug/{*.{agent,rc},hotplug.functions} ; do \
+	    ${INSTALL_SCRIPT} $$F $(etcdir)/hotplug ; \
+	    done
+	for F in etc/hotplug/{blacklist,usb.{user,hand,dist}map} ; do \
+	    ${INSTALL_DATA} $$F $(etcdir)/hotplug ; \
+	    done
+	${INSTALL_SCRIPT} -D etc/rc.d/init.d/hotplug $(etcdir)/init.d/hotplug
+	$(INSTALL) -d $(prefix)/var/log/hotplug $(prefix)/var/run
+	$(INSTALL) -d -m 700 $(prefix)/var/run/usb

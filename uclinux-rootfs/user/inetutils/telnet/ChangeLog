@@ -1,0 +1,57 @@
+2002-09-13  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* telnet/Makefile.am: Add LIBAUTH to the list of libraries.
+
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* telnet/authenc.c: Checks for HAVE_DECL variables must read
+	  #if !HAVE_DECL_something, since AC_CHECK_DECLS always
+	  declares HAVE_DECL, either to 0 or to 1. 	  
+	* telnet/commands.c: Likewise.
+
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* main.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use telnet_BUILD instead of BUILD_TELNET.
+	* authenc.c [HAVE_GETPASS_DECL]: Renamed to HAVE_DECL_GETPASS.
+	* commands.c [HAVE_HTONS_DECL]: Renamed to HAVE_DECL_HTONS.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-10-25  Alain Magloire
+
+	* telnet/telnet.c: jmp_buf is an opaque struct/object we should
+	not try to initialize it, and in any case globals and static
+	variables are initialize to zeros, a prerequesite of ISO C.
+
+2001-08-17  Marcus Brinkmann  <marcus@gnu.org>
+
+	* sys_bsd.c (TerminalFlushOutput): New variable FLAGS.  Pass
+	pointers to it to the ioctls.
+
+2000-08-06 Alain Magloire
+
+	* ring.h: error in the prototype declarion of ring_mark().
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."

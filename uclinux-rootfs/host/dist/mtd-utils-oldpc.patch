@@ -1,0 +1,130 @@
+diff -ru mtd-utils.orig/include/mtd/ubi-media.h mtd-utils/include/mtd/ubi-media.h
+--- mtd-utils.orig/include/mtd/ubi-media.h	Tue Mar 17 11:12:09 2009
++++ mtd-utils/include/mtd/ubi-media.h	Sat May  9 21:02:42 2009
+@@ -32,6 +32,10 @@
+ 
+ #include <asm/byteorder.h>
+ 
++typedef unsigned short __be16;
++typedef unsigned long __be32;
++typedef unsigned long long __be64;
++
+ /* The version of UBI images supported by this implementation */
+ #define UBI_VERSION 1
+ 
+diff -ru mtd-utils.orig/mkfs.ubifs/mkfs.ubifs.c mtd-utils/mkfs.ubifs/mkfs.ubifs.c
+--- mtd-utils.orig/mkfs.ubifs/mkfs.ubifs.c	Tue Mar 17 11:12:09 2009
++++ mtd-utils/mkfs.ubifs/mkfs.ubifs.c	Sat May  9 21:02:42 2009
+@@ -34,6 +34,17 @@
+ /* Default time granularity in nanoseconds */
+ #define DEFAULT_TIME_GRAN 1000000000
+ 
++#ifndef FS_IOC_GETFLAGS
++
++#define FS_IOC_GETFLAGS                 _IOR('f', 1, long)
++#define FS_COMPR_FL                     0x00000004 /* Compress file */
++#define FS_SYNC_FL                      0x00000008 /* Synchronous updates */
++#define FS_IMMUTABLE_FL                 0x00000010 /* Immutable file */
++#define FS_APPEND_FL                    0x00000020
++#define FS_DIRSYNC_FL                   0x00010000
++
++#endif
++
+ /**
+  * struct idx_entry - index entry.
+  * @next: next index entry (NULL at end of list)
+@@ -1900,12 +1911,14 @@
+ 	sup.rp_size       = cpu_to_le64(c->rp_size);
+ 	sup.time_gran     = cpu_to_le32(DEFAULT_TIME_GRAN);
+ 	uuid_generate_random(sup.uuid);
++#if 0
+ 	if (verbose) {
+ 		char s[40];
+ 
+ 		uuid_unparse_upper(sup.uuid, s);
+ 		printf("\tUUID:         %s\n", s);
+ 	}
++#endif
+ 	if (c->big_lpt)
+ 		sup.flags |= cpu_to_le32(UBIFS_FLG_BIGLPT);
+ 
+diff -ru mtd-utils.orig/mkfs.ubifs/ubifs-media.h mtd-utils/mkfs.ubifs/ubifs-media.h
+--- mtd-utils.orig/mkfs.ubifs/ubifs-media.h	Tue Mar 17 11:12:09 2009
++++ mtd-utils/mkfs.ubifs/ubifs-media.h	Sat May  9 21:02:42 2009
+@@ -33,6 +33,10 @@
+ #ifndef __UBIFS_MEDIA_H__
+ #define __UBIFS_MEDIA_H__
+ 
++typedef unsigned short __le16;
++typedef unsigned long __le32;
++typedef unsigned long long __le64;
++
+ /* UBIFS node magic number (must not have the padding byte first or last) */
+ #define UBIFS_NODE_MAGIC  0x06101831
+ 
+@@ -473,7 +477,7 @@
+ 	__le32 xattr_names;
+ 	__le16 compr_type;
+ 	__u8 padding2[26]; /* Watch 'zero_ino_node_unused()' if changing! */
+-	__u8 data[];
++	__u8 data[0];
+ } __attribute__ ((packed));
+ 
+ /**
+@@ -498,7 +502,7 @@
+ 	__u8 type;
+ 	__le16 nlen;
+ 	__u8 padding2[4]; /* Watch 'zero_dent_node_unused()' if changing! */
+-	__u8 name[];
++	__u8 name[0];
+ } __attribute__ ((packed));
+ 
+ /**
+@@ -519,7 +523,7 @@
+ 	__le32 size;
+ 	__le16 compr_type;
+ 	__u8 padding[2]; /* Watch 'zero_data_node_unused()' if changing! */
+-	__u8 data[];
++	__u8 data[0];
+ } __attribute__ ((packed));
+ 
+ /**
+@@ -703,7 +707,7 @@
+ 	__le32 lnum;
+ 	__le32 offs;
+ 	__le32 len;
+-	__u8 key[];
++	__u8 key[0];
+ } __attribute__ ((packed));
+ 
+ /**
+@@ -717,7 +721,7 @@
+ 	struct ubifs_ch ch;
+ 	__le16 child_cnt;
+ 	__le16 level;
+-	__u8 branches[];
++	__u8 branches[0];
+ } __attribute__ ((packed));
+ 
+ /**
+@@ -739,7 +743,7 @@
+ struct ubifs_orph_node {
+ 	struct ubifs_ch ch;
+ 	__le64 cmt_no;
+-	__le64 inos[];
++	__le64 inos[0];
+ } __attribute__ ((packed));
+ 
+ #endif /* __UBIFS_MEDIA_H__ */
+diff -ru mtd-utils.orig/mkfs.ubifs/ubifs.h mtd-utils/mkfs.ubifs/ubifs.h
+--- mtd-utils.orig/mkfs.ubifs/ubifs.h	Tue Mar 17 11:12:09 2009
++++ mtd-utils/mkfs.ubifs/ubifs.h	Sat May  9 21:02:42 2009
+@@ -248,7 +248,7 @@
+ #ifdef CONFIG_UBIFS_FS_DEBUG
+ 	int lnum, offs, len;
+ #endif
+-	struct ubifs_zbranch zbranch[];
++	struct ubifs_zbranch zbranch[0];
+ };
+ 
+ /**

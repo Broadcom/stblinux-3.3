@@ -1,0 +1,92 @@
+dnl $MawkId: configure.in,v 1.34 2010/06/22 23:12:18 tom Exp $
+dnl configure.in for mawk
+dnl
+dnl @Log: configure.in,v @
+dnl Revision 1.13  1995/10/16  12:25:00  mike
+dnl configure cleanup
+dnl
+dnl Revision 1.12  1995/04/20  20:26:51  mike
+dnl beta improvements from Carl Mascott
+dnl
+dnl Revision 1.11  1995/01/09  01:22:30  mike
+dnl check sig handler ret type to make fpe_check.c more robust
+dnl
+dnl Revision 1.10  1994/12/18  20:46:24  mike
+dnl fpe_check -> ./fpe_check
+dnl
+dnl Revision 1.9  1994/12/14  14:42:55  mike
+dnl more explicit that "   " MATHLIB means none
+dnl
+dnl Revision 1.8  1994/12/11  21:26:25  mike
+dnl tweak egrep for [fs]printf prototypes
+dnl
+dnl Revision 1.7  1994/10/16  18:38:23  mike
+dnl use sed on defines.out
+dnl
+dnl Revision 1.6  1994/10/11  02:49:06  mike
+dnl systemVr4 siginfo
+dnl
+dnl Revision 1.5  1994/10/11  00:39:25  mike
+dnl fpe check stuff
+dnl
+dnl
+dnl
+AC_INIT(mawk.h)
+
+AC_CONFIG_HEADER(config.h:config_h.in)
+CF_CHECK_CACHE
+
+AC_ARG_PROGRAM
+
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_PROG_CPP
+AC_PROG_INSTALL
+
+CF_MAWK_MATHLIB
+
+CF_DISABLE_ECHO
+CF_ENABLE_WARNINGS
+
+AC_MSG_CHECKING(if you want to use mawk's own regular-expressions engine)
+AC_ARG_WITH([builtin-regex],
+[  --with-builtin-regex    use mawk's own regular-expressions engine],
+[
+	with_builtin_regex=$withval
+])
+if test "x${with_builtin_regex}" != xno; then
+	with_builtin_regex=yes
+    CFLAGS="$CFLAGS -DLOCAL_REGEXP"
+fi
+AC_MSG_RESULT($with_builtin_regex)
+
+if test "x${with_builtin_regex}" = xno; then
+    CF_REGEX
+fi
+
+AC_PROG_YACC
+CF_PROG_LINT
+CF_MAKE_TAGS
+CF_ANSI_CC_REQD
+CF_XOPEN_SOURCE
+CF_LARGEFILE
+
+CF_DISABLE_LEAKS 
+
+CF_MAWK_FIND_SIZE_T
+CF_LOCALE
+CF_CHECK_ENVIRON(environ)
+
+AC_CHECK_FUNCS(fork pipe wait)
+test "$ac_cv_func_fork" = yes && \
+test "$ac_cv_func_pipe" = yes && \
+test "$ac_cv_func_wait" = yes && \
+AC_DEFINE(HAVE_REAL_PIPES)
+
+AC_CHECK_HEADERS(unistd.h sys/wait.h)
+
+CF_MAWK_CHECK_HEADERS(fcntl.h errno.h math.h time.h stdarg.h stdlib.h string.h)
+CF_MAWK_CHECK_FUNCS(memcpy strchr strerror vfprintf strtod fmod matherr)
+CF_MAWK_FIND_MAX_INT
+CF_MAWK_RUN_FPE_TESTS
+AC_OUTPUT(Makefile)

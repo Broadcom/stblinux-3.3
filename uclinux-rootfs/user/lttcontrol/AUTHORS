@@ -1,0 +1,25 @@
+Linux Trace Toolkit Viewer
+
+Contributors :
+
+Michel Dagenais (New trace format, lttv main)
+Mathieu Desnoyers (Kernel Tracer, Directory structure, build with automake/conf,
+                   lttv gui, control flow view, gui cooperative trace reading
+                   scheduler with interruptible foreground and background
+                   computation, detailed event list (rewrite), trace reading
+                   library (rewrite))
+Benoit Des Ligneris, Éric Clement (Cluster adaptation, work in progress)
+Xang-Xiu Yang (trace reading library and converter, lttv gui, 
+               detailed event list and statistics view)
+Tom Zanussi (RelayFS)
+
+Strongly inspired from the original Linux Trace Toolkit Visualizer made by
+Karim Yaghmour.
+
+Linux Trace Toolkit Viewer, Copyright (C) 2004
+                                                Michel Dagenais
+                                                Mathieu Desnoyers
+                                                Xang-Xiu Yang
+Linux Trace Toolkit comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions. See COPYING for details.

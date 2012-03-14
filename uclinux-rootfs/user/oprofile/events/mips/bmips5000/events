@@ -1,0 +1,119 @@
+#
+# BMIPS5000 events
+#
+event:0x000 counters:0,1,2,3 um:tp minimum:500 name:CYCLES : Execution cycles 
+event:0x001 counters:0,1,2,3 um:tp minimum:500 name:RETIRED_CYCLES : this event may occur twice per cycle.
+event:0x002 counters:0,2 um:tp minimum:500 name:FETCHED_BRANCH_INSTRUCTIONS : fetched branch instructions.
+event:0x002 counters:1,3 um:tp minimum:500 name:TOTAL_BRANCH_MISPREDICTIONS : total branch mispredictions.
+event:0x003 counters:0,2 um:tp minimum:500 name:BHT_REFERENCE : BHT references.
+event:0x003 counters:1,3 um:tp minimum:500 name:BHT_MISPREDICTIONS : BHT mispredictiosn.
+event:0x004 counters:0,2 um:tp minimum:500 name:BTB_MISPREDICTIONS : BTB mispredictiosn.
+event:0x004 counters:1,3 um:tp minimum:500 name:BTB_REFERENCE : BTB references.
+event:0x005 counters:0,2 um:tp minimum:500 name:CRS_MISPREDICTIONS : CRS mispredictiosn.
+event:0x005 counters:1,3 um:tp minimum:500 name:CRS_REFERENCE : CRS references.
+event:0x006 counters:0,2 um:tp minimum:500 name:ITLB_REFERENCE : ITLB references.
+event:0x006 counters:1,3 um:tp minimum:500 name:ITLB_MISPREDICTIONS : ITLB miss.
+event:0x007 counters:0,2 um:tp minimum:500 name:DTLB_REFERENCE : DTLB references.
+event:0x007 counters:1,3 um:tp minimum:500 name:DTLB_MISPREDICTIONS : DTLB miss.
+event:0x008 counters:0,2 um:tp minimum:500 name:JTLB_INSTRUCTION_REFERENCE : JTLB instruction references.
+event:0x008 counters:1,3 um:tp minimum:500 name:JTLB_INSTRUCTION_MISPREDICTIONS : JTLB instruction miss.
+event:0x009 counters:0,2 um:tp minimum:500 name:JTLB_DATA_REFERENCE : JTLB data references.
+event:0x009 counters:1,3 um:tp minimum:500 name:JTLB_DATA_MISPREDICTIONS : JTLB data miss.
+event:0x00b counters:1,3 um:tp minimum:500 name:ICACHE_INVALIDATION : Instruction cache invalidation.
+event:0x010 counters:0,2 um:tp minimum:500 name:LOAD_REPLAYS : Load replays.
+event:0x010 counters:1,3 um:tp minimum:500 name:STORE_REPLAYS : Store replays.
+event:0x011 counters:0,2 um:tp minimum:500 name:LOAD_REPLAYS_RESOURCE_UNAVAIL : Load replays due to resource unavailable.
+event:0x011 counters:1,3 um:tp minimum:500 name:STORE_REPLAYS_RESOURCE_UNAVAIL  : Store replays due to resource unavailable.
+event:0x015 counters:0,2 um:tp minimum:500 name:RETIRED_LOAD_INSTRUCTIONS : Retired load instructions.
+event:0x015 counters:1,3 um:tp minimum:500 name:RETIRED_ALU_INSTRUCTIONS  : Retired ALU instructions.
+event:0x016 counters:0,2 um:tp minimum:500 name:RETIRED_STORE_INSTRUCTIONS : Retired store instructions.
+event:0x016 counters:1,3 um:tp minimum:500 name:RETIRED_MULTIPLY_DIV_INSTRUCTIONS  : Retired multiply/divide instructions.
+event:0x017 counters:0,2 um:tp minimum:500 name:RETIRED_PREFETCH_INSTRUCTIONS : Retired prefetch instructions.
+event:0x017 counters:1,3 um:tp minimum:500 name:RETIRED_FPU_INSTRUCTIONS  : Retired FPU instructions.
+event:0x018 counters:0,2 um:tp minimum:500 name:RETIRED_PREFETCH_INSTRUCTIONS_NO_ACTION : Retired prefetch instructions that has no actions.
+event:0x018 counters:1,3 um:tp minimum:500 name:RETIRED_DSP_INSTRUCTIONS  : Retired DSP instructions.
+event:0x019 counters:0,2 um:tp minimum:500 name:RETIRED_JPIPE_INSTRUCTIONS : Retired J-pipe instructions.
+event:0x019 counters:1,3 um:tp minimum:500 name:RETIRED_KPIPE_INSTRUCTIONS  : Retired K-pipe instructions.
+event:0x01a counters:0,2 um:tp minimum:500 name:EXCEPTIONS : Number of exceptions.
+event:0x01a counters:1,3 um:tp minimum:500 name:INTERRUPTS : Number of interrupts.
+event:0x01c counters:0,2 um:tp minimum:500 name:L2_REFERENCES : L2-Cache references.
+event:0x01c counters:1,3 um:tp minimum:500 name:L2_MISSES : L2-Cache misses.
+event:0x01d counters:0,2 um:tp minimum:500 name:L2_DIRTY_EVICTIONS : L2-Cache dirty evictions.
+event:0x01d counters:1,3 um:tp minimum:500 name:L2_INVALIDATIONS : L2-Cache invalidations.
+event:0x01e counters:0,2 um:tp minimum:500 name:L2_HW_PREFETCH : L2-Cache hardware prefetches.
+event:0x01e counters:1,3 um:tp minimum:500 name:L2_PREFETCH_USED : L2-Cache prefetched lines that is really used.
+event:0x01f counters:0,2 um:tp minimum:500 name:L2_I_MISSES : L2-Cache I misses that cause line fill.
+event:0x01f counters:1,3 um:tp minimum:500 name:L2_I_REFERENCES : L2-Cache I references.
+event:0x020 counters:0,2 um:tp minimum:500 name:L2_D_MISSES : L2-Cache D misses that cause line fill.
+event:0x020 counters:1,3 um:tp minimum:500 name:L2_D_REFERENCES : L2-Cache D references.
+event:0x023 counters:0,2 um:tp minimum:500 name:BIU_NON_CACHEABLE_LOAD_REQ : BIU non-cacheable load requests.
+event:0x023 counters:1,3 um:tp minimum:500 name:BIU_NON_CACHEABLE_STORE_REQ : BIU non-cacheable store requests.
+event:0x024 counters:0,2 um:tp minimum:500 name:BIU_CACHEABLE_LOAD_REQ : BIU cacheable load requests.
+event:0x024 counters:1,3 um:tp minimum:500 name:BIU_CACHEABLE_STORE_REQ : BIU cacheable store requests.
+event:0x025 counters:0,2 um:tp minimum:500 name:BIU_PREFETCH_REQ : BIU prefetch requests.
+event:0x025 counters:1,3 um:tp minimum:500 name:BIU_DOUBLE_PREFETCH_REQ : BIU double prefetch requests.
+event:0x026 counters:1,3 um:tp minimum:500 name:BIU_CACHEABLE_PARTIALLINE_STORE_REQ : BIU cacheable partial line requests.
+event:0x028 counters:0,2 um:tp minimum:500 name:CYCLES_NO_INSTRUCTION_FETCH : Cycles when no instructions are fetched.
+event:0x028 counters:1,3 um:tp minimum:500 name:CYCLES_STANDBY : Cycles the thread is standby mode resulting from a WAIT instruction.
+event:0x029 counters:0,1,2,3 um:tp minimum:500 name:CYCLES_BOTH_IBUFS_EMPTY : Cycles when both IBUFs(including bypass registers) are empty.
+event:0x02a counters:0,1,2,3 um:tp minimum:500 name:CYCLES_IBUF_EMPTY : Cycles when specified IBUF(including bypass registers) is empty.
+event:0x02b counters:0,2 um:tp minimum:500 name:CYCLES_BRANCH_MISPREDICTION_SIG : Cycles when branch misprediction signal is on.
+event:0x02b counters:1,3 um:tp minimum:500 name:CYCLES_ITLB_MISS : Cycles serving ITLB misses when event 41(MT=0)/42(MT=10) is true.
+event:0x02c counters:1,3 um:tp minimum:500 name:CYCLES_ICACHE_MISS : Cycles serving I-Cache misses when event 41(MT=0)/42(MT=10) is true.
+event:0x02d counters:0,2 um:tp minimum:500 name:CYCLES_JPIPE_NO_INSTRUCTION : Cycles when J-pipe issues no instructions.
+event:0x02d counters:1,3 um:tp minimum:500 name:CYCLES_JPIPE_REPLAY_INSTRUCTION : Cycles when J-pipe issues replayed instructions.
+event:0x02e counters:0,2 um:tp minimum:500 name:CYCLES_JPIPE_NO_INSTRUCTION_IN_IBUF : Cycles when J-pipe issues no instructions because of no instrucitons in IBUF.
+event:0x02e counters:1,3 um:tp minimum:500 name:CYCLES_JPIPE_NO_INSTRUCTION_WAIT : Cycles when J-pipe issues no instructions because of waiting for oprands(include data from a load).
+event:0x02f counters:0,2 um:tp minimum:500 name:CYCLES_JPIPE_NO_INSTRUCTION_WAIT_DATA : Cycles when J-pipe issues no instructions because of waiting for data from a load.
+event:0x02f counters:1,3 um:tp minimum:500 name:CYCLES_JPIPE_REPLAY_INSTRUCTION :  Cycles when J-pipe issues no instructions because of resource conflict.
+event:0x030 counters:0,2 um:tp minimum:500 name:CYCLES_KPIPE_NO_INSTRUCTION : Cycles when K-pipe issues no instructions.
+event:0x030 counters:1,3 um:tp minimum:500 name:CYCLES_KPIPE_REPLAY_INSTRUCTION : Cycles when K-pipe issues replayed instructions.
+event:0x031 counters:0,2 um:tp minimum:500 name:CYCLES_KPIPE_NO_INSTRUCTION_IN_IBUF : Cycles when K-pipe issues no instructions because of no instrucitons in IBUF.
+event:0x031 counters:1,3 um:tp minimum:500 name:CYCLES_KPIPE_NO_INSTRUCTION_WAIT : Cycles when K-pipe issues no instructions because of waiting for oprands(include data from a load).
+event:0x032 counters:0,2 um:tp minimum:500 name:CYCLES_KPIPE_NO_INSTRUCTION_WAIT_DATA : Cycles when K-pipe issues no instructions because of waiting for data from a load.
+event:0x032 counters:1,3 um:tp minimum:500 name:CYCLES_KPIPE_REPLAY_INSTRUCTION :  Cycles when K-pipe issues no instructions because of resource conflict.
+event:0x033 counters:0,2 um:tp minimum:500 name:CYCLES_FPU_PIPE_NO_INSTRUCTION : Cycles when FPU_-pipe issues no instructions.
+event:0x033 counters:1,3 um:tp minimum:500 name:CYCLES_FPU_PIPE_REPLAY_INSTRUCTION : Cycles when FPU_-pipe issues replayed instructions.
+event:0x034 counters:0,2 um:tp minimum:500 name:CYCLES_PENDING_ICACHE_MISS_REQ : Cycles whenever pending I-Cache miss requests waiting to be issued to L2-Cache input request buffer.
+event:0x034 counters:1,3 um:tp minimum:500 name:CYCLES_ICACHE_MISSES : Cycles serving I-Cache misses. Count whenever there are outstanding requests.
+event:0x035 counters:0,2 um:tp minimum:500 name:CYCLES_PENDING_DCACHE_MISS_REQ : Cycles whenever pending D-Cache miss requests waiting to be issued to L2-Cache input request buffer.
+event:0x035 counters:1,3 um:tp minimum:500 name:CYCLES_DCACHE_MISSES : Cycles serving D-Cache misses. Count whenever there are outstanding requests.
+event:0x036 counters:0,2 um:tp minimum:500 name:CYCLES_L2_REQ_BLOCK : Cycles when a request in L2-Cache input request queue is blocked.
+event:0x036 counters:1,3 um:tp minimum:500 name:CYCLES_L2_MISSES : Cycles serving L2-Cache misses. Counted whenever there are outstanding request.
+event:0x037 counters:0,2 um:tp minimum:500 name:CYCLES_L2_REQ_BLOCK_EVICTION : Cycles when a request in L2-Cache input request queue is blocked because of an eviction is in progress.
+event:0x037 counters:1,3 um:tp minimum:500 name:CYCLES_L2_REQ_BLOCK_REFILL : Cycles when a request in L2-Cache input request queue is blocked because of an refill is in progress.
+event:0x038 counters:0,2 um:tp minimum:500 name:CYCLES_L2_REQ_NO_CREDIT : Cycles when a request in L2-Cache input request queue is blocked because of no credit.
+event:0x038 counters:1,3 um:tp minimum:500 name:CYCLES_L2_REQ_BANK_CONFLICT : Cycles when a request in L2-Cache input request queue is blocked because of bank conflict.
+event:0x039 counters:0,2 um:tp minimum:500 name:CYCLES_CACHEABLE_LOAD_NO_CREDIT : Cycles when a cacheable load request in L2-Cache input request queue is blocked because of no credit.
+event:0x039 counters:1,3 um:tp minimum:500 name:CYCLES_CACHEABLE_STORE_NO_CREDIT : Cycles when a cacheable store request in L2-Cache input request queue is blocked because of no credit.
+event:0x03a counters:0,2 um:tp minimum:500 name:CYCLES_BIU_CACHEABLE_LOAD : Cycles serving BIU cacheable load request.
+event:0x03a counters:1,3 um:tp minimum:500 name:CYCLES_BIU_CACHEABLE_STORE : Cycles serving BIU cacheable store request.
+event:0x03b counters:0,2 um:tp minimum:500 name:CYCLES_BIU_UNCACHEABLE_LOAD : Cycles serving BIU uncacheable load request.
+event:0x03b counters:1,3 um:tp minimum:500 name:CYCLES_BIU_UNCACHEABLE_STORE : Cycles serving BIU uncacheable store request.
+event:0x03c counters:0,2 um:tp minimum:500 name:CYCLES_WAIT_BIU_CACHEABLE_LOAD : Cycles serving BIU cacheable load request.
+event:0x03c counters:1,3 um:tp minimum:500 name:CYCLES_WAIT_BIU_CACHEABLE_STORE : Cycles serving BIU cacheable store request.
+event:0x03d counters:0,2 um:tp minimum:500 name:CYCLES_WAIT_BIU_UNCACHEABLE_LOAD : Cycles serving BIU uncacheable load request.
+event:0x03d counters:1,3 um:tp minimum:500 name:CYCLES_WAIT_BIU_UNCACHEABLE_STORE : Cycles serving BIU uncacheable store request.
+event:0x03e counters:0,2 um:tp minimum:500 name:CYCLES_ALU_SKEWED_1 : Cycles when ALU is skewed 1 cycle.
+event:0x03e counters:1,3 um:tp minimum:500 name:CYCLES_ALU_SKEWED_2 : Cycles when ALU is skewed 2 cycle.
+event:0x03f counters:0,2 um:tp minimum:500 name:CYCLES_ALU_SKEWED_3 : Cycles when ALU is skewed 3 cycle.
+
+#
+#event specific to counter 0, 2
+#
+event:0x00a counters:0,2 um:tp minimum:500 name:ICACHE_REFERENCE : Instruction cache refernces.
+event:0x00c counters:0,2 um:tp minimum:500 name:DCACHE_REFERENCE : Data cache refernces.
+event:0x00d counters:0,2 um:tp minimum:500 name:DCACHE_DIRTY_EVICTIONS : Data cache dirty evictions.
+event:0x00e counters:0,2 um:tp minimum:500 name:DCACHE_LOAD_MISSES : Data cache load misses.
+event:0x00f counters:0,2 um:tp minimum:500 name:DCACHE_STORE_MISSES : Data cache store misses.
+event:0x012 counters:0,2 um:tp minimum:500 name:LOAD_REPLAYS_HIT_STORE_BUFFER : Load replays due to a hit to store buffer.
+
+#
+#event specific to counter 1, 3
+#
+event:0x00a counters:1,3 um:tp minimum:500 name:ICACHE_MISSES : Instruction cache miss.
+event:0x00c counters:1,3 um:tp minimum:500 name:DCACHE_MISSES : Data cache miss.
+event:0x00d counters:1,3 um:tp minimum:500 name:DCACHE_INVALIDATIONS : Data cache invalidations.
+event:0x00e counters:1,3 um:tp minimum:500 name:DCACHE_LOADS : Data cache loads.
+event:0x00f counters:1,3 um:tp minimum:500 name:DCACHE_STORES : Data cache stores.
+event:0x012 counters:1,3 um:tp minimum:500 name:STORE_REPLAYS_STORE_BUFFER_FULL  : Store replays due to store buffer full.

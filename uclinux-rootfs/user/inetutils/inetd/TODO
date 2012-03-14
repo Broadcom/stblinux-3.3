@@ -1,0 +1,12 @@
+Parse config file /etc/inetd.conf
+Parse config files /etc/inetd.d/*
+
+Maybe have additional config file: /etc/inetdrc for controlling behaviour
+
+Create pidfile /var/run/inetd.pid
+
+Reread config file on HUP signal
+
+Write echo, chargen, discard, daytime, time
+
+

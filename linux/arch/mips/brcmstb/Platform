@@ -1,0 +1,8 @@
+#
+# Broadcom set-top platforms
+#
+platform-$(CONFIG_BRCMSTB)	+= brcmstb/
+cflags-$(CONFIG_BRCMSTB)	+= -I$(srctree)/arch/mips/include/asm/mach-brcmstb
+load-$(CONFIG_BRCMSTB)		+= 0x80001000
+
+cflags-$(CONFIG_NO_INLINE)	+= -fno-inline

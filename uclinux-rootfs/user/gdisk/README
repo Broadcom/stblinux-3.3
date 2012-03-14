@@ -1,0 +1,124 @@
+GPT fdisk (aka gdisk)
+by Roderick W. Smith, rodsmith@rodsbooks.com
+
+Introduction
+------------
+
+This software is intended as a (somewhat) fdisk-workalike program for
+GPT-partitioned disks. Although libparted and programs that use it (GNU
+Parted, gparted, etc.) provide the ability to handle GPT disks, they have
+certain limitations that gdisk overcomes. Specific advantages of gdisk and
+sgdisk include:
+
+* The ability to convert MBR-partitioned disks in-place to GPT format,
+  without losing data
+
+* The ability to convert BSD disklabels in-place to create GPT
+  partitions, without losing data
+
+* The ability to specify sector-exact partition sizes
+
+* More flexible specification of filesystem type code GUIDs, which
+  GNU Parted tends to corrupt (particularly for FAT partitions)
+
+* Clear identification of the number of unallocated sectors on a
+  disk
+
+* A user interface that's familiar to long-time users of Linux
+  fdisk (gdisk only)
+
+* The MBR boot loader code is left alone (GNU Parted tends to
+  wipe it out with every change)
+
+* The ability to create a hybrid MBR, which permits GPT-unaware
+  OSes to access up to three GPT partitions on the disk
+
+Of course, GPT fdisk isn't without its limitations. Most notably, it lacks
+the filesystem awareness and filesystem-related features of GNU Parted. You
+can't resize a partition's filesystem or create a partition with a
+filesystem already in place with gdisk, for instance. There's no GUI
+version of gdisk.
+
+The GPT fdisk package provides two program files: the interactive text-mode
+gdisk and the command-line-driven sgdisk. The former is intended for use in
+manually partitioning disks or changing partitioning details; the latter is
+intended for use in scripts to help automate tasks such as disk cloning or
+preparing multiple disks for Linux installation.
+
+Installing
+----------
+
+To compile GPT fdisk, you must have appropriate development tools
+installed, most notably the GNU Compiler Collection (GCC) and its g++
+compiler for C++. In addition, note these requirements:
+
+* On Linux, FreeBSD, and OS X, libuuid must be installed. This is the
+  standard for Linux and OS X, although you may need to install a package
+  called uuid-dev or something similar to get the headers. On FreeBSD, the
+  e2fsprogs-libuuid port must be installed.
+
+* The sgdisk program also requires the popt library and its development
+  files (headers). Most Linux distributions install popt by default, but
+  you may need to install a package called popt-dev, popt-devel, or
+  something similar to obtain the header files. Mac OS users can find a
+  version of popt for Mac OS from http://popt.darwinports.com; however,
+  you'll first need to install DarwinPorts (instructions exist on the
+  preceding page). Alternatively, you can compile gdisk alone, without
+  sgdisk; gdisk doesn't require popt.
+
+When all the necessary development tools and libraries are installed, you
+can uncompress the package and type "make" at the command prompt in the
+resulting directory. (You may need to type "make -f Makefile.mac" on Mac OS
+X, "make -f Makefile.freebsd" on FreeBSD, or "make -f Makefile.mingw" to
+compile using MinGW for Windows.) You may also need to add header (include)
+directories or library directories by setting the CXXFLAGS environment
+variable or by editing the Makefile. The result should be program files
+called gdisk and sgdisk. Typing "make gdisk" or "make sgdisk" will compile
+only the requested programs. You can use these programs in place or copy
+the files to a suitable directory, such as /usr/local/sbin. You can copy
+the man pages (gdisk.8 and sgdisk.8) to /usr/local/man/man8 to make them
+available.
+
+Caveats
+-------
+
+THIS SOFTWARE IS BETA SOFTWARE! IF IT WIPES OUT YOUR HARD DISK OR EATS YOUR
+CAT, DON'T BLAME ME! To date, I've tested the software on several USB flash
+drives, a handful of PATA and SATA hard disks, and several virtual disks in
+a QEMU environment. I believe all data-corruption bugs to be squashed, but
+I know full well that the odds of my missing something are high. This is
+particularly true for large drives; my only direct testing with such disks
+is with virtual QEMU disks. I've received user reports of success with
+RAID arrays over 2TiB in size, though.
+
+My main development platform is a system running the 64-bit version of
+Gentoo Linux (previously Ubuntu 8.04). I've also tested on 64-bit OpenSuSE,
+32-bit Fedora 10, 32-bit Fedora 11, 32-bit Ubuntu 6.10, 64-bit Ubunut 9.10,
+32-bit PowerPC Debian Linux, 32-bit Intel-based Mac OS X 10.5 and 10.6,
+64-bit FreeBSD 7.1, and Windows 7. Problems relating to 64-bit integers on
+the 32-bit Linux have been common during development and may crop up in the
+future.
+
+Redistribution
+--------------
+
+This program is licensed under terms of the GNU GPL (see the file COPYING).
+
+Acknowledgements
+----------------
+
+This code is mostly my own; however, I've used three functions from two
+other GPLed programs:
+
+- The code used to generate CRCs is taken from the efone program by
+  Krzysztof Dabrowski and ElysiuM deeZine. (See the crc32.h and
+  crc32.cc source code files.)
+
+- A function to find the disk size is taken from Linux fdisk by A. V. Le
+  Blanc. This code has subsequently been heavily modified.
+
+Additional code contributors include:
+
+- Yves Blusseau (1otnwmz02@sneakemail.com)
+
+- David Hubbard (david.c.hubbard@gmail.com)

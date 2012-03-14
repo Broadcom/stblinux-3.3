@@ -1,0 +1,61 @@
+2002-09-09  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rexecd.c: Change to the user's directory after
+	  switching to the user privileges. (Thanks to
+	  Chris Ulherr for reporting.)
+	  Removed unneded casts to (void).
+	  
+2002-05-14  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* rexecd.c: Use HAVE_STRUCT_type_member instead
+	  of HAVE_type_member.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use rexecd_BUILD instead of
+	BUILD_REXECD.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2000-08-08 Alain Magloire
+
+	* rexecd.c:  Let ansi2knr take care of the vararg/stdarg
+	issues.  Add prototype for error(). Guard [HAVE_INITGROUPS].
+
+
+2000-07-18 Alain Magloire
+
+	* rexed.c(error): get rid of the int error() varargs hack.
+	and put support for stdarg and vararg correctly.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."
+
+1999-17-02 Alain Magloire
+
+	* rexecd.c : check HAVE_SOCKADDR_IN_SIN_LEN before
+	doing static initialization.
+
+	* Use STD{IN,OUT,ERR}_FILENO.
+
+	* Set also sete{g,u}id(pw->{g,u}id).
+
+	* Set the number of file desc. for select() correctly.
+
+	* Initialize pid to 0;
+
+	* Use FD_ISSET/FD_CLR/FD_SET macros instead.

@@ -1,0 +1,88 @@
+2002-12-06  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* ping/ping.c (main): Added spaces between cases in a switch
+	to conform to the GCS.
+
+2002-09-06  Sergey Poznyakoff  <gray@Noldor.runasimi.org>
+
+	* ping.c (main): Removed duplicate startup introduced
+	  2002-06-24. Should have been more careful!
+
+2002-08-09  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* ping.c (main): Restored ping startup to its right place.
+
+2002-06-24  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* ping.c (main): Moved ping startup code to after the parsing
+	of the command line.
+	(is_root): Variable moved into main().
+
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* ping_timestamp.c, ping_router.c, ping_echo.c, ping_address.c
+	<version.h>: Include removed.
+
+	* ping.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use ping_BUILD instead of BUILD_PING.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-11-21  Sergey Poznyakoff  <gray@farlep.net>
+
+	* ping/Makefile.am: Added $(man_MANS) to EXTRA_DIST.
+	* ping/ping.8: Fixed permissions
+
+2001-11-01  Alain Magloire
+
+	* ping.8: New file.
+	* Makefile.am: man_MANS = ping.8.
+
+2001-08-11  Sergey Poznyakoff  <gray@farlep.net>
+
+	* ping_echo.c: Removed restriction on hostname lengths in
+	ipaddr2str.
+	* ping.c: Fixed coding style to comply with GNU.
+	* ping_address.c: Likewise.
+	* ping_impl.h: Likewise.
+	* ping_router.c: Likewise.
+	* ping_timestamp.c: Likewise.
+
+2001-07-14  Sergey Poznyakoff  <gray@farlep.net>
+	* ping.c: Use inetutils_package instead of PACKAGE. Same for
+	VERSION.
+
+2001-06-20  Sergey Poznyakoff  <gray@farlep.net>
+	Patches by Alain:
+	* ping_address.c,ping_echo.c,ping_router.c,ping_timestamp.c:
+		<signal.h> -> <sys/signal.h>
+
+
+2001-06-19  Sergey Poznyakoff  <gray@farlep.net>
+        * Makefile.am: use @BUILD_PING@ instead of directly
+          assigning bin_PROGRAMS.
+	* ping.h: changed counters in struct PING from int to longs.
+	* ping.c,ping_address.c,ping_echo.c,
+          ping_impl.h,ping_router.c,ping_timestamp.c:
+                Fixed a bunch of inconsistencies (thanks to Alain).
+                Changes to make gcc -Wall less verbose.
+
+2001-06-18  Sergey Poznyakoff  <gray@farlep.net>
+	* Makefile.am: added OMIT_DEPENDENCIES
+	* ping.c,ping_address.c,ping_echo.c,ping_impl.h,ping_timestamp.c:
+		Implemented ICMP_TIMESTAMP and ICMP_ADDRESSMASK requests.
+          None of existing routers answers the latter, though.
+
+2001-06-13  Sergey Poznyakoff  <gray@farlep.net>
+	* ping.c: implemented
+	* ping_address.c, ping_echo.c, ping_impl.h, ping_router.c,
+	  ping_timestamp.c: added to repository.
+

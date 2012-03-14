@@ -1,0 +1,49 @@
+AC_INIT(include/libxfs.h)
+AC_CONFIG_HEADER(include/platform_defs.h)
+
+AC_ARG_ENABLE(shared,
+[ --enable-shared=[yes/no] Enable use of shared libraries [default=yes]],,
+	enable_shared=yes)
+AC_SUBST(enable_shared)
+
+AC_ARG_ENABLE(gettext,
+[ --enable-gettext=[yes/no] Enable alternate language support [default=yes]],,
+	enable_gettext=yes)
+AC_SUBST(enable_gettext)
+
+AC_ARG_ENABLE(readline,
+[ --enable-readline=[yes/no] Enable readline command editing [default=no]],
+	test $enable_readline = yes && libreadline="-lreadline -ltermcap",
+	enable_readline=no)
+AC_SUBST(libreadline)
+AC_SUBST(enable_readline)
+
+AC_ARG_ENABLE(editline,
+[ --enable-editline=[yes/no] Enable editline command editing [default=no]],
+	test $enable_editline = yes && libeditline="-ledit -ltermcap",
+	enable_editline=no)
+AC_SUBST(libeditline)
+AC_SUBST(enable_editline)
+
+AC_PACKAGE_GLOBALS(xfsprogs)
+AC_PACKAGE_UTILITIES(xfsprogs)
+
+AC_PACKAGE_NEED_UUID_H
+AC_PACKAGE_NEED_UUIDCOMPARE
+AC_ARG_ENABLE(shared-uuid,
+[ --enable-shared-uuid=[yes/no]	Link shared libuuid [default=no].],
+	libuuid="/usr/lib/libuuid.a"
+	test "$enable_shared_uuid" = yes && libuuid="-luuid",
+	libuuid="/usr/lib/libuuid.a")
+AC_PACKAGE_CHECK_LIBUUID
+AC_SUBST(libuuid)
+
+AC_PACKAGE_NEED_PTHREAD_H
+AC_PACKAGE_NEED_PTHREADMUTEXINIT
+
+AC_TYPE_PSINT
+AC_TYPE_PSUNSIGNED
+AC_SIZEOF_POINTERS_AND_LONG
+AC_MANUAL_FORMAT
+
+AC_OUTPUT(include/builddefs)

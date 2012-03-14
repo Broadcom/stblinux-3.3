@@ -1,0 +1,113 @@
+#!/bin/bash
+version="0.5"
+curdir=`pwd`
+
+chipname=$PLAT
+
+query_mode=true
+control_mode=
+control_mask=".*"
+runtime_status_mask=".*"
+
+usage()
+{
+cat << EOF
+SATA power management utility $version
+Usage: pmsata [OPTIONS] [DEVICES]
+  -m MODE      - on|auto. If omitted, status is displayed (query mode)
+  -c CMASK     - control file mask (query mode only)
+  -s SMASK     - runtime status file mask (query mode only)
+EOF
+}
+
+while getopts "m:h?c:s:a:" option
+do
+	case $option in
+	m)
+		query_mode=false
+		control_mode=$OPTARG
+		if [ ! "$control_mode" = "auto" -a ! "$control_mode" = "on" ] ; then
+			usage
+			exit 1
+		fi
+		;;
+	c)
+		control_mask=$OPTARG ;;
+	s)
+		runtime_status_mask=$OPTARG ;;
+	h|?|*)
+		usage
+		exit 1 ;;
+	esac
+done
+
+function check_if_sata_controller()
+{
+	fname=$1
+	is_sata_controller="no"
+	[ -e "$fname/uevent" ] && grep -q "DRIVER=sata_brcmstb" $fname/uevent && is_sata_controller="yes"
+	[ -e "$fname/uevent" ] && grep -q "DRIVER=ahci" $fname/uevent && is_sata_controller="yes"
+}
+
+# function generates a list of all 'power' folders found in
+# the current tree
+function gen_powerlist()
+{
+	devfolder=$1
+	powerlist=
+	if [ -d $devfolder ] ; then
+		cd -P $devfolder
+		powerlist=`find . -name power -type d`
+	fi
+}
+
+# process each power folder
+# in query mode - display runtime_status and control settings
+# in update mode - change runtime control mode
+
+function scan_powerlist()
+{
+	powerlist=$1
+	for j in $powerlist ; do
+		control_file=$j/control
+		status_file=$j/runtime_status
+		if [ "$query_mode" == "true" ] ; then
+			filter_out=0
+			[ -f "$control_file" ] && [ -z "`grep $control_mask $control_file`" ] && filter_out=1
+			[ -f "$status_file" ] && [ -z "`grep $runtime_status_mask $status_file`" ] && filter_out=1
+			if [ $filter_out -eq 0 ] ; then
+				short_devname=$i/$j
+				short_devname=${short_devname//\/\.\//\/} # /./ -> /
+				short_devname=${short_devname%%/power}
+				echo $short_devname
+				[ -f $control_file ] && (     echo -n "control:        "; cat $control_file )
+				[ -f $status_file ] && (      echo -n "runtime_status: "; cat $status_file )
+			fi
+		else
+			supported=yes
+			[ -f $status_file ] || supported=no
+			[ "$supported" == "yes" ] && [ -f $control_file ] && [ ! -z "$control_mode" ] && echo $control_mode > $control_file
+		fi
+	done
+
+}
+
+# first process all scsi disks found in the system
+devlist=`ls -d /sys/class/scsi_disk /sys/bus/scsi/devices/host?/target*/* 2>>/dev/null`
+
+for i in $devlist ; do
+	gen_powerlist $i
+	scan_powerlist $powerlist
+done
+
+# now scan all pci devices and find SATA controller
+devlist=`ls -d /sys/devices/pci*/* 2>>/dev/null`
+
+for i in $devlist ; do
+	gen_powerlist $i
+	check_if_sata_controller $i
+	[ "$is_sata_controller" == "yes" ] && scan_powerlist $powerlist
+done
+
+cd $curdir
+

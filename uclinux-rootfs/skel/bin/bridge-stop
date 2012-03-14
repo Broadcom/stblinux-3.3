@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [ ! -e /sbin/brctl ]; then
+	echo "ERROR: brctl not present"
+	exit 1
+fi
+
+if ! ifconfig br0 >& /dev/null; then
+	echo "ERROR: bridge is not running"
+	exit 1
+fi
+
+echo -n "Tearing down the bridge... "
+ifdown br0
+brctl delbr br0
+
+echo -n "Bringing interfaces back up... "
+for x in $(ls /sys/class/net); do
+	[ -e /sys/class/net/$x/device ] && ifup $x
+done
+
+echo "done"
+
+exit 0

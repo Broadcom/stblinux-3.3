@@ -1,0 +1,2 @@
+If the kernel requests a binary firmware image, /sbin/stbhotplug will
+look for it in this directory.

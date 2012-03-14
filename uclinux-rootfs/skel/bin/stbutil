@@ -1,0 +1,601 @@
+#!/bin/bash
+
+set -e
+
+function tftp_fetch()
+{
+	if [ ! -z "$local_dir" ]; then
+		if [ -e $local_dir/$2 ]; then
+			cp $local_dir/$2 $3
+			return 0
+		elif [ -e $local_dir/${2##*/} ]; then
+			cp $local_dir/${2##*/} $3
+			return 0
+		else
+			echo "ERROR: can't find ${2##*/} in $local_dir"
+			exit 1
+		fi
+	fi
+        echo "Fetching via tftp: $1:$2"
+        if ! tftp -g $1 -r $2 -l $3; then
+            echo "tftp failed.  Aborting."
+	    return 1
+        fi
+	return 0
+}
+
+function find_mtd_partition()
+{
+	arg=$1
+	out=$2
+	for x in /sys/class/mtd/mtd*; do
+		if [ -e $x/name ]; then
+			name=$(cat $x/name)
+
+			# 0x400 = MTD_WRITEABLE
+			flags=$(cat $x/flags)
+			if [ "$name" = "$arg" \
+					-a $(($flags & 0x400)) != 0 ]; then
+				eval $out=${x#*mtd/mtd}
+				return 0
+			fi
+		fi
+	done
+	return 1
+}
+
+function find_thumbdrive()
+{
+	thumbdrive=""
+	cd /sys/block
+	for x in sd*; do
+		if [ -L $x/device ]; then
+			dev=$(readlink $x/device)
+			if [[ "$dev" == *usb* ]]; then
+				if [ -e ${x}/${x}1 ]; then
+					thumbdrive=${x}1
+				else
+					thumbdrive=${x}
+				fi
+				return 0
+			fi
+		fi
+	done
+	return 1
+}
+
+function get_mtd_attr()
+{
+	arg0=$1
+	arg1=$2
+	out=$3
+	file=/sys/class/mtd/mtd${arg0}/$arg1
+	if [ -e $file ]; then
+		retval=$(cat $file)
+		eval $out=$retval
+	else
+		echo $file
+		return 1
+	fi
+	return 0
+}
+
+function check_root()
+{
+	# make sure that we are not reformatting the active rootfs
+	if [ -h /dev/root ]; then
+		rootdev=$(readlink /dev/root)
+		while [ ! -z $1 ]; do
+			if [[ $rootdev = ${1}* ]]; then
+				echo ""
+				echo "ERROR: please run stbutil from the initrd kernel."
+				echo ""
+				exit 1
+			fi
+			shift
+		done
+	fi
+}
+
+# create rootfs image at /mnt/hd
+function write_rootfs()
+{
+	type="$1"
+
+	echo ""
+	echo "Writing rootfs..."
+	echo ""
+
+	if [ "$type" = "-linux" ]; then
+		# Linux filesystems
+		cd /mnt/hd
+		mkdir {sys,proc,tmp,dev,mnt} mnt/{hd,flash,usb,nfs}
+		mknod dev/console c 5 1
+
+		cd /
+		for x in *; do
+			if [ ! -e /mnt/hd/$x ]; then
+				cp -a $x /mnt/hd/
+			fi
+		done
+	else
+		# DOS filesystems - no device nodes or symlinks
+		rm -rf /tmp/stage
+		mkdir /tmp/stage
+		cd /tmp/stage
+		mkdir {sys,proc,tmp,dev,mnt} mnt/{hd,flash,usb,nfs}
+
+		cd /
+		for x in *; do
+			if [ ! -e /tmp/stage/$x ]; then
+				ln -s /$x /tmp/stage/
+			fi
+		done
+
+		# erase any old versions present
+		cd /tmp/stage
+		for x in *; do
+			rm -rf /mnt/hd/$x
+		done
+
+		cp -pLR * /mnt/hd/
+	fi
+
+	return 0
+}
+
+
+# Install kernel to flash
+function handle_opt_1()
+{
+	mtd=/dev/mtd${kernel_part}
+
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat /tmp/vmlinuz || exit 1
+	flash_erase $mtd 0 0
+	if [ "$flash_type" = "nand" ]; then
+		nandwrite -p $mtd /tmp/vmlinuz
+	else
+		dd if=/tmp/vmlinuz of=$mtd
+	fi
+	echo ""
+	echo "Finished writing kernel to flash."
+	echo ""
+	echo "To boot:"
+	echo ""
+	echo "  boot -z -elf flash0.kernel: 'ARGS'"
+	echo ""
+	echo "Sample ARGS: root=/dev/sda1"
+	echo "             ubiroot"
+	echo ""
+	exit 0
+}
+
+# Install UBIFS rootfs to flash
+function handle_opt_2()
+{
+	check_root mtd ubi
+	mtd=/dev/mtd${rootfs_part}
+
+	rem_img=ubifs-$(($flash_erasesize / 1024))k-$(($flash_writesize))-${plat}.img
+
+	if tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img; then
+		flash_erase $mtd 0 0
+		ubiformat $mtd --yes --flash-image=/tmp/rootfs.img
+	else
+		echo ""
+		rem_img=nfsroot-${plat}.tar.bz2
+		tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.tar.bz2 \
+			|| exit 1
+		flash_erase $mtd 0 0
+		ubiformat $mtd --yes
+		ubiattach -m $rootfs_part -d 0
+		# NOTE: ubiattach/mdev may run asynchronously
+		while [ ! -e /dev/ubi0 ]; do
+			sleep 1
+		done
+		ubimkvol /dev/ubi0 -N rootfs -m
+		mount -t ubifs ubi0:rootfs /mnt/flash
+
+		pushd /mnt/flash > /dev/null
+		tar -jxf /tmp/rootfs.tar.bz2
+		mv romfs/* .
+		rm -rf romfs
+		popd > /dev/null
+
+		umount /mnt/flash
+		ubidetach -m0
+	fi
+	echo ""
+	echo "Finished writing rootfs to flash."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'ubiroot'"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	echo "  ubiattach -m $rootfs_part"
+	echo "  mount -t ubifs ubi0:rootfs /mnt/flash"
+	echo ""
+	exit 0
+}
+
+# Install JFFS2 rootfs to flash
+function handle_opt_3()
+{
+	check_root mtd ubi
+	mtd=/dev/mtd${rootfs_part}
+
+	rem_img=jffs2-$(($flash_erasesize / 1024))k-${plat}.img
+
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	flash_erase -j $mtd 0 0
+	dd if=/tmp/rootfs.img of=$mtd
+	echo ""
+	echo "Finished writing rootfs to flash."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'rootfstype=jffs2 root=/dev/mtdblock${rootfs_part}'"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	echo "  mount -t jffs2 mtd${rootfs_part} /mnt/flash"
+	echo ""
+	exit 0
+}
+
+# Install SQUASHFS rootfs to flash
+function handle_opt_4()
+{
+	check_root mtd ubi
+	mtd=/dev/mtd${rootfs_part}
+
+	rem_img=squashfs-${plat}.img
+
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	flash_erase $mtd 0 0
+	if [ "$flash_type" = "nand" ]; then
+		imgsize=$(du -k /tmp/rootfs.img | sed 's/[ \t].*//')
+		ubiformat $mtd --yes
+		ubiattach -m $rootfs_part -d 0
+		# NOTE: ubiattach/mdev may run asynchronously
+		while [ ! -e /dev/ubi0 ]; do
+			sleep 1
+		done
+		ubimkvol /dev/ubi0 -N squashfs -s ${imgsize}KiB
+		if ! find_mtd_partition squashfs newpart; then
+			echo "ERROR: can't find new squashfs partition"
+			exit 1
+		fi
+		if ! get_mtd_attr $newpart erasesize new_erasesize; then
+			echo "ERROR: can't get gluebi erasesize"
+		fi
+		dd if=/tmp/rootfs.img of=/dev/mtd${newpart} bs=$new_erasesize
+		ubidetach -d 0
+		cmdline="ubi.mtd=rootfs root=/dev/mtdblock${newpart}"
+	else
+		newpart=$rootfs_part
+		dd if=/tmp/rootfs.img of=$mtd
+		cmdline="root=/dev/mtdblock${rootfs_part}"
+	fi
+	echo ""
+	echo "Finished writing rootfs to flash."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat '$cmdline'"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	if [ "$flash_type" = "nand" ]; then
+		echo "  ubiattach -m $rootfs_part"
+		echo "  mount /dev/mtdblock${newpart} /mnt/flash"
+		echo ""
+		echo "OPTIONAL: Add a RW 'data' UBIFS to the same MTD partition:"
+		echo ""
+		echo "  ubiattach -m $rootfs_part"
+		echo "  ubimkvol /dev/ubi0 -N data -m"
+		echo "  mount -t ubifs ubi0:data /data"
+	else
+		echo "  mount /dev/mtdblock${newpart} /mnt/flash"
+	fi
+	echo ""
+	exit 0
+}
+
+# Install rootfs to hard drive
+function handle_opt_5()
+{
+	check_root ${hdd_dev##*/}
+	echo "Writing partition table..."
+
+	sgdisk -Z ${hdd_dev} || true
+	sgdisk ${hdd_dev} \
+		-n 1:2048:8390655 -t 1:0700 -c 1:"rootfs" \
+		-n 2:8390656:16779263 -t 2:8200 -c 2:"swap" \
+		-n 3:16779264:33556479 -t 3:0700 -c 3:"application" \
+		-N 4 -t 4:0700 -c 4:"video"
+
+	# Give mdev time to create the device nodes
+	sleep 2
+
+	# Enable swap; mke2fs on multi-terabyte drives can malloc
+	# upwards of 80MB
+	mkswap ${hdd_dev}2
+	swapon ${hdd_dev}2
+
+	mkfs.ext4 -E stripe-width=32 ${hdd_dev}1
+	mkfs.ext4 -E stripe-width=32 ${hdd_dev}3
+	mkfs.ext4 -E stripe-width=32 -i 262144 ${hdd_dev}4
+
+	tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}1
+	tune2fs -c 0 -i 0 -o journal_data_ordered ${hdd_dev}3
+	tune2fs -c 0 -i 0 -o journal_data_writeback ${hdd_dev}4
+
+	swapoff ${hdd_dev}2
+
+	# mount and populate the partitions
+	fstab=/etc/fstab-ext4
+
+	mount ${hdd_dev}1 /mnt/hd
+	write_rootfs -linux
+	cp -f $fstab /mnt/hd/etc/fstab
+	umount ${hdd_dev}1
+
+	echo ""
+	echo "Finished writing rootfs to hard drive."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	echo "  mount ${hdd_dev}1 /mnt/hd"
+	echo ""
+	exit 0
+}
+
+# Update rootfs on /dev/sdX1 (don't reformat other partitions)
+function handle_opt_6()
+{
+	check_root ${hdd_dev##*/}
+
+	mkfs.ext3 ${hdd_dev}1
+	tune2fs -i 0 ${hdd_dev}1
+
+	mount ${hdd_dev}1 /mnt/hd
+	write_rootfs -linux
+	umount ${hdd_dev}1
+
+	echo ""
+	echo "Finished refreshing the rootfs."
+	echo ""
+	exit 0
+}
+
+function handle_opt_7()
+{
+	check_root $thumbdrive
+
+	dev=/dev/${thumbdrive}
+
+	mount ${dev} /mnt/hd
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat \
+		/mnt/hd/vmlinuz-$plat || exit 1
+	write_rootfs -dos
+	umount ${dev}
+
+	echo ""
+	echo "Finished writing rootfs to USB thumbdrive."
+	echo ""
+	echo "Sample boot command line:"
+	echo ""
+	echo "  boot -z -elf usbdisk0:vmlinuz-$plat 'rootwait root=/dev/$thumbdrive'"
+	echo ""
+	echo "To mount the filesystem now:"
+	echo ""
+	echo "  mount ${dev} /mnt/flash"
+	echo ""
+	exit 0
+}
+
+function usage()
+{
+	cat << EOF
+
+stbutil v5.00 - Settop configuration utility
+Copyright (C) 2009 Broadcom Corporation
+
+Usage: stbutil [ -d <local_dir> ] [ -a <selection> ] [ <tftphost>[:<dir>] ]
+
+Options:
+	-d <local_dir>		Fetch images from LOCAL_DIR instead of tftp'ing
+				them over the network
+	-a <selection>		Use SELECTION as the menu item selection,
+				instead of prompting the user
+	-H <disk>		Use hard drive DISK (default sda)
+	<tftphost>		TFTP server hostname
+	<dir>			Directory (relative path) on TFTP server
+
+Examples:
+	stbutil
+	stbutil linuxsrv:2631-1.0
+	stbutil -d /mnt/usb
+	stbutil -a1
+	stbutil -a 1
+	stbutil -d /mnt/usb -a 1
+	stbutil -H sdb
+
+EOF
+	exit 1
+}
+
+#
+# MAIN
+#
+
+rootfs_part=
+kernel_part=
+flash_type=
+flash_erasesize=
+flash_writesize=
+hdd_dev=/dev/sda
+
+local_dir=
+resp=
+auto_resp=0
+
+if [ ! -e /etc/brcmstb.conf ]; then
+	echo "ERROR: missing /etc/brcmstb.conf"
+else
+	source /etc/brcmstb.conf
+fi
+
+# use default settings from brcmstb.conf
+tftphost=$TFTPHOST
+tftppath=$TFTPPATH
+plat=$PLAT
+
+if find_mtd_partition rootfs rootfs_part; then
+	if \
+		! get_mtd_attr $rootfs_part type flash_type || \
+		! get_mtd_attr $rootfs_part erasesize flash_erasesize || \
+		! get_mtd_attr $rootfs_part writesize flash_writesize; then
+
+		echo "Can't get flash info for rootfs"
+		exit 1
+	fi
+fi
+
+find_mtd_partition kernel kernel_part || true
+
+# parse command line
+
+while getopts "a:d:H:h" opt; do
+	case $opt in
+		d)
+			local_dir=$OPTARG
+			;;
+		a)
+			resp=$OPTARG;
+			auto_resp=1
+			;;
+		H)
+			if [ -e /dev/$OPTARG ]; then
+				hdd_dev=/dev/$OPTARG
+			else
+				echo "warning: /dev/$OPTARG does not exist"
+			fi
+			;;
+		h|?)
+			usage
+			;;
+	esac
+done
+shift $(($OPTIND - 1))
+if [ ! -z "$1" ]; then
+	tftparg="$1"
+	if [[ "$tftparg" = *:* ]]; then
+		tftphost=${tftparg%%:*}
+		tftppath=${tftparg#*:}
+	else
+		tftphost=$tftparg
+		tftppath=""
+	fi
+fi
+
+# construct menu
+
+if [ ! -e $hdd_dev ]; then
+	hdd_dev=""
+	suf5="(not available)"
+fi
+
+if [ ! -e ${hdd_dev}1 ]; then
+	suf6="(not available)"
+fi
+
+[ -z $kernel_part ] && suf1="(not available)"
+
+if [ -z $rootfs_part ]; then
+	suf2="(not available)"
+	suf3="$suf2"
+	suf4="$suf2"
+fi
+
+if [ "$flash_type" = "nand" ]; then
+	suf3="(not available)"
+	suf4="(uses UBI)"
+fi
+
+if ! find_thumbdrive; then
+	suf7="(not available)"
+fi
+
+for x in chip_id chip_rev cfe_boardname cpu_name; do
+	eval $x=\"$(cat /sys/devices/platform/brcmstb/$x)\"
+done
+
+while :; do
+
+	echo ""
+	echo "stbutil v5.0"
+	echo "------------"
+	echo ""
+	if [ -z "$local_dir" ]; then
+		echo "Using TFTP server:     $tftphost"
+		echo "Using TFTP path:       $tftppath"
+	else
+		echo "Using local directory: $local_dir"
+	fi
+	echo "Linux build target:    $plat"
+
+	echo ""
+	echo "Chip ID register:      BCM${chip_id}${chip_rev}"
+	echo "Board name:            ${cfe_boardname}"
+	echo "CPU:                   ${cpu_name}"
+	echo "Primary Linux flash:   ${flash_type:-none}"
+
+	echo ""
+	echo "1) Install non-initrd kernel image to flash $suf1"
+	echo "2) Install UBIFS rootfs to flash (RW/RO) $suf2"
+	echo "3) Install JFFS2 rootfs to flash (RW/RO) $suf3"
+	echo "4) Install SQUASHFS rootfs to flash (RO) $suf4"
+	echo "5) Format/partition entire HDD, then install rootfs $suf5"
+	echo "6) Update rootfs on first HDD partition $suf6"
+	echo "7) Install kernel/rootfs to USB thumbdrive $suf7"
+	echo "q) Exit"
+	echo ""
+	echo -n "Selection: "
+
+	if [ -z "$resp" ]; then
+		read resp
+	else
+		echo $resp
+	fi
+	echo ""
+
+	case $resp in
+		[1-7])
+			sufname='$'suf${resp}
+			eval suf=$sufname
+			if [[ "$suf" = *"not available"* ]]; then
+				echo "ERROR: option is not available on this system"
+			else
+				eval handle_opt_${resp}
+			fi
+			;;
+		q|0)
+			exit 0
+			;;
+		*)
+			echo "ERROR: invalid selection"
+			;;
+	esac
+	resp=""
+	if [ $auto_resp = 1 ]; then
+		exit 0
+	fi
+done

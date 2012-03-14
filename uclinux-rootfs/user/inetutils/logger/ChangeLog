@@ -1,0 +1,58 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* logger.c: <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (bin_PROGRAMS): Use logger_BUILD instead of
+	BUILD_LOGGER.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* logger.c: Declare __PROGNAME. Remove PROGRAM.
+	Remove COPYRIGHT (it's in the header) and replace "#ifndef lint"
+	with "#if 0" for SCCSID.
+	(main): Initialize __PROGNAME if not HAVE___PROGNAME.
+	Use __PROGNAME instead PROGRAM.
+	(pencode): Likewise.
+	(usage): Likewise.
+
+2000-08-16  Alain Magloire
+
+	* logger.c: syslog.c rename logger.c
+	* logger.1: syslog.1 rename logger.1
+	* Makefile.am: bin_LOGGER now.
+
+2000-08-16  Marcus Brinkmann  <marcus@gnu.org>
+
+	* syslog.c: Include version.h.
+	New global variables program, short_options, long_options.
+	(usage): New argument err. Make usage and help message GNU compliant.
+	(main): Use short_options, long_options, getopt_long instead getopt,
+	memcpy instead bcopy.
+	Add options --help and --version.
+	Remove "register" attribute. Rename ch to option.
+	(pencode): Remove "register" attribute, format to GNU coding standard.
+	(decode): Likewise.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."

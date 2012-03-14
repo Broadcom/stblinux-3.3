@@ -1,0 +1,9 @@
+iface=$1
+pidfile=/tmp/udhcpc.$iface.pid
+if [ -e $pidfile ]; then
+	kill `cat $pidfile` 2> /dev/null
+	rm -f $pidfile
+fi
+killall zcip 2> /dev/null
+ifconfig $iface:0 0.0.0.0 2> /dev/null
+ifconfig $iface down

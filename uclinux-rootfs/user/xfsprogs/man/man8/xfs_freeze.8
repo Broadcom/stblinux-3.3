@@ -1,0 +1,55 @@
+.TH xfs_freeze 8
+.SH NAME
+xfs_freeze \- suspend access to an XFS filesystem
+.SH SYNOPSIS
+.nf
+\f3xfs_freeze\f1 [ \f3\-fu\f1 ] mount-point
+.fi
+.SH DESCRIPTION
+.I xfs_freeze
+suspends and resumes access to an XFS filesystem (see
+.IR xfs (5)).
+.PP
+.I xfs_freeze
+halts new access to the filesystem and creates a stable image on disk.
+.I xfs_freeze
+is intended to be used with volume managers and hardware RAID devices
+that support the creation of snapshots.
+.PP
+The
+.I mount-point
+argument is the pathname of the directory where the filesystem
+is mounted.
+The filesystem must be mounted to be frozen (see
+.IR mount (8)).
+.PP
+The \f3\-f\f1 flag requests the specified XFS filesystem to be
+frozen from new modifications.
+When this is selected, all ongoing transactions in the filesystem
+are allowed to complete, new write system calls are halted, other
+calls which modify the filesystem are halted, and all dirty data, 
+metadata, and log information are written to disk.
+Any process attempting to write to the frozen filesystem will block
+waiting for the filesystem to be unfrozen.
+.PP
+Note that even after freezing, the on-disk filesystem can contain
+information on files that are still in the process of unlinking.
+These files will not be unlinked until the filesystem is unfrozen
+or a clean mount of the snapshot is complete.
+.PP
+The \f3\-u\f1 option is used to un-freeze the filesystem and allow
+operations to continue.
+Any filesystem modifications that were blocked by the freeze are
+unblocked and allowed to complete.
+.PP
+One of \f3\-f\f1 or \f3\-u\f1 must be supplied to
+.IR xfs_freeze .
+.SH NOTES
+A copy of a frozen XFS filesystem will usually have the same universally
+unique identifier (UUID) as the original, and thus may be prevented from
+being mounted.
+The XFS \f3nouuid\f1 mount option can be used to circumvent this issue.
+.SH SEE ALSO
+xfs(5),
+lvm(8),
+mount(8).

@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# set to '1' to enable USB thumbdrive automount
+AUTOMOUNT=0
+AUTOMOUNT_POINT="/mnt/usb"
+SAVED_DEVPATH="/tmp/saved-usb-devpath"
+AUTOMOUNT_FS="vfat"
+
+HOTPLUG_FW_DIR=/lib/firmware
+
+# userspace firmware loader
+
+if [ "$1" = "firmware" ]; then
+	if [ "$ACTION" = "add" ]; then
+		echo 1 > /sys/$DEVPATH/loading
+		cat $HOTPLUG_FW_DIR/$FIRMWARE > /sys/$DEVPATH/data
+		echo 0 > /sys/$DEVPATH/loading
+	fi
+fi
+
+# network hotplug
+# NOTE: this only operates on real NICs (ethN), not lo/br0/sit0/etc.
+
+if [ "$1" = "net" -a -e /sys/class/net/$INTERFACE/device ]; then
+	if [ "$ACTION" = "add" ]; then
+		/sbin/ifup $INTERFACE
+	elif [ "$ACTION" = "remove" ]; then
+		/sbin/ifdown $INTERFACE
+	fi
+fi
+
+# USB automount (only works with bash)
+
+if [ -z "$BASH_VERSION" ]; then
+	exec /sbin/mdev "$@"
+fi
+
+if [[ "$ACTION" = "remove" && "$1" = "block" && -e $SAVED_DEVPATH ]]; then
+	USB_DEVPATH=`cat $SAVED_DEVPATH`
+	if [[ "$DEVPATH" = "$USB_DEVPATH" ]]; then
+		rm -f $SAVED_DEVPATH
+		exec umount -l ${AUTOMOUNT_POINT}
+	fi
+fi
+
+# PHYSDEV* vars were removed in 2.6.37
+if [ -z "$PHYSDEVPATH" ]; then
+	# for DEVPATH = /block/sda/sda1
+	PHYSDEVPATH=`readlink /sys/$DEVPATH/../device`
+	PHYSDEVDRIVER=`readlink /sys/$DEVPATH/../device/driver`
+fi
+
+if [[ "$AUTOMOUNT" = "1" && "$1" = "block" && "$ACTION" = "add" && \
+	! -e $SAVED_DEVPATH && "$PHYSDEVPATH" = *usb* && \
+	"$PHYSDEVDRIVER" = *sd && $[ ($MINOR % 16) == 1 ] ]]; then
+
+	DEV=${DEVPATH##*/}
+	mdev "$@"
+	echo $DEVPATH > $SAVED_DEVPATH
+	exec mount -t ${AUTOMOUNT_FS} /dev/${DEV} ${AUTOMOUNT_POINT}
+fi
+
+exec /sbin/mdev "$@"

@@ -1,0 +1,47 @@
+menu "BCMGENET options"
+
+config BCMGENET_RX_DESC_THROTTLE 
+	bool "use hardware rx descriptor throttling"
+	depends on BCMGENET
+	default n
+	help
+	  Instead of generating one interrupt for rx packet, the genet can 
+	  generate 1 interrupt for multiple rx packet, thus to reduce the interrupt
+	  number.
+
+config BCMGENET_NAPI
+	bool "use software rx descriptor throttling"
+	depends on BCMGENET
+	default y
+	help
+	  Use software interrupt throttling(the NAPI approach).
+
+config BCMGENET_RX_CSUM
+	bool "Enable L4 checksum offloading for rx"
+	depends on BCMGENET
+	default n
+	help
+	  Enable L4 checksum offloading for rx.
+
+config BCMGENET_TX_CSUM
+	bool "Enable L4 checksum offloading for tx"
+	depends on BCMGENET
+	default n
+	help
+	  Enable L4 checksum offloading for tx.
+
+config BCMGENET_DUMP_DATA
+	bool "Dump out data for debugging"
+	depends on BCMGENET
+	default n
+	help
+	  Dump out data for debugging.
+
+config BCMGENET_DUMP_TRACE
+	bool "Dump out trace message for debugging"
+	depends on BCMGENET
+	default n
+	help
+	  Dump out trace messages for debugging.
+endmenu
+

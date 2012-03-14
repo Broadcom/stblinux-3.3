@@ -1,0 +1,4 @@
+/dev/sda1                    /                   auto      defaults         1 1
+/dev/sda2                    swap                swap      noauto           0 0
+/dev/sda3                    /opt                auto      defaults         1 2
+/dev/sda4                    /data               auto      defaults         1 3

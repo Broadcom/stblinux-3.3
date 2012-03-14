@@ -1,0 +1,65 @@
+--- squashfs4.0.orig/squashfs-tools/Makefile	Sat Apr  4 18:03:36 2009
++++ squashfs4.0/squashfs-tools/Makefile	Sat May  9 21:25:26 2009
+@@ -7,7 +7,7 @@
+ all: mksquashfs unsquashfs
+ 
+ mksquashfs: mksquashfs.o read_fs.o sort.o swap.o pseudo.o
+-	$(CC) mksquashfs.o read_fs.o sort.o swap.o pseudo.o -lz -lpthread -lm -o $@
++	$(CC) mksquashfs.o read_fs.o sort.o swap.o pseudo.o -Wl,-Bstatic -lz -Wl,-Bdynamic -lpthread -lm -o $@
+ 
+ mksquashfs.o: mksquashfs.c squashfs_fs.h mksquashfs.h global.h sort.h squashfs_swap.h Makefile
+ 
+@@ -20,7 +20,7 @@
+ pseudo.o: pseudo.c pseudo.h Makefile
+ 
+ unsquashfs: unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o unsquash-4.o swap.o
+-	$(CC) unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o unsquash-4.o swap.o -lz -lpthread -lm -o $@
++	$(CC) unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o unsquash-4.o swap.o -Wl,-Bstatic -lz -Wl,-Bdynamic -lpthread -lm -o $@
+ 
+ unsquashfs.o: unsquashfs.h unsquashfs.c squashfs_fs.h squashfs_swap.h squashfs_compat.h global.h Makefile
+ 
+diff -ru squashfs4.0.orig/squashfs-tools/unsquash-2.c squashfs4.0/squashfs-tools/unsquash-2.c
+--- squashfs4.0.orig/squashfs-tools/unsquash-2.c	Mon Mar 30 20:31:57 2009
++++ squashfs4.0/squashfs-tools/unsquash-2.c	Wed May 20 11:13:24 2009
+@@ -110,9 +110,10 @@
+ 
+ void read_fragment_2(unsigned int fragment, long long *start_block, int *size)
+ {
++	squashfs_fragment_entry_2 *fragment_entry = &fragment_table[fragment];
++
+ 	TRACE("read_fragment: reading fragment %d\n", fragment);
+ 
+-	squashfs_fragment_entry_2 *fragment_entry = &fragment_table[fragment];
+ 	*start_block = fragment_entry->start_block;
+ 	*size = fragment_entry->size;
+ }
+diff -ru squashfs4.0.orig/squashfs-tools/unsquash-3.c squashfs4.0/squashfs-tools/unsquash-3.c
+--- squashfs4.0.orig/squashfs-tools/unsquash-3.c	Mon Mar 30 20:35:10 2009
++++ squashfs4.0/squashfs-tools/unsquash-3.c	Wed May 20 11:13:37 2009
+@@ -96,9 +96,10 @@
+ 
+ void read_fragment_3(unsigned int fragment, long long *start_block, int *size)
+ {
++	squashfs_fragment_entry_3 *fragment_entry = &fragment_table[fragment];
++
+ 	TRACE("read_fragment: reading fragment %d\n", fragment);
+ 
+-	squashfs_fragment_entry_3 *fragment_entry = &fragment_table[fragment];
+ 	*start_block = fragment_entry->start_block;
+ 	*size = fragment_entry->size;
+ }
+diff -ru squashfs4.0.orig/squashfs-tools/unsquash-4.c squashfs4.0/squashfs-tools/unsquash-4.c
+--- squashfs4.0.orig/squashfs-tools/unsquash-4.c	Mon Mar 30 20:38:31 2009
++++ squashfs4.0/squashfs-tools/unsquash-4.c	Wed May 20 11:13:45 2009
+@@ -77,9 +77,10 @@
+ 
+ void read_fragment_4(unsigned int fragment, long long *start_block, int *size)
+ {
++	squashfs_fragment_entry *fragment_entry = &fragment_table[fragment];
++
+ 	TRACE("read_fragment: reading fragment %d\n", fragment);
+ 
+-	squashfs_fragment_entry *fragment_entry = &fragment_table[fragment];
+ 	*start_block = fragment_entry->start_block;
+ 	*size = fragment_entry->size;
+ }

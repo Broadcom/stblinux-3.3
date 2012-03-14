@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+#
+
+> POTFILES.in
+
+cd ..
+for x in */*.c; do
+echo "$x" >> po/POTFILES.in
+done
+cd po

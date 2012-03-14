@@ -1,0 +1,41 @@
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use tftpd_BUILD instead of
+	BUILD_TFTPD.
+	* tftpd.c [HAVE_STRERROR_DECL]: Renamed to HAVE_DECL_STRERROR.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-11-02  Marcus Brinkmann  <marcus@212.23.136.22>
+
+	* tftpd.c: Prototype send_file, not sendfile.
+	(formats): Use send_file, not sendfile.
+	(sendfile): Rename to ...
+	(send_file): ... this.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."
+
+1999-17-02 Alain Magloire
+
+	* It has to do with handling of files with more than 32766 blocks. The
+	TFTP packets should be able to handle up to 65535 blocks. But many
+	tftpd's seem to treat the block# as a short instead of an unsigned
+	short. This appears to be caused by the arpa/tftp.h header declaring it
+	as a short. The relevant RFC's do not indicate that this is supposed to
+	be the case.
+	Patch and Email exchange from Nathan Neulinger.

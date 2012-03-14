@@ -1,0 +1,107 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* inetd.c: <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use inetd_BUILD instead of
+	BUILD_INETD.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-08-26   Alain Magloire
+
+	* inetd.c (main): Fixed memory overryn in main 8-).
+	config_files is a null terminate array of pointers.
+
+2001-08-26  Sergey Poznyakoff
+
+	* inetd.c: Fixed memory overrun in main.
+
+2001-08-26  Alain Magloire
+
+	The idea is to provide an easy way to add services without
+	mocking around with inetd.conf.  It is possible to just
+	drop a file in PATH_INETDDIR, and the file will be pick
+	and merge like if it was a configuration file.  For example,
+
+	/etc/inetd.d/telnet
+	/etc/inetd.d/ftp
+	/etc/inetd.d/login
+	/etc/inetd.d/shell
+
+	will contain the entries to start telnet/ftp/rlogin/shell
+	without having to put them in /etc/inetd.conf.
+	The idea was submitted by Jakob.
+
+	The code had a face lift to comply with GNU coding style.
+
+	* inetd.c: prototypes changes:
+	void  endconfig __P((FILE *));
+	struct servtab *getconfigent __P((FILE *, const char *));
+	char  *newstr __P((const char *));
+	void  nextconfig __P((const char *));
+	void print_service __P((const char *, const char *, struct servtab *));
+	FILE           *setconfig __P((const char *));
+	char          *sskip __P((char **, FILE *, const char *));
+	char          *skip __P((char **, FILE *));
+	(usage): Updated.
+	(main): Localised the variables.
+	Read the line configuration files in to an array.
+	(config):  Go through the configuration files arrays and
+	call nextconfig on each file for parsing.
+	(nextconfig): Parse the configuration file and construct
+	an service entry.
+
+	* inetd.8: Update to document the new PATH_INETDDIR feature.
+
+2000-10-31  Marcus Brinkmann  <marcus@gnu.org>
+
+	* inetd.c: Remove COPYRIGHT (it's in the header)
+	and "#if 0"-out SCCSID.
+	Declare __PROGNAME.
+	New variables SHORT_OPTIONS and LONG_OPTIONS.
+	(main): Initialize __progname if not HAVE___PROGNAME.
+	Rename CH to OPTION. Rework option parsing to use getopt_long.
+	(usage): Completely new and conforming to the others.
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* inetd.c: Include <grp.h> for initgroups().
+
+2000-07-18 Alain Magloire
+
+	* inetd.c(main): Check for SIGPIPE too.
+	* inetd.c(run_service): New function, This the same code when
+	fork()ing in main(), but it put here so it could be reuse for tcpmux.
+	* inetd.c(tcpmux): better support and change of prototype.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."
+
+2000-06-23  Jakob 'sparky' Kaivo  <jkaivo@timothy.nodomainname.net>
+
+	* inetd.c (main): fix typo in usage
+
+	* Makefile.am (INCLUDES): add $(PATHDEF_INETDDIR)
+
+	* inetd.c (config): use nextconfig()
+	(nextconfig): new function
+

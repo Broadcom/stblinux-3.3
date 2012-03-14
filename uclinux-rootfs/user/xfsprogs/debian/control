@@ -1,0 +1,49 @@
+Source: xfsprogs
+Section: admin
+Priority: optional
+Maintainer: Nathan Scott <nathans@debian.org>
+Build-Depends: uuid-dev, autoconf, debmake, gettext, libtool, libreadline4-dev
+Standards-Version: 3.5.9
+
+Package: xfsprogs
+Depends: ${shlibs:Depends}
+Suggests: xfsdump, attr, dvhtool, quota
+Conflicts: xfsdump (<< 2.0.0)
+Architecture: any
+Description: Utilities for managing the XFS filesystem
+ A set of commands to use the XFS filesystem, including mkfs.xfs.
+ .
+ XFS is a high performance journaling filesystem which originated
+ on the SGI IRIX platform.  It is completely multi-threaded, can
+ support large files and large filesystems, extended attributes,
+ variable block sizes, is extent based, and makes extensive use of
+ Btrees (directories, extents, free space) to aid both performance
+ and scalability.
+ .
+ Refer to the documentation at http://oss.sgi.com/projects/xfs/
+ for complete details.  This implementation is on-disk compatible
+ with the IRIX version of XFS.
+
+Package: xfslibs-dev
+Section: libdevel
+Priority: extra
+Depends: libc6-dev, uuid-dev, xfsprogs (>= 2.0.0)
+Conflicts: xfsprogs (<< 2.0.0)
+Architecture: any
+Description: XFS filesystem-specific static libraries and headers
+ xfslibs-dev contains the libraries and header files needed to
+ develop XFS filesystem-specific programs.
+ 
+Package: xfsprogs-bf
+Section: devel
+Priority: extra
+Depends: ${shlibs:Depends}
+Conflicts: e2fsprogs, xfsprogs
+Architecture: any
+Description: A stripped-down versions of xfsprogs, for boot-floppies
+ This package is an xfsprogs package built for a reduced size, so that
+ it can help to save space on installation boot-floppies.
+ .
+ Don't attempt to install this package, it has no support for a couple of
+ features you surely want.  Anyway it should refuse to install.
+

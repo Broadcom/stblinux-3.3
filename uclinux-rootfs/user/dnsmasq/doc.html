@@ -1,0 +1,193 @@
+<HTML>
+<HEAD>
+<TITLE> Dnsmasq - a DNS forwarder for NAT firewalls.</TITLE>
+</HEAD>
+<BODY BGCOLOR="WHITE"> 
+<H1 ALIGN=center>Dnsmasq</H1> 
+Dnsmasq is small utility designed to provide DNS (domain name) services to a 
+small network connected to the internet via a NAT (network address translation,
+AKA ip-masquerade) firewall and a modem, cable-modem or ADSL connection. 
+<P>
+Since a NAT firewall will pass DNS queries it's perfectly possible for all the
+machines on such a network to be configured to talk directly to the ISP's name
+server, and the HOWTO recommends doing exactly that. The advantages of
+using dnsmasq instead are:
+<DIR>
+
+<LI> 
+The DNS configuration of machines behind the firewall is simple and
+doesn't depend on the details of the ISP's dns servers
+<LI>
+Clients which try to do DNS lookups while  a modem link to the
+internet is down will time out immediately.
+</LI>
+<LI>
+Dnsmasq will serve names from the /etc/hosts file on the firewall
+machine: If the names of local machines are there, then they can all
+be addressed without having to maintain /etc/hosts on each machine.
+</LI>
+<LI>
+Dnsmasq will serve names from the DHCP leases file on the firewall machine:
+If machines specify a hostname when they take out a DHCP lease, then they are
+addressable in the local DNS.
+</LI>
+<LI>
+Dnsmasq caches internet addresses (A records and AAAA records) and address-to-name
+mappings (PTR records), reducing the load on upstream servers and
+improving performance (especially on modem connections). From version
+0.95 the cache honours time-to-live information and removes old
+records as they expire. From version 0.996 dnsmasq does negative
+caching. From version 1.2 dnsmasq supports IPv6 addresses, both
+in its cache and in /etc/hosts.
+</LI>
+<LI>
+Dnsmasq can be configured to automatically pick up the addresses of
+it's upstream nameservers from ppp or dhcp configuration. It will
+automatically reload this information if it changes. This facility
+will be of particular interest to maintainers of Linux firewall
+distributions since it allows dns configuration to be made automatic.
+</LI>
+<LI>
+On IPv6-enabled boxes, dnsmasq can both talk to upstream servers via IPv6 
+and offer DNS service via IPv6. On dual-stack (IPv4 and IPv6) boxes it talks
+both protocols and can even act as IPv6-to-IPv4 or IPv4-to-IPv6 forwarder.
+</LI>
+</DIR>
+<P>
+Dnsmasq has one further feature; it can be configured to return an MX record 
+for the firewall host. This makes it easy to configure the mailer on the local 
+machines to forward all mail to the central mailer on the firewall host. Never 
+lose root messages from your machines again!
+
+<H2>Download.</H2>
+
+Download dnsmasq <A HREF="http://www.thekelleys.org.uk/dnsmasq/"> here</A>. 
+The tarball includes this documentation, source, manpage and control files for building .rpms.
+There are also pre-built i386 .rpms, and a 
+<A HREF="http://www.thekelleys.org.uk/dnsmasq/CHANGELOG"> CHANGELOG</A>.
+Dnsmasq is part of the Debian distribution, it can be downloaded from 
+<A HREF="http://ftp.debian.org/debian/pool/main/d/dnsmasq/"> here</A> or installed using <TT>apt</TT>.
+
+<H2>Installation.</H2>
+To compile and install dnsmasq, the following command (as root) is enough.
+
+<PRE>
+make install
+</PRE>
+
+On non-Linux machines, you might want to edit config.h. Dnsmasq has
+been run on (at least) AIX 4.1.5, FreeBSD 4.4 and Tru64 4.x 
+
+Dnsmasq should be run on your firewall machine (the machine with the modem or other connection to your ISP.)
+
+Put the binary in <TT>/usr/local/sbin/dnsmasq</TT> (running <TT>make install</TT>  will do this) and arrange for it
+to be started at boot time.
+
+Note that dnsmasq needs to run as root, since it binds privileged ports. It will drop root priviliges after start-up. Dnsmasq
+logs problems using the syslog facility as a daemon.
+<P>
+<H2>Building rpms.</H2>
+Assuming you have the relevant tools installed, you can rebuild .rpms simply by running (as root)
+
+<PRE>
+rpm -ta dnsmasq-xxx.tar.gz
+</PRE>
+
+<P>
+<H2>Configuration.</H2>
+<H3>Simplest.</H3>
+Put the address(es) of your ISP's DNS server(s) in /etc/resolv.conf on the 
+firewall machine, and the names and internal network addresses of all your 
+machines in /etc/hosts on the firewall machine.
+ All the other machines on 
+your network can simply have their own name and localhost in <TT>/etc/hosts
+</TT> and 
+should have the address of the firewall machine on the internal network as
+the only nameserver in <TT>/etc/resolv.conf</TT>. For windows machines use the 
+network applet in the control panel to set the address of the DNS server as the address of the firewall machine.
+<H3>Caching for firewall.</H3>
+If you want dnsmasq to cache DNS queries for the firewall machine also, simply 
+put "nameserver 127.0.0.1" in /etc/resolv.conf. Put the real nameservers in 
+another file, say /etc/resolv.dnsmasq, and use the -r command line flag to
+make dnsmasq read that instead of /etc/resolv.conf.
+<h3>Automatic DNS server configuration with PPP.</h3>
+Later versions of pppd have an option "usepeerdns" which instructs it to write a file containing
+the address(es) of the DNS severs in /etc/ppp/resolv.conf. Configure dnsmasq
+as above with "nameserver 127.0.0.1" in /etc/resolv.conf and run dnsmasq 
+with to option "-r /etc/ppp/resolv.conf".
+<P>
+On Redhat (at least versions 7.1, 7.2 and 7.3) you can set pppd
+options by adding "PPPOPTIONS=usepeerdns" to
+/etc/sysconfig/network-scripts/ifcfg-ippp0.  In the same file, make sure
+that "PEERDNS=no" to stop RedHat's network initscripts from copying
+/etc/ppp/resolv.conf into /etc/resolv.conf.
+
+<h3>Automatic DNS server configuration with DHCP.</h3>
+You need to get your DHCP client to write the addresse(s) of the DNS
+servers to a file other than /etc/resolv.conf. For dhcpcd, the
+dhcpcd.exe script gets run with the addresses of the nameserver(s) in
+the shell variable <TT>$DNS</TT>. The following bit of shell script
+uses that to write a file suitable for dnsmasq. 
+<PRE>
+
+echo -n >|/etc/dhcpc/resolv.conf
+dnsservs=${DNS/,/ }
+for serv in $dnsservs; do
+    echo "nameserver $serv" >>/etc/dhcpc/resolv.conf
+done
+
+</PRE>
+ 
+Remember to give dhcpcd the <TT>-R</TT> flag to stop it overwriting 
+/etc/resolv.conf.
+
+<P>
+For other DHCP clients it should be possible to achieve the same effect.
+
+
+
+<H2>Setting up a mailhub.</H2>
+If you generate mail on the machines attached to your private network, you may
+ be interested in the MX record feature of dnsmasq. This allows you to have all
+ the machines on your network use your firewall or another machine as a "smarthost" and 
+deliver mail to it. The details of how to set this up are highly dependent on
+your mailer, system and distribution. (On Debian GNU/Linux, using the 
+smail mailer, there's an option in the smailconfig program to set up this 
+configuration.) The only thing that's relevant to dnsmasq is that the mailer 
+needs to be able to interrogate the DNS and find an MX record for your mailhub.
+
+<PRE>
+dnsmasq -m mailhubname
+</PRE>
+
+By starting dnsmasq with the -m option
+you instruct dnsmasq to server an MX record for <TT>mailhubname</TT>. 
+By default the MX record 
+points to the machine on which dnsmasq is running, so mail delivered to that
+name will get sent to the mailer on your firewall machine. You can have the MX record point to another machine by using the -t command line flag.
+
+<H2>Other configuration details.</H2>
+dnsmasq writes its process-id into /var/run/dnsmasq.pid at startup. 
+<P>
+Sending SIGHUP to the dnsmasq process will cause it to empty it's cache and 
+then re-load /etc/hosts and /etc/resolv.conf.
+<P> Sending SIGUSR1 (killall -10 dnsmasq) to the dnsmasq process will
+cause to to write cache usage stats to the log, typically
+/var/log/syslog or /var/log/messages.
+<P> The -h option suppresses use of /etc/hosts.
+<P> The -n option suppresses polling of /etc/resolv.conf.
+<P>For a complete listing of options please take a look at the manpage
+dnsmasq(8).
+<P>If you installed dnsmasq as a debian package, the various options
+can be set be editing /etc/init.d/dnsmasq.
+<P>If you installed dnsmasq as an rpm package, set options by editing /etc/rc.d/init.d/dnsmasq
+
+
+<H2>License.</H2>
+Dnsmasq is distributed under the GPL. See the file COPYING in the distribution 
+for details.
+
+<H2>Contact.</H2>
+Dnsmasq was written by Simon Kelley. You can contact me at <A HREF="mailto:simon@thekelleys.org.uk">simon@thekelleys.org.uk</A>. Bugreports, patches, and suggestions for improvements gratefully accepted.
+</BODY>
+

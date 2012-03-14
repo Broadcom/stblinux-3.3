@@ -1,0 +1,119 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* talkd.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+	* Makefile.am (inetdaemon_PROGRAMS): Use talkd_BUILD instead of
+	BUILD_TALKD.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add -I$(top_builddir)/include to INCLUDES
+
+2001-10-30  Alain Magloire
+
+	* Makefile.am:  Add -I ../libinetutils to have the argvc_xx()
+	prototypes.
+	* acl.c: Add <ctype.h> we use isdigit().
+	Add "argv.h" we use argv_xx() functions.
+	(read_address): Declared static and variable addr unused nuked.
+	(netdef_parse): Declared static.
+	(open_users_acl): Declared static.
+	(netdef_free): Declared static.
+	(acl_free): Declared static.
+	(discard_acl): Declared static.
+	* announce.c (init_line format_line finish_line print_mesg):
+	Declared static.
+	* intalkd.h: Add prototypes for global functions.
+	* print.c (messages_types): Array declared const and static.
+	(answers): Array declared const and static.
+	(_xlat_num): Declared static.
+	(print_request): First argument declared const and should
+	have a return value.
+	(print_response): First argument declared const and should
+	have a return value.
+	* process.c (process_request): Bug, process did not have
+	a return value.
+	* table.c (lookup_request): Declared static and function
+	pointer with proper prototypes.
+	(fuzzy_comp): Declared static.
+	(exact_comp): Did not have a return value.
+	(delete_invite): Change prototype to correspond to
+	include/protocols/talkd.h which wanted an unsinged long.
+	* talkd.c (main): Returned 0 for good measure.
+	(alarm_handler): Proper signal handler prototype.
+
+2001-10-29  Sergey Poznyakoff
+
+	* acl.c: Fixed declaration of read_address(). Bugfix
+	in discard_acl(): it was discarding the extra entry.
+	acl_match(): Set default action to ACT_ALLOW.
+	* intalkd.h: Macro os2sin_addr: extract struct in_addr from
+	struct osockaddr.
+	* process.c: do_announce(): use os2sin_addr for readability.
+	* table.c: Added extra debug info.
+	* talkd.c: Removed `if (getuid ())' block.
+
+2001-10-28  Alain Magloire
+
+	* talkd/process.c (open_users_acl):  free (filename);
+	* talkd/talkd.c (talkd_init): Do not bail out if not root, Do we have
+	to be root?
+
+2001-10-27  Sergey Poznyakoff
+
+	* acl.c: read_acl(): Initialize `head' to NULL (in case
+	the acl contains null hostlist).
+
+2001-10-25  Alain Malgoire
+
+	* announce.c: Add <sys/uio.h> for "struct iovec" definition.
+	#undef MAX before redefining it.  It was set in different
+	system includes.
+
+2001-10-25  Sergey Poznyakoff
+
+	Talkd essencially rewritten. New feature: system-wide and
+	user-specific access-control lists allow for controlling
+	who and from where is able to request talks.
+
+	* intalkd.h: (new) Implementation-specific defines.
+	* acl.c: (new) Access-control lists.
+	* Makefile.am: Added new sources.
+	* talkd.c: Completely rewritten.
+	* table.c: Likewise.
+	* announce.c: Likewise.
+	* print.c: Likewise.
+	* process.c: Likewise.
+
+2001-09-05  Michael Weiser <mweiser@robin.imn.htwk-leipzig.de>
+
+	* process.c: merge redundant #ifdef's
+
+2001-09-04  Michael Weiser <mweiser@robin.imn.htwk-leipzig.de>
+
+	* process.c: Guard <utmp.h> utmpx.h> properly.
+	(find_user): Guard calls to setutent() or setutxent().
+	Use sizeof(PATH_DEV) instead of hardcoded numbers.
+
+2000-08-08 Alain Magloire
+
+	* announce.c: Uncoditionnaly undef max before use it as a macro.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."

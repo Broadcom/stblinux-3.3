@@ -1,0 +1,67 @@
+
+/*
+ * Chat benchmark with process affinity
+ *
+ * Written by Bill Hartner (bhartner@us.ibm.com) 10 Dec 2000
+ * Affinity mods by Troy Trammel (ttrammel@broadcom.com) 
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * 10 Dec 2000 - 1.0.1 Initial version. Bill Hartner
+ *
+ */
+ 
+Changes to original codes:
+
+Because the client code actually does the timing, the affinity mods are put
+directly into the client source code. Use:
+
+
+gcc -DTHREAD0 -O2 -o chat_c_tp0 chat_c.c
+
+to create a version that runs on thread 0. Use:
+
+gcc -DTHREAD1 -O2 -o chat_c_tp1 chat_c.c
+
+to create a version that runs on thread 1.
+
+The original compile:
+
+gcc -O2 -o chat_c chat_c.c
+
+creates a version that has no affinity and can run on either thread.
+
+There is no change to the server code as the process affinity can be set with a simple
+utility.  Follow these steps:
+
+1. Run the server in the background:
+
+chat_s ip_addr [port] &
+
+       ip_addr:	ip address that the server binds to listening socket.
+       [port]:	port number server binds to the listening socket.
+		default is 9999.
+
+2. Linux will return the process ID for the server. Use this to set the process affinity:
+
+affinity [id] mask
+
+where mask is:
+1 - For thread0
+2 - For thread1
+3- For either thread (no affinity)
+
+
+ 

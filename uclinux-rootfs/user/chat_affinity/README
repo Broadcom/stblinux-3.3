@@ -1,0 +1,82 @@
+
+/*
+ * chat_s.c - server for chat room benchmark.
+ * chat_c.c - client for chat room benchmark.
+ *
+ * Copyright (C) 2000 IBM
+ *
+ * Written by Bill Hartner (bhartner@us.ibm.com) 10 Dec 2000
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * 10 Dec 2000 - 1.0.1 Initial version. Bill Hartner
+ *
+ */
+ 
+chat_1_0_1.tar.gz - chatroom benchmark version 1.0.1
+
+gcc -O2 -o chat_s chat_s.c
+gcc -O2 -o chat_c chat_c.c
+
+Usage: chat_s ip_addr [port]
+
+       ip_addr:	ip address that the server binds to listening socket.
+       [port]:	port number server binds to the listening socket.
+		default is 9999.
+
+Usage: chat_c ip_addr [num_rooms] [num_messages] [server_port]
+
+       ip_addr:		server ip address that the client connects to.
+       [num_rooms]:	the number of chat rooms.
+			default is 10.
+       [num_messages]:	the number of messages sent by each chat room member.
+			default is 100.	
+       [port]:		server port number the client connects to.
+			default is 9999.
+
+This benchmark includes both a client and server.  The benchmark is
+modeled after a chat room.  This benchmark will create a lot of threads,
+tcp connections, and send and receive a lot of messages.  The client side
+of the benchmark will report the number of messages sent per second.
+
+The number of chat rooms and messages will control the workload.
+The default number of chat rooms is 10.
+The default number of messages is 100.  The size of each message is 100 bytes.
+Both of these parameters are specified on the client side.
+
+(1) Each chat room has 20 users.
+(2) 10 chat rooms represents 20*10 or 200 users.
+(3) For each user in the chat room, the client will make a connection
+    to the server.
+(4) 10 chat rooms will create 10*20 or 200 connections between the client
+    and server.
+(5) For each user (or connection) in the chat room, 1 'send' thread is created
+    and 1 'receive' thread is created.
+(6) 10 chat rooms will create 10*20*2 or 400 client threads and 400 server
+    threads for a total of 800 threads.
+(7) Each client 'send' thread will send the specified number of messages
+    to the server.
+(8) For 10 chat rooms and 100 messages, the client will send 10*20*100 or
+    20,000 messages.  The server 'receive' thread will receive the
+    corresponding number of messages.
+(9) The chat room server will echo each of the messages back to the other
+    users in the chat room.
+(10) For 10 chat rooms and 100 messages, the server 'send' thread will send
+     10*20*100*19 or 380,000 messages.  The client 'receive' thread will
+     receive the corresponding number of messages.
+(11) The client will report the message throughput at the end of the test.
+(12) The server loops and accepts another start message from the client.
+
+ 

@@ -1,0 +1,157 @@
+.EXPORT_ALL_VARIABLES:
+############################################################################
+#
+# Vendor specific settings
+#
+
+CONSOLE_BAUD_RATE = 115200
+LINUXTARGET = vmlinux
+
+############################################################################
+#
+# The makefiles need to know how to do things in different contexts
+# To save some pain we put it all here
+#
+# First settings we always want for all build
+#
+
+# ARCH = kernel,  TARGET_ARCH = uClibc
+
+MACHINE       = mipsel
+ARCH          = mips
+CROSS_COMPILE = mipsel-linux-
+CROSS         = $(CROSS_COMPILE)
+
+CC        = $(CROSS_COMPILE)gcc
+AS        = $(CROSS_COMPILE)as
+CXX       = $(CROSS_COMPILE)g++
+AR        = $(CROSS_COMPILE)ar
+LD        = $(CROSS_COMPILE)ld
+OBJCOPY   = $(CROSS_COMPILE)objcopy
+RANLIB    = $(CROSS_COMPILE)ranlib
+STRIPTOOL = $(CROSS_COMPILE)strip
+STRIP     = $(STRIPTOOL)
+
+#THT Does not work if toolchain has been relocated
+#GCCLIB    = $(shell $(CC) -print-search-dirs | grep install | cut -d" " -f2)
+GCC_INC_SUFFIX=$(shell $(CC) -print-search-dirs | sed -ne "s,install: *.*\(/lib/gcc-lib/.*\),\1,gp")
+GCCTOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
+GCCLIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)-uclibc/lib
+GCCSYSROOT = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)-uclibc/sys-root
+
+UCLINUX_BUILD_SET = 0					# have we set a special config below
+
+############################################################################
+#
+# General purpose lib building rules,  uClibc.config uses these when
+# possible
+#
+
+ifdef UCLINUX_BUILD_LIB
+
+  ifdef CONFIG_LIB_DEBUG
+	CFLAGS  :=  -O1 -g
+  else
+	CFLAGS  :=  -O2 -g
+  endif
+	CFLAGS  += $(VENDOR_CFLAGS)
+	CFLAGS  += -fno-builtin
+
+	# don't want all the CFLAGS for uClibc/Config
+	ARCH_CFLAGS = $(CFLAGS)
+	CFLAGS  += -Dlinux -D__linux__ -Dunix -DEMBED
+
+	LDFLAGS  = $(CFLAGS)
+
+	UCLINUX_BUILD_SET=1
+endif
+
+############################################################################
+#
+# Settings for building user apps
+#
+
+ifdef UCLINUX_BUILD_USER
+
+	#THT Does not work if toolchain has been relocated
+	#GCC_DIR = $(shell $(CC) -v 2>&1|grep specs|sed -e 's/.* \(.*\)specs/\1\./')
+	#GCC_LIB = /opt/toolchains/uclibc/mips-linux/lib
+
+	GCC_DIR=$(GCCTOOL_DIR_PREFIX)/$(GCC_INC_SUFFIX)
+	GCC_LIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)/lib
+
+
+	SLIBC        = -lc
+	SLIBM        = -lm
+	SLIBNET      = -lnet
+	SLIBDES      = -ldes
+	SLIBPCAP     = -lpcap
+	SLIBSSL      = -lssl
+	SLIBCRYPTO   = -lcrypto
+
+	LIBC        = $(SLIBC)
+	LIBM        = $(SLIBM)
+	LIBNET      = $(SLIBNET)
+	LIBDES      = $(SLIBDES)
+	LIBPCAP     = $(SLIBPCAP)
+	LIBSSL      = $(SLIBSSL)
+	LIBCRYPTO   = $(SLIBCRYPTO)
+	LIBCRYPT    = -lcrypt
+	LIBGCC      = -lgcc
+	LIBIBERTY   = -liberty
+	LIBIO       = -lio
+	LIBIOSTREAM = -liostream
+	LIBSTDCPP   = -lstdc++
+
+	LDPATH = \
+			-L$(ROOTDIR)/lib/$(LIBCDIR)/. \
+			-L$(ROOTDIR)/lib/$(LIBCDIR)/lib \
+			-L$(ROOTDIR)/lib/libnet \
+			-L$(ROOTDIR)/lib/libdes \
+			-L$(ROOTDIR)/lib/libpcap \
+			-L$(ROOTDIR)/lib/libssl
+
+	INCLIBC = -I$(ROOTDIR)/lib/$(LIBCDIR)/include
+	INCNET  = -I$(ROOTDIR)/lib/libnet
+	INCDES  = -I$(ROOTDIR)/freeswan/libdes
+	INCGMP  = -I$(ROOTDIR)/lib/libgmp
+	INCPCAP = -I$(ROOTDIR)/lib/libpcap
+	INCSSL  = -I$(ROOTDIR)/lib/libssl/include
+	INCVEND = -I$(ROOTDIR)/vendors/include
+
+  ifdef CONFIG_USER_DEBUG
+	CFLAGS  :=  -O1 -g
+  else
+	CFLAGS  :=  -Os
+  endif
+	CFLAGS  += $(VENDOR_CFLAGS)
+	CFLAGS  += -Dlinux -D__linux__ -Dunix -DEMBED
+	CFLAGS  += -fno-builtin
+
+	CXXFLAGS = $(CFLAGS) $(INCCXX) -fname-mangling-version-0
+
+	LDFLAGS += $(CFLAGS)
+
+	LDLIBS   = $(LDPATH) $(LIBC)
+
+	CXXLIBS  = $(LDPATH) $(LIBSTDCPP) $(LIBIOSTREAM) $(LIBIO) $(LIBIBERTY) \
+					$(LIBC) $(LIBGCC)
+	
+	FLTFLAGS :=
+	export CC FLTFLAGS
+
+	# for anyone still using it
+	CONVERT = /bin/true
+
+	UCLINUX_BUILD_SET=1
+endif
+
+############################################################################
+#
+# fall through,  do other config options perhaps
+#
+
+ifeq ($(UCLINUX_BUILD_SET),1)
+endif
+
+############################################################################

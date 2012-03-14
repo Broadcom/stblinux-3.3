@@ -1,0 +1,26 @@
+# general settings
+
+lxc.utsname = guest
+lxc.rootfs = /guest
+lxc.tty = 12
+lxc.console = /tmp/guest.log
+
+# bridged network (default)
+# eth0 (guest) gets a dedicated LAN IP
+
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br0
+lxc.network.name = eth0
+lxc.network.veth.pair = host0
+
+# host-only networking
+# guest0 (guest) is a point-to-point link to host0 (host)
+# host must run: ifconfig host0 192.168.10.1 up
+# host must perform any desired routing/proxying to allow LAN/WAN access
+
+#lxc.network.type = veth
+#lxc.network.flags = up
+#lxc.network.ipv4 = 192.168.10.2/24
+#lxc.network.name = guest0
+#lxc.network.veth.pair = host0

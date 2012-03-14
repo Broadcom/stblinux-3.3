@@ -1,0 +1,104 @@
+#!/bin/bash
+
+set -e
+
+function get_rootfstype()
+{
+	cat /proc/mounts | while read -r dev mountpoint fstype slop; do
+		if [ "$mountpoint" = "/" -a "$fstype" != "rootfs" ]; then
+			echo $fstype
+			return
+		fi
+	done
+	echo ""
+}
+
+function brcmlxc_init()
+{
+	if [ -d /guest -a "$1" != "-f" ]; then
+		echo "error: /guest already exists. To override, use:"
+		echo "  $progname init -f"
+		exit 1
+	fi
+
+	rootfstype=`get_rootfstype`
+	if [ "$rootfstype" = "" -a "$1" != "-f" ]; then
+		echo "error: LXC should be installed on a HDD/flash rootfs"
+		echo "To override, use: $progname init -f"
+		exit 1
+	fi
+
+	brcmlxc stop >& /dev/null || true
+
+	cd /
+	rm -rf /guest /var/lib/lxc /shared
+	mkdir -p /shared /guest/{shared,sys,proc,tmp,mnt,cgroup}
+	mkdir -p /cgroup /var/lib/lxc
+
+	mkdir -p /guest/dev/{pts,shm}
+	mknod /guest/dev/null c 1 3
+	mknod /guest/dev/zero c 1 5
+	mknod /guest/dev/full c 1 7
+	mknod /guest/dev/random c 1 8
+	mknod /guest/dev/urandom c 1 9
+	mknod /guest/dev/tty0 c 4 0
+	mknod /guest/dev/tty c 5 0
+	mknod /guest/dev/console c 5 1
+	mknod /guest/dev/ptmx c 5 2
+
+	for x in *; do
+		if [ ! -e /guest/$x -a "$x" != "guest" ]; then
+			cp -a $x /guest/
+		fi
+	done
+
+	cp -f /etc/lxc/guest/rcS /guest/etc/init.d/
+	sed -ie '/ttyS0/d' /guest/etc/inittab
+
+	exec lxc-create -n guest -f /etc/lxc/guest/config
+}
+
+function brcmlxc_start()
+{
+	mount -o defaults none -t cgroup /cgroup
+	mount -o bind /guest/shared /shared
+
+	# user might have already enabled bridging
+	ifconfig br0 >& /dev/null || bridge-start
+
+	exec lxc-start -n guest
+}
+
+function brcmlxc_stop()
+{
+	lxc-stop -n guest || true
+	umount /shared
+	umount /cgroup
+}
+
+# MAIN
+
+progname="$0"
+op="$1"
+shift || true
+
+case "${op}x" in
+	initx)
+		brcmlxc_init "$@"
+		exit 0
+		;;
+	startx)
+		brcmlxc_start "$@"
+		exit 0
+		;;
+	stopx)
+		brcmlxc_stop "$@"
+		exit 0
+		;;
+	*)
+		echo "usage: $progname init [ -f ]"
+		echo "       $progname start"
+		echo "       $progname stop"
+		exit 1
+		;;
+esac

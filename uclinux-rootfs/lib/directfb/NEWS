@@ -1,0 +1,422 @@
+0.9.13
+------
+
+- Added new interface IDirectFBDataBuffer with three implementations
+  (File, Memory and Stream).
+- Made image providers use the new IDirectFBDataBuffer.
+- Added DFBDisplayLayerTypeFlags for a basic layer classification.
+- Added DFBDisplayLayerDescription (changes DFBDisplayLayerCallback).
+- Added (yet unimplemented) IDirectFBImageProvider::SetRenderCallback().
+- Added input_only windows (windows w/o a surface).
+- Added support for interlaced surfaces with seperate field buffers to
+  all drawing and blitting functions.
+- Added new drawing flag DSDRAW_XOR.
+- Added support for color lookup tables. Added new surface type DSPF_LUT8
+  and IDirectFBSurface::GetPalette() and IDirectFBSurface::SetPalette().
+- Added DSDESC_PALETTE to IDirectFBSurfaceDescription.
+- Added DSCAPS_STATIC_ALLOC to DFBSurfaceCapabilities.
+- Added DWDESC_SURFACE_CAPS to DFBWindowDescriptionFlags.
+- Added DWOP_ALPHACHANNEL to DFBWindowOptions.
+- Added IDirectFBSurface::SetColorIndex() for indexed pixel formats.
+- Added pre/demultiplication to drawing functions.
+- Added IDirectFBDisplayLayer::GetWindow().
+- Added input driver for linux input driver (/dev/input/eventX).
+- Improved resource management with automatic cleanup (multi app core).
+- Cleaned up vertical retrace handling.
+- Added DFFA_NOCHARMAP to DFBFontAttributes to allow to access glyphs by
+  their raw indices.
+- Improved V4L video provider, added support for grabbing and planar YUV. Thanks
+  to Ville Syrjala <syrjala@sci.fi> and Mike Pieper <mike@pieper-family.de>.
+- Fixed color key handling in GIF provider.
+- Improvements to the layer driver API.
+- Renamed DLCAPS_INTERLACED_VIDEO to DLCAPS_DEINTERLACING.
+- Renamed DLOP_INTERLACED_VIDEO to DLOP_DEINTERLACING.
+- Enabled acceleration for the second head of a dual head Matrox card.
+- Updated Matrox vsync IRQ patch.
+- Improved S3 Savage drivers, thanks to Alex Song <alexsong@comports.com>.
+- Added directfb-csource, a C code generator for inline images.
+- Lots of bug-fixes, multi app core improvements.
+
+
+0.9.12
+------
+
+- Added IDirectFBSurface::DrawGlyph().
+- Added IDirectFBFont::GetKerning().
+- Added IDirectFBFont::GetGlyphExtents().
+- Added experimental blitting flags DSBLIT_SRC_PREMULTIPLY,
+  DSBLIT_DST_PREMULTIPLY and DSBLIT_DEMULTIPLY.
+- Added dfb_utf8_prev_char() and fixed dfb_utf8_next_char().
+- Added a mask of currently pressed buttons to input and window events.
+- Added structs DFBPoint and DFBDimension.
+- Added DIDTF_VIRTUAL for virtual input devices.
+- Added DSFT_BOTTOM to DFBSurfaceTextFlags.
+- Added DFB_NUM_PIXELFORMATS macro.
+- Give font providers control over pixel format and blending function.
+- Define DFBKeyIdentifierNames in directfb_keynames.h.
+- Some smaller fixes to the keyboard mapping.
+- Support all keysymbols in the lirc input driver. 
+- Implemented planar YUV blitting in software driver.
+- Optimizations in the software driver.
+- Fixed blitting and drawing to ARGB in matrox driver.
+- Implemented missing BES flipping in matrox driver.
+- Lots of bug-fixes.
+
+
+0.9.11
+------
+
+- Added IDirectFBSurface::Clear().
+- Added IDirectFBWindow::EnableEvents() and DisableEvents().
+- Added IDirectFBWindow::SetStackingClass().
+- Added IDirectFBDisplayLayer::GetLevel() and SetLevel()
+- Added IDirectFBInputDevice::GetKeymapEntry() (see below).
+- Redone keyboard handling. Each key now has a unique key_id which is mapped
+  to a Unicode-compatible key_symbol using the keymap provided by the driver.
+- Use kernel keymapping table in keyboard driver.
+- Added kernel patch for VMware SVGA framebuffer.
+- Added kernel patch for S3 Savage framebuffer (experimental).
+- Added S3 Savage driver (experimental).
+- The Print key can now be used to dump screenshots in PPM format.
+- Left and right modifiers have seperate key identifiers now.
+- Introduced kerning cache in FT2 font provider.
+- Added module probing to FT2 font provider.
+- Speed up text rendering by using a special state.
+- Allow to change the buffermode of layers.
+- Support buffermode changes for additional layers.
+- Fixed A8 font blitting bug in Matrox driver.
+- Install directfb headers in a directfb subdirectory.
+- Install and look for modules in versioned subdirectory.
+- Fixed vsync polling when MDA emulation is active.
+- Cleaned up config options (directfbrc and command-line options).
+- New option "videoram-limit=<amount-in-kb>".
+- New option "dont-catch" to disable signal handlers.
+- Added directfbrc(5) man-page.
+- Made shared memory handling thread-safe (multi-application core).
+- Optimizations in software driver.
+- Lots of bug-fixes.
+
+
+0.9.10
+------
+
+- Added options "mode=<width>x<height>" and "depth=<bpp>".
+- Added SonyPI Jogdial input driver acting as a third axis and button.
+- Added a destination rectangle to IDirectFBImageProvider::RenderTo().
+- Added IDirectFBEventBuffer::HasEvent().
+- Added IDirectFBDisplayLayer::SetCursorAcceleration().
+- Added IDirectFBWindow::PutAtop and PutBelow for restacking windows relatively.
+- Added destination colorkeying for display layers (like Xv does).
+- Added IDirectFBWindow::SetOptions() and GetOptions().
+- Added color keying option for windows (e.g. for shaped windows).
+- Added window options to disable moving, resizing, stacking and destruction by
+  wm hack. Added an option to turn a window into a passive output only window.
+- Added brightness control to neomagic video overlay (by Martin Mueller).
+- Added tmpfs mount point detection by Sebastian Klemke <packet@convergence.de>.
+- The shared memory area is now reinitialized during startup if it already
+  existed, but with no DirectFB apps running. Other multi app core fixes.
+- Added more cleanup code, less IPC resource leakage after shutdown.
+- Bit depths of fb.modes entries are ignored now when looking for a requested
+  mode. However, the default bit depth is the one of the first entry.
+- Improved RGB332 rendering using precalculated lookup tables with 4/8 entries.
+- Greatly optimized 16Bit StretchBlit in generic driver doubling performance
+  on PowerPC systems (others than Intel/PowerPC not tested).
+- Windows can now be resized and destroyed via wm hack (CapsLock shortcuts).
+- Window stack compositing optimizations.
+- Simplified and cleaned up internal layer driver API.
+- Major code cleanups in windowing and layer core.
+- Fixed NeoMagic driver, that was broken in 0.9.9.
+- Fixed doubled and interlaced video modes.
+- Enhanced reference manual including an introduction to IDirectFB.
+- Many, many bug/stability fixes. More code commented. Bigger TODO file ;)
+
+
+0.9.9
+-----
+
+- Added DSPF_I420 and DSPF_YV12, two planar YUV formats.
+- Added ATI Overlay support for all four YUV formats.
+- Added NeoMagic YUV Overlay support.
+- Added static linking support. Minor changes to driver and interface modules.
+- There's a general IDirectFBEventBuffer now that can be connected to
+  input devices and windows. Added DFBEvent union that can contain
+  any specific event class.
+- Added DFBUserEvent that can be used by developers (user of the library).
+- Added IDirectFBEventBuffer::PostEvent that can be used for any event class.
+- Each window has a unique window id now. DFBWindowEvent contains the id.
+- Added GetID functions to IDirectFB- DisplayLayer, Window and InputDevice.
+- Added IDirectFBSurface::TileBlit.
+- IPAQ buttons support by Ara Hacopian <ahacop@anthrotronix.com>.
+- Windows can now be created with a specific pixel format, e.g. YUV.
+- RGB332 acceleration on Matrox cards (including alpha blending).
+- Added fast memcpy routine that uses MMX, MMXEXT or SSE.
+- Changed DirectFB command-line parsing: The only recognized options are
+  --dfb-help and --dfb: follow by a comma-separated list of DirectFB options.
+  The format of the options is the same as used in the directfbrc file.
+- Surfaces can now be created using existing surface data.
+- New option "[no-]cursor" to enable/disable the default cursor on startup.
+- New option "disable-window-opacity" for testing/tweaking purposes.
+- New option "lefty" that enables swapping of left and right button.
+- Applied patch from Till Adam <till@adam-lilienthal.de> that adds
+  DFBInputDeviceLockState, IDirectFBInputDevice::GetLockState() and
+  LED handling in keyboard driver.
+- Rewritten Libmpeg3 provider based on OpenQuicktime provider (YUV/Sound).
+- Make usage of CON2FBMAP (by Jiri Svoboda <Jiri.Svoboda@seznam.cz>).
+- '/dev/input/js*' support by W. Michael Petullo <mike@flyn.org>.
+- Detailed documentation of dbox2 remote driver code (example driver).
+- More code documentation, especially state handling.
+- Additional framebuffer device can be used to debug the surface manager.
+- All global DirectFB symbols have the prefix "dfb_" now.
+- Enno Brehm <enno@convergence.de> added dlopen on libdirectfb with RTLD_GLOBAL.
+- Completely rewritten shmalloc stuff (used by Multi Application Core)
+  based on libc5's GNU malloc. It now uses tmpfs (former shmfs).
+- Some optimizations, Matrox colorkeying fixes.
+- ATI state fix by Topi Kanerva <topi.kanerva@eke.fi>.
+- USB and PS/2 mice fixes, endian fixes on parisc, many other bugfixes.
+
+
+0.9.8
+-----
+
+- Merged multi application core, which is currently under development. Must be
+  enabled at compile time (--enable-multi). It is *NOT* stable yet.
+- Input/Gfx driver API changes to be ready for multihead and multi application
+  core.
+- Added OpenGL support via the new interface "IDirectFBGL".
+- Added support for IMPS/2 mice including wheel support.
+- Added remote control driver for dbox2.
+- Added DWET_WHEEL window event. Focused windows now receive events if the
+  mouse wheel is use.
+- Added simple blitting support for nVidia cards <dfoesch@cs.nmsu.edu>.
+- Added "wm_hack" feature: press shift lock over a window and spin the mouse
+  wheel to change the window opacity.
+- Completed support for RGB332 (8bit mode), not fully optimized yet.
+- New triange fillig code from Holger Waechtler. Adds clipping support and
+  utilizes accelerated rectangles as a fallback if possible.
+- Removed rounding factor when blitting non-scaled with tmu,         
+  very big fonts looked incorrect (matrox driver).
+- Fixed triangle filling in tdfx driver <DWood@daedalcorp.com>
+- Fixed segfault when rendering pipeline is empty, e.g. using DSDRAW_BLEND
+  with SrcFunc DSBF_ZERO and DstFunc DSBF_ONE.
+- In RGB332 mode initialize alpha values in palette. Corrected color
+  values in palette.
+- Fixed segfault in jpeg provider with large images.
+- Fixed some small memory leaks.
+- Include SMF_SOURCE in SMF_ALL, could have caused blitting from the wrong
+  source recently (longer for a very few drivers) when switching to another
+  state.
+- Fixed "--fbdev=" option.
+- ABI version handling for all drivers.
+- Moved examples to extra package (DirectFB-examples).
+- The mouse cursor is now activated by default.
+- DirectFB can be build with dietlibc.
+- Some namespace cleanups.
+- Updated aty128fb patch for linux 2.4.16.
+
+0.9.7
+-----
+
+- Added deinterlacing for interlaced video sources to Matrox Backend Scaler.
+- Added DSPF_UYVY and clarified description of both YUV formats.
+- Added acceleration for Matrox Mystique, Millenium I&II, G100.
+- Added support for YUV in V4L video provider.
+- Added support for deinterlacing in df_layer example.
+- Added option "--fbdev=<device>" to specify another device than "/dev/fb0".
+- Added support for 'gsync true', 'csync high' and 'extsync true' in fb.modes.
+- Added 8bit RGB332 pixelformat, implementation is not complete yet.
+  If you want RGB332, you have to enable it using ./configure --enable-rgb332.
+- Optimized RGB15/RGB16 color keyed blit (doubled performance on some CPUs).
+- Allow RGB15 mode on fbdev drivers that report to use one bit for alpha.
+- Fixed blocking of CreateImageProvider when called on /dev/video with BTTV.
+- DirectFB now restores the palette during deinitialization, turns cursor and
+  blanking back on and restores the terminal attributes like local echo.
+  These fixes help a lot when using DirectFB with the option "--no-vt-switch".
+- Updated NeoMagic framebuffer driver patch for 2.4.10 and above.
+- Updated aty128fb framebuffer driver patch. The patch was tested with kernel
+  versions from 2.4.7 - 2.4.12. It may work with older versions too.
+- IDirectFBSurface::SetSrcColorKey has to be called on the source now,
+  when blitting to a surface which has source color keying enabled.
+- SetSrcColorKey and SetDstColorKey take three values now: r, g and b.
+  They will be converted to the pixelformat of the surface automatically.
+- Some minor fixes.
+
+0.9.6
+-----
+
+- Added H3600 (ipaq) Touchscreen input driver.
+- We now accept compatible pixelformats,
+  e.g. IPAQ's RGB 444 format is compatible with RGB 565.
+- Matrox Backend Scaler support as additional display layer.
+- YUY2 format added for video playback.
+- Added 'IDirectFBDisplayLayer::Set/GetColorAdjustment()'.
+- Added simple layer example which plays a video onto the second layer.
+- Added new window capability DWCAPS_DOUBLEBUFFER to create windows with
+  two back buffers. This is useful for overlapping windows which both
+  cause frequent updates of the window stack.
+- Added 'IDirectFBWindow::Close()' that puts a 'DWET_CLOSE' event into the
+  window's event queue. The event dispatcher thread can then decide to close it.
+- Added 'IDirectFBWindow::Destroy()' which actually destroys the window after
+  sending a 'DWET_DESTROYED' event, so the event dispatcher thread can notice
+  and release any interfaces belonging to it.
+- Added result 'DFB_DESTROYED' which is currently returned by 'IDirectFBWindow'
+  and 'IDirectFBSurface' if the window or surface has been destroyed.
+- Fixed surface manager bug causing inconsistency between video/system memory.
+- More changes to surface manager fixing problems when using many many threads.
+- Fixed segfault when loading big PNGs, seemed to be a problem with alloca.
+- Minor fixes to window stack code.
+- Some fixes to deinitialization code.
+
+0.9.5
+-----
+
+- Added 'IDirectFB->CreateInputBuffer()' that allows to easily
+  create input buffers for specific events.
+- Added 'IDirectFBInputDevice->AttachInputBuffer()' to
+  attach an existing input buffer to another input device.
+- Added 'IDirectFBImageProvider->GetImageDescription()' to obtain information
+  about alpha channel availability and possible color keys.
+- New LIRC input driver, name your keys (lirc config file) like the DirectFB
+  keycode enum does without the "DIKC_" prefix, e.g. "OK", "MENU" or "VOLUMEUP".
+- First version of nVidia RIVA TNT/TNT2/GeForce driver (very limited right now).
+- Updated kernel patches, improved synchronization for FBIO_WAITFORVSYNC.
+- New pkg-config file "directfb-internal.pc" for better support
+  for third party modules built outside the DirectFB source tree.
+- You can move windows with the mouse when holding down CapsLock.
+- Font width can now be set independent from height, e.g. for non-square pixels.
+- Set gamma ramp, fixes "strange-colors-effect" with some framebuffer drivers.
+- Accept interlaced or double scan modes, 320x200 looks really cool in some way.
+- Deinitialization code cleaned up and reactivated.
+- V4L capturing is now stopped by exit and signal handlers.
+- Matrox driver cleanup and blending state fixes.
+- More detailed generated API Reference (more comments in directfb.h).
+- Many bug fixes, some compile fixes.
+
+0.9.4
+------
+
+- Software driver pipeline optimization giving me 70% speed up for solid lines.
+- Several bugfixes for image loading, Matrox driver, mode handling and more.
+- Removed 'realloc()s' that caused callback functions to write into the
+  old memory location if 'realloc()' returns a new one.
+- API rewrite for IDirectFBDisplayLayer with new capabilities, e.g. flicker
+  filtering, better configuration handling by 'Get/Set/TestConfiguration()'.
+- Sub surface handling improved, especially for surface resizing.
+- More safety and sanity checks and new error codes
+  (DFB_MISSINGIMAGE, DFB_INVAREA, DFB_THIZNULL and DFB_IDNOTFOUND).
+- Additions to IDirectFBVideoProvider: 'GetCapabilities()' retrieves info about
+  the provider, 'Set/GetColorAdjustment()' set/get values like contrast etc.
+- Cursor can be enabled/disabled and opacity can be set independently.
+  Also cursor appears centered now.
+- Experimental support for VT switching during runtime ;-)
+- New command line option "--force-windowed" which already works with most of
+  the examples, levels other than DFSCL_NORMAL give DFB_ACCESSDENIED.
+- GIF loading to ARGB fixed, transparent GIFs are now supported as ARGB.
+- Several fixes to video mode list and pixelformat handling in
+  'read_modes()', 'fbdev_set_mode()' and 'fbdev_get_pixelformat()'.
+- Added IDirectFBSurface->DrawLines(), used by df_dok now.
+- Some optimizations in DrawString and core font handling.
+- Fixed font problems with Matrox cards, their texture cache is flushed
+  now after writing the glyph into the framebuffer (i.e. into the texture).
+- Mouse cursor movements are now clipped by the screen ;-)
+- Fixed 'directfb.h', identifier "id" was also a keyword in Objective C.
+- Added IDirectFBInputBuffer->WaitForEventWithTimeout,
+  was missing in last release.
+
+0.9.3
+------
+
+- All modules (drivers/providers) are built conditionally, can be
+  disabled. configure spits out a summary of all modules.
+- Some license headers were forgotten to change to LGPL.
+- New remote control keycodes and remote control input type.
+- df_window can play video files and behaves like a window manager.
+- New "thanks to" section in README.
+- Window stack repaints optimized through recursive function.
+- Added DirectFBSetOption from Till Adam <till@adam-lilienthal.de>.
+- Added IDirectFBInputBuffer->WaitForEventWithTimeout.
+- Changed to pthread conditions in waiting code.
+- Matrox driver fixed when blitting from 32bit without blending.
+- Added DFBInputDeviceTypeFlags, removed DIDID_TYPE.
+- Several cleanups in core, common code moved into helper functions.
+- Fonts can be loaded monochrome and/or without kerning.
+- Console blanking now disabled.
+- Software alpha blending performance boost for non MMX machines.
+- Added inputdriver for serial mice with config option "mouse-protocol".
+- Modularized inputdrivers.
+- Even faster DrawString() software implementations.
+- New function Font->GetStringExtents.
+- Use of antialiasing, kerning and hinting for fonts is now configurable.
+- Some fixes in the software rendering functions.
+- Support for interlaced PNGs (thanks to Johannes Zellner).
+- Two new example applications in very early stage.
+- New function IDirectFB->WaitForSync.
+
+0.9.2
+------
+
+- Fix for loading jpegs unscaled into 24bpp surfaces
+- 15bpp support for jpeg provider
+- v4l provider support for devfs (/dev/v4l/video*)
+- API change for DFBSurfaceDescription (pixelformat field instead of bpp
+  field, removed DSCAPS_ALPHA.)
+- DrawString() and GetStringWidth() support UTF-8 encoded strings now. They
+  take an additional parameter that specifies the number of bytes to use from 
+  the passed string or -1 for the complete string.
+- Fonts are no longer loaded completely, instead glyphs are loaded on demand
+  and are cached for later use.
+- Font kerning tables are no longer loaded by the core.
+- Removed default font from the core and made it a IDirectFBFont interface.
+  Pass NULL as filename to CreateFont() to get the default font.
+- Added MPEG video provider written by Kim JeongHoe based on libmpeg3.
+- Performance improvements in the software functions for DrawLine(), 16 bit
+  drawing functions and DrawString() in all depth.
+- Added GetPos() and GetLength() functions to the video provider API.
+- Use /dev/tty0 or /dev/vc/0 (for devfs) instead of /dev/console so DirectFB 
+  works on machines with serial consoles.
+- Removed dependency on libm.
+
+0.9.1
+------
+
+- pkg-config files are available for optionally installed interfaces
+  like IDirectFBVideoProvider_AviFile, so apps can test for their existence.
+- Added IDirectFBInputDevice->GetButtonState() which returns the
+  state of the specified button. GetButtons() is also still available.
+- New demo called "df_knuckles" draws a three dimensional lighted skull
+  that can be rotated by the mouse. (Port from Mark Vojkovich's DGA demo)
+- Fixed accelerator ids in neomagic driver to match the ids in the
+  current neofb kernel patch that is now included in "patches".
+- Moved command-line parsing out of DirectFBCreate() into DirectFBInit().
+  This means to inititalize DirectFB() there are now two calls necessary:
+  DirectFBInit( &argc, &argv ); DirectFBCreate( &dfb );
+- Added IDirectFBSurface->FillTriangle() for solid and blended triangles.
+  Implemented in generic driver and Voodoo, Matrox acceleration.
+- Interfaces with a reference counter of zero are automatically freed
+  unless you enabled debugging during configure. In debug mode a released
+  interface returns DFB_DEAD if a function has been called.
+- Added Shockwave Flash Video Provider written by Joachim 'Roh' Steiger.
+  You will need the libflash, that can be downloaded as a shared library
+  from our download section. No modifications of libflash code.
+- Added an option to directfb-config that makes "--libs" output
+  the suitable LDFLAGS that are needed to have AviFile symbols resolved.
+- Mouse cursor is no longer enabled by default.
+- AviFile Provider now probing for ".asf" files, too.
+- Fixed Stop in AviFile Provider, work around crashing AviFile call
+  Player->Stop by using Pause and Continue. PlayTo can now be called
+  several times without stopping to change the destination on the fly.
+- V4L Video Provider no longer gets a NULL pointer as the filename,
+  but "/dev/video0" and so on. Removed v4l code from core.
+- AviFile Provider updated to compile with newest AviFile version.
+- Implemented flipping of surfaces that are no window or layer surfaces,
+  when the surface is a subsurface, a flipping region has been specified
+  or the flipping flag DSFLIP_BLIT has been used.
+- Improved documentation generator, a few parsing fixes.
+- Added missing "void *callbackdata" to 
+  DFBInputDeviceCallback and DFBVideoModeCallback.
+- Some minor fixes and cleanups.
+
+
+0.9.0
+------
+
+Initial release.

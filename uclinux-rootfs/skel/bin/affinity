@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "warning: please use taskset instead of affinity"
+
+if [ -z "$2" ]; then
+	echo " usage: affinity <pid> <cpu_mask>"
+	exit 1
+fi
+
+exec taskset -p $2 $1

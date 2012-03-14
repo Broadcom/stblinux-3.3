@@ -1,0 +1,2 @@
+iface=$1
+ifconfig $iface 127.0.0.1 up

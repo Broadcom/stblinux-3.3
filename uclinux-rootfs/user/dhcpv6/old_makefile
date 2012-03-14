@@ -1,0 +1,42 @@
+include $(ROOTDIR)/config.arch
+
+TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
+
+ifneq (,$(findstring linux,$(CROSS)))
+	TARGET=$(CROSS:linux-=linux)
+	TARGET_ARCH ?= $(CROSS:-linux-=)
+else
+	ifneq (,$(findstring uclibc,$(CROSS)))
+		TARGET_ARCH ?= $(CROSS:-uclibc-=)
+		TARGET=$(TARGET_ARCH)-linux
+	else
+		echo "FIXME: Cannot determine target architecture"
+		exit 99
+	endif
+endif
+UCLIBC_INC = -I$(ROOTDIR)/uClibc/include
+LINUX_INC=-I$(ROOTDIR)/$(LINUXDIR)/include
+GCC_INC=-I$(TOOL_DIR_PREFIX)/$(TARGET)/include
+# THT: Order is important, as we want to use the uClibc headers first,
+# and the headers from gcc last.
+# BITS_PER_LONG is defined under #ifdef __KERNEL__ in 2.6 headers, so we define it here.
+MY_CFLAGS += -DDONE=1 -DBITS_PER_LONG=32 $(UCLIBC_INC) $(LINUX_INC) $(LINUX_INC)/asm/mach-generic $(GCC_INC)
+
+all:
+	CC=$(CC) CFLAGS="$(MY_CFLAGS)" \
+		./configure \
+		--target=$(TARGET)		\
+		--host=$(TARGET)	\
+		--cache-file=config.cache.brcmstb.$(TARGET_ARCH)
+	make -f Makefile
+
+clean:
+	make -f Makefile clean
+
+distclean: clean
+	make -f Makefile distclean
+	-rm Makefile config.cache config.h config.status
+
+romfs:
+	# PR11752 - Changed to allow make romfs to success multiple times
+	$(ROMFSINST) -e 1 /usr/bin/strace

@@ -1,0 +1,13 @@
+$Id: README,v 1.1.1.1 2000/06/20 22:10:58 agmorgan Exp $
+
+This directory contains a number of sgml sub-files. One for each
+documented module. They contain a description of each module and give
+some indication of its reliability.
+
+Additionally, there is a 'module.sgml-template' file which should be
+used as a blank form for new module descriptions.
+
+Please feel free to submit amendments/comments etc. regarding these
+files to:
+
+	Andrew G. Morgan <morgan@parc.power.net>

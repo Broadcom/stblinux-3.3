@@ -1,0 +1,3 @@
+mkcramfs.c was modified per PR29110 (build cramfs, jffs2 as nonroot).
+
+A patch against the original file may be found therein.

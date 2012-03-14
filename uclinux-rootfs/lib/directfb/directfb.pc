@@ -1,0 +1,10 @@
+prefix=/home/sjhill/uClinux-dist-patched/romfs
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: DirectFB
+Description: graphics and windowing library on Linux framebuffer
+Version: 0.9.13
+Libs: -L${libdir} -ldirectfb -lpthread -ldl
+Cflags: -I${prefix}/include/directfb

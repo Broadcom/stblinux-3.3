@@ -1,0 +1,12 @@
+diff -ru module-init-tools-3.8.orig/depmod.c module-init-tools-3.8/depmod.c
+--- module-init-tools-3.8.orig/depmod.c	Thu Apr 30 12:30:19 2009
++++ module-init-tools-3.8/depmod.c	Sat May  9 21:09:33 2009
+@@ -1059,7 +1059,7 @@
+ 	if (dir) {
+ 		struct file_entry {
+ 			struct list_head node;
+-			char name[];
++			char name[0];
+ 		};
+ 		LIST_HEAD(files_list);
+ 		struct file_entry *fe, *fe_tmp;

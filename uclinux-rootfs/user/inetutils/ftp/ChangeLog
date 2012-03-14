@@ -1,0 +1,99 @@
+2002-04-29  Alfred M. Szmidt  <ams@kemisten.nu>
+
+	* main.c <version.h>: Include removed.
+	(inetutils_package): Renamed to PACKAGE_NAME.
+	(inetutils_version): Renamed to PACKAGE_VERSION.
+	(inetutils_bugaddr): Renamed to PACKAGE_BUGREPORT.
+
+2002-04-21  Alfred M. Szmidt <ams@kemisten.nu>
+
+        * Makefile.am (bin_PROGRAMS): Use ftp_BUILD instead of BUILD_FTP.
+        * ftp.c [HAVE_FCLOSE_DECL]: Renamed to HAVE_DECL_FCLOSE.
+        [HAVE_PCLOSE_DECL]: Renamed to HAVE_DECL_PCLOSE.
+
+2002-04-05  Sergey Poznyakoff  <gray@Mirddin.farlep.net>
+
+	* Makefile.am: Add READLINE variable.
+
+2002-02-10  Jeff Bailey  <jbailey@outpost.dnsalias.org>
+
+	* Makefile.am: Add $(top_builddir)/include to INCLUDES
+
+2001-12-25  Alain Magloire
+
+	* cmds.c: Guard HAVE_MKSTEMP and use mktemp() has a fallback
+	Note from Bert De Knuydt <Bert.Deknuydt@esat.kuleuven.ac.be>
+
+2001-02-26  Alain Magloire
+
+	* domacro.c : Check if the margv is not NULL and return.
+	* ftp.c (login) : The variable "line" is used as a target of strcpy.
+	Unfortunately, the readline() changes cause this to be NULL when
+	processing an automatic login via $HOME/.netrc.
+	Bug and patch for ftp.c provided by "B. D. Elliott" <bde@nwlink.com>. 
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* main.c: Convert to GNU coding standards.
+
+	* main.c: Remove COPYRIGHT (it's in the header) and
+	"#if 0"-out SCCSID.
+	(ohelp): Removed.
+	(try_help): Removed.
+	(usage): Incorporate functionality of ohelp and try_help,
+	and accept new argument ERR.
+
+	* main.c (getcmd): Add parenthese around assignment used as truth
+	value to silence gcc warning.
+	(makeargv): Likewise.
+
+2000-10-30  Marcus Brinkmann  <marcus@gnu.org>
+
+	* cmds.c (remglob): New variable fd, use it to create temporary
+	file with mkstemp(), and not insecure mktemp().
+
+2000-08-08 Alain Magloire
+
+	* extern.h: Remove empty() declaration, one the arg
+	is fd_set and <select.h> is not included in extern.h.
+
+2000-08-05 Alain Magloire
+
+	* ruserpass.c (ruserpass): When calling localhost() make sure
+	we free().
+	Various formating to GNU coding style.
+
+2000-07-07 Matt Roberds
+
+	* cmds.c/sethash(): read the optionnal argument for hash.
+	* ftp.1: update man page, hash take optional argument.
+	* ftp.c/sendrequests(): print hasbyte.
+	* ftp_var.h: hashbytes global var: number of bytes per # printed.
+
+2000-07-05 Alain Magloire
+
+	* *: Clause 3 removed.
+	excerpt from email with RMS:
+	"UCB has agreed to drop the advertising clause from the license for all
+	BSD software.  The advertising clause is this one:
+
+	3. All advertising materials mentioning features or use of this software
+		must display the following acknowledgement:
+		This product includes software developed by the University of
+		California, Berkeley and its contributors.
+
+	This means that we can delete that paragraph from all files which give
+	the University of California as the only copyright holder."
+
+1999-06-12 Jeff Smith
+	* cmds.c/getit(): Y2K problem with MDTM.
+	* cmds.c/{setntrans,dotrans}(): use sizeof(ntin)/sizeof(ntout) instead
+	of hardcoded numbers(was 16).
+	* cmds.c/account(): occurences of 49 change for sizeof(acct) - 1
+	* cmds.c: Typos in comments corrected.
+
+1999-05-19  Alain Magloire
+	* ruserpass.c: MACH was define on Hurd.  We protect
+	the defines before using them, MACH was change to MACHINE.
+	Noted by the Hurd people(Bayley, Marcus)
+    	* cmds.c : use xgetcwd().

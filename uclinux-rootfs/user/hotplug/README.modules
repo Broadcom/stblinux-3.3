@@ -1,0 +1,78 @@
+This file describes which modules can be automatically loaded at boot time
+with Hotplug and what to do with the ones which cannot be loaded by Hotplug.
+
+The following classes of modules will be loaded automatically by the 2.6
+kernel itself or the hotplug initscript:
+
+* The modules that directly correspond to some ISAPNP, PCI or USB hardware
+  will be loaded by hotplug initscript. Such modules are called "detectable"
+  below. To verify if the module is detectable, check for the presence of the
+  MODULE_DEVICE_TABLE macro in its source code. If you don't have enough skills
+  to do that, there is another way. Compile and install the modules. Find the
+  compiled module in the /lib/modules/`uname -r` directory.
+  Execute the following command:
+
+    modinfo /path/to/this/module.ko
+
+  If you see an alias that begins with "pci:" or "usb:", then the module
+  is detectable. For example, the snd-fm801.ko module is detectable because it
+  has a "pci:v00001319d00000801sv*sd*bc04sc01i*" alias.
+
+* The modules that are listed in the modinfo output as dependencies of
+  detectable modules will be loaded automatically by hotplug scripts. For
+  example, the detectable snd-fm801.ko module depends upon snd-pcm,
+  snd-opl3-lib, snd-mpu401-uart, snd and snd-tea575x-tuner modules. They will
+  be loaded automatically by Hotplug if a ForteMedia-based soundcard is
+  present in the system.
+
+* Filesystem modules (e.g., vfat.ko), NLS character sets (e.g., nls-koi8-r.ko)
+  and most network protocol drivers (e.g., ipv6.ko) are loaded automatically
+  by the kernel upon the first need.
+
+* Character and block device drivers are loaded automatically even without the
+  Hotplug package installed when an application opens the existing device node
+  without a loaded driver. This is controlled by the aliases in
+  /lib/modules/`uname -r`/modules.alias (generated automatically) and
+  /etc/modprobe.conf (created manually) files that begin with char-major and
+  block-major. However, this relies upon the device node being already present
+  even when the module is not loaded, and this is not the case with Udev. For
+  example, the following modules can be loaded automatically on first demand
+  when Udev is not used: lp, ppp-generic. They will not be loaded
+  automatically when Udev is used.
+
+* Devfsd also can load modules on demand. However, since devfs is deprecated,
+  this is not covered here.
+
+* Almost everything else is not loaded automatically. For example, the
+  following modules will not be loaded automatically: ide-cd, snd-pcm-oss
+
+There are several solutions for using such undetectable drivers:
+
+* Compile them directly into the kernel, not as modules. If you seem to be
+  unable to do this, it's because you selected some dependency of such a
+  driver as a module.
+
+* Use a distribution-provided script to load these modules at boot time
+  unconditionally. On Debian systems, it's sufficient to put their names in
+  the /etc/modules file.
+
+* Add a line to the /etc/modprobe.conf file that tells module-init-tools about
+  a "missed dependency" between modules, e.g.:
+
+    install snd-pcm modprobe -i snd-pcm ; modprobe snd-pcm-oss ; true
+
+  This way, the OSS compatibility module will be loaded automatically for
+  all PCI soundcards supported by ALSA. Note, however, that this solution
+  depends upon snd-pcm.ko being a module. More examples of such
+  "dependencies" are shown below:
+
+    install snd-seq modprobe -i snd-seq ; modprobe snd-seq-oss ; true
+    install parport modprobe -i parport ; modprobe lp ; modprobe ppdev ; true
+    install mptbase modprobe -i mptbase ; modprobe mptscsih ; modprobe mptctl ; modprobe mptlan ; true
+    install usb-storage modprobe -i usb-storage ; modprobe sd-mod ; true
+
+  As you can see, some detectable module or its dependency is put on the
+  left, and its undetectable helpers are enumerated then. Note however that
+  this approach doesn't help you to load modules like nbd.ko that don't depend
+  upon any hardware at all.
+
