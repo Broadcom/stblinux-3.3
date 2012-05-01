@@ -11,6 +11,12 @@ tarball="$1"
 jid="$2"
 base=$(basename $tarball)
 
+if [[ "$tarball" = http* ]]; then
+	local_tarball=/tmp/$base
+	wget -O $local_tarball "$tarball" || exit 1
+	tarball=$local_tarball
+fi
+
 if [ ! -d user/moca ]; then
 	echo "error: this program must be run from the uclinux-rootfs dir"
 	exit 1

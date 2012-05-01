@@ -8,7 +8,6 @@
  * SMP support for BMIPS
  */
 
-#include <linux/version.h>
 #include <linux/init.h>
 #include <linux/sched.h>
 #include <linux/mm.h>
@@ -405,7 +404,10 @@ void __cpuinit bmips_ebase_setup(void)
 	unsigned long new_ebase = ebase;
 	void __iomem __maybe_unused *cbr;
 
+#if !defined(CONFIG_BRCMSTB)
+	/* don't want to fire a BUG() on S3 re-entry */
 	BUG_ON(ebase != CKSEG0);
+#endif
 
 #if defined(CONFIG_CPU_BMIPS4350)
 	/*

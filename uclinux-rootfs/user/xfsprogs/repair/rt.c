@@ -1,36 +1,21 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "../libxfs/xfs.h"
 #include <libxfs.h>
 #include "avl.h"
 #include "globals.h"
@@ -106,7 +91,7 @@ generate_rtinfo(xfs_mount_t	*mp,
 		bits = 0;
 		for (i = 0; i < sizeof(xfs_rtword_t) * NBBY &&
 				extno < mp->m_sb.sb_rextents; i++, extno++)  {
-			if (get_rtbno_state(mp, extno) == XR_E_FREE)  {
+			if (get_rtbmap(extno) == XR_E_FREE)  {
 				sb_frextents++;
 				bits |= freebit;
 
@@ -208,7 +193,8 @@ process_rtbitmap(xfs_mount_t	*mp,
 	extno = 0;
 	error = 0;
 
-	end_bmbno = howmany(INT_GET(dino->di_core.di_size, ARCH_CONVERT), mp->m_sb.sb_blocksize);
+	end_bmbno = howmany(be64_to_cpu(dino->di_size),
+						mp->m_sb.sb_blocksize);
 
 	for (bmbno = 0; bmbno < end_bmbno; bmbno++) {
 		bno = blkmap_get(blkmap, bmbno);
@@ -231,8 +217,8 @@ process_rtbitmap(xfs_mount_t	*mp,
 		for (bit = 0;
 		     bit < bitsperblock && extno < mp->m_sb.sb_rextents;
 		     bit++, extno++) {
-			if (isset(words, bit)) {
-				set_rtbno_state(mp, extno, XR_E_FREE);
+			if (xfs_isset(words, bit)) {
+				set_rtbmap(extno, XR_E_FREE);
 				sb_frextents++;
 				if (prevbit == 0) {
 					start_bmbno = bmbno;
@@ -290,7 +276,7 @@ process_rtsummary(xfs_mount_t	*mp,
 			continue;
 		}
 		bytes = bp->b_un.b_addr;
-		bcopy(bytes, (char *)sumfile + sumbno * mp->m_sb.sb_blocksize,
+		memmove((char *)sumfile + sumbno * mp->m_sb.sb_blocksize, bytes,
 			mp->m_sb.sb_blocksize);
 		libxfs_putbuf(bp);
 	}

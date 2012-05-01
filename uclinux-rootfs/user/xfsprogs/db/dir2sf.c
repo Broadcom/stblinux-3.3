@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -90,7 +76,7 @@ dir2_inou_i4_count(
 	xfs_dir2_sf_t	*sf;
 
 	ASSERT(bitoffs(startoff) == 0);
-	sf = &((xfs_dinode_t *)obj)->di_u.di_dir2sf;
+	sf = (xfs_dir2_sf_t *)XFS_DFORK_DPTR(obj);
 	return sf->hdr.i8count == 0;
 }
 
@@ -103,7 +89,7 @@ dir2_inou_i8_count(
 	xfs_dir2_sf_t	*sf;
 
 	ASSERT(bitoffs(startoff) == 0);
-	sf = &((xfs_dinode_t *)obj)->di_u.di_dir2sf;
+	sf = (xfs_dir2_sf_t *)XFS_DFORK_DPTR(obj);
 	return sf->hdr.i8count != 0;
 }
 
@@ -118,7 +104,7 @@ dir2_inou_size(
 
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
-	sf = &((xfs_dinode_t *)obj)->di_u.di_dir2sf;
+	sf = (xfs_dir2_sf_t *)XFS_DFORK_DPTR(obj);
 	return bitize(sf->hdr.i8count ?
 		      (uint)sizeof(xfs_dir2_ino8_t) :
 		      (uint)sizeof(xfs_dir2_ino4_t));
@@ -148,7 +134,7 @@ dir2_sf_entry_inumber_offset(
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
 	e = (xfs_dir2_sf_entry_t *)((char *)obj + byteize(startoff));
-	return bitize((int)((char *)XFS_DIR2_SF_INUMBERP(e) - (char *)e));
+	return bitize((int)((char *)xfs_dir2_sf_inumberp(e) - (char *)e));
 }
 
 int
@@ -163,10 +149,10 @@ dir2_sf_entry_size(
 
 	ASSERT(bitoffs(startoff) == 0);
 	sf = (xfs_dir2_sf_t *)((char *)obj + byteize(startoff));
-	e = XFS_DIR2_SF_FIRSTENTRY(sf);
+	e = xfs_dir2_sf_firstentry(sf);
 	for (i = 0; i < idx; i++)
-		e = XFS_DIR2_SF_NEXTENTRY(sf, e);
-	return bitize((int)XFS_DIR2_SF_ENTSIZE_BYENTRY(sf, e));
+		e = xfs_dir2_sf_nextentry(sf, e);
+	return bitize((int)xfs_dir2_sf_entsize_byentry(sf, e));
 }
 
 /*ARGSUSED*/
@@ -181,7 +167,7 @@ dir2_sf_hdr_size(
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
 	sf = (xfs_dir2_sf_t *)((char *)obj + byteize(startoff));
-	return bitize(XFS_DIR2_SF_HDR_SIZE(sf->hdr.i8count));
+	return bitize(xfs_dir2_sf_hdr_size(sf->hdr.i8count));
 }
 
 static int
@@ -208,9 +194,9 @@ dir2_sf_list_offset(
 
 	ASSERT(bitoffs(startoff) == 0);
 	sf = (xfs_dir2_sf_t *)((char *)obj + byteize(startoff));
-	e = XFS_DIR2_SF_FIRSTENTRY(sf);
+	e = xfs_dir2_sf_firstentry(sf);
 	for (i = 0; i < idx; i++)
-		e = XFS_DIR2_SF_NEXTENTRY(sf, e);
+		e = xfs_dir2_sf_nextentry(sf, e);
 	return bitize((int)((char *)e - (char *)sf));
 }
 
@@ -228,8 +214,8 @@ dir2sf_size(
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
 	sf = (xfs_dir2_sf_t *)((char *)obj + byteize(startoff));
-	e = XFS_DIR2_SF_FIRSTENTRY(sf);
+	e = xfs_dir2_sf_firstentry(sf);
 	for (i = 0; i < sf->hdr.count; i++)
-		e = XFS_DIR2_SF_NEXTENTRY(sf, e);
+		e = xfs_dir2_sf_nextentry(sf, e);
 	return bitize((int)((char *)e - (char *)sf));
 }

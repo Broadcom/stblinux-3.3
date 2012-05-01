@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -52,8 +38,8 @@ static void	print_somefields(const struct field *fields, int argc,
 				 char **argv);
 
 static const cmdinfo_t	print_cmd =
-	{ "print", "p", print_f, 0, -1, 0, "[value]...",
-	  "print field values", NULL };
+	{ "print", "p", print_f, 0, -1, 0, N_("[value]..."),
+	  N_("print field values"), NULL };
 
 static void
 print_allfields(
@@ -85,12 +71,12 @@ print_f(
 	pfunc_t	pf;
 
 	if (cur_typ == NULL) {
-		dbprintf("no current type\n");
+		dbprintf(_("no current type\n"));
 		return 0;
 	}
 	pf = cur_typ->pfunc;
 	if (pf == NULL) {
-		dbprintf("no print function for type %s\n", cur_typ->name);
+		dbprintf(_("no print function for type %s\n"), cur_typ->name);
 		return 0;
 	}
 	argc--;
@@ -164,7 +150,7 @@ print_flist_1(
 					dbprintf("\n");
 			} else {
 				ASSERT(fa->arg & FTARG_OKEMPTY);
-				dbprintf("(empty)\n");
+				dbprintf(_("(empty)\n"));
 			}
 		}
 		free_strvec(pfx);
@@ -226,7 +212,7 @@ print_sarray(
 					f->flags & FLD_ARRAY);
 			else {
 				ASSERT(fa->arg & FTARG_OKEMPTY);
-				dbprintf("(empty)");
+				dbprintf(_("(empty)"));
 			}
 		}
 		dbprintf("]");
@@ -286,7 +272,7 @@ print_string(
 	char		*cp;
 
 	if (argc != 0)
-		dbprintf("no arguments allowed\n");
+		dbprintf(_("no arguments allowed\n"));
 	dbprintf("\"");
 	for (cp = iocur_top->data;
 	     cp < (char *)iocur_top->data + iocur_top->len && *cp &&

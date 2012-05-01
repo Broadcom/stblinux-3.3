@@ -15,6 +15,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define pr_fmt(fmt)		"PCI: " fmt
+
 #include <linux/init.h>
 #include <linux/types.h>
 #include <linux/pci.h>
@@ -24,24 +26,13 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 #include <linux/clk.h>
+#include <linux/printk.h>
 #include <linux/brcmstb/brcmstb.h>
 
 /* NOTE: all PHYSICAL addresses */
 
-/* internal controller registers for configuration reads/writes */
-#define PCIE_CFG_INDEX		0x00
-#define PCIE_CFG_DATA		0x04
-
 /* Use assigned bus numbers so "ops" can tell the controllers apart */
 #define BRCM_BUSNO_PCIE		0x00
-
-#define SET_BRIDGE_RESET(x)	\
-	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, (x))
-#define SET_PERST(x)		\
-	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, (x))
-
-#define PCIE_IO_REG_START	BPHYSADDR(BCHP_PCIE_EXT_CFG_REG_START)
-#define PCIE_IO_REG_SIZE	0x00000008
 
 #define PCIE_OUTBOUND_WIN(win, start, len) do { \
 	BDEV_WR(BCHP_PCIE_MISC_CPU_2_PCIE_MEM_WIN##win##_LO, \
@@ -145,8 +136,8 @@ void brcm_early_pcie_setup(void)
 	struct wktmr_time tmp;
 
 	/* reset the bridge and the endpoint device */
-	SET_BRIDGE_RESET(1);
-	SET_PERST(1);
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, 1);
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, 1);
 
 	/* delay 100us */
 	wktmr_read(&tmp);
@@ -154,7 +145,7 @@ void brcm_early_pcie_setup(void)
 		;
 
 	/* take the bridge out of reset */
-	SET_BRIDGE_RESET(0);
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, 0);
 
 	/* enable SCB_MAX_BURST_SIZE | CSR_READ_UR_MODE | SCB_ACCESS_EN */
 	BDEV_WR(BCHP_PCIE_MISC_MISC_CTRL, 0x00103000);
@@ -191,7 +182,7 @@ void brcm_early_pcie_setup(void)
 	BDEV_WR_RB(BCHP_PCIE_INTR2_CPU_MASK_SET, 0xffffffff);
 
 	/* take the EP device out of reset */
-	SET_PERST(0);
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_SW_PERST, 0);
 
 	/* record the current time */
 	wktmr_read(&pcie_reset_started);
@@ -208,10 +199,14 @@ void brcm_setup_pcie_bridge(void)
 		brcm_pcie_enabled = 0;
 		if (clk)
 			clk_disable(clk);
-		printk(KERN_INFO "PCI: PCIe link down\n");
+		pr_info("PCIe link down\n");
 		return;
 	}
-	printk(KERN_INFO "PCI: PCIe link up\n");
+	pr_info("PCIe link up, %sGbps x%lu\n",
+		BDEV_RD_F(PCIE_RC_CFG_PCIE_LINK_STATUS_CONTROL,
+			  NEG_LINK_SPEED) == 0x2 ? "5.0" : "2.5",
+		BDEV_RD_F(PCIE_RC_CFG_PCIE_LINK_STATUS_CONTROL,
+			  NEG_LINK_WIDTH));
 
 	/* enable MEM_SPACE and BUS_MASTER for RC */
 	BDEV_WR(BCHP_PCIE_RC_CFG_TYPE1_STATUS_COMMAND, 0x6);
@@ -243,18 +238,12 @@ void brcm_setup_pcie_bridge(void)
 
 static int __init brcmstb_pci_init(void)
 {
-	unsigned long __maybe_unused reg_base;
-
 	if (brcm_pcie_enabled) {
 		brcm_setup_pcie_bridge();
-
-		request_mem_region(PCIE_IO_REG_START, PCIE_IO_REG_SIZE,
-			"External PCIe registers");
-		reg_base = (unsigned long)ioremap(PCIE_IO_REG_START,
-			PCIE_IO_REG_SIZE);
-
-		brcm_buses[BRCM_BUSNO_PCIE].idx_reg = reg_base + PCIE_CFG_INDEX;
-		brcm_buses[BRCM_BUSNO_PCIE].data_reg = reg_base + PCIE_CFG_DATA;
+		brcm_buses[BRCM_BUSNO_PCIE].idx_reg =
+			BVIRTADDR(BCHP_PCIE_EXT_CFG_PCIE_EXT_CFG_INDEX);
+		brcm_buses[BRCM_BUSNO_PCIE].data_reg =
+			BVIRTADDR(BCHP_PCIE_EXT_CFG_PCIE_EXT_CFG_DATA);
 
 		register_pci_controller(&brcmstb_pcie_controller);
 	}
@@ -366,8 +355,7 @@ static void __devinit brcm_pcibios_fixup(struct pci_dev *dev)
 {
 	int slot = PCI_SLOT(dev->devfn);
 
-	printk(KERN_INFO
-		"PCI: found device %04x:%04x on %s bus, slot %d (irq %d)\n",
+	pr_info("found device %04x:%04x on %s bus, slot %d (irq %d)\n",
 		dev->vendor, dev->device, brcm_buses[dev->bus->number].name,
 		slot, pcibios_map_irq(dev, slot, 1));
 

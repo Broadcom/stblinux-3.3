@@ -1,47 +1,27 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <xfs/libxfs.h>
-#include "command.h"
+#include <xfs/xfs.h>
+#include <xfs/command.h>
 #include "init.h"
+#include "io.h"
 
 static cmdinfo_t bmap_cmd;
-
-static int
-usage(void)
-{
-	printf("%s %s\n", bmap_cmd.name, bmap_cmd.oneline);
-	return 0;
-}
 
 static void
 bmap_help(void)
@@ -63,6 +43,9 @@ bmap_help(void)
 " -a -- prints the attribute fork map instead of the data fork.\n"
 " -d -- suppresses a DMAPI read event, offline portions shown as holes.\n"
 " -l -- also displays the length of each extent in 512-byte blocks.\n"
+" -n -- query n extents.\n"
+" -p -- obtain all unwritten extents as well (w/ -v show which are unwritten.)\n"
+" -v -- Verbose information, specify ag info.  Show flags legend on 2nd -v\n"
 " Note: the bmap for non-regular files can be obtained provided the file\n"
 " was opened appropriately (in particular, must be opened read-only).\n"
 "\n"));
@@ -87,17 +70,20 @@ bmap_f(
 {
 	struct fsxattr		fsx;
 	struct getbmapx		*map;
-	struct xfs_fsop_geom_v1	fsgeo;
+	struct xfs_fsop_geom	fsgeo;
 	int			map_size;
 	int			loop = 0;
 	int			flg = 0;
 	int			aflag = 0;
 	int			lflag = 0;
 	int			nflag = 0;
+	int			pflag = 0;
 	int			vflag = 0;
+	int			is_rt = 0;
 	int			bmv_iflags = 0;	/* flags for XFS_IOC_GETBMAPX */
 	int			i = 0;
 	int			c;
+	int			egcnt;
 
 	while ((c = getopt(argc, argv, "adln:pv")) != EOF) {
 		switch (c) {
@@ -117,30 +103,33 @@ bmap_f(
 			break;
 		case 'p':
 		/* report unwritten preallocated blocks */
+			pflag = 1;
 			bmv_iflags |= BMV_IF_PREALLOC;
 			break;
 		case 'v':	/* Verbose output */
 			vflag++;
 			break;
 		default:
-			return usage();
+			return command_usage(&bmap_cmd);
 		}
 	}
 	if (aflag)
 		bmv_iflags &= ~(BMV_IF_PREALLOC|BMV_IF_NO_DMAPI_READ);
 
 	if (vflag) {
-		if (xfsctl(fname, fdesc, XFS_IOC_FSGEOMETRY_V1, &fsgeo) < 0) {
+		c = xfsctl(file->name, file->fd, XFS_IOC_FSGEOMETRY_V1, &fsgeo);
+		if (c < 0) {
 			fprintf(stderr,
 				_("%s: can't get geometry [\"%s\"]: %s\n"),
-				progname, fname, strerror(errno));
+				progname, file->name, strerror(errno));
 			exitcode = 1;
 			return 0;
 		}
-		if ((xfsctl(fname, fdesc, XFS_IOC_FSGETXATTR, &fsx)) < 0) {
+		c = xfsctl(file->name, file->fd, XFS_IOC_FSGETXATTR, &fsx);
+		if (c < 0) {
 			fprintf(stderr,
 				_("%s: cannot read attrs on \"%s\": %s\n"),
-				progname, fname, strerror(errno));
+				progname, file->name, strerror(errno));
 			exitcode = 1;
 			return 0;
 		}
@@ -150,11 +139,11 @@ bmap_f(
 			 * ag info not applicable to rt, continue
 			 * without ag output.
 			 */
-			vflag = 0;
+			is_rt = 1;
 		}
 	}
 
-	map_size = nflag ? nflag+1 : 32;	/* initial guess - 256 */
+	map_size = nflag ? nflag+2 : 32;	/* initial guess - 32 */
 	map = malloc(map_size*sizeof(*map));
 	if (map == NULL) {
 		fprintf(stderr, _("%s: malloc of %d bytes failed.\n"),
@@ -165,7 +154,7 @@ bmap_f(
 
 
 /*	Try the xfsctl(XFS_IOC_GETBMAPX) for the number of extents specified
- *	by nflag, or the initial guess number of extents (256).
+ *	by nflag, or the initial guess number of extents (32).
  *
  *	If there are more extents than we guessed, use xfsctl
  *	(XFS_IOC_FSGETXATTR[A]) to get the extent count, realloc some more
@@ -193,13 +182,13 @@ bmap_f(
 
 	do {	/* loop a miximum of two times */
 
-		bzero(map, sizeof(*map));	/* zero header */
+		memset(map, 0, sizeof(*map));	/* zero header */
 
 		map->bmv_length = -1;
 		map->bmv_count = map_size;
 		map->bmv_iflags = bmv_iflags;
 
-		i = xfsctl(fname, fdesc, XFS_IOC_GETBMAPX, map);
+		i = xfsctl(file->name, file->fd, XFS_IOC_GETBMAPX, map);
 		if (i < 0) {
 			if (   errno == EINVAL
 			    && !aflag && filesize() == 0) {
@@ -207,7 +196,7 @@ bmap_f(
 			} else	{
 				fprintf(stderr, _("%s: xfsctl(XFS_IOC_GETBMAPX)"
 					" iflags=0x%x [\"%s\"]: %s\n"),
-					progname, map->bmv_iflags, fname,
+					progname, map->bmv_iflags, file->name,
 					strerror(errno));
 				free(map);
 				exitcode = 1;
@@ -221,18 +210,18 @@ bmap_f(
 		/* Get number of extents from xfsctl XFS_IOC_FSGETXATTR[A]
 		 * syscall.
 		 */
-		i = xfsctl(fname, fdesc, aflag ?
+		i = xfsctl(file->name, file->fd, aflag ?
 				XFS_IOC_FSGETXATTRA : XFS_IOC_FSGETXATTR, &fsx);
 		if (i < 0) {
 			fprintf(stderr, "%s: xfsctl(XFS_IOC_FSGETXATTR%s) "
 				"[\"%s\"]: %s\n", progname, aflag ? "A" : "",
-				fname, strerror(errno));
+				file->name, strerror(errno));
 			free(map);
 			exitcode = 1;
 			return 0;
 		}
-		if (fsx.fsx_nextents >= map_size-1) {
-			map_size = 2*(fsx.fsx_nextents+1);
+		if (2 * fsx.fsx_nextents > map_size) {
+			map_size = 2 * fsx.fsx_nextents + 1;
 			map = realloc(map, map_size*sizeof(*map));
 			if (map == NULL) {
 				fprintf(stderr,
@@ -245,14 +234,15 @@ bmap_f(
 	} while (++loop < 2);
 	if (!nflag) {
 		if (map->bmv_entries <= 0) {
-			printf(_("%s: no extents\n"), fname);
+			printf(_("%s: no extents\n"), file->name);
 			free(map);
 			return 0;
 		}
 	}
-	printf("%s:\n", fname);
+	egcnt = nflag ? min(nflag, map->bmv_entries) : map->bmv_entries;
+	printf("%s:\n", file->name);
 	if (!vflag) {
-		for (i = 0; i < map->bmv_entries; i++) {
+		for (i = 0; i < egcnt; i++) {
 			printf("\t%d: [%lld..%lld]: ", i,
 				(long long) map[i + 1].bmv_offset,
 				(long long)(map[i + 1].bmv_offset +
@@ -281,7 +271,6 @@ bmap_f(
 #define MINRANGE_WIDTH	16
 #define MINAG_WIDTH	2
 #define MINTOT_WIDTH	5
-#define	max(a,b)	(a > b ? a : b)
 #define NFLG		5	/* count of flags */
 #define	FLG_NULL	000000	/* Null flag */
 #define	FLG_PRE		010000	/* Unwritten extent */
@@ -297,17 +286,21 @@ bmap_f(
 
 		foff_w = boff_w = aoff_w = MINRANGE_WIDTH;
 		tot_w = MINTOT_WIDTH;
-		bbperag = (off64_t)fsgeo.agblocks *
-			  (off64_t)fsgeo.blocksize / BBSIZE;
-		sunit = fsgeo.sunit;
-		swidth = fsgeo.swidth;
-		flg = sunit;
+		if (is_rt)
+			sunit = swidth = bbperag = 0;
+		else {
+			bbperag = (off64_t)fsgeo.agblocks *
+				  (off64_t)fsgeo.blocksize / BBSIZE;
+			sunit = (fsgeo.sunit * fsgeo.blocksize) / BBSIZE;
+			swidth = (fsgeo.swidth * fsgeo.blocksize) / BBSIZE;
+		}
+		flg = sunit | pflag;
 
 		/*
 		 * Go through the extents and figure out the width
 		 * needed for all columns.
 		 */
-		for (i = 0; i < map->bmv_entries; i++) {
+		for (i = 0; i < egcnt; i++) {
 			snprintf(rbuf, sizeof(rbuf), "[%lld..%lld]:",
 				(long long) map[i + 1].bmv_offset,
 				(long long)(map[i + 1].bmv_offset +
@@ -323,32 +316,42 @@ bmap_f(
 					(long long) map[i + 1].bmv_block,
 					(long long)(map[i + 1].bmv_block +
 						map[i + 1].bmv_length - 1LL));
-				agno = map[i + 1].bmv_block / bbperag;
-				agoff = map[i + 1].bmv_block - (agno * bbperag);
-				snprintf(abuf, sizeof(abuf), "(%lld..%lld)",
-					(long long)agoff,  (long long)
-					(agoff + map[i + 1].bmv_length - 1LL));
-				foff_w = max(foff_w, strlen(rbuf));
 				boff_w = max(boff_w, strlen(bbuf));
-				aoff_w = max(aoff_w, strlen(abuf));
+				if (!is_rt) {
+					agno = map[i + 1].bmv_block / bbperag;
+					agoff = map[i + 1].bmv_block -
+							(agno * bbperag);
+					snprintf(abuf, sizeof(abuf),
+						"(%lld..%lld)",
+						(long long)agoff,
+						(long long)(agoff +
+						 map[i + 1].bmv_length - 1LL));
+					aoff_w = max(aoff_w, strlen(abuf));
+				} else
+					aoff_w = 0;
+				foff_w = max(foff_w, strlen(rbuf));
 				tot_w = max(tot_w,
 					numlen(map[i+1].bmv_length));
 			}
 		}
-		agno_w = max(MINAG_WIDTH, numlen(fsgeo.agcount));
+		agno_w = is_rt ? 0 : max(MINAG_WIDTH, numlen(fsgeo.agcount));
 		printf("%4s: %-*s %-*s %*s %-*s %*s%s\n",
 			_("EXT"),
 			foff_w, _("FILE-OFFSET"),
-			boff_w, _("BLOCK-RANGE"),
-			agno_w, _("AG"),
-			aoff_w, _("AG-OFFSET"),
+			boff_w, is_rt ? _("RT-BLOCK-RANGE") : _("BLOCK-RANGE"),
+			agno_w, is_rt ? "" : _("AG"),
+			aoff_w, is_rt ? "" : _("AG-OFFSET"),
 			tot_w, _("TOTAL"),
 			flg ? _(" FLAGS") : "");
-		for (i = 0; i < map->bmv_entries; i++) {
+		for (i = 0; i < egcnt; i++) {
 			flg = FLG_NULL;
 			if (map[i + 1].bmv_oflags & BMV_OF_PREALLOC) {
 				flg |= FLG_PRE;
 			}
+			/*
+			 * If striping enabled, determine if extent starts/ends
+			 * on a stripe unit boundary.
+			 */
 			if (sunit) {
 				if (map[i + 1].bmv_block  % sunit != 0) {
 					flg |= FLG_BSU;
@@ -382,26 +385,31 @@ bmap_f(
 					(long long) map[i + 1].bmv_block,
 					(long long)(map[i + 1].bmv_block +
 						map[i + 1].bmv_length - 1LL));
-				agno = map[i + 1].bmv_block / bbperag;
-				agoff = map[i + 1].bmv_block - (agno * bbperag);
-				snprintf(abuf, sizeof(abuf), "(%lld..%lld)",
-					(long long)agoff,  (long long)
-					(agoff + map[i + 1].bmv_length - 1LL));
-				printf("%4d: %-*s %-*s %*d %-*s %*lld",
-					i,
-					foff_w, rbuf,
-					boff_w, bbuf,
-					agno_w, agno,
-					aoff_w, abuf,
-					tot_w, (long long)map[i+1].bmv_length);
-				if (flg == FLG_NULL) {
+				printf("%4d: %-*s %-*s", i, foff_w, rbuf,
+					boff_w, bbuf);
+				if (!is_rt) {
+					agno = map[i + 1].bmv_block / bbperag;
+					agoff = map[i + 1].bmv_block -
+							(agno * bbperag);
+					snprintf(abuf, sizeof(abuf),
+						"(%lld..%lld)",
+						(long long)agoff,
+						(long long)(agoff +
+						 map[i + 1].bmv_length - 1LL));
+					printf(" %*d %-*s", agno_w, agno,
+						aoff_w, abuf);
+				} else
+					printf("  ");
+				printf(" %*lld", tot_w,
+					(long long)map[i+1].bmv_length);
+				if (flg == FLG_NULL && !pflag) {
 					printf("\n");
 				} else {
 					printf(" %-*.*o\n", NFLG, NFLG, flg);
 				}
 			}
 		}
-		if (flg && vflag > 1) {
+		if ((flg || pflag) && vflag > 1) {
 			printf(_(" FLAG Values:\n"));
 			printf(_("    %*.*o Unwritten preallocated extent\n"),
 				NFLG+1, NFLG+1, FLG_PRE);
@@ -422,10 +430,11 @@ bmap_f(
 void
 bmap_init(void)
 {
-	bmap_cmd.name = _("bmap");
+	bmap_cmd.name = "bmap";
 	bmap_cmd.cfunc = bmap_f;
 	bmap_cmd.argmin = 0;
 	bmap_cmd.argmax = -1;
+	bmap_cmd.flags = CMD_NOMAP_OK;
 	bmap_cmd.args = _("[-adlpv] [-n nx]");
 	bmap_cmd.oneline = _("print block mapping for an XFS file");
 	bmap_cmd.help = bmap_help;

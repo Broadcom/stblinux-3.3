@@ -1,37 +1,61 @@
 #
-# Makefile for xfsprogs top level
+# General settings
 #
-# 09/05/03 Ton Truong <ttruong@broadcom.com>
+# for $(CROSS), $(CC), $(STRIPTOOL)
+
+include $(ROOTDIR)/config.arch
+
+BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
+SHELL			:= bash
+CFLAGS			:= -Os
+
+XFSPROGS_DIR		:= $(shell pwd)
+
+CFLAGS			+= -I$(XFSPROGS_DIR) -I$(ROOTDIR)/user/e2fsprogs/lib
+LDFLAGS			+= -L$(ROOTDIR)/user/e2fsprogs/lib 
+
+export CC CFLAGS
+
+XFSPROGS_TOOLS_PATH	:= copy/xfs_copy db/xfs_db estimate/xfs_estimate  \
+			fsck/xfs_fsck.sh fsr/xfs_fsr growfs/xfs_growfs  \
+			io/xfs_io logprint/xfs_logprint mkfs/mkfs.xfs  \
+			quota/xfs_quota mdrestore/xfs_mdrestore  \
+			repair/xfs_repair rtcp/xfs_rtcp 
+
+TOOL_SUBDIRS		:= $(dir $(XFSPROGS_TOOLS_PATH))
+
 #
-TOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
-XFSPROGS_DIR=$(shell pwd)
+# These are the options passed to the configure script called from Makefile
+#
+LOCAL_CONFIGURE_OPTIONS	:= --host=$(MACHINE)-linux \
+			--disable-shared --enable-gettext=no
 
-#CFLAGS += -I$(TOOL_DIR_PREFIX)/mipsel-linux/include/linux/xfs_support/
-CFLAGS += \
-		-I$(XFSPROGS_DIR) -I$(XFSPROGS_DIR)/include -I. \
-		-I$(ROOTDIR)/user/e2fsprogs/lib \
-		-D _LARGEFILE_SOURCE -D _LARGEFILE64_SOURCE \
-		-D __USE_LARGEFILE64 -D __USE_FILE_OFFSET64 \
-		-DHAVE_BUILDDEFS -DHAVE_32BIT_LONG -DHAVE_32BIT_PTR \
-		-DVERSION="\"2.5.6\"" -fPIC
-LDFLAGS += -L$(ROOTDIR)/user/e2fsprogs/lib
+#
+# Build targets
+#
+.PHONY: all
+all::
+	$(MAKE) -j1 -f Makefile TOOL_SUBDIRS="$(TOOL_SUBDIRS)" \
+		LOCAL_CONFIGURE_OPTIONS="$(LOCAL_CONFIGURE_OPTIONS)" \
+		ac_cv_header_aio_h=yes \
+		ac_cv_lib_rt_lio_listio=yes
 
-.EXPORT_ALL_VARIABLES:
+.PHONY: distclean
+distclean::
+	$(MAKE) -f Makefile distclean
 
+.PHONY: romfs
+romfs::
+	for x in $(XFSPROGS_TOOLS_PATH); do \
+		[[ "$$x" != *.sh ]] && $(STRIPTOOL) $$x; \
+		$(ROMFSINST) -e CONFIG_USER_XFS_XFSPROGS $$x /bin/ || \
+			exit 1; \
+	done
 
-# THT Took out uuid.  Library now available in romfs/lib:wq
-# jipeng - remove libxfs to avoid building host side utils
-DIRS =  libdisk libxfs libxlog fsck mkfs repair
+# These targets must not be passed through to the original Makefile
+.PHONY: $(BOGUS_TARGETS)
+$(BOGUS_TARGETS)::
 
-all:
-	-$(RM) xfs && ln -s include ./xfs
-	-$(RM) disk && ln -s include ./disk
-	-$(RM) log && ln -s include ./log
-	for i in $(DIRS) ; do make -C $$i || exit 1 ; done
-
-romfs:
-	for i in $(DIRS) ; do make -C $$i romfs || exit 1 ; done
-
-clean:
-	-for i in $(DIRS) ; do make -C $$i clean ; done
-	-$(RM) xfs disk log
+# Everything else (maybe including clean, distclean) does get passed through
+%:: FORCE
+	$(MAKE) -f Makefile $@

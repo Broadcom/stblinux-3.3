@@ -241,6 +241,10 @@ struct rbufRegs {
 	unsigned long rbuf_energy_ctrl;		/* (9c) */
 	unsigned long rbuf_pd_sram_ctrl;	/* (a0) */
 	unsigned long rbuf_test_mux_ctrl;	/* (a4) */
+	unsigned long rbuf_spare_reg0;		/* (a8) */
+	unsigned long rbuf_spare_reg1;		/* (ac) */
+	unsigned long rbuf_spare_reg2;		/* (b0) */
+	unsigned long rbuf_tbuf_size_ctrl;	/* (b4) */
 #endif
 };
 

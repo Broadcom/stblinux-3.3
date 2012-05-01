@@ -1,38 +1,27 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
 #include "command.h"
 #include "type.h"
+#include "fprint.h"
+#include "faddr.h"
+#include "field.h"
 #include "bmap.h"
 #include "io.h"
 #include "inode.h"
@@ -40,15 +29,15 @@
 #include "init.h"
 
 static int		bmap_f(int argc, char **argv);
-static int		bmap_one_extent(xfs_bmbt_rec_64_t *ep,
+static int		bmap_one_extent(xfs_bmbt_rec_t *ep,
 					xfs_dfiloff_t *offp, xfs_dfiloff_t eoff,
 					int *idxp, bmap_ext_t *bep);
 static xfs_fsblock_t	select_child(xfs_dfiloff_t off, xfs_bmbt_key_t *kp,
 				     xfs_bmbt_ptr_t *pp, int nrecs);
 
 static const cmdinfo_t	bmap_cmd =
-	{ "bmap", NULL, bmap_f, 0, 3, 0, "[-ad] [block [len]]",
-	  "show block map for current file", NULL };
+	{ "bmap", NULL, bmap_f, 0, 3, 0, N_("[-ad] [block [len]]"),
+	  N_("show block map for current file"), NULL };
 
 void
 bmap(
@@ -58,12 +47,12 @@ bmap(
 	int			*nexp,
 	bmap_ext_t		*bep)
 {
-	xfs_bmbt_block_t	*block;
+	struct xfs_btree_block	*block;
 	xfs_fsblock_t		bno;
 	xfs_dfiloff_t		curoffset;
 	xfs_dinode_t		*dip;
 	xfs_dfiloff_t		eoffset;
-	xfs_bmbt_rec_64_t	*ep;
+	xfs_bmbt_rec_t		*ep;
 	xfs_dinode_fmt_t	fmt;
 	int			fsize;
 	xfs_bmbt_key_t		*kp;
@@ -74,7 +63,7 @@ bmap(
 	xfs_bmbt_ptr_t		*pp;
 	xfs_bmdr_block_t	*rblock;
 	typnm_t			typ;
-	xfs_bmbt_rec_64_t	*xp;
+	xfs_bmbt_rec_t		*xp;
 
 	push_cur();
 	set_cur_inode(iocur_top->ino);
@@ -85,51 +74,44 @@ bmap(
 	n = 0;
 	eoffset = offset + len - 1;
 	curoffset = offset;
-	fmt = (xfs_dinode_fmt_t)XFS_DFORK_FORMAT_ARCH(dip, whichfork, ARCH_CONVERT);
+	fmt = (xfs_dinode_fmt_t)XFS_DFORK_FORMAT(dip, whichfork);
 	typ = whichfork == XFS_DATA_FORK ? TYP_BMAPBTD : TYP_BMAPBTA;
 	ASSERT(typtab[typ].typnm == typ);
-	ASSERT(fmt == XFS_DINODE_FMT_EXTENTS || fmt == XFS_DINODE_FMT_BTREE);
+	ASSERT(fmt == XFS_DINODE_FMT_LOCAL || fmt == XFS_DINODE_FMT_EXTENTS ||
+		fmt == XFS_DINODE_FMT_BTREE);
 	if (fmt == XFS_DINODE_FMT_EXTENTS) {
-		nextents = XFS_DFORK_NEXTENTS_ARCH(dip, whichfork, ARCH_CONVERT);
-		xp = (xfs_bmbt_rec_64_t *)XFS_DFORK_PTR_ARCH(dip, whichfork, ARCH_CONVERT);
+		nextents = XFS_DFORK_NEXTENTS(dip, whichfork);
+		xp = (xfs_bmbt_rec_t *)XFS_DFORK_PTR(dip, whichfork);
 		for (ep = xp; ep < &xp[nextents] && n < nex; ep++) {
 			if (!bmap_one_extent(ep, &curoffset, eoffset, &n, bep))
 				break;
 		}
-	} else {
+	} else if (fmt == XFS_DINODE_FMT_BTREE) {
 		push_cur();
 		bno = NULLFSBLOCK;
-		rblock = (xfs_bmdr_block_t *)XFS_DFORK_PTR_ARCH(dip, whichfork, ARCH_CONVERT);
-		fsize = XFS_DFORK_SIZE_ARCH(dip, mp, whichfork, ARCH_CONVERT);
-		pp = XFS_BTREE_PTR_ADDR(fsize, xfs_bmdr, rblock, 1,
-			XFS_BTREE_BLOCK_MAXRECS(fsize, xfs_bmdr, 0));
-		kp = XFS_BTREE_KEY_ADDR(fsize, xfs_bmdr, rblock, 1,
-			XFS_BTREE_BLOCK_MAXRECS(fsize, xfs_bmdr, 0));
-		bno = select_child(curoffset, kp, pp, INT_GET(rblock->bb_numrecs, ARCH_CONVERT));
+		rblock = (xfs_bmdr_block_t *)XFS_DFORK_PTR(dip, whichfork);
+		fsize = XFS_DFORK_SIZE(dip, mp, whichfork);
+		pp = XFS_BMDR_PTR_ADDR(rblock, 1, xfs_bmdr_maxrecs(mp, fsize, 0));
+		kp = XFS_BMDR_KEY_ADDR(rblock, 1);
+		bno = select_child(curoffset, kp, pp, 
+					be16_to_cpu(rblock->bb_numrecs));
 		for (;;) {
 			set_cur(&typtab[typ], XFS_FSB_TO_DADDR(mp, bno),
 				blkbb, DB_RING_IGN, NULL);
-			block = (xfs_bmbt_block_t *)iocur_top->data;
-			if (INT_GET(block->bb_level, ARCH_CONVERT) == 0)
+			block = (struct xfs_btree_block *)iocur_top->data;
+			if (be16_to_cpu(block->bb_level) == 0)
 				break;
-			pp = XFS_BTREE_PTR_ADDR(mp->m_sb.sb_blocksize, xfs_bmbt,
-				block, 1,
-				XFS_BTREE_BLOCK_MAXRECS(mp->m_sb.sb_blocksize,
-					xfs_bmbt, 0));
-			kp = XFS_BTREE_KEY_ADDR(mp->m_sb.sb_blocksize, xfs_bmbt,
-				block, 1,
-				XFS_BTREE_BLOCK_MAXRECS(mp->m_sb.sb_blocksize,
-					xfs_bmbt, 0));
+			pp = XFS_BMDR_PTR_ADDR(block, 1,
+				xfs_bmbt_maxrecs(mp, mp->m_sb.sb_blocksize, 0));
+			kp = XFS_BMDR_KEY_ADDR(block, 1);
 			bno = select_child(curoffset, kp, pp,
-				INT_GET(block->bb_numrecs, ARCH_CONVERT));
+					be16_to_cpu(block->bb_numrecs));
 		}
 		for (;;) {
-			nextbno = INT_GET(block->bb_rightsib, ARCH_CONVERT);
-			nextents = INT_GET(block->bb_numrecs, ARCH_CONVERT);
-			xp = (xfs_bmbt_rec_64_t *)XFS_BTREE_REC_ADDR(
-				mp->m_sb.sb_blocksize, xfs_bmbt, block, 1,
-				XFS_BTREE_BLOCK_MAXRECS(mp->m_sb.sb_blocksize,
-					xfs_bmbt, 1));
+			nextbno = be64_to_cpu(block->bb_u.l.bb_rightsib);
+			nextents = be16_to_cpu(block->bb_numrecs);
+			xp = (xfs_bmbt_rec_t *)
+				XFS_BMBT_REC_ADDR(mp, block, 1);
 			for (ep = xp; ep < &xp[nextents] && n < nex; ep++) {
 				if (!bmap_one_extent(ep, &curoffset, eoffset,
 						&n, bep)) {
@@ -142,7 +124,7 @@ bmap(
 				break;
 			set_cur(&typtab[typ], XFS_FSB_TO_DADDR(mp, bno),
 				blkbb, DB_RING_IGN, NULL);
-			block = (xfs_bmbt_block_t *)iocur_top->data;
+			block = (struct xfs_btree_block *)iocur_top->data;
 		}
 		pop_cur();
 	}
@@ -158,7 +140,7 @@ bmap_f(
 	int		afork = 0;
 	bmap_ext_t	be;
 	int		c;
-	xfs_dfiloff_t	co;
+	xfs_dfiloff_t	co, cosave;
 	int		dfork = 0;
 	xfs_dinode_t	*dip;
 	xfs_dfiloff_t	eo;
@@ -168,7 +150,7 @@ bmap_f(
 	int		whichfork;
 
 	if (iocur_top->ino == NULLFSINO) {
-		dbprintf("no current inode\n");
+		dbprintf(_("no current inode\n"));
 		return 0;
 	}
 	optind = 0;
@@ -181,7 +163,7 @@ bmap_f(
 			dfork = 1;
 			break;
 		default:
-			dbprintf("bad option for bmap command\n");
+			dbprintf(_("bad option for bmap command\n"));
 			return 0;
 		}
 	}
@@ -189,16 +171,16 @@ bmap_f(
 		push_cur();
 		set_cur_inode(iocur_top->ino);
 		dip = iocur_top->data;
-		if (INT_GET(dip->di_core.di_nextents, ARCH_CONVERT))
+		if (be32_to_cpu(dip->di_nextents))
 			dfork = 1;
-		if (INT_GET(dip->di_core.di_anextents, ARCH_CONVERT))
+		if (be16_to_cpu(dip->di_anextents))
 			afork = 1;
 		pop_cur();
 	}
 	if (optind < argc) {
 		co = (xfs_dfiloff_t)strtoull(argv[optind], &p, 0);
 		if (*p != '\0') {
-			dbprintf("bad block number for bmap %s\n",
+			dbprintf(_("bad block number for bmap %s\n"),
 				argv[optind]);
 			return 0;
 		}
@@ -206,7 +188,7 @@ bmap_f(
 		if (optind < argc) {
 			len = (xfs_dfilblks_t)strtoull(argv[optind], &p, 0);
 			if (*p != '\0') {
-				dbprintf("bad len for bmap %s\n", argv[optind]);
+				dbprintf(_("bad len for bmap %s\n"), argv[optind]);
 				return 0;
 			}
 			eo = co + len - 1;
@@ -216,6 +198,7 @@ bmap_f(
 		co = 0;
 		eo = -1;
 	}
+	cosave = co;
 	for (whichfork = XFS_DATA_FORK;
 	     whichfork <= XFS_ATTR_FORK;
 	     whichfork++) {
@@ -228,15 +211,16 @@ bmap_f(
 			bmap(co, eo - co + 1, whichfork, &nex, &be);
 			if (nex == 0)
 				break;
-			dbprintf("%s offset %lld startblock %llu (%u/%u) count "
-				 "%llu flag %u\n",
-				whichfork == XFS_DATA_FORK ? "data" : "attr",
+			dbprintf(_("%s offset %lld startblock %llu (%u/%u) count "
+				 "%llu flag %u\n"),
+				whichfork == XFS_DATA_FORK ? _("data") : _("attr"),
 				be.startoff, be.startblock,
 				XFS_FSB_TO_AGNO(mp, be.startblock),
 				XFS_FSB_TO_AGBNO(mp, be.startblock),
 				be.blockcount, be.flag);
 			co = be.startoff + be.blockcount;
 		}
+		co = cosave;
 	}
 	return 0;
 }
@@ -249,7 +233,7 @@ bmap_init(void)
 
 static int
 bmap_one_extent(
-	xfs_bmbt_rec_64_t	*ep,
+	xfs_bmbt_rec_t		*ep,
 	xfs_dfiloff_t		*offp,
 	xfs_dfiloff_t		eoff,
 	int			*idxp,
@@ -287,27 +271,20 @@ bmap_one_extent(
 
 void
 convert_extent(
-	xfs_bmbt_rec_64_t	*rp,
+	xfs_bmbt_rec_t		*rp,
 	xfs_dfiloff_t		*op,
 	xfs_dfsbno_t		*sp,
 	xfs_dfilblks_t		*cp,
 	int			*fp)
 {
-	xfs_bmbt_irec_t irec, *s = &irec;
-	xfs_bmbt_rec_t rpcopy, *p = &rpcopy;
+	xfs_bmbt_irec_t		irec;
 
-	memmove(&rpcopy, rp, sizeof(rpcopy));
-	libxfs_bmbt_disk_get_all(p, s);
+	libxfs_bmbt_disk_get_all(rp, &irec);
 
-	if (s->br_state == XFS_EXT_UNWRITTEN) {
-		*fp = 1;
-	} else {
-		*fp = 0;
-	}
-
-	*op = s->br_startoff;
-	*sp = s->br_startblock;
-	*cp = s->br_blockcount;
+	*fp = irec.br_state == XFS_EXT_UNWRITTEN;
+	*op = irec.br_startoff;
+	*sp = irec.br_startblock;
+	*cp = irec.br_blockcount;
 }
 
 void
@@ -342,14 +319,14 @@ select_child(
 	int		i;
 
 	for (i = 0; i < nrecs; i++) {
-		if (INT_GET(kp[i].br_startoff, ARCH_CONVERT) == off)
-			return INT_GET(pp[i], ARCH_CONVERT);
-		if (INT_GET(kp[i].br_startoff, ARCH_CONVERT) > off) {
+		if (be64_to_cpu(kp[i].br_startoff) == off)
+			return be64_to_cpu(pp[i]);
+		if (be64_to_cpu(kp[i].br_startoff) > off) {
 			if (i == 0)
-				return INT_GET(pp[i], ARCH_CONVERT);
+				return be64_to_cpu(pp[i]);
 			else
-				return INT_GET(pp[i - 1], ARCH_CONVERT);
+				return be64_to_cpu(pp[i - 1]);
 		}
 	}
-	return INT_GET(pp[nrecs - 1], ARCH_CONVERT);
+	return be64_to_cpu(pp[nrecs - 1]);
 }

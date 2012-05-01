@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000, 2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef __XFS_BIT_H__
 #define	__XFS_BIT_H__
@@ -37,44 +23,57 @@
  */
 
 /*
- * masks with n high/low bits set, 32-bit values & 64-bit values
+ * masks with n high/low bits set, 64-bit values
  */
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_MASK32HI)
-__uint32_t xfs_mask32hi(int n);
-#define	XFS_MASK32HI(n)		xfs_mask32hi(n)
-#else
-#define	XFS_MASK32HI(n)		((__uint32_t)-1 << (32 - (n)))
-#endif
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_MASK64HI)
-__uint64_t xfs_mask64hi(int n);
-#define	XFS_MASK64HI(n)		xfs_mask64hi(n)
-#else
-#define	XFS_MASK64HI(n)		((__uint64_t)-1 << (64 - (n)))
-#endif
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_MASK32LO)
-__uint32_t xfs_mask32lo(int n);
-#define	XFS_MASK32LO(n)		xfs_mask32lo(n)
-#else
-#define	XFS_MASK32LO(n)		(((__uint32_t)1 << (n)) - 1)
-#endif
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_MASK64LO)
-__uint64_t xfs_mask64lo(int n);
-#define	XFS_MASK64LO(n)		xfs_mask64lo(n)
-#else
-#define	XFS_MASK64LO(n)		(((__uint64_t)1 << (n)) - 1)
-#endif
+static inline __uint64_t xfs_mask64hi(int n)
+{
+	return (__uint64_t)-1 << (64 - (n));
+}
+static inline __uint32_t xfs_mask32lo(int n)
+{
+	return ((__uint32_t)1 << (n)) - 1;
+}
+static inline __uint64_t xfs_mask64lo(int n)
+{
+	return ((__uint64_t)1 << (n)) - 1;
+}
 
 /* Get high bit set out of 32-bit argument, -1 if none set */
-extern int xfs_highbit32(__uint32_t v);
-
-/* Get low bit set out of 64-bit argument, -1 if none set */
-extern int xfs_lowbit64(__uint64_t v);
+static inline int xfs_highbit32(__uint32_t v)
+{
+	return fls(v) - 1;
+}
 
 /* Get high bit set out of 64-bit argument, -1 if none set */
-extern int xfs_highbit64(__uint64_t);
+static inline int xfs_highbit64(__uint64_t v)
+{
+	return fls64(v) - 1;
+}
 
-/* Count set bits in map starting with start_bit */
-extern int xfs_count_bits(uint *map, uint size, uint start_bit);
+/* Get low bit set out of 32-bit argument, -1 if none set */
+static inline int xfs_lowbit32(__uint32_t v)
+{
+	return ffs(v) - 1;
+}
+
+/* Get low bit set out of 64-bit argument, -1 if none set */
+static inline int xfs_lowbit64(__uint64_t v)
+{
+	__uint32_t	w = (__uint32_t)v;
+	int		n = 0;
+
+	if (w) {	/* lower bits */
+		n = ffs(w);
+	} else {	/* upper bits */
+		w = (__uint32_t)(v >> 32);
+		if (w && (n = ffs(w)))
+		n += 32;
+	}
+	return n - 1;
+}
+
+/* Return whether bitmap is empty (1 == empty) */
+extern int xfs_bitmap_empty(uint *map, uint size);
 
 /* Count continuous one bits in map starting with start_bit */
 extern int xfs_contig_bits(uint *map, uint size, uint start_bit);

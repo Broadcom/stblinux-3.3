@@ -1,96 +1,59 @@
 /*
- * Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef __XFS_IALLOC_H__
 #define	__XFS_IALLOC_H__
 
 struct xfs_buf;
 struct xfs_dinode;
+struct xfs_imap;
 struct xfs_mount;
 struct xfs_trans;
 
 /*
  * Allocation parameters for inode allocation.
  */
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_IALLOC_INODES)
-int xfs_ialloc_inodes(struct xfs_mount *mp);
-#define	XFS_IALLOC_INODES(mp)	xfs_ialloc_inodes(mp)
-#else
-#define	XFS_IALLOC_INODES(mp)	((mp)->m_ialloc_inos)
-#endif
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_IALLOC_BLOCKS)
-xfs_extlen_t xfs_ialloc_blocks(struct xfs_mount *mp);
-#define	XFS_IALLOC_BLOCKS(mp)	xfs_ialloc_blocks(mp)
-#else
-#define	XFS_IALLOC_BLOCKS(mp)	((mp)->m_ialloc_blks)
-#endif
+#define	XFS_IALLOC_INODES(mp)	(mp)->m_ialloc_inos
+#define	XFS_IALLOC_BLOCKS(mp)	(mp)->m_ialloc_blks
 
 /*
- * For small block file systems, move inodes in clusters of this size.
- * When we don't have a lot of memory, however, we go a bit smaller
- * to reduce the number of AGI and ialloc btree blocks we need to keep
- * around for xfs_dilocate().  We choose which one to use in
- * xfs_mount_int().
+ * Move inodes in clusters of this size.
  */
 #define	XFS_INODE_BIG_CLUSTER_SIZE	8192
-#define	XFS_INODE_SMALL_CLUSTER_SIZE	4096
 #define	XFS_INODE_CLUSTER_SIZE(mp)	(mp)->m_inode_cluster_size
 
 /*
  * Make an inode pointer out of the buffer/offset.
  */
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_MAKE_IPTR)
-struct xfs_dinode *xfs_make_iptr(struct xfs_mount *mp, struct xfs_buf *b, int o);
-#define	XFS_MAKE_IPTR(mp,b,o)		xfs_make_iptr(mp,b,o)
-#else
-#define	XFS_MAKE_IPTR(mp,b,o) \
-	((xfs_dinode_t *)(xfs_buf_offset(b, (o) << (mp)->m_sb.sb_inodelog)))
-#endif
+static inline struct xfs_dinode *
+xfs_make_iptr(struct xfs_mount *mp, struct xfs_buf *b, int o)
+{
+	return (xfs_dinode_t *)
+		(xfs_buf_offset(b, o << (mp)->m_sb.sb_inodelog));
+}
 
 /*
  * Find a free (set) bit in the inode bitmask.
  */
-#if XFS_WANT_FUNCS || (XFS_WANT_SPACE && XFSSO_XFS_IALLOC_FIND_FREE)
-int xfs_ialloc_find_free(xfs_inofree_t *fp);
-#define	XFS_IALLOC_FIND_FREE(fp)	xfs_ialloc_find_free(fp)
-#else
-#define	XFS_IALLOC_FIND_FREE(fp)	xfs_lowbit64(*(fp))
-#endif
+static inline int xfs_ialloc_find_free(xfs_inofree_t *fp)
+{
+	return xfs_lowbit64(*fp);
+}
 
-
-#ifdef __KERNEL__
-
-/*
- * Prototypes for visible xfs_ialloc.c routines.
- */
 
 /*
  * Allocate an inode on disk.
@@ -134,20 +97,20 @@ xfs_dialloc(
 int					/* error */
 xfs_difree(
 	struct xfs_trans *tp,		/* transaction pointer */
-	xfs_ino_t	inode);		/* inode to be freed */
+	xfs_ino_t	inode,		/* inode to be freed */
+	struct xfs_bmap_free *flist,	/* extents to free */
+	int		*delete,	/* set if inode cluster was deleted */
+	xfs_ino_t	*first_ino);	/* first inode in deleted cluster */
 
 /*
- * Return the location of the inode in bno/len/off,
- * for mapping it into a buffer.
+ * Return the location of the inode in imap, for mapping it into a buffer.
  */
 int
-xfs_dilocate(
+xfs_imap(
 	struct xfs_mount *mp,		/* file system mount structure */
 	struct xfs_trans *tp,		/* transaction pointer */
 	xfs_ino_t	ino,		/* inode to locate */
-	xfs_fsblock_t	*bno,		/* output: block containing inode */
-	int		*len,		/* output: num blocks in cluster*/
-	int		*off,		/* output: index in block of inode */
+	struct xfs_imap	*imap,		/* location map structure */
 	uint		flags);		/* flags for inode btree lookup */
 
 /*
@@ -176,6 +139,26 @@ xfs_ialloc_read_agi(
 	xfs_agnumber_t	agno,		/* allocation group number */
 	struct xfs_buf	**bpp);		/* allocation group hdr buf */
 
-#endif	/* __KERNEL__ */
+/*
+ * Read in the allocation group header to initialise the per-ag data
+ * in the mount structure
+ */
+int
+xfs_ialloc_pagi_init(
+	struct xfs_mount *mp,		/* file system mount structure */
+	struct xfs_trans *tp,		/* transaction pointer */
+        xfs_agnumber_t  agno);		/* allocation group number */
+
+/*
+ * Lookup a record by ino in the btree given by cur.
+ */
+int xfs_inobt_lookup(struct xfs_btree_cur *cur, xfs_agino_t ino,
+		xfs_lookup_t dir, int *stat);
+
+/*
+ * Get the data from the pointed-to record.
+ */
+extern int xfs_inobt_get_rec(struct xfs_btree_cur *cur,
+		xfs_inobt_rec_incore_t *rec, int *stat);
 
 #endif	/* __XFS_IALLOC_H__ */

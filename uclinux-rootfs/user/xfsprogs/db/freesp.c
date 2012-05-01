@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -55,14 +41,14 @@ static void	histinit(int maxlen);
 static int	init(int argc, char **argv);
 static void	printhist(void);
 static void	scan_ag(xfs_agnumber_t agno);
-static void	scanfunc_bno(xfs_btree_sblock_t *ablock, typnm_t typ, int level,
+static void	scanfunc_bno(struct xfs_btree_block *block, typnm_t typ, int level,
 			     xfs_agf_t *agf);
-static void	scanfunc_cnt(xfs_btree_sblock_t *ablock, typnm_t typ, int level,
+static void	scanfunc_cnt(struct xfs_btree_block *block, typnm_t typ, int level,
 			     xfs_agf_t *agf);
 static void	scan_freelist(xfs_agf_t *agf);
 static void	scan_sbtree(xfs_agf_t *agf, xfs_agblock_t root, typnm_t typ,
 			    int nlevels,
-			    void (*func)(xfs_btree_sblock_t *block, typnm_t typ,
+			    void (*func)(struct xfs_btree_block *block, typnm_t typ,
 					 int level, xfs_agf_t *agf));
 static int	usage(void);
 
@@ -117,9 +103,9 @@ freesp_f(
 	if (histcount)
 		printhist();
 	if (summaryflag) {
-		dbprintf("total free extents %lld\n", totexts);
-		dbprintf("total free blocks %lld\n", totblocks);
-		dbprintf("average free extent size %g\n",
+		dbprintf(_("total free extents %lld\n"), totexts);
+		dbprintf(_("total free blocks %lld\n"), totblocks);
+		dbprintf(_("average free extent size %g\n"),
 			(double)totblocks / (double)totexts);
 	}
 	if (aglist)
@@ -210,8 +196,8 @@ init(
 static int
 usage(void)
 {
-	dbprintf("freesp arguments: [-bcdfs] [-a agno] [-e binsize] [-h h1]... "
-		 "[-m binmult]\n");
+	dbprintf(_("freesp arguments: [-bcds] [-a agno] [-e binsize] [-h h1]... "
+		 "[-m binmult]\n"));
 	return 0;
 }
 
@@ -222,22 +208,17 @@ scan_ag(
 	xfs_agf_t	*agf;
 
 	push_cur();
-	set_cur(&typtab[TYP_AGF],
-		XFS_AG_DADDR(mp, agno, XFS_AGF_DADDR(mp)),
-		XFS_FSS_TO_BB(mp, 1), DB_RING_IGN, NULL);
+	set_cur(&typtab[TYP_AGF], XFS_AG_DADDR(mp, agno, XFS_AGF_DADDR(mp)),
+				XFS_FSS_TO_BB(mp, 1), DB_RING_IGN, NULL);
 	agf = iocur_top->data;
 	scan_freelist(agf);
 	if (countflag)
-		scan_sbtree(agf,
-			INT_GET(agf->agf_roots[XFS_BTNUM_CNT], ARCH_CONVERT),
-			TYP_CNTBT,
-			INT_GET(agf->agf_levels[XFS_BTNUM_CNT], ARCH_CONVERT),
+		scan_sbtree(agf, be32_to_cpu(agf->agf_roots[XFS_BTNUM_CNT]),
+			TYP_CNTBT, be32_to_cpu(agf->agf_levels[XFS_BTNUM_CNT]),
 			scanfunc_cnt);
 	else
-		scan_sbtree(agf,
-			INT_GET(agf->agf_roots[XFS_BTNUM_BNO], ARCH_CONVERT),
-			TYP_BNOBT,
-			INT_GET(agf->agf_levels[XFS_BTNUM_BNO], ARCH_CONVERT),
+		scan_sbtree(agf, be32_to_cpu(agf->agf_roots[XFS_BTNUM_BNO]),
+			TYP_BNOBT, be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]),
 			scanfunc_bno);
 	pop_cur();
 }
@@ -246,23 +227,22 @@ static void
 scan_freelist(
 	xfs_agf_t	*agf)
 {
-	xfs_agnumber_t	seqno = INT_GET(agf->agf_seqno, ARCH_CONVERT);
+	xfs_agnumber_t	seqno = be32_to_cpu(agf->agf_seqno);
 	xfs_agfl_t	*agfl;
 	xfs_agblock_t	bno;
 	int		i;
 
-	if (INT_GET(agf->agf_flcount, ARCH_CONVERT) == 0)
+	if (be32_to_cpu(agf->agf_flcount) == 0)
 		return;
 	push_cur();
-	set_cur(&typtab[TYP_AGFL],
-		XFS_AG_DADDR(mp, seqno, XFS_AGFL_DADDR(mp)),
-		XFS_FSS_TO_BB(mp, 1), DB_RING_IGN, NULL);
+	set_cur(&typtab[TYP_AGFL], XFS_AG_DADDR(mp, seqno, XFS_AGFL_DADDR(mp)),
+				XFS_FSS_TO_BB(mp, 1), DB_RING_IGN, NULL);
 	agfl = iocur_top->data;
-	i = INT_GET(agf->agf_flfirst, ARCH_CONVERT);
+	i = be32_to_cpu(agf->agf_flfirst);
 	for (;;) {
-		bno = INT_GET(agfl->agfl_bno[i], ARCH_CONVERT);
+		bno = be32_to_cpu(agfl->agfl_bno[i]);
 		addtohist(seqno, bno, 1);
-		if (i == INT_GET(agf->agf_fllast, ARCH_CONVERT))
+		if (i == be32_to_cpu(agf->agf_fllast))
 			break;
 		if (++i == XFS_AGFL_SIZE(mp))
 			i = 0;
@@ -276,79 +256,77 @@ scan_sbtree(
 	xfs_agblock_t	root,
 	typnm_t		typ,
 	int		nlevels,
-	void		(*func)(xfs_btree_sblock_t	*block,
+	void		(*func)(struct xfs_btree_block	*block,
 				typnm_t			typ,
 				int			level,
 				xfs_agf_t		*agf))
 {
-	xfs_agnumber_t	seqno = INT_GET(agf->agf_seqno, ARCH_CONVERT);
+	xfs_agnumber_t	seqno = be32_to_cpu(agf->agf_seqno);
 
 	push_cur();
 	set_cur(&typtab[typ], XFS_AGB_TO_DADDR(mp, seqno, root),
 		blkbb, DB_RING_IGN, NULL);
 	if (iocur_top->data == NULL) {
-		dbprintf("can't read btree block %u/%u\n", seqno, root);
+		dbprintf(_("can't read btree block %u/%u\n"), seqno, root);
 		return;
 	}
-	(*func)((xfs_btree_sblock_t *)iocur_top->data, typ, nlevels - 1, agf);
+	(*func)(iocur_top->data, typ, nlevels - 1, agf);
 	pop_cur();
 }
 
 /*ARGSUSED*/
 static void
 scanfunc_bno(
-	xfs_btree_sblock_t	*ablock,
+	struct xfs_btree_block	*block,
 	typnm_t			typ,
 	int			level,
 	xfs_agf_t		*agf)
 {
-	xfs_alloc_block_t	*block = (xfs_alloc_block_t *)ablock;
 	int			i;
 	xfs_alloc_ptr_t		*pp;
 	xfs_alloc_rec_t		*rp;
 
+	if (be32_to_cpu(block->bb_magic) != XFS_ABTB_MAGIC)
+		return;
+
 	if (level == 0) {
-		rp = XFS_BTREE_REC_ADDR(mp->m_sb.sb_blocksize, xfs_alloc, block,
-			1, mp->m_alloc_mxr[0]);
-		for (i = 0; i < INT_GET(block->bb_numrecs, ARCH_CONVERT); i++)
-			addtohist(INT_GET(agf->agf_seqno, ARCH_CONVERT),
-				INT_GET(rp[i].ar_startblock, ARCH_CONVERT),
-				INT_GET(rp[i].ar_blockcount, ARCH_CONVERT));
+		rp = XFS_ALLOC_REC_ADDR(mp, block, 1);
+		for (i = 0; i < be16_to_cpu(block->bb_numrecs); i++)
+			addtohist(be32_to_cpu(agf->agf_seqno),
+					be32_to_cpu(rp[i].ar_startblock),
+					be32_to_cpu(rp[i].ar_blockcount));
 		return;
 	}
-	pp = XFS_BTREE_PTR_ADDR(mp->m_sb.sb_blocksize, xfs_alloc, block, 1,
-		mp->m_alloc_mxr[1]);
-	for (i = 0; i < INT_GET(block->bb_numrecs, ARCH_CONVERT); i++)
-		scan_sbtree(agf, INT_GET(pp[i], ARCH_CONVERT), typ, level,
-			    scanfunc_bno);
+	pp = XFS_ALLOC_PTR_ADDR(mp, block, 1, mp->m_alloc_mxr[1]);
+	for (i = 0; i < be16_to_cpu(block->bb_numrecs); i++)
+		scan_sbtree(agf, be32_to_cpu(pp[i]), typ, level, scanfunc_bno);
 }
 
 static void
 scanfunc_cnt(
-	xfs_btree_sblock_t	*ablock,
+	struct xfs_btree_block	*block,
 	typnm_t			typ,
 	int			level,
 	xfs_agf_t		*agf)
 {
-	xfs_alloc_block_t	*block = (xfs_alloc_block_t *)ablock;
 	int			i;
 	xfs_alloc_ptr_t		*pp;
 	xfs_alloc_rec_t		*rp;
 
+	if (be32_to_cpu(block->bb_magic) != XFS_ABTC_MAGIC)
+		return;
+
 	if (level == 0) {
-		rp = XFS_BTREE_REC_ADDR(mp->m_sb.sb_blocksize, xfs_alloc, block,
-			1, mp->m_alloc_mxr[0]);
-		for (i = 0; i < INT_GET(block->bb_numrecs, ARCH_CONVERT); i++)
-			addtohist(INT_GET(agf->agf_seqno, ARCH_CONVERT),
-				INT_GET(rp[i].ar_startblock, ARCH_CONVERT),
-				INT_GET(rp[i].ar_blockcount, ARCH_CONVERT));
+		rp = XFS_ALLOC_REC_ADDR(mp, block, 1);
+		for (i = 0; i < be16_to_cpu(block->bb_numrecs); i++)
+			addtohist(be32_to_cpu(agf->agf_seqno),
+					be32_to_cpu(rp[i].ar_startblock),
+					be32_to_cpu(rp[i].ar_blockcount));
 		return;
 	}
-	pp = XFS_BTREE_PTR_ADDR(mp->m_sb.sb_blocksize, xfs_alloc, block, 1,
-		mp->m_alloc_mxr[1]);
-	for (i = 0; i < INT_GET(block->bb_numrecs, ARCH_CONVERT); i++)
-		scan_sbtree(agf, INT_GET(pp[i], ARCH_CONVERT), typ, level,
-			    scanfunc_cnt);
+	pp = XFS_ALLOC_PTR_ADDR(mp, block, 1, mp->m_alloc_mxr[1]);
+	for (i = 0; i < be16_to_cpu(block->bb_numrecs); i++)
+		scan_sbtree(agf, be32_to_cpu(pp[i]), typ, level, scanfunc_cnt);
 }
 
 static void
@@ -425,7 +403,7 @@ printhist(void)
 	int	i;
 
 	dbprintf("%7s %7s %7s %7s %6s\n",
-		"from", "to", "extents", "blocks", "pct");
+		_("from"), _("to"), _("extents"), _("blocks"), _("pct"));
 	for (i = 0; i < histcount; i++) {
 		if (hist[i].count)
 			dbprintf("%7d %7d %7lld %7lld %6.2f\n", hist[i].low,

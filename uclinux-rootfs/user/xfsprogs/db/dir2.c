@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -190,7 +176,7 @@ dir2_block_hdr_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	return INT_GET(block->hdr.magic, ARCH_CONVERT) == XFS_DIR2_BLOCK_MAGIC;
+	return be32_to_cpu(block->hdr.magic) == XFS_DIR2_BLOCK_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -204,10 +190,10 @@ dir2_block_leaf_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	if (INT_GET(block->hdr.magic, ARCH_CONVERT) != XFS_DIR2_BLOCK_MAGIC)
+	if (be32_to_cpu(block->hdr.magic) != XFS_DIR2_BLOCK_MAGIC)
 		return 0;
-	btp = XFS_DIR2_BLOCK_TAIL_P(mp, block);
-	return INT_GET(btp->count, ARCH_CONVERT);
+	btp = xfs_dir2_block_tail_p(mp, block);
+	return be32_to_cpu(btp->count);
 }
 
 /*ARGSUSED*/
@@ -223,9 +209,9 @@ dir2_block_leaf_offset(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	ASSERT(INT_GET(block->hdr.magic, ARCH_CONVERT) == XFS_DIR2_BLOCK_MAGIC);
-	btp = XFS_DIR2_BLOCK_TAIL_P(mp, block);
-	lep = XFS_DIR2_BLOCK_LEAF_P_ARCH(btp, ARCH_CONVERT) + idx;
+	ASSERT(be32_to_cpu(block->hdr.magic) == XFS_DIR2_BLOCK_MAGIC);
+	btp = xfs_dir2_block_tail_p(mp, block);
+	lep = xfs_dir2_block_leaf_p(btp) + idx;
 	return bitize((int)((char *)lep - (char *)block));
 }
 
@@ -239,7 +225,7 @@ dir2_block_tail_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	return INT_GET(block->hdr.magic, ARCH_CONVERT) == XFS_DIR2_BLOCK_MAGIC;
+	return be32_to_cpu(block->hdr.magic) == XFS_DIR2_BLOCK_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -255,8 +241,8 @@ dir2_block_tail_offset(
 	ASSERT(startoff == 0);
 	ASSERT(idx == 0);
 	block = obj;
-	ASSERT(INT_GET(block->hdr.magic, ARCH_CONVERT) == XFS_DIR2_BLOCK_MAGIC);
-	btp = XFS_DIR2_BLOCK_TAIL_P(mp, block);
+	ASSERT(be32_to_cpu(block->hdr.magic) == XFS_DIR2_BLOCK_MAGIC);
+	btp = xfs_dir2_block_tail_p(mp, block);
 	return bitize((int)((char *)btp - (char *)block));
 }
 
@@ -276,18 +262,18 @@ dir2_block_u_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	if (INT_GET(block->hdr.magic, ARCH_CONVERT) != XFS_DIR2_BLOCK_MAGIC)
+	if (be32_to_cpu(block->hdr.magic) != XFS_DIR2_BLOCK_MAGIC)
 		return 0;
-	btp = XFS_DIR2_BLOCK_TAIL_P(mp, block);
+	btp = xfs_dir2_block_tail_p(mp, block);
 	ptr = (char *)block->u;
-	endptr = (char *)XFS_DIR2_BLOCK_LEAF_P_ARCH(btp, ARCH_CONVERT);
+	endptr = (char *)xfs_dir2_block_leaf_p(btp);
 	for (i = 0; ptr < endptr; i++) {
 		dup = (xfs_dir2_data_unused_t *)ptr;
-		if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-			ptr += INT_GET(dup->length, ARCH_CONVERT);
+		if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+			ptr += be16_to_cpu(dup->length);
 		else {
 			dep = (xfs_dir2_data_entry_t *)ptr;
-			ptr += XFS_DIR2_DATA_ENTSIZE(dep->namelen);
+			ptr += xfs_dir2_data_entsize(dep->namelen);
 		}
 	}
 	return i;
@@ -304,25 +290,24 @@ dir2_block_u_offset(
 	xfs_dir2_block_tail_t	*btp;
 	xfs_dir2_data_entry_t	*dep;
 	xfs_dir2_data_unused_t	*dup;
-				/*REFERENCED*/
 	char			*endptr;
 	int			i;
 	char			*ptr;
 
 	ASSERT(startoff == 0);
 	block = obj;
-	ASSERT(INT_GET(block->hdr.magic, ARCH_CONVERT) == XFS_DIR2_BLOCK_MAGIC);
-	btp = XFS_DIR2_BLOCK_TAIL_P(mp, block);
+	ASSERT(be32_to_cpu(block->hdr.magic) == XFS_DIR2_BLOCK_MAGIC);
+	btp = xfs_dir2_block_tail_p(mp, block);
 	ptr = (char *)block->u;
-	endptr = (char *)XFS_DIR2_BLOCK_LEAF_P_ARCH(btp, ARCH_CONVERT);
+	endptr = (char *)xfs_dir2_block_leaf_p(btp);
 	for (i = 0; i < idx; i++) {
 		ASSERT(ptr < endptr);
 		dup = (xfs_dir2_data_unused_t *)ptr;
-		if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-			ptr += INT_GET(dup->length, ARCH_CONVERT);
+		if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+			ptr += be16_to_cpu(dup->length);
 		else {
 			dep = (xfs_dir2_data_entry_t *)ptr;
-			ptr += XFS_DIR2_DATA_ENTSIZE(dep->namelen);
+			ptr += xfs_dir2_data_entsize(dep->namelen);
 		}
 	}
 	return bitize((int)(ptr - (char *)block));
@@ -340,7 +325,7 @@ dir2_data_union_freetag_count(
 	dup = (xfs_dir2_data_unused_t *)((char *)obj + byteize(startoff));
 	end = (char *)&dup->freetag + sizeof(dup->freetag);
 	return end <= (char *)obj + mp->m_dirblksize &&
-	       INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG;
+	       be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG;
 }
 
 static int
@@ -357,7 +342,7 @@ dir2_data_union_inumber_count(
 	dep = (xfs_dir2_data_entry_t *)dup;
 	end = (char *)&dep->inumber + sizeof(dep->inumber);
 	return end <= (char *)obj + mp->m_dirblksize &&
-	       INT_GET(dup->freetag, ARCH_CONVERT) != XFS_DIR2_DATA_FREE_TAG;
+	       be16_to_cpu(dup->freetag) != XFS_DIR2_DATA_FREE_TAG;
 }
 
 static int
@@ -372,7 +357,7 @@ dir2_data_union_length_count(
 	dup = (xfs_dir2_data_unused_t *)((char *)obj + byteize(startoff));
 	end = (char *)&dup->length + sizeof(dup->length);
 	return end <= (char *)obj + mp->m_dirblksize &&
-	       INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG;
+	       be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG;
 }
 
 static int
@@ -389,7 +374,7 @@ dir2_data_union_name_count(
 	dep = (xfs_dir2_data_entry_t *)dup;
 	end = (char *)&dep->namelen + sizeof(dep->namelen);
 	if (end >= (char *)obj + mp->m_dirblksize ||
-	    INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
+	    be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
 		return 0;
 	end = (char *)&dep->name[0] + dep->namelen;
 	return end <= (char *)obj + mp->m_dirblksize ? dep->namelen : 0;
@@ -409,7 +394,7 @@ dir2_data_union_namelen_count(
 	dep = (xfs_dir2_data_entry_t *)dup;
 	end = (char *)&dep->namelen + sizeof(dep->namelen);
 	return end <= (char *)obj + mp->m_dirblksize &&
-	       INT_GET(dup->freetag, ARCH_CONVERT) != XFS_DIR2_DATA_FREE_TAG;
+	       be16_to_cpu(dup->freetag) != XFS_DIR2_DATA_FREE_TAG;
 }
 
 static int
@@ -420,7 +405,7 @@ dir2_data_union_tag_count(
 	xfs_dir2_data_entry_t	*dep;
 	xfs_dir2_data_unused_t	*dup;
 	char			*end;
-	xfs_dir2_data_off_t	*tagp;
+	__be16			*tagp;
 
 	ASSERT(bitoffs(startoff) == 0);
 	dup = (xfs_dir2_data_unused_t *)((char *)obj + byteize(startoff));
@@ -428,16 +413,16 @@ dir2_data_union_tag_count(
 	end = (char *)&dup->freetag + sizeof(dup->freetag);
 	if (end > (char *)obj + mp->m_dirblksize)
 		return 0;
-	if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG) {
+	if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG) {
 		end = (char *)&dup->length + sizeof(dup->length);
 		if (end > (char *)obj + mp->m_dirblksize)
 			return 0;
-		tagp = XFS_DIR2_DATA_UNUSED_TAG_P_ARCH(dup, ARCH_CONVERT);
+		tagp = xfs_dir2_data_unused_tag_p(dup);
 	} else {
 		end = (char *)&dep->namelen + sizeof(dep->namelen);
 		if (end > (char *)obj + mp->m_dirblksize)
 			return 0;
-		tagp = XFS_DIR2_DATA_ENTRY_TAG_P(dep);
+		tagp = xfs_dir2_data_entry_tag_p(dep);
 	}
 	end = (char *)tagp + sizeof(*tagp);
 	return end <= (char *)obj + mp->m_dirblksize;
@@ -456,11 +441,11 @@ dir2_data_union_tag_offset(
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
 	dup = (xfs_dir2_data_unused_t *)((char *)obj + byteize(startoff));
-	if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-		return bitize((int)((char *)XFS_DIR2_DATA_UNUSED_TAG_P_ARCH(dup, ARCH_CONVERT) -
+	if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+		return bitize((int)((char *)xfs_dir2_data_unused_tag_p(dup) -
 				    (char *)dup));
 	dep = (xfs_dir2_data_entry_t *)dup;
-	return bitize((int)((char *)XFS_DIR2_DATA_ENTRY_TAG_P(dep) -
+	return bitize((int)((char *)xfs_dir2_data_entry_tag_p(dep) -
 			    (char *)dep));
 }
 
@@ -474,7 +459,7 @@ dir2_data_hdr_count(
 
 	ASSERT(startoff == 0);
 	data = obj;
-	return INT_GET(data->hdr.magic, ARCH_CONVERT) == XFS_DIR2_DATA_MAGIC;
+	return be32_to_cpu(data->hdr.magic) == XFS_DIR2_DATA_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -492,17 +477,17 @@ dir2_data_u_count(
 
 	ASSERT(startoff == 0);
 	data = obj;
-	if (INT_GET(data->hdr.magic, ARCH_CONVERT) != XFS_DIR2_DATA_MAGIC)
+	if (be32_to_cpu(data->hdr.magic) != XFS_DIR2_DATA_MAGIC)
 		return 0;
 	ptr = (char *)data->u;
 	endptr = (char *)data + mp->m_dirblksize;
 	for (i = 0; ptr < endptr; i++) {
 		dup = (xfs_dir2_data_unused_t *)ptr;
-		if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-			ptr += INT_GET(dup->length, ARCH_CONVERT);
+		if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+			ptr += be16_to_cpu(dup->length);
 		else {
 			dep = (xfs_dir2_data_entry_t *)ptr;
-			ptr += XFS_DIR2_DATA_ENTSIZE(dep->namelen);
+			ptr += xfs_dir2_data_entsize(dep->namelen);
 		}
 	}
 	return i;
@@ -525,17 +510,17 @@ dir2_data_u_offset(
 
 	ASSERT(startoff == 0);
 	data = obj;
-	ASSERT(INT_GET(data->hdr.magic, ARCH_CONVERT) == XFS_DIR2_DATA_MAGIC);
+	ASSERT(be32_to_cpu(data->hdr.magic) == XFS_DIR2_DATA_MAGIC);
 	ptr = (char *)data->u;
 	endptr = (char *)data + mp->m_dirblksize;
 	for (i = 0; i < idx; i++) {
 		ASSERT(ptr < endptr);
 		dup = (xfs_dir2_data_unused_t *)ptr;
-		if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-			ptr += INT_GET(dup->length, ARCH_CONVERT);
+		if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+			ptr += be16_to_cpu(dup->length);
 		else {
 			dep = (xfs_dir2_data_entry_t *)ptr;
-			ptr += XFS_DIR2_DATA_ENTSIZE(dep->namelen);
+			ptr += xfs_dir2_data_entsize(dep->namelen);
 		}
 	}
 	return bitize((int)(ptr - (char *)data));
@@ -554,11 +539,11 @@ dir2_data_union_size(
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(idx == 0);
 	dup = (xfs_dir2_data_unused_t *)((char *)obj + byteize(startoff));
-	if (INT_GET(dup->freetag, ARCH_CONVERT) == XFS_DIR2_DATA_FREE_TAG)
-		return bitize(INT_GET(dup->length, ARCH_CONVERT));
+	if (be16_to_cpu(dup->freetag) == XFS_DIR2_DATA_FREE_TAG)
+		return bitize(be16_to_cpu(dup->length));
 	else {
 		dep = (xfs_dir2_data_entry_t *)dup;
-		return bitize(XFS_DIR2_DATA_ENTSIZE(dep->namelen));
+		return bitize(xfs_dir2_data_entsize(dep->namelen));
 	}
 }
 
@@ -572,9 +557,9 @@ dir2_free_bests_count(
 
 	ASSERT(startoff == 0);
 	free = obj;
-	if (INT_GET(free->hdr.magic, ARCH_CONVERT) != XFS_DIR2_FREE_MAGIC)
+	if (be32_to_cpu(free->hdr.magic) != XFS_DIR2_FREE_MAGIC)
 		return 0;
-	return INT_GET(free->hdr.nvalid, ARCH_CONVERT);
+	return be32_to_cpu(free->hdr.nvalid);
 }
 
 /*ARGSUSED*/
@@ -587,7 +572,7 @@ dir2_free_hdr_count(
 
 	ASSERT(startoff == 0);
 	free = obj;
-	return INT_GET(free->hdr.magic, ARCH_CONVERT) == XFS_DIR2_FREE_MAGIC;
+	return be32_to_cpu(free->hdr.magic) == XFS_DIR2_FREE_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -601,10 +586,10 @@ dir2_leaf_bests_count(
 
 	ASSERT(startoff == 0);
 	leaf = obj;
-	if (INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) != XFS_DIR2_LEAF1_MAGIC)
+	if (be16_to_cpu(leaf->hdr.info.magic) != XFS_DIR2_LEAF1_MAGIC)
 		return 0;
-	ltp = XFS_DIR2_LEAF_TAIL_P(mp, leaf);
-	return INT_GET(ltp->bestcount, ARCH_CONVERT);
+	ltp = xfs_dir2_leaf_tail_p(mp, leaf);
+	return be32_to_cpu(ltp->bestcount);
 }
 
 /*ARGSUSED*/
@@ -614,15 +599,15 @@ dir2_leaf_bests_offset(
 	int			startoff,
 	int			idx)
 {
-	xfs_dir2_data_off_t	*lbp;
+	__be16			*lbp;
 	xfs_dir2_leaf_t		*leaf;
 	xfs_dir2_leaf_tail_t	*ltp;
 
 	ASSERT(startoff == 0);
 	leaf = obj;
-	ASSERT(INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) == XFS_DIR2_LEAF1_MAGIC);
-	ltp = XFS_DIR2_LEAF_TAIL_P(mp, leaf);
-	lbp = XFS_DIR2_LEAF_BESTS_P_ARCH(ltp, ARCH_CONVERT) + idx;
+	ASSERT(be16_to_cpu(leaf->hdr.info.magic) == XFS_DIR2_LEAF1_MAGIC);
+	ltp = xfs_dir2_leaf_tail_p(mp, leaf);
+	lbp = xfs_dir2_leaf_bests_p(ltp) + idx;
 	return bitize((int)((char *)lbp - (char *)leaf));
 }
 
@@ -636,10 +621,10 @@ dir2_leaf_ents_count(
 
 	ASSERT(startoff == 0);
 	leaf = obj;
-	if (INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) != XFS_DIR2_LEAF1_MAGIC &&
-	    INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) != XFS_DIR2_LEAFN_MAGIC)
+	if (be16_to_cpu(leaf->hdr.info.magic) != XFS_DIR2_LEAF1_MAGIC &&
+	    be16_to_cpu(leaf->hdr.info.magic) != XFS_DIR2_LEAFN_MAGIC)
 		return 0;
-	return INT_GET(leaf->hdr.count, ARCH_CONVERT);
+	return be16_to_cpu(leaf->hdr.count);
 }
 
 /*ARGSUSED*/
@@ -652,8 +637,8 @@ dir2_leaf_hdr_count(
 
 	ASSERT(startoff == 0);
 	leaf = obj;
-	return INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) == XFS_DIR2_LEAF1_MAGIC ||
-	       INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) == XFS_DIR2_LEAFN_MAGIC;
+	return be16_to_cpu(leaf->hdr.info.magic) == XFS_DIR2_LEAF1_MAGIC ||
+	       be16_to_cpu(leaf->hdr.info.magic) == XFS_DIR2_LEAFN_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -666,7 +651,7 @@ dir2_leaf_tail_count(
 
 	ASSERT(startoff == 0);
 	leaf = obj;
-	return INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) == XFS_DIR2_LEAF1_MAGIC;
+	return be16_to_cpu(leaf->hdr.info.magic) == XFS_DIR2_LEAF1_MAGIC;
 }
 
 /*ARGSUSED*/
@@ -682,8 +667,8 @@ dir2_leaf_tail_offset(
 	ASSERT(startoff == 0);
 	ASSERT(idx == 0);
 	leaf = obj;
-	ASSERT(INT_GET(leaf->hdr.info.magic, ARCH_CONVERT) == XFS_DIR2_LEAF1_MAGIC);
-	ltp = XFS_DIR2_LEAF_TAIL_P(mp, leaf);
+	ASSERT(be16_to_cpu(leaf->hdr.info.magic) == XFS_DIR2_LEAF1_MAGIC);
+	ltp = xfs_dir2_leaf_tail_p(mp, leaf);
 	return bitize((int)((char *)ltp - (char *)leaf));
 }
 
@@ -697,9 +682,9 @@ dir2_node_btree_count(
 
 	ASSERT(startoff == 0);
 	node = obj;
-	if (INT_GET(node->hdr.info.magic, ARCH_CONVERT) != XFS_DA_NODE_MAGIC)
+	if (be16_to_cpu(node->hdr.info.magic) != XFS_DA_NODE_MAGIC)
 		return 0;
-	return INT_GET(node->hdr.count, ARCH_CONVERT);
+	return be16_to_cpu(node->hdr.count);
 }
 
 /*ARGSUSED*/
@@ -712,7 +697,7 @@ dir2_node_hdr_count(
 
 	ASSERT(startoff == 0);
 	node = obj;
-	return INT_GET(node->hdr.info.magic, ARCH_CONVERT) == XFS_DA_NODE_MAGIC;
+	return be16_to_cpu(node->hdr.info.magic) == XFS_DA_NODE_MAGIC;
 }
 
 /*ARGSUSED*/

@@ -1,34 +1,26 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
+#ifndef XFS_REPAIR_INCORE_H
+#define XFS_REPAIR_INCORE_H
+
+#include "avl.h"
+
 
 /*
  * contains definition information.  implementation (code)
@@ -36,102 +28,32 @@
  */
 
 /*
- * block allocation lists
- */
-typedef struct ba_rec  {
-	void		*addr;
-	struct ba_rec	*next;
-} ba_rec_t;
-
-void			record_allocation(ba_rec_t *addr, ba_rec_t *list);
-void			free_allocations(ba_rec_t *list);
-
-/*
- * block bit map defs -- track state of each filesystem block.
- * ba_bmap is an array of bitstrings declared in the globals.h file.
- * the bitstrings are broken up into 64-bit chunks.  one bitstring per AG.
- */
-#define BA_BMAP_SIZE(x)		(howmany(x, 4))
-
-void			set_bmap_rt(xfs_drfsbno_t numblocks);
-void			set_bmap_log(xfs_mount_t *mp);
-void			set_bmap_fs(xfs_mount_t *mp);
-void			teardown_bmap(xfs_mount_t *mp);
-
-void			teardown_rt_bmap(xfs_mount_t *mp);
-void			teardown_ag_bmap(xfs_mount_t *mp, xfs_agnumber_t agno);
-void			teardown_bmap_finish(xfs_mount_t *mp);
-
-/* blocks are numbered from zero */
-
-/* block records fit into __uint64_t's units */
-
-#define XR_BB_UNIT	64			/* number of bits/unit */
-#define XR_BB		4			/* bits per block record */
-#define XR_BB_NUM	(XR_BB_UNIT/XR_BB)	/* number of records per unit */
-#define XR_BB_MASK	0xF			/* block record mask */
-
-/*
- * bitstring ops -- set/get block states, either in filesystem
- * bno's or in agbno's.  turns out that fsbno addressing is
- * more convenient when dealing with bmap extracted addresses
- * and agbno addressing is more convenient when dealing with
- * meta-data extracted addresses.  So the fsbno versions use
- * mtype (which can be one of the block map types above) to
- * set the correct block map while the agbno versions assume
- * you want to use the regular block map.
+ * block map -- track state of each filesystem block.
  */
 
-#if defined(XR_BMAP_TRACE) || defined(XR_BMAP_DBG)
-/*
- * implemented as functions for debugging purposes
- */
-int get_agbno_state(xfs_mount_t *mp, xfs_agnumber_t agno,
-	xfs_agblock_t ag_blockno);
-void set_agbno_state(xfs_mount_t *mp, xfs_agnumber_t agno,
-	xfs_agblock_t ag_blockno, int state);
+void		init_bmaps(xfs_mount_t *mp);
+void		reset_bmaps(xfs_mount_t *mp);
+void		free_bmaps(xfs_mount_t *mp);
 
-int get_fsbno_state(xfs_mount_t *mp, xfs_dfsbno_t blockno);
-void set_fsbno_state(xfs_mount_t *mp, xfs_dfsbno_t blockno, int state);
-#else
-/*
- * implemented as macros for performance purposes
- */
+void		set_bmap_ext(xfs_agnumber_t agno, xfs_agblock_t agbno,
+			     xfs_extlen_t blen, int state);
+int		get_bmap_ext(xfs_agnumber_t agno, xfs_agblock_t agbno,
+			     xfs_agblock_t maxbno, xfs_extlen_t *blen);
 
-#define get_agbno_state(mp, agno, ag_blockno) \
-			((int) (*(ba_bmap[(agno)] + (ag_blockno)/XR_BB_NUM) \
-				 >> (((ag_blockno)%XR_BB_NUM)*XR_BB)) \
-				& XR_BB_MASK)
-#define set_agbno_state(mp, agno, ag_blockno, state) \
-	*(ba_bmap[(agno)] + (ag_blockno)/XR_BB_NUM) = \
-		((*(ba_bmap[(agno)] + (ag_blockno)/XR_BB_NUM) & \
-	  (~((__uint64_t) XR_BB_MASK << (((ag_blockno)%XR_BB_NUM)*XR_BB)))) | \
-	 (((__uint64_t) (state)) << (((ag_blockno)%XR_BB_NUM)*XR_BB)))
+void		set_rtbmap(xfs_drtbno_t bno, int state);
+int		get_rtbmap(xfs_drtbno_t bno);
 
-#define get_fsbno_state(mp, blockno) \
-		get_agbno_state(mp, XFS_FSB_TO_AGNO(mp, (blockno)), \
-				XFS_FSB_TO_AGBNO(mp, (blockno)))
-#define set_fsbno_state(mp, blockno, state) \
-		set_agbno_state(mp, XFS_FSB_TO_AGNO(mp, (blockno)), \
-			XFS_FSB_TO_AGBNO(mp, (blockno)), (state))
+static inline void
+set_bmap(xfs_agnumber_t agno, xfs_agblock_t agbno, int state)
+{
+	set_bmap_ext(agno, agbno, 1, state);
+}
 
-
-#define get_agbno_rec(mp, agno, ag_blockno) \
-			(*(ba_bmap[(agno)] + (ag_blockno)/XR_BB_NUM))
-#endif /* XR_BMAP_TRACE */
-
-/*
- * these work in real-time extents (e.g. fsbno == rt extent number)
- */
-#define get_rtbno_state(mp, fsbno) \
-			((*(rt_ba_bmap + (fsbno)/XR_BB_NUM) >> \
-			(((fsbno)%XR_BB_NUM)*XR_BB)) & XR_BB_MASK)
-#define set_rtbno_state(mp, fsbno, state) \
-	*(rt_ba_bmap + (fsbno)/XR_BB_NUM) = \
-	 ((*(rt_ba_bmap + (fsbno)/XR_BB_NUM) & \
-	  (~((__uint64_t) XR_BB_MASK << (((fsbno)%XR_BB_NUM)*XR_BB)))) | \
-	 (((__uint64_t) (state)) << (((fsbno)%XR_BB_NUM)*XR_BB)))
-
+static inline int
+get_bmap(xfs_agnumber_t agno, xfs_agblock_t agbno)
+{
+	return get_bmap_ext(agno, agbno, agbno + 1, NULL);
+}
 
 /*
  * extent tree definitions
@@ -151,6 +73,7 @@ typedef struct extent_tree_node  {
 	extent_state_t		ex_state;	/* see state flags below */
 
 	struct extent_tree_node		*next;	/* for bcnt extent lists */
+	struct extent_tree_node		*last;	/* for bcnt extent list anchors */
 #if 0
 	xfs_ino_t		ex_inode;	/* owner, NULL if free or  */
 						/*	multiply allocated */
@@ -180,6 +103,16 @@ typedef struct rt_extent_tree_node  {
 #define XR_E_INO	6	/* extent used by inodes (inode blocks) */
 #define XR_E_FS_MAP	7	/* extent used by fs space/inode maps */
 #define XR_E_BAD_STATE	8
+
+/* extent states, in 64 bit word chunks */
+#define	XR_E_UNKNOWN_LL		0x0000000000000000LL
+#define	XR_E_FREE1_LL		0x1111111111111111LL
+#define	XR_E_FREE_LL		0x2222222222222222LL
+#define	XR_E_INUSE_LL		0x3333333333333333LL
+#define	XR_E_INUSE_FS_LL	0x4444444444444444LL
+#define	XR_E_MULT_LL		0x5555555555555555LL
+#define	XR_E_INO_LL		0x6666666666666666LL
+#define	XR_E_FS_MAP_LL		0x7777777777777777LL
 
 /* separate state bit, OR'ed into high (4th) bit of ex_state field */
 
@@ -237,14 +170,11 @@ get_bcnt_extent(xfs_agnumber_t agno, xfs_agblock_t startblock,
 /*
  * duplicate extent tree functions
  */
-void		add_dup_extent(xfs_agnumber_t agno,
-				xfs_agblock_t startblock,
-				xfs_extlen_t blockcount);
 
-int		search_dup_extent(xfs_mount_t *mp,
-				xfs_agnumber_t agno,
-				xfs_agblock_t agbno);
-
+int		add_dup_extent(xfs_agnumber_t agno, xfs_agblock_t startblock,
+			xfs_extlen_t blockcount);
+int		search_dup_extent(xfs_agnumber_t agno,
+			xfs_agblock_t start_agbno, xfs_agblock_t end_agbno);
 void		add_rt_dup_extent(xfs_drtbno_t	startblock,
 				xfs_extlen_t	blockcount);
 
@@ -272,12 +202,15 @@ void		release_agbcnt_extent_tree(xfs_agnumber_t agno);
  */
 void		free_rt_dup_extent_tree(xfs_mount_t *mp);
 
+void		incore_ext_init(xfs_mount_t *);
 /*
  * per-AG extent trees shutdown routine -- all (bno, bcnt and dup)
  * at once.  this one actually frees the memory instead of just recyling
  * the nodes.
  */
 void		incore_ext_teardown(xfs_mount_t *mp);
+
+void		incore_ino_init(xfs_mount_t *);
 
 /*
  * inode definitions
@@ -322,6 +255,8 @@ void		incore_ext_teardown(xfs_mount_t *mp);
 
 typedef xfs_ino_t parent_entry_t;
 
+struct nlink_ops;
+
 typedef struct parent_list  {
 	__uint64_t		pmask;
 	parent_entry_t		*pentries;
@@ -330,12 +265,12 @@ typedef struct parent_list  {
 #endif
 } parent_list_t;
 
-typedef struct backptrs  {
+typedef struct ino_ex_data  {
 	__uint64_t		ino_reached;	/* bit == 1 if reached */
 	__uint64_t		ino_processed;	/* reference checked bit mask */
-	__uint32_t		nlinks[XFS_INODES_PER_CHUNK];
 	parent_list_t		*parents;
-} backptrs_t;
+	__uint8_t		*counted_nlinks;/* counted nlinks in P6 */
+} ino_ex_data_t;
 
 typedef struct ino_tree_node  {
 	avlnode_t		avl_node;
@@ -343,14 +278,26 @@ typedef struct ino_tree_node  {
 	xfs_inofree_t		ir_free;	/* inode free bit mask */
 	__uint64_t		ino_confirmed;	/* confirmed bitmask */
 	__uint64_t		ino_isa_dir;	/* bit == 1 if a directory */
+	struct nlink_ops	*nlinkops;	/* pointer to current nlink ops */
+	__uint8_t		*disk_nlinks;	/* on-disk nlinks, set in P3 */
 	union  {
-		backptrs_t	*backptrs;
-		parent_list_t	*plist;
+		ino_ex_data_t	*ex_data;	/* phases 6,7 */
+		parent_list_t	*plist;		/* phases 2-5 */
 	} ino_un;
 } ino_tree_node_t;
 
+typedef struct nlink_ops {
+	const int	nlink_size;
+	void		(*disk_nlink_set)(ino_tree_node_t *, int, __uint32_t);
+	__uint32_t	(*disk_nlink_get)(ino_tree_node_t *, int);
+	__uint32_t	(*counted_nlink_get)(ino_tree_node_t *, int);
+	__uint32_t	(*counted_nlink_inc)(ino_tree_node_t *, int);
+	__uint32_t	(*counted_nlink_dec)(ino_tree_node_t *, int);
+} nlink_ops_t;
+
+
 #define INOS_PER_IREC		(sizeof(__uint64_t) * NBBY)
-void				add_ino_backptrs(xfs_mount_t *mp);
+void		add_ino_ex_data(xfs_mount_t *mp);
 
 /*
  * return an inode record to the free inode record pool
@@ -360,11 +307,33 @@ void		free_inode_rec(xfs_agnumber_t agno, ino_tree_node_t *ino_rec);
 /*
  * get pulls the inode record from the good inode tree
  */
-void		get_inode_rec(xfs_agnumber_t agno, ino_tree_node_t *ino_rec);
+void		get_inode_rec(struct xfs_mount *mp, xfs_agnumber_t agno,
+			      ino_tree_node_t *ino_rec);
 
-ino_tree_node_t *findfirst_inode_rec(xfs_agnumber_t agno);
-ino_tree_node_t *find_inode_rec(xfs_agnumber_t agno, xfs_agino_t ino);
-void		find_inode_rec_range(xfs_agnumber_t agno,
+extern avltree_desc_t     **inode_tree_ptrs;
+
+static inline int
+get_inode_offset(struct xfs_mount *mp, xfs_ino_t ino, ino_tree_node_t *irec)
+{
+	return XFS_INO_TO_AGINO(mp, ino) - irec->ino_startnum;
+}
+static inline ino_tree_node_t *
+findfirst_inode_rec(xfs_agnumber_t agno)
+{
+	return((ino_tree_node_t *) inode_tree_ptrs[agno]->avl_firstino);
+}
+static inline ino_tree_node_t *
+find_inode_rec(struct xfs_mount *mp, xfs_agnumber_t agno, xfs_agino_t ino)
+{
+	/*
+	 * Is the AG inside the file system
+	 */
+	if (agno >= mp->m_sb.sb_agcount)
+		return NULL;
+	return((ino_tree_node_t *)
+		avl_findrange(inode_tree_ptrs[agno], ino));
+}
+void		find_inode_rec_range(struct xfs_mount *mp, xfs_agnumber_t agno,
 			xfs_agino_t start_ino, xfs_agino_t end_ino,
 			ino_tree_node_t **first, ino_tree_node_t **last);
 
@@ -373,8 +342,10 @@ void		find_inode_rec_range(xfs_agnumber_t agno,
  * automatically marks it as "existing".  Note -- all the inode
  * add/set/get routines assume a valid inode number.
  */
-ino_tree_node_t	*set_inode_used_alloc(xfs_agnumber_t agno, xfs_agino_t ino);
-ino_tree_node_t	*set_inode_free_alloc(xfs_agnumber_t agno, xfs_agino_t ino);
+ino_tree_node_t	*set_inode_used_alloc(struct xfs_mount *mp, xfs_agnumber_t agno,
+				      xfs_agino_t ino);
+ino_tree_node_t	*set_inode_free_alloc(struct xfs_mount *mp, xfs_agnumber_t agno,
+				      xfs_agino_t ino);
 
 void		print_inode_list(xfs_agnumber_t agno);
 void		print_uncertain_inode_list(xfs_agnumber_t agno);
@@ -389,7 +360,8 @@ void			add_inode_uncertain(xfs_mount_t *mp,
 						xfs_ino_t ino, int free);
 void			add_aginode_uncertain(xfs_agnumber_t agno,
 						xfs_agino_t agino, int free);
-void			get_uncertain_inode_rec(xfs_agnumber_t agno,
+void			get_uncertain_inode_rec(struct xfs_mount *mp,
+						xfs_agnumber_t agno,
 						ino_tree_node_t *ino_rec);
 void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
 
@@ -412,13 +384,13 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
 #define	XFS_INOPROC_MASKN(i,n)	((__uint64_t)((1 << (n)) - 1) << (i))
 
 #define	XFS_INOPROC_IS_PROC(rp, i) \
-	(((rp)->ino_un.backptrs->ino_processed & XFS_INOPROC_MASK((i))) == 0LL \
+	(((rp)->ino_un.ex_data->ino_processed & XFS_INOPROC_MASK((i))) == 0LL \
 		? 0 : 1)
 #define	XFS_INOPROC_SET_PROC(rp, i) \
-	((rp)->ino_un.backptrs->ino_processed |= XFS_INOPROC_MASK((i)))
+	((rp)->ino_un.ex_data->ino_processed |= XFS_INOPROC_MASK((i)))
 /*
 #define	XFS_INOPROC_CLR_PROC(rp, i) \
-	((rp)->ino_un.backptrs->ino_processed &= ~XFS_INOPROC_MASK((i)))
+	((rp)->ino_un.ex_data->ino_processed &= ~XFS_INOPROC_MASK((i)))
 */
 
 /*
@@ -441,12 +413,12 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
 #define	XFS_INO_RCHD_MASK(i)	((__uint64_t)1 << (i))
 
 #define	XFS_INO_RCHD_IS_RCHD(rp, i) \
-	(((rp)->ino_un.backptrs->ino_reached & XFS_INO_RCHD_MASK((i))) == 0LL \
+	(((rp)->ino_un.ex_data->ino_reached & XFS_INO_RCHD_MASK((i))) == 0LL \
 		? 0 : 1)
 #define	XFS_INO_RCHD_SET_RCHD(rp, i) \
-		((rp)->ino_un.backptrs->ino_reached |= XFS_INO_RCHD_MASK((i)))
+		((rp)->ino_un.ex_data->ino_reached |= XFS_INO_RCHD_MASK((i)))
 #define	XFS_INO_RCHD_CLR_RCHD(rp, i) \
-		((rp)->ino_un.backptrs->ino_reached &= ~XFS_INO_RCHD_MASK((i)))
+		((rp)->ino_un.ex_data->ino_reached &= ~XFS_INO_RCHD_MASK((i)))
 /*
  * set/clear/test is inode a directory inode
  */
@@ -478,17 +450,20 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
  */
 #define set_inode_free(ino_rec, ino_offset) \
 	XFS_INOCF_SET_CF((ino_rec), (ino_offset)), \
-	XFS_INOBT_SET_FREE((ino_rec), (ino_offset),(ARCH_NOCONVERT))
+	XFS_INOBT_SET_FREE((ino_rec), (ino_offset))
 
 #define set_inode_used(ino_rec, ino_offset) \
 	XFS_INOCF_SET_CF((ino_rec), (ino_offset)), \
-	XFS_INOBT_CLR_FREE((ino_rec), (ino_offset),(ARCH_NOCONVERT))
+	XFS_INOBT_CLR_FREE((ino_rec), (ino_offset))
+
+#define XFS_INOBT_IS_FREE(ino_rec, ino_offset) \
+	(((ino_rec)->ir_free & XFS_INOBT_MASK(ino_offset)) != 0)
 
 #define is_inode_used(ino_rec, ino_offset)	\
-	!XFS_INOBT_IS_FREE((ino_rec), (ino_offset),(ARCH_NOCONVERT))
+	!XFS_INOBT_IS_FREE((ino_rec), (ino_offset))
 
 #define is_inode_free(ino_rec, ino_offset)	\
-	XFS_INOBT_IS_FREE((ino_rec), (ino_offset),(ARCH_NOCONVERT))
+	XFS_INOBT_IS_FREE((ino_rec), (ino_offset))
 
 /*
  * add_inode_reached() is set on inode I only if I has been reached
@@ -500,12 +475,68 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
  * an inode that we've counted is removed.
  */
 
-void		add_inode_reached(ino_tree_node_t *ino_rec, int ino_offset);
-void		add_inode_ref(ino_tree_node_t *ino_rec, int ino_offset);
-void		drop_inode_ref(ino_tree_node_t *ino_rec, int ino_offset);
-int		is_inode_reached(ino_tree_node_t *ino_rec, int ino_offset);
-int		is_inode_referenced(ino_tree_node_t *ino_rec, int ino_offset);
-__uint32_t	num_inode_references(ino_tree_node_t *ino_rec, int ino_offset);
+static inline int
+is_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+	return(XFS_INO_RCHD_IS_RCHD(ino_rec, ino_offset));
+}
+
+static inline void
+add_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+
+	(*ino_rec->nlinkops->counted_nlink_inc)(ino_rec, ino_offset);
+	XFS_INO_RCHD_SET_RCHD(ino_rec, ino_offset);
+
+	ASSERT(is_inode_reached(ino_rec, ino_offset));
+}
+
+static inline void
+add_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+
+	(*ino_rec->nlinkops->counted_nlink_inc)(ino_rec, ino_offset);
+}
+
+static inline void
+drop_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+
+	if ((*ino_rec->nlinkops->counted_nlink_dec)(ino_rec, ino_offset) == 0)
+		XFS_INO_RCHD_CLR_RCHD(ino_rec, ino_offset);
+}
+
+static inline int
+is_inode_referenced(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+
+	return (*ino_rec->nlinkops->counted_nlink_get)(ino_rec, ino_offset) > 0;
+}
+
+static inline __uint32_t
+num_inode_references(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	ASSERT(ino_rec->ino_un.ex_data != NULL);
+
+	return (*ino_rec->nlinkops->counted_nlink_get)(ino_rec, ino_offset);
+}
+
+static inline void
+set_inode_disk_nlinks(ino_tree_node_t *ino_rec, int ino_offset, __uint32_t nlinks)
+{
+	(*ino_rec->nlinkops->disk_nlink_set)(ino_rec, ino_offset, nlinks);
+}
+
+static inline __uint32_t
+get_inode_disk_nlinks(ino_tree_node_t *ino_rec, int ino_offset)
+{
+	return (*ino_rec->nlinkops->disk_nlink_get)(ino_rec, ino_offset);
+}
 
 /*
  * has an inode been processed for phase 6 (reference count checking)?
@@ -517,7 +548,7 @@ __uint32_t	num_inode_references(ino_tree_node_t *ino_rec, int ino_offset);
 #define add_inode_refchecked(ino, ino_rec, ino_offset) \
 		XFS_INOPROC_SET_PROC((ino_rec), (ino_offset))
 #define is_inode_refchecked(ino, ino_rec, ino_offset) \
-		(XFS_INOPROC_IS_PROC(ino_rec, ino_offset) == 0LL ? 0 : 1)
+		(XFS_INOPROC_IS_PROC(ino_rec, ino_offset) != 0LL)
 #else
 void add_inode_refchecked(xfs_ino_t ino,
 			ino_tree_node_t *ino_rec, int ino_offset);
@@ -530,9 +561,6 @@ int is_inode_refchecked(xfs_ino_t ino,
  */
 void		set_inode_parent(ino_tree_node_t *irec, int ino_offset,
 					xfs_ino_t ino);
-#if 0
-void		clear_inode_parent(ino_tree_node_t *irec, int offset);
-#endif
 xfs_ino_t	get_inode_parent(ino_tree_node_t *irec, int ino_offset);
 
 /*
@@ -564,3 +592,5 @@ typedef struct bm_cursor  {
 } bmap_cursor_t;
 
 void init_bm_cursor(bmap_cursor_t *cursor, int num_level);
+
+#endif /* XFS_REPAIR_INCORE_H */

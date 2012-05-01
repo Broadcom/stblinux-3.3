@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -160,7 +146,7 @@ flist_parse(
 	while (fl) {
 		f = findfield(fl->name, fields, obj, startoff);
 		if (f == NULL) {
-			dbprintf("field %s not found\n", fl->name);
+			dbprintf(_("field %s not found\n"), fl->name);
 			return 0;
 		}
 		fl->fld = f;
@@ -170,22 +156,22 @@ flist_parse(
 			low = (f->flags & FLD_ABASE1) != 0;
 			high = fcount(f, obj, startoff) + low - 1;
 			if (low > high) {
-				dbprintf("no elements in %s\n", fl->name);
+				dbprintf(_("no elements in %s\n"), fl->name);
 				return 0;
 			}
 			if (fl->flags & FL_OKHIGH) {
 				if (fl->low < low || fl->low > high ||
 				    fl->high < low || fl->high > high) {
-					dbprintf("indices %d-%d for field %s "
-						 "out of range %d-%d\n",
+					dbprintf(_("indices %d-%d for field %s "
+						 "out of range %d-%d\n"),
 						fl->low, fl->high, fl->name,
 						low, high);
 					return 0;
 				}
 			} else if (fl->flags & FL_OKLOW) {
 				if (fl->low < low || fl->low > high) {
-					dbprintf("index %d for field %s out of "
-						 "range %d-%d\n",
+					dbprintf(_("index %d for field %s out of "
+						 "range %d-%d\n"),
 						fl->low, fl->name, low, high);
 					return 0;
 				}
@@ -198,7 +184,7 @@ flist_parse(
 			}
 		} else {
 			if (fl->flags & FL_OKLOW) {
-				dbprintf("field %s is not an array\n",
+				dbprintf(_("field %s is not an array\n"),
 					fl->name);
 				return 0;
 			}
@@ -211,7 +197,7 @@ flist_parse(
 			flist_expand_structs(fl, obj);
 		if (fl->child) {
 			if (fa->subfld == NULL) {
-				dbprintf("field %s has no subfields\n",
+				dbprintf(_("field %s has no subfields\n"),
 					fl->name);
 				return 0;
 			}
@@ -231,17 +217,17 @@ flist_print(
 	if (!(debug_state & DEBUG_FLIST))
 		return;
 	while (fl) {
-		dbprintf("fl@%p:\n", fl);
-		dbprintf("\tname=%s, fld=%p, child=%p, sibling=%p\n",
+		dbprintf(_("fl@%p:\n"), fl);
+		dbprintf(_("\tname=%s, fld=%p, child=%p, sibling=%p\n"),
 			fl->name, fl->fld, fl->child, fl->sibling);
-		dbprintf("\tlow=%d, high=%d, flags=%d (%s%s), offset=%d\n",
+		dbprintf(_("\tlow=%d, high=%d, flags=%d (%s%s), offset=%d\n"),
 			fl->low, fl->high, fl->flags,
-			fl->flags & FL_OKLOW ? "oklow " : "",
-			fl->flags & FL_OKHIGH ? "okhigh" : "", fl->offset);
-		dbprintf("\tfld->name=%s, fld->ftyp=%d (%s)\n",
+			fl->flags & FL_OKLOW ? _("oklow ") : "",
+			fl->flags & FL_OKHIGH ? _("okhigh") : "", fl->offset);
+		dbprintf(_("\tfld->name=%s, fld->ftyp=%d (%s)\n"),
 			fl->fld->name, fl->fld->ftyp,
 			ftattrtab[fl->fld->ftyp].name);
-		dbprintf("\tfld->flags=%d (%s%s%s%s%s)\n", fl->fld->flags,
+		dbprintf(_("\tfld->flags=%d (%s%s%s%s%s)\n"), fl->fld->flags,
 			fl->fld->flags & FLD_ABASE1 ? "abase1 " : "",
 			fl->fld->flags & FLD_SKIPALL ? "skipall " : "",
 			fl->fld->flags & FLD_ARRAY ? "array " : "",
@@ -333,7 +319,7 @@ flist_scan(
 	ftok_free(v);
 	return fl;
 bad:
-	dbprintf("bad syntax in field name %s\n", name);
+	dbprintf(_("bad syntax in field name %s\n"), name);
 	ftok_free(v);
 	if (fl)
 		flist_free(fl);
@@ -389,7 +375,7 @@ flist_split(
 		if (*s == '\"') {
 			s++; /* skip first quote */
 			if ((a = strrchr(s, '\"')) == NULL) {
-				dbprintf("missing closing quote %s\n", s);
+				dbprintf(_("missing closing quote %s\n"), s);
 				ftok_free(v);
 				return NULL;
 			}
@@ -406,7 +392,7 @@ flist_split(
 			l = 1;
 			t = puncttypes[a - punctchars];
 		} else {
-			dbprintf("bad character in field %s\n", s);
+			dbprintf(_("bad character in field %s\n"), s);
 			ftok_free(v);
 			return NULL;
 		}

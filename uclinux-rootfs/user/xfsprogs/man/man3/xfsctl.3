@@ -2,54 +2,52 @@
 .SH NAME
 xfsctl \- control XFS filesystems and individual files
 .SH C SYNOPSIS
-.nf
-.B #include <xfs/libxfs.h>
+.B #include <xfs/xfs.h>
+.HP
+.BI "int\ xfsctl(const char *" path ", int " fd ", int " cmd ", void *" ptr );
 .PP
-.B "int xfsctl (const char *path, int fd, int cmd, void *ptr);
-.PP
-.B "int platform_test_xfs_fd (int fd);
-.B "int platform_test_xfs_path (const char *path);
-.Op
+.BI "int platform_test_xfs_fd(int " fd );
+.br
+.BI "int platform_test_xfs_path(const char *" path );
 .SH DESCRIPTION
 Some functionality specific to the XFS filesystem is accessible to
 applications through platform-specific system call interfaces.
 These operations can be divided into two sections \- operations
 that operate on individual files, and operations that operate on
-the filesystem itself.
-Care should be taken when issuing
-.I xfsctl
+the filesystem itself. Care should be taken when issuing
+.BR xfsctl ()
 calls to ensure the target path and file descriptor (both must
 be supplied) do indeed represent a file from an XFS filesystem.
 The
-.IR statfs (2)
+.BR statfs (2)
 and
-.IR fstatfs (2)
+.BR fstatfs (2)
 system calls can be used to determine whether or not an arbitrary
 path or file descriptor belong to an XFS filesystem.
 These are not portable however, so the routines
-.I platform_test_xfs_fd
+.BR platform_test_xfs_fd ()
 and
-.I platform_test_xfs_path
+.BR platform_test_xfs_path ()
 provide a platform-independent mechanism.
-
-.SS FILE OPERATIONS
+.SS File Operations
 In order to effect an operation on an individual file, the pathname
 and descriptor arguments passed to
-.I xfsctl
+.B xfsctl
 identifies the file being operated on.
 The final argument described below refers to the final argument of
-.IR xfsctl .
+.BR xfsctl .
 All of the data structures and macros mentioned below are defined in the
-<xfs/xfs_fs.h> header file.
+.RI < xfs/xfs_fs.h >
+header file.
 .PP
-.nf
-.B XFS_IOC_FREESP
-.B XFS_IOC_FREESP64
 .B XFS_IOC_ALLOCSP
-.fi
+.br
+.B XFS_IOC_ALLOCSP64
+.br
+.B XFS_IOC_FREESP
 .PD 0
 .TP
-.B XFS_IOC_ALLOCSP64
+.B XFS_IOC_FREESP64
 Alter storage space associated with a section of the ordinary
 file specified.  The section is specified by a variable of type
 .BR xfs_flock64_t ,
@@ -61,31 +59,24 @@ contains the following members:
 is 0, 1, or 2 to indicate that the relative offset
 .B l_start
 will be measured from the start of the file, the current position, or
-the end of the file, respectively.
+the end of the file, respectively (i.e.,
 .B l_start
 is the offset from the position specified in
-.BR l_whence .
-.B l_len
-is the size of the section.  An
-.B l_len
-value of zero frees up to the end of the file; in this case, the end of
-file (i.e., file size) is set to the beginning of the section freed.
-Any data previously written into this section is no longer accessible.
-If the section specified is beyond the current end of file, the file
+.BR l_whence ).
+If the offset specified is before the current end of file, any data
+previously written into this section is no longer accessible.
+If the offset specified is beyond the current end of file, the file
 is grown and filled with zeroes.
 The
 .B l_len
-field is currently ignored,
-and should be set to zero.
+field is currently ignored, and should be set to zero.
 
+.BR XFS_IOC_ALLOCSP ,
+.BR XFS_IOC_ALLOCSP64 ,
 .B XFS_IOC_FREESP
 and
-.BR XFS_IOC_FREESP64
-are identical, as are the
-.B XFS_IOC_ALLOCSP
-and
-.BR XFS_IOC_ALLOCSP64
-operations.
+.B XFS_IOC_FREESP64
+operations are all identical.
 
 .TP
 .B XFS_IOC_FSSETDM
@@ -134,16 +125,16 @@ also be an integer multiple of this amount.
 is the maximum I/O request size which can be performed on the file
 descriptor.
 If an I/O request does not meet these constraints, the
-.IR read (2)
+.BR read (2)
 or
-.IR write (2)
+.BR write (2)
 will fail with EINVAL.
 All I/O requests are kept consistent with any data brought into
 the cache with an access through a non-direct I/O file descriptor.
 
 .TP
 .B XFS_IOC_FSGETXATTR
-Get extended attributes associated with files in XFS file systems.
+Get additional attributes associated with files in XFS file systems.
 The final argument points to a variable of type
 .BR "struct fsxattr" ,
 whose fields include:
@@ -152,19 +143,93 @@ whose fields include:
 .B fsx_extsize
 (nominal extent size in file system blocks),
 .B fsx_nextents
-(number of data extents in the file),
-.B fsx_uuid
-(file unique id).
-Currently the only meaningful bits for the
-.B fsx_xflags
-field are bit 0 (value 1), which if set means the file is a realtime file,
-and bit 1 (value 2), which if set means the file has preallocated space.
+(number of data extents in the file).
 A
 .B fsx_extsize
 value returned indicates that a preferred extent size was previously
 set on the file, a
 .B fsx_extsize
 of zero indicates that the defaults for that filesystem will be used.
+Currently the meaningful bits for the
+.B fsx_xflags
+field are:
+.PD 0
+.RS
+.TP 1.0i
+.SM "Bit 0 (0x1) \- XFS_XFLAG_REALTIME"
+The file is a realtime file.
+.TP
+.SM "Bit 1 (0x2) \- XFS_XFLAG_PREALLOC"
+The file has preallocated space.
+.TP
+.SM "Bit 3 (0x8) \- XFS_XFLAG_IMMUTABLE"
+The file is immutable - it cannot be modified, deleted or renamed,
+no link can be created to this file and no data can be written to the
+file.
+Only the superuser or a process possessing the CAP_LINUX_IMMUTABLE
+capability can set or clear this flag.
+.TP
+.SM "Bit 4 (0x10) \- XFS_XFLAG_APPEND"
+The file is append-only - it can only be open in append mode for
+writing.
+Only the superuser or a process possessing the CAP_LINUX_IMMUTABLE
+capability can set or clear this flag.
+.TP
+.SM "Bit 5 (0x20) \- XFS_XFLAG_SYNC"
+All writes to the file are synchronous.
+.TP
+.SM "Bit 6 (0x40) \- XFS_XFLAG_NOATIME"
+When the file is accessed, its atime record is not modified.
+.TP
+.SM "Bit 7 (0x80) \- XFS_XFLAG_NODUMP"
+The file should be skipped by backup utilities.
+.TP
+.SM "Bit 8 (0x100) \- XFS_XFLAG_RTINHERIT"
+Realtime inheritance bit - new files created in the directory
+will be automatically realtime, and new directories created in
+the directory will inherit the inheritance bit.
+.TP
+.SM "Bit 9 (0x200) \- XFS_XFLAG_PROJINHERIT"
+Project inheritance bit - new files and directories created in
+the directory will inherit the parents project ID.  New
+directories also inherit the project inheritance bit.
+.TP
+.SM "Bit 10 (0x400) \- XFS_XFLAG_NOSYMLINKS"
+Can only be set on a directory and disallows creation of
+symbolic links in that directory.
+.TP
+.SM "Bit 11 (0x800) \- XFS_XFLAG_EXTSIZE"
+Extent size bit - if a basic extent size value is set on the file
+then the allocator will allocate in multiples of the set size for
+this file (see
+.B XFS_IOC_FSSETXATTR
+below).
+.TP
+.SM "Bit 12 (0x1000) \- XFS_XFLAG_EXTSZINHERIT"
+Extent size inheritance bit - new files and directories created in
+the directory will inherit the parents basic extent size value (see
+.B XFS_IOC_FSSETXATTR
+below).
+Can only be set on a directory.
+.TP
+.SM "Bit 13 (0x2000) \- XFS_XFLAG_NODEFRAG"
+No defragment file bit - the file should be skipped during a defragmentation
+operation. When applied to a directory, new files and directories created will
+inherit the no\-defrag bit.
+.TP
+.SM "Bit 14 (0x4000) \- XFS_XFLAG_FILESTREAM"
+Filestream allocator bit - allows a directory to reserve an allocation
+group for exclusive use by files created within that directory. Files
+being written in other directories will not use the same allocation
+group and so files within different directories will not interleave
+extents on disk. The reservation is only active while files are being
+created and written into the directory.
+.TP
+.SM "Bit 31 (0x80000000) \- XFS_XFLAG_HASATTR"
+The file has extended attributes associated with it.
+.RE
+.PP
+.PD
 
 .TP
 .B XFS_IOC_FSGETXATTRA
@@ -176,7 +241,7 @@ field contains the number of attribute extents in the file.
 
 .TP
 .B XFS_IOC_FSSETXATTR
-Set extended attributes associated with files in XFS file systems.
+Set additional attributes associated with files in XFS file systems.
 The final argument points to a variable of type
 .BR "struct fsxattr" ,
 but only the following fields are used in this call:
@@ -185,8 +250,11 @@ and
 .BR fsx_extsize .
 The
 .B fsx_xflags
-realtime file bit, and the file's extent size, may be changed only
-when the file is empty.
+realtime file bit and the file's extent size may be changed only
+when the file is empty, except in the case of a directory where
+the extent size can be set at any time (this value is only used
+for regular file allocations, so should only be set on a directory
+in conjunction with the XFS_XFLAG_EXTSZINHERIT flag).
 
 .TP
 .B XFS_IOC_GETBMAP
@@ -220,7 +288,7 @@ and fills in the
 field to indicate the length of the array.
 If the
 .B bmv_length
-value is set to -1 then the length of the interesting area is the rest
+value is set to \-1 then the length of the interesting area is the rest
 of the file.
 On return from a call, the header is updated so that the command can be
 reused to obtain more information, without re-initializing the structures.
@@ -234,7 +302,7 @@ and
 .BR bmv_length .
 If a region of the file has no blocks (is a hole in the file) then the
 .B bmv_block
-field is set to -1.
+field is set to \-1.
 
 .TP
 .B XFS_IOC_GETBMAPA
@@ -243,9 +311,7 @@ Identical to
 except that information about the attribute fork of the file is returned.
 
 .PP
-.nf
 .B XFS_IOC_RESVSP
-.fi
 .TP
 .B XFS_IOC_RESVSP64
 This command is used to allocate space to a file.
@@ -258,13 +324,11 @@ performance will be negatively affected when writing to preallocated space,
 since extra filesystem transactions are required to convert extent flags on
 the range of the file written.
 If
-.IR xfs_info (8)
+.BR xfs_info (8)
 reports unwritten=1, then the filesystem was made to flag unwritten extents.
 
 .PP
-.nf
 .B XFS_IOC_UNRESVSP
-.fi
 .TP
 .B XFS_IOC_UNRESVSP64
 This command is used to free space from a file.
@@ -273,6 +337,24 @@ A range of bytes is specified using a pointer to a variable of type
 in the final argument.
 Partial filesystem blocks are zeroed, and whole filesystem blocks are
 removed from the file.  The file size does not change.
+
+.TP
+.B XFS_IOC_ZERO_RANGE
+This command is used to convert a range of a file to zeros without issuing data
+IO.
+A range of bytes is specified using a pointer to a variable of type
+.B xfs_flock64_t
+in the final argument.
+Blocks are preallocated for regions that span holes in the file, and the entire
+range is converted to unwritten extents.
+This operation is a fast method of overwriting any from the range specified
+with zeros without removing any blocks or having to write zeros to disk.
+Any subsequent read in the given range will return zeros until new data is
+written.
+This functionality requires filesystems to support unwritten extents.
+If
+.BR xfs_info (8)
+reports unwritten=1, then the filesystem was made to flag unwritten extents.
 
 .\" .TP
 .\" .B XFS_IOC_GETBIOSIZE
@@ -306,7 +388,7 @@ removed from the file.  The file size does not change.
 .\" .B biosz_flags
 .\" field will be set to 1 if the current read or write value has been
 .\" explicitly set.
-.\" 
+.\"
 .\" .TP
 .\" .B XFS_IOC_SETBIOSIZE
 .\" This command sets information about the preferred buffered I/O size
@@ -320,7 +402,7 @@ removed from the file.  The file size does not change.
 .\" synchronous I/Os or if only a small amount of the file is accessed
 .\" using small random I/Os, resulting in little or no use of the
 .\" additional data read in near the random I/Os.
-.\" 
+.\"
 .\" To explicitly set the preferred I/O sizes, the
 .\" .B biosz_flags
 .\" field should be set to zero and the
@@ -339,7 +421,7 @@ removed from the file.  The file size does not change.
 .\" and
 .\" .B dfl_biosz_write
 .\" fields are ignored.
-.\" 
+.\"
 .\" If biosizes have already been explicitly set due to a prior use
 .\" of
 .\" .BR XFS_IOC_SETBIOSIZE ,
@@ -351,13 +433,13 @@ removed from the file.  The file size does not change.
 .\" .B biosz_flags
 .\" is set to 1, the system will use the new values
 .\" regardless of whether the new sizes are larger or smaller than the old.
-.\" 
+.\"
 .\" To reset the biosize values to the defaults for the filesystem
 .\" that the file resides in, the
 .\" .B biosz_flags
 .\" field should be set to 2.
 .\" The remainder of the fields will be ignored in that case.
-.\" 
+.\"
 .\" Changes made by
 .\" .B XFS_IOC_SETBIOSIZE
 .\" are transient.
@@ -385,14 +467,14 @@ removed from the file.  The file size does not change.
 These are all interfaces that are used to implement various
 .I libhandle
 functions (see
-.IR open_by_handle (3)).
+.BR open_by_handle (3)).
 They are all subject to change and should not be called directly
 by applications.
 
-.SS FILESYSTEM OPERATIONS
+.SS Filesystem Operations
 In order to effect one of the following operations, the pathname
 and descriptor arguments passed to
-.I xfsctl
+.BR xfsctl ()
 can be any open file in the XFS filesystem in question.
 
 .PP
@@ -482,8 +564,10 @@ The structure has the following elements:
 (number of extents),
 .B bs_gen
 (generation count),
-.B bs_projid
-(project id),
+.B bs_projid_lo
+(project id - low word),
+.B bs_projid_hi
+(project id - high word, used when projid32bit feature is enabled),
 .B bs_dmevmask
 (DMIG event mask),
 .B bs_dmstate
@@ -533,7 +617,7 @@ The remainder of these operations will not be described further
 as they are not of general use to applications.
 
 .SH SEE ALSO
-fstatfs(2),
-statfs(2),
-xfs(5),
-xfs_info(8).
+.BR fstatfs (2),
+.BR statfs (2),
+.BR xfs (5),
+.BR xfs_info (8).

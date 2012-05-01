@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -54,28 +40,28 @@ static void     fsblock_help(void);
 static void	print_rawdata(void *data, int len);
 
 static const cmdinfo_t	ablock_cmd =
-	{ "ablock", NULL, ablock_f, 1, 1, 1, "filoff",
-	  "set address to file offset (attr fork)", ablock_help };
+	{ "ablock", NULL, ablock_f, 1, 1, 1, N_("filoff"),
+	  N_("set address to file offset (attr fork)"), ablock_help };
 static const cmdinfo_t	daddr_cmd =
-	{ "daddr", NULL, daddr_f, 0, 1, 1, "[d]",
-	  "set address to daddr value", daddr_help };
+	{ "daddr", NULL, daddr_f, 0, 1, 1, N_("[d]"),
+	  N_("set address to daddr value"), daddr_help };
 static const cmdinfo_t	dblock_cmd =
-	{ "dblock", NULL, dblock_f, 1, 1, 1, "filoff",
-	  "set address to file offset (data fork)", dblock_help };
+	{ "dblock", NULL, dblock_f, 1, 1, 1, N_("filoff"),
+	  N_("set address to file offset (data fork)"), dblock_help };
 static const cmdinfo_t	fsblock_cmd =
-	{ "fsblock", "fsb", fsblock_f, 0, 1, 1, "[fsb]",
-	  "set address to fsblock value", fsblock_help };
+	{ "fsblock", "fsb", fsblock_f, 0, 1, 1, N_("[fsb]"),
+	  N_("set address to fsblock value"), fsblock_help };
 
 static void
 ablock_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n Example:\n"
 "\n"
 " 'ablock 23' - sets the file position to the 23rd filesystem block in\n"
 " the inode's attribute fork.  The filesystem block size is specified in\n"
 " the superblock.\n\n"
-);
+));
 }
 
 /*ARGSUSED*/
@@ -93,7 +79,7 @@ ablock_f(
 
 	bno = (xfs_dfiloff_t)strtoull(argv[1], &p, 0);
 	if (*p != '\0') {
-		dbprintf("bad block number %s\n", argv[1]);
+		dbprintf(_("bad block number %s\n"), argv[1]);
 		return 0;
 	}
 	push_cur();
@@ -101,13 +87,13 @@ ablock_f(
 	haveattr = XFS_DFORK_Q((xfs_dinode_t *)iocur_top->data);
 	pop_cur();
 	if (!haveattr) {
-		dbprintf("no attribute data for file\n");
+		dbprintf(_("no attribute data for file\n"));
 		return 0;
 	}
 	nex = 1;
 	bmap(bno, 1, XFS_ATTR_FORK, &nex, &bm);
 	if (nex == 0) {
-		dbprintf("file attr block is unmapped\n");
+		dbprintf(_("file attr block is unmapped\n"));
 		return 0;
 	}
 	dfsbno = bm.startblock + (bno - bm.startoff);
@@ -129,12 +115,12 @@ block_init(void)
 static void
 daddr_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n Example:\n"
 "\n"
 " 'daddr 102' - sets position to the 102nd absolute disk block\n"
 " (512 byte block).\n"
-);
+));
 }
 
 static int
@@ -146,13 +132,13 @@ daddr_f(
 	char		*p;
 
 	if (argc == 1) {
-		dbprintf("current daddr is %lld\n", iocur_top->off >> BBSHIFT);
+		dbprintf(_("current daddr is %lld\n"), iocur_top->off >> BBSHIFT);
 		return 0;
 	}
 	d = (__int64_t)strtoull(argv[1], &p, 0);
 	if (*p != '\0' ||
 	    d >= mp->m_sb.sb_dblocks << (mp->m_sb.sb_blocklog - BBSHIFT)) {
-		dbprintf("bad daddr %s\n", argv[1]);
+		dbprintf(_("bad daddr %s\n"), argv[1]);
 		return 0;
 	}
 	ASSERT(typtab[TYP_DATA].typnm == TYP_DATA);
@@ -163,13 +149,13 @@ daddr_f(
 static void
 dblock_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n Example:\n"
 "\n"
 " 'dblock 23' - sets the file position to the 23rd filesystem block in\n"
 " the inode's data fork.  The filesystem block size is specified in the\n"
 " superblock.\n\n"
-);
+));
 }
 
 static int
@@ -188,7 +174,7 @@ dblock_f(
 
 	bno = (xfs_dfiloff_t)strtoull(argv[1], &p, 0);
 	if (*p != '\0') {
-		dbprintf("bad block number %s\n", argv[1]);
+		dbprintf(_("bad block number %s\n"), argv[1]);
 		return 0;
 	}
 	push_cur();
@@ -196,14 +182,14 @@ dblock_f(
 	type = inode_next_type();
 	pop_cur();
 	if (type == TYP_NONE) {
-		dbprintf("no type for file data\n");
+		dbprintf(_("no type for file data\n"));
 		return 0;
 	}
 	nex = nb = type == TYP_DIR2 ? mp->m_dirblkfsbs : 1;
 	bmp = malloc(nb * sizeof(*bmp));
 	bmap(bno, nb, XFS_DATA_FORK, &nex, bmp);
 	if (nex == 0) {
-		dbprintf("file data block is unmapped\n");
+		dbprintf(_("file data block is unmapped\n"));
 		free(bmp);
 		return 0;
 	}
@@ -220,13 +206,13 @@ dblock_f(
 static void
 fsblock_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n Example:\n"
 "\n"
 " 'fsblock 1023' - sets the file position to the 1023rd filesystem block.\n"
 " The filesystem block size is specified in the superblock and set during\n"
 " mkfs time.  Offset is absolute (not AG relative).\n\n"
-);
+));
 }
 
 static int
@@ -240,19 +226,19 @@ fsblock_f(
 	char		*p;
 
 	if (argc == 1) {
-		dbprintf("current fsblock is %lld\n",
+		dbprintf(_("current fsblock is %lld\n"),
 			XFS_DADDR_TO_FSB(mp, iocur_top->off >> BBSHIFT));
 		return 0;
 	}
 	d = strtoull(argv[1], &p, 0);
 	if (*p != '\0') {
-		dbprintf("bad fsblock %s\n", argv[1]);
+		dbprintf(_("bad fsblock %s\n"), argv[1]);
 		return 0;
 	}
 	agno = XFS_FSB_TO_AGNO(mp, d);
 	agbno = XFS_FSB_TO_AGBNO(mp, d);
 	if (agno >= mp->m_sb.sb_agcount || agbno >= mp->m_sb.sb_agblocks) {
-		dbprintf("bad fsblock %s\n", argv[1]);
+		dbprintf(_("bad fsblock %s\n"), argv[1]);
 		return 0;
 	}
 	ASSERT(typtab[TYP_DATA].typnm == TYP_DATA);

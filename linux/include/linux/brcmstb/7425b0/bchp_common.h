@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,30 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Jun 13 13:58:31 2011
- *                 MD5 Checksum         a14f8e7f638a7ebe759043ff756befc5
+ * Date:           Generated on         Wed Mar  7 03:11:28 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_common.h $
- * 
- * Hydra_Software_Devel/6   8/15/11 3:31p vanessah
- * SW7425-715: update ViCE2 MBox data version id
- * 
- * Hydra_Software_Devel/5   8/10/11 3:04p vanessah
- * SW7425-715: 7425 B0 RDB resync
- * 
- * Hydra_Software_Devel/4   8/3/11 5:24p vanessah
- * SW7425-715: 7425 B0 RDB resync
- * 
- * Hydra_Software_Devel/3   6/14/11 1:14p vanessah
- * SW7425-715: 7425 B0 RDB resync
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -530,28 +518,6 @@
 #define BCHP_UHFR_INTR2_REG_END                            0x0043822c
 #define BCHP_UHFR_GR_BRIDGE_REG_START                      0x00438300
 #define BCHP_UHFR_GR_BRIDGE_REG_END                        0x0043830c
-#define BCHP_AVLINK_CSR_REG_START                          0x00452000
-#define BCHP_AVLINK_CSR_REG_END                            0x0045205c
-#define BCHP_AVLINK_DEBUG_REG_START                        0x00452060
-#define BCHP_AVLINK_DEBUG_REG_END                          0x00452074
-#define BCHP_AVLINK_GLOBAL_CFR_REG_START                   0x00452078
-#define BCHP_AVLINK_GLOBAL_CFR_REG_END                     0x004520b0
-#define BCHP_AVLINK_HOST_REG_START                         0x004520b4
-#define BCHP_AVLINK_HOST_REG_END                           0x004520fc
-#define BCHP_AVLINK_AVTX_REG_START                         0x00452100
-#define BCHP_AVLINK_AVTX_REG_END                           0x00452130
-#define BCHP_AVLINK_AVRX_REG_START                         0x00452140
-#define BCHP_AVLINK_AVRX_REG_END                           0x00452170
-#define BCHP_AVLINK_5C_REG_START                           0x00452180
-#define BCHP_AVLINK_5C_REG_END                             0x004521bc
-#define BCHP_AVLINK_GR_BRIDGE_REG_START                    0x00452400
-#define BCHP_AVLINK_GR_BRIDGE_REG_END                      0x0045240c
-#define BCHP_AVLINK_BRIDGE_REG_START                       0x00452410
-#define BCHP_AVLINK_BRIDGE_REG_END                         0x00452414
-#define BCHP_AVLINK_PHY_REG_START                          0x00452500
-#define BCHP_AVLINK_PHY_REG_END                            0x00452544
-#define BCHP_AVLINK_INTR2_REG_START                        0x00452600
-#define BCHP_AVLINK_INTR2_REG_END                          0x0045262c
 #define BCHP_USB_CAPS_REG_START                            0x00480000
 #define BCHP_USB_CAPS_REG_END                              0x0048002c
 #define BCHP_USB_GR_BRIDGE_REG_START                       0x00480100
@@ -568,10 +534,12 @@
 #define BCHP_USB_EHCI1_REG_END                             0x004805a4
 #define BCHP_USB_OHCI1_REG_START                           0x00480600
 #define BCHP_USB_OHCI1_REG_END                             0x00480654
-#define BCHP_USB1_INTR2_REG_START                          0x00490000
-#define BCHP_USB1_INTR2_REG_END                            0x0049002c
+#define BCHP_USB1_CAPS_REG_START                           0x00490000
+#define BCHP_USB1_CAPS_REG_END                             0x0049002c
 #define BCHP_USB1_GR_BRIDGE_REG_START                      0x00490100
 #define BCHP_USB1_GR_BRIDGE_REG_END                        0x0049010c
+#define BCHP_USB1_INTR2_REG_START                          0x00490180
+#define BCHP_USB1_INTR2_REG_END                            0x004901ac
 #define BCHP_USB1_CTRL_REG_START                           0x00490200
 #define BCHP_USB1_CTRL_REG_END                             0x00490238
 #define BCHP_USB1_EHCI_REG_START                           0x00490300
@@ -2406,7 +2374,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -2425,7 +2393,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -2444,7 +2412,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI
@@ -2856,31 +2824,39 @@
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_P    2
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_SRC_PIC_TYPE_B    3
 
-/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: CHANNEL_ID [11:08] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNEL_ID_MASK   0x00000f00
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNEL_ID_SHIFT  8
-
-/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: POLARITY [07:06] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_MASK     0x000000c0
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_SHIFT    6
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: POLARITY [11:10] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_MASK     0x00000c00
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_SHIFT    10
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_TOP      0
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_BOT      1
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_POLARITY_FRAME    2
 
-/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: REPEAT [05:05] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_MASK       0x00000020
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_SHIFT      5
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: REPEAT [09:09] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_MASK       0x00000200
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_SHIFT      9
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_DISABLE    0
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_REPEAT_ENABLE     1
 
-/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: IGNORE [04:04] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_MASK       0x00000010
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_SHIFT      4
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: IGNORE [08:08] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_MASK       0x00000100
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_SHIFT      8
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_DISABLE    0
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_IGNORE_ENABLE     1
 
-/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: reserved0 [03:00] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_reserved0_MASK    0x0000000f
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: LAST [07:07] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_LAST_MASK         0x00000080
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_LAST_SHIFT        7
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_LAST_FALSE        0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_LAST_TRUE         1
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: CHANNELCHANGE [06:06] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNELCHANGE_MASK 0x00000040
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNELCHANGE_SHIFT 6
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNELCHANGE_FALSE 0
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_CHANNELCHANGE_TRUE 1
+
+/* VICE2_REGSET_MISC :: DWORD_02_PIC_INFO :: reserved0 [05:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_reserved0_MASK    0x0000003f
 #define BCHP_VICE2_REGSET_MISC_DWORD_02_PIC_INFO_reserved0_SHIFT   0
 
 /***************************************************************************
@@ -2891,11 +2867,11 @@
 #define BCHP_VICE2_REGSET_MISC_DWORD_03_ORIGINAL_PTS_VAL_SHIFT     0
 
 /***************************************************************************
- *DWORD_04_PICTURE_ID - Picture ID
+ *DWORD_04_STG_PICTURE_ID - STG Picture ID
  ***************************************************************************/
-/* VICE2_REGSET_MISC :: DWORD_04_PICTURE_ID :: VAL [31:00] */
-#define BCHP_VICE2_REGSET_MISC_DWORD_04_PICTURE_ID_VAL_MASK        0xffffffff
-#define BCHP_VICE2_REGSET_MISC_DWORD_04_PICTURE_ID_VAL_SHIFT       0
+/* VICE2_REGSET_MISC :: DWORD_04_STG_PICTURE_ID :: VAL [31:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_04_STG_PICTURE_ID_VAL_MASK    0xffffffff
+#define BCHP_VICE2_REGSET_MISC_DWORD_04_STG_PICTURE_ID_VAL_SHIFT   0
 
 /***************************************************************************
  *MBOX - MBOX registers interface address offset.
@@ -2907,13 +2883,13 @@
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_01_SAMPLE_ASPECT_RATIO_OFFSET 4
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_02_PIC_INFO_OFFSET 8
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_03_ORIGINAL_PTS_OFFSET 12
-#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_04_PICTURE_ID_OFFSET 16
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_04_STG_PICTURE_ID_OFFSET 16
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_SIZE                 5
 
 /* VICE2_REGSET_MISC :: MBOX :: REVISION [15:00] */
 #define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_MASK                  0x0000ffff
 #define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_SHIFT                 0
-#define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_ID                    1
+#define BCHP_VICE2_REGSET_MISC_MBOX_REVISION_ID                    3
 
 /***************************************************************************
  *XPT_PB

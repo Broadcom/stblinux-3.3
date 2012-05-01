@@ -461,6 +461,7 @@ void __init plat_mem_setup(void)
 	_machine_halt = brcm_machine_halt;
 	pm_power_off = brcm_machine_halt;
 
+	brcm_wraparound_check();
 	panic_timeout = 180;
 
 #ifdef CONFIG_PCI

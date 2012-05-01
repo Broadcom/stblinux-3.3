@@ -19,9 +19,10 @@ sysdeps/unix/sysv/linux/structsem.h
 sysdeps/unix/sysv/linux/unwindbuf.h
 sysdeps/unix/sysv/linux/pthread-pi-defines.h
 sysdeps/pthread/crt[in].S
-sysdeps/pthread/pt-crt[in].S
 sysdeps/pthread/defs.h
 sysdeps/pthread/pt-initfini.s
+sysdeps/pthread/pt-crti.S
+sysdeps/pthread/pt-crtn.S
 #
 # symlinks
 #

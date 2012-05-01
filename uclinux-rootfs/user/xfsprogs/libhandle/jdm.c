@@ -1,43 +1,25 @@
 /*
- * Copyright (c) 1995, 2001-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995, 2001-2002, 2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2.1 of the GNU Lesser General Public License
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
- * USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <xfs/libxfs.h>
-
-/* attributes.h (purposefully) unavailable to xfsprogs, make do */
-struct attrlist_cursor { __u32 opaque[4]; };
-
+#include <xfs/xfs.h>
 #include <xfs/handle.h>
 #include <xfs/jdm.h>
+#include <xfs/parent.h>
 
 /* internal fshandle - typecast to a void for external use */
 #define FSHANDLE_SZ		8
@@ -45,7 +27,7 @@ typedef struct fshandle {
 	char fsh_space[FSHANDLE_SZ];
 } fshandle_t;
 
-/* private file handle - for use by open_by_handle */
+/* private file handle - for use by open_by_fshandle */
 #define FILEHANDLE_SZ		24
 #define FILEHANDLE_SZ_FOLLOWING	14
 #define FILEHANDLE_SZ_PAD	2
@@ -65,7 +47,7 @@ jdm_fill_filehandle( filehandle_t *handlep,
 {
 	handlep->fh_fshandle = *fshandlep;
 	handlep->fh_sz_following = FILEHANDLE_SZ_FOLLOWING;
-	bzero(handlep->fh_pad, FILEHANDLE_SZ_PAD);
+	memset(handlep->fh_pad, 0, FILEHANDLE_SZ_PAD);
 	handlep->fh_gen = statp->bs_gen;
 	handlep->fh_ino = statp->bs_ino;
 }
@@ -88,7 +70,7 @@ jdm_getfshandle( char *mntpnt )
 	ASSERT( sizeofmember( filehandle_t, fh_pad ) == FILEHANDLE_SZ_PAD );
 	ASSERT( FILEHANDLE_SZ_PAD == sizeof( int16_t ));
 
-	fshandlep = 0; /* for lint */
+	fshandlep = NULL; /* for lint */
 	fshandlesz = sizeof( *fshandlep );
 
 	if (!realpath( mntpnt, resolved ))
@@ -134,7 +116,7 @@ jdm_open( jdm_fshandle_t *fshp, xfs_bstat_t *statp, intgen_t oflags )
 	intgen_t fd;
 
 	jdm_fill_filehandle( &filehandle, fshandlep, statp );
-	fd = open_by_handle( ( void * )&filehandle,
+	fd = open_by_fshandle( ( void * )&filehandle,
 			     sizeof( filehandle ),
 			     oflags );
 	return fd;
@@ -184,9 +166,33 @@ jdm_attr_list(	jdm_fshandle_t *fshp,
 	filehandle_t filehandle;
 	int rval;
 
+	/* prevent needless EINVAL from the kernel */
+	if (bufsz > XATTR_LIST_MAX)
+		bufsz = XATTR_LIST_MAX;
+
 	jdm_fill_filehandle( &filehandle, fshandlep, statp );
 	rval = attr_list_by_handle (( void * )&filehandle,
 			sizeof( filehandle ),
 			bufp, bufsz, flags, cursor);
 	return rval;
+}
+
+int
+jdm_parents( jdm_fshandle_t *fshp,
+		xfs_bstat_t *statp,
+		parent_t *bufp, size_t bufsz,
+		unsigned int *count)
+{
+	errno = EOPNOTSUPP;
+	return -1;
+}
+
+int
+jdm_parentpaths( jdm_fshandle_t *fshp,
+		xfs_bstat_t *statp,
+		parent_t *bufp, size_t bufsz,
+		unsigned int *count)
+{
+	errno = EOPNOTSUPP;
+	return -1;
 }

@@ -1,36 +1,47 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * Copyright (c) 2000-2001,2004-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- * 
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- * 
- * http://www.sgi.com 
- * 
- * For further information regarding this notice, see: 
- * 
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ *
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef __XFS_MKFS_H__
 #define	__XFS_MKFS_H__
+
+#define XFS_DFL_SB_VERSION_BITS \
+                (XFS_SB_VERSION_NLINKBIT | \
+                 XFS_SB_VERSION_EXTFLGBIT | \
+                 XFS_SB_VERSION_DIRV2BIT)
+
+#define XFS_SB_VERSION_MKFS(ia,dia,log2,attr1,sflag,ci,more) (\
+	((ia)||(dia)||(log2)||(attr1)||(sflag)||(ci)||(more)) ? \
+	( XFS_SB_VERSION_4 |						\
+		((ia) ? XFS_SB_VERSION_ALIGNBIT : 0) |			\
+		((dia) ? XFS_SB_VERSION_DALIGNBIT : 0) |		\
+		((log2) ? XFS_SB_VERSION_LOGV2BIT : 0) |		\
+		((attr1) ? XFS_SB_VERSION_ATTRBIT : 0) |		\
+		((sflag) ? XFS_SB_VERSION_SECTORBIT : 0) |		\
+		((ci) ? XFS_SB_VERSION_BORGBIT : 0) |			\
+		((more) ? XFS_SB_VERSION_MOREBITSBIT : 0) |		\
+	        XFS_DFL_SB_VERSION_BITS |                               \
+	0 ) : XFS_SB_VERSION_1 )
+
+#define XFS_SB_VERSION2_MKFS(lazycount, attr2, projid32bit, parent) (\
+	((lazycount) ? XFS_SB_VERSION2_LAZYSBCOUNTBIT : 0) |		\
+	((attr2) ? XFS_SB_VERSION2_ATTR2BIT : 0) |			\
+	((projid32bit) ? XFS_SB_VERSION2_PROJID32BIT : 0) |		\
+	((parent) ? XFS_SB_VERSION2_PARENTBIT : 0) |			\
+	0 )
 
 #define	XFS_DFL_BLOCKSIZE_LOG	12		/* 4096 byte blocks */
 #define	XFS_DINODE_DFL_LOG	8		/* 256 byte inodes */
@@ -44,28 +55,31 @@
 #define	XFS_MIN_LOG_FACTOR	3		/* min log size factor */
 #define	XFS_DFL_LOG_FACTOR	16		/* default log size, factor */
 						/* with max trans reservation */
-#define XFS_MAX_INODE_SIG_BITS	32		/* most significant bits in an 
+#define XFS_MAX_INODE_SIG_BITS	32		/* most significant bits in an
 						 * inode number that we'll
 						 * accept w/o warnings
 						 */
 
+#define XFS_AG_BYTES(bblog)	((long long)BBSIZE << (bblog))
+#define	XFS_AG_MIN_BYTES	((XFS_AG_BYTES(15)))	/* 16 MB */
+#define XFS_AG_MIN_BLOCKS(blog)	((XFS_AG_BYTES(15)) >> (blog))
+#define XFS_AG_MAX_BLOCKS(blog)	((XFS_AG_BYTES(31) - 1) >> (blog))
+
+#define XFS_MAX_AGNUMBER	((xfs_agnumber_t)(NULLAGNUMBER - 1))
+
+
 /* xfs_mkfs.c */
-extern void usage (void);
 extern int isdigits (char *str);
-extern long long cvtnum (int blocksize, int sectorsize, char *s);
+extern long long cvtnum (unsigned int blocksize,
+			 unsigned int sectorsize, char *s);
 
 /* proto.c */
 extern char *setup_proto (char *fname);
-extern void parseproto (xfs_mount_t *mp, xfs_inode_t *pip, char **pp, char *n);
+extern void parse_proto (xfs_mount_t *mp, struct fsxattr *fsx, char **pp);
 extern void res_failed (int err);
 
-#define DFL_S  (XFS_MAX_SECTORSIZE_LOG + 1 - XFS_MIN_SECTORSIZE_LOG)  /* 7 */
-#define DFL_B  (XFS_MAX_BLOCKSIZE_LOG  + 1 - XFS_MIN_BLOCKSIZE_LOG)   /* 8 */
-#define DFL_I  (XFS_DINODE_MAX_LOG     + 1 - XFS_DINODE_MIN_LOG)      /* 4 */
-#define DFL_D  (XFS_MAX_BLOCKSIZE_LOG  + 1 - XFS_MIN_BLOCKSIZE_LOG)   /* 8 */
-
-/* trtab.c */
-extern const int max_trres_v1[DFL_S][DFL_B][DFL_I];
-extern const int max_trres_v2[DFL_S][DFL_B][DFL_I][DFL_D];
+/* maxtrres.c */
+extern int max_trans_res (int dirversion,
+		int sectorlog, int blocklog, int inodelog, int dirblocklog);
 
 #endif	/* __XFS_MKFS_H__ */

@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <libxfs.h>
@@ -36,14 +22,16 @@
 #include "incore.h"
 #include "agheader.h"
 #include "protos.h"
+#include "threads.h"
 #include "err_protos.h"
 
+static pthread_mutex_t	ino_flist_lock;
 extern avlnode_t	*avl_firstino(avlnode_t *root);
 
 /*
  * array of inode tree ptrs, one per ag
  */
-static avltree_desc_t	**inode_tree_ptrs;
+avltree_desc_t	**inode_tree_ptrs;
 
 /*
  * ditto for uncertain inodes
@@ -62,6 +50,193 @@ typedef struct ino_flist_s  {
 
 static ino_flist_t ino_flist;	/* free list must be initialized before use */
 
+/* memory optimised nlink counting for all inodes */
+
+static void nlink_grow_8_to_16(ino_tree_node_t *irec);
+static void nlink_grow_16_to_32(ino_tree_node_t *irec);
+
+static void
+disk_nlink_32_set(ino_tree_node_t *irec, int ino_offset, __uint32_t nlinks)
+{
+	((__uint32_t*)irec->disk_nlinks)[ino_offset] = nlinks;
+}
+
+static __uint32_t
+disk_nlink_32_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return ((__uint32_t*)irec->disk_nlinks)[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_32_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return ((__uint32_t*)irec->ino_un.ex_data->counted_nlinks)[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_32_inc(ino_tree_node_t *irec, int ino_offset)
+{
+	return ++(((__uint32_t*)irec->ino_un.ex_data->counted_nlinks)[ino_offset]);
+}
+
+static __uint32_t
+counted_nlink_32_dec(ino_tree_node_t *irec, int ino_offset)
+{
+	__uint32_t *nlinks = (__uint32_t*)irec->ino_un.ex_data->counted_nlinks;
+
+	ASSERT(nlinks[ino_offset] > 0);
+	return --(nlinks[ino_offset]);
+}
+
+
+static void
+disk_nlink_16_set(ino_tree_node_t *irec, int ino_offset, __uint32_t nlinks)
+{
+	if (nlinks >= 0x10000) {
+		nlink_grow_16_to_32(irec);
+		disk_nlink_32_set(irec, ino_offset, nlinks);
+	} else
+		((__uint16_t*)irec->disk_nlinks)[ino_offset] = nlinks;
+}
+
+static __uint32_t
+disk_nlink_16_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return ((__uint16_t*)irec->disk_nlinks)[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_16_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return ((__uint16_t*)irec->ino_un.ex_data->counted_nlinks)[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_16_inc(ino_tree_node_t *irec, int ino_offset)
+{
+	__uint16_t *nlinks = (__uint16_t*)irec->ino_un.ex_data->counted_nlinks;
+
+	if (nlinks[ino_offset] == 0xffff) {
+		nlink_grow_16_to_32(irec);
+		return counted_nlink_32_inc(irec, ino_offset);
+	}
+	return ++(nlinks[ino_offset]);
+}
+
+static __uint32_t
+counted_nlink_16_dec(ino_tree_node_t *irec, int ino_offset)
+{
+	__uint16_t *nlinks = (__uint16_t*)irec->ino_un.ex_data->counted_nlinks;
+
+	ASSERT(nlinks[ino_offset] > 0);
+	return --(nlinks[ino_offset]);
+}
+
+
+static void
+disk_nlink_8_set(ino_tree_node_t *irec, int ino_offset, __uint32_t nlinks)
+{
+	if (nlinks >= 0x100) {
+		nlink_grow_8_to_16(irec);
+		disk_nlink_16_set(irec, ino_offset, nlinks);
+	} else
+		irec->disk_nlinks[ino_offset] = nlinks;
+}
+
+static __uint32_t
+disk_nlink_8_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return irec->disk_nlinks[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_8_get(ino_tree_node_t *irec, int ino_offset)
+{
+	return irec->ino_un.ex_data->counted_nlinks[ino_offset];
+}
+
+static __uint32_t
+counted_nlink_8_inc(ino_tree_node_t *irec, int ino_offset)
+{
+	if (irec->ino_un.ex_data->counted_nlinks[ino_offset] == 0xff) {
+		nlink_grow_8_to_16(irec);
+		return counted_nlink_16_inc(irec, ino_offset);
+	}
+	return ++(irec->ino_un.ex_data->counted_nlinks[ino_offset]);
+}
+
+static __uint32_t
+counted_nlink_8_dec(ino_tree_node_t *irec, int ino_offset)
+{
+	ASSERT(irec->ino_un.ex_data->counted_nlinks[ino_offset] > 0);
+	return --(irec->ino_un.ex_data->counted_nlinks[ino_offset]);
+}
+
+
+static nlink_ops_t nlinkops[] = {
+	{sizeof(__uint8_t) * XFS_INODES_PER_CHUNK,
+		disk_nlink_8_set, disk_nlink_8_get,
+		counted_nlink_8_get, counted_nlink_8_inc, counted_nlink_8_dec},
+	{sizeof(__uint16_t) * XFS_INODES_PER_CHUNK,
+		disk_nlink_16_set, disk_nlink_16_get,
+		counted_nlink_16_get, counted_nlink_16_inc, counted_nlink_16_dec},
+	{sizeof(__uint32_t) * XFS_INODES_PER_CHUNK,
+		disk_nlink_32_set, disk_nlink_32_get,
+		counted_nlink_32_get, counted_nlink_32_inc, counted_nlink_32_dec},
+};
+
+static void
+nlink_grow_8_to_16(ino_tree_node_t *irec)
+{
+	__uint16_t	*new_nlinks;
+	int		i;
+
+	new_nlinks = malloc(sizeof(__uint16_t) * XFS_INODES_PER_CHUNK);
+	if (new_nlinks == NULL)
+		do_error(_("could not allocate expanded nlink array\n"));
+	for (i = 0; i < XFS_INODES_PER_CHUNK; i++)
+		new_nlinks[i] = irec->disk_nlinks[i];
+	free(irec->disk_nlinks);
+	irec->disk_nlinks = (__uint8_t*)new_nlinks;
+
+	if (full_ino_ex_data) {
+		new_nlinks = malloc(sizeof(__uint16_t) * XFS_INODES_PER_CHUNK);
+		if (new_nlinks == NULL)
+			do_error(_("could not allocate expanded nlink array\n"));
+		for (i = 0; i < XFS_INODES_PER_CHUNK; i++)
+			new_nlinks[i] = irec->ino_un.ex_data->counted_nlinks[i];
+		free(irec->ino_un.ex_data->counted_nlinks);
+		irec->ino_un.ex_data->counted_nlinks = (__uint8_t*)new_nlinks;
+	}
+	irec->nlinkops = &nlinkops[1];
+}
+
+static void
+nlink_grow_16_to_32(ino_tree_node_t *irec)
+{
+	__uint32_t	*new_nlinks;
+	int		i;
+
+	new_nlinks = malloc(sizeof(__uint32_t) * XFS_INODES_PER_CHUNK);
+	if (new_nlinks == NULL)
+		do_error(_("could not allocate expanded nlink array\n"));
+	for (i = 0; i < XFS_INODES_PER_CHUNK; i++)
+		new_nlinks[i] = ((__int16_t*)&irec->disk_nlinks)[i];
+	free(irec->disk_nlinks);
+	irec->disk_nlinks = (__uint8_t*)new_nlinks;
+
+	if (full_ino_ex_data) {
+		new_nlinks = malloc(sizeof(__uint32_t) * XFS_INODES_PER_CHUNK);
+		if (new_nlinks == NULL)
+			do_error(_("could not allocate expanded nlink array\n"));
+		for (i = 0; i < XFS_INODES_PER_CHUNK; i++)
+			new_nlinks[i] = ((__int16_t*)&irec->ino_un.ex_data->counted_nlinks)[i];
+		free(irec->ino_un.ex_data->counted_nlinks);
+		irec->ino_un.ex_data->counted_nlinks = (__uint8_t*)new_nlinks;
+	}
+	irec->nlinkops = &nlinkops[2];
+}
+
 /*
  * next is the uncertain inode list -- a sorted (in ascending order)
  * list of inode records sorted on the starting inode number.  There
@@ -77,45 +252,52 @@ static ino_flist_t ino_flist;	/* free list must be initialized before use */
  */
 /* ARGSUSED */
 static ino_tree_node_t *
-mk_ino_tree_nodes(xfs_agino_t starting_ino)
+mk_ino_tree_nodes(
+	xfs_agino_t		starting_ino)
 {
-	int i;
-	ino_tree_node_t *new;
-	avlnode_t *node;
+	int 			i;
+	ino_tree_node_t 	*ino_rec;
+	avlnode_t 		*node;
 
+	pthread_mutex_lock(&ino_flist_lock);
 	if (ino_flist.cnt == 0)  {
 		ASSERT(ino_flist.list == NULL);
 
-		if ((new = malloc(sizeof(ino_tree_node_t[ALLOC_NUM_INOS])))
+		if ((ino_rec = malloc(sizeof(ino_tree_node_t[ALLOC_NUM_INOS])))
 					== NULL)
 			do_error(_("inode map malloc failed\n"));
 
 		for (i = 0; i < ALLOC_NUM_INOS; i++)  {
-			new->avl_node.avl_nextino =
+			ino_rec->avl_node.avl_nextino =
 				(avlnode_t *) ino_flist.list;
-			ino_flist.list = new;
+			ino_flist.list = ino_rec;
 			ino_flist.cnt++;
-			new++;
+			ino_rec++;
 		}
 	}
 
 	ASSERT(ino_flist.list != NULL);
 
-	new = ino_flist.list;
-	ino_flist.list = (ino_tree_node_t *) new->avl_node.avl_nextino;
+	ino_rec = ino_flist.list;
+	ino_flist.list = (ino_tree_node_t *) ino_rec->avl_node.avl_nextino;
 	ino_flist.cnt--;
-	node = &new->avl_node;
+	node = &ino_rec->avl_node;
 	node->avl_nextino = node->avl_forw = node->avl_back = NULL;
+	pthread_mutex_unlock(&ino_flist_lock);
 
 	/* initialize node */
 
-	new->ino_startnum = 0;
-	new->ino_confirmed = 0;
-	new->ino_isa_dir = 0;
-	new->ir_free = (xfs_inofree_t) - 1;
-	new->ino_un.backptrs = NULL;
+	ino_rec->ino_startnum = 0;
+	ino_rec->ino_confirmed = 0;
+	ino_rec->ino_isa_dir = 0;
+	ino_rec->ir_free = (xfs_inofree_t) - 1;
+	ino_rec->ino_un.ex_data = NULL;
+	ino_rec->nlinkops = &nlinkops[0];
+	ino_rec->disk_nlinks = calloc(1, nlinkops[0].nlink_size);
+	if (ino_rec->disk_nlinks == NULL)
+		do_error(_("could not allocate nlink array\n"));
 
-	return(new);
+	return(ino_rec);
 }
 
 /*
@@ -129,6 +311,7 @@ free_ino_tree_node(ino_tree_node_t *ino_rec)
 	ino_rec->avl_node.avl_forw = NULL;
 	ino_rec->avl_node.avl_back = NULL;
 
+	pthread_mutex_lock(&ino_flist_lock);
 	if (ino_flist.list != NULL)  {
 		ASSERT(ino_flist.cnt > 0);
 		ino_rec->avl_node.avl_nextino = (avlnode_t *) ino_flist.list;
@@ -140,14 +323,17 @@ free_ino_tree_node(ino_tree_node_t *ino_rec)
 	ino_flist.list = ino_rec;
 	ino_flist.cnt++;
 
-	if (ino_rec->ino_un.backptrs != NULL)  {
-		if (full_backptrs && ino_rec->ino_un.backptrs->parents != NULL)
-			free(ino_rec->ino_un.backptrs->parents);
-		if (ino_rec->ino_un.plist != NULL)
-			free(ino_rec->ino_un.plist);
-	}
+	free(ino_rec->disk_nlinks);
 
-	return;
+	if (ino_rec->ino_un.ex_data != NULL)  {
+		if (full_ino_ex_data) {
+			free(ino_rec->ino_un.ex_data->parents);
+			free(ino_rec->ino_un.ex_data->counted_nlinks);
+		}
+		free(ino_rec->ino_un.ex_data);
+
+	}
+	pthread_mutex_unlock(&ino_flist_lock);
 }
 
 /*
@@ -215,8 +401,6 @@ add_aginode_uncertain(xfs_agnumber_t agno, xfs_agino_t ino, int free)
 	 * set cache entry
 	 */
 	last_rec[agno] = ino_rec;
-
-	return;
 }
 
 /*
@@ -234,9 +418,11 @@ add_inode_uncertain(xfs_mount_t *mp, xfs_ino_t ino, int free)
  * pull the indicated inode record out of the uncertain inode tree
  */
 void
-get_uncertain_inode_rec(xfs_agnumber_t agno, ino_tree_node_t *ino_rec)
+get_uncertain_inode_rec(struct xfs_mount *mp, xfs_agnumber_t agno,
+			ino_tree_node_t *ino_rec)
 {
 	ASSERT(inode_tree_ptrs != NULL);
+	ASSERT(agno < mp->m_sb.sb_agcount);
 	ASSERT(inode_tree_ptrs[agno] != NULL);
 
 	avl_delete(inode_uncertain_tree_ptrs[agno], &ino_rec->avl_node);
@@ -264,8 +450,6 @@ void
 clear_uncertain_ino_cache(xfs_agnumber_t agno)
 {
 	last_rec[agno] = NULL;
-
-	return;
 }
 
 
@@ -292,7 +476,7 @@ clear_uncertain_ino_cache(xfs_agnumber_t agno)
  * don't.
  */
 static ino_tree_node_t *
-add_inode(xfs_agnumber_t agno, xfs_agino_t ino)
+add_inode(struct xfs_mount *mp, xfs_agnumber_t agno, xfs_agino_t ino)
 {
 	ino_tree_node_t *ino_rec;
 
@@ -313,9 +497,10 @@ add_inode(xfs_agnumber_t agno, xfs_agino_t ino)
  * pull the indicated inode record out of the inode tree
  */
 void
-get_inode_rec(xfs_agnumber_t agno, ino_tree_node_t *ino_rec)
+get_inode_rec(struct xfs_mount *mp, xfs_agnumber_t agno, ino_tree_node_t *ino_rec)
 {
 	ASSERT(inode_tree_ptrs != NULL);
+	ASSERT(agno < mp->m_sb.sb_agcount);
 	ASSERT(inode_tree_ptrs[agno] != NULL);
 
 	avl_delete(inode_tree_ptrs[agno], &ino_rec->avl_node);
@@ -333,32 +518,21 @@ void
 free_inode_rec(xfs_agnumber_t agno, ino_tree_node_t *ino_rec)
 {
 	free_ino_tree_node(ino_rec);
-
-	return;
-}
-
-/*
- * returns the inode record desired containing the inode
- * returns NULL if inode doesn't exist.  The tree-based find
- * routines do NOT pull records out of the tree.
- */
-ino_tree_node_t *
-find_inode_rec(xfs_agnumber_t agno, xfs_agino_t ino)
-{
-	return((ino_tree_node_t *)
-		avl_findrange(inode_tree_ptrs[agno], ino));
 }
 
 void
-find_inode_rec_range(xfs_agnumber_t agno, xfs_agino_t start_ino,
-			xfs_agino_t end_ino, ino_tree_node_t **first,
-			ino_tree_node_t **last)
+find_inode_rec_range(struct xfs_mount *mp, xfs_agnumber_t agno,
+			xfs_agino_t start_ino, xfs_agino_t end_ino,
+			ino_tree_node_t **first, ino_tree_node_t **last)
 {
 	*first = *last = NULL;
 
-	avl_findranges(inode_tree_ptrs[agno], start_ino,
-		end_ino, (avlnode_t **) first, (avlnode_t **) last);
-	return;
+	/*
+	 * Is the AG inside the file system ?
+	 */
+	if (agno < mp->m_sb.sb_agcount)
+		avl_findranges(inode_tree_ptrs[agno], start_ino,
+			end_ino, (avlnode_t **) first, (avlnode_t **) last);
 }
 
 /*
@@ -367,7 +541,7 @@ find_inode_rec_range(xfs_agnumber_t agno, xfs_agino_t start_ino,
  * whichever alignment is larger.
  */
 ino_tree_node_t *
-set_inode_used_alloc(xfs_agnumber_t agno, xfs_agino_t ino)
+set_inode_used_alloc(struct xfs_mount *mp, xfs_agnumber_t agno, xfs_agino_t ino)
 {
 	ino_tree_node_t *ino_rec;
 
@@ -376,7 +550,7 @@ set_inode_used_alloc(xfs_agnumber_t agno, xfs_agino_t ino)
 	 * is too see if the chunk overlaps another chunk
 	 * already in the tree
 	 */
-	ino_rec = add_inode(agno, ino);
+	ino_rec = add_inode(mp, agno, ino);
 
 	ASSERT(ino_rec != NULL);
 	ASSERT(ino >= ino_rec->ino_startnum &&
@@ -388,11 +562,11 @@ set_inode_used_alloc(xfs_agnumber_t agno, xfs_agino_t ino)
 }
 
 ino_tree_node_t *
-set_inode_free_alloc(xfs_agnumber_t agno, xfs_agino_t ino)
+set_inode_free_alloc(struct xfs_mount *mp, xfs_agnumber_t agno, xfs_agino_t ino)
 {
 	ino_tree_node_t *ino_rec;
 
-	ino_rec = add_inode(agno, ino);
+	ino_rec = add_inode(mp, agno, ino);
 
 	ASSERT(ino_rec != NULL);
 	ASSERT(ino >= ino_rec->ino_startnum &&
@@ -401,12 +575,6 @@ set_inode_free_alloc(xfs_agnumber_t agno, xfs_agino_t ino)
 	set_inode_free(ino_rec, ino - ino_rec->ino_startnum);
 
 	return(ino_rec);
-}
-
-ino_tree_node_t *
-findfirst_inode_rec(xfs_agnumber_t agno)
-{
-	return((ino_tree_node_t *) inode_tree_ptrs[agno]->avl_firstino);
 }
 
 void
@@ -460,49 +628,61 @@ print_uncertain_inode_list(xfs_agnumber_t agno)
  * is the Nth bit set in the mask is stored in the Nth location in
  * the array where N starts at 0.
  */
+
 void
-set_inode_parent(ino_tree_node_t *irec, int offset, xfs_ino_t parent)
+set_inode_parent(
+	ino_tree_node_t		*irec,
+	int			offset,
+	xfs_ino_t		parent)
 {
-	int		i;
-	int		cnt;
-	int		target;
-	__uint64_t	bitmask;
-	parent_entry_t	*tmp;
+	parent_list_t		*ptbl;
+	int			i;
+	int			cnt;
+	int			target;
+	__uint64_t		bitmask;
+	parent_entry_t		*tmp;
 
-	ASSERT(full_backptrs == 0);
+	if (full_ino_ex_data)
+		ptbl = irec->ino_un.ex_data->parents;
+	else
+		ptbl = irec->ino_un.plist;
 
-	if (irec->ino_un.plist == NULL)  {
-		irec->ino_un.plist =
-			(parent_list_t*)malloc(sizeof(parent_list_t));
-		if (!irec->ino_un.plist)
+	if (ptbl == NULL)  {
+		ptbl = (parent_list_t *)malloc(sizeof(parent_list_t));
+		if (!ptbl)
 			do_error(_("couldn't malloc parent list table\n"));
 
-		irec->ino_un.plist->pmask = 1LL << offset;
-		irec->ino_un.plist->pentries =
-			(xfs_ino_t*)memalign(sizeof(xfs_ino_t), sizeof(xfs_ino_t));
-		if (!irec->ino_un.plist->pentries)
+		if (full_ino_ex_data)
+			irec->ino_un.ex_data->parents = ptbl;
+		else
+			irec->ino_un.plist = ptbl;
+
+		ptbl->pmask = 1LL << offset;
+		ptbl->pentries = (xfs_ino_t*)memalign(sizeof(xfs_ino_t),
+							sizeof(xfs_ino_t));
+		if (!ptbl->pentries)
 			do_error(_("couldn't memalign pentries table\n"));
 #ifdef DEBUG
-		irec->ino_un.plist->cnt = 1;
+		ptbl->cnt = 1;
 #endif
-		irec->ino_un.plist->pentries[0] = parent;
+		ptbl->pentries[0] = parent;
 
 		return;
 	}
 
-	if (irec->ino_un.plist->pmask & (1LL << offset))  {
+	if (ptbl->pmask & (1LL << offset))  {
 		bitmask = 1LL;
 		target = 0;
 
 		for (i = 0; i < offset; i++)  {
-			if (irec->ino_un.plist->pmask & bitmask)
+			if (ptbl->pmask & bitmask)
 				target++;
 			bitmask <<= 1;
 		}
 #ifdef DEBUG
-		ASSERT(target < irec->ino_un.plist->cnt);
+		ASSERT(target < ptbl->cnt);
 #endif
-		irec->ino_un.plist->pentries[target] = parent;
+		ptbl->pentries[target] = parent;
 
 		return;
 	}
@@ -511,7 +691,7 @@ set_inode_parent(ino_tree_node_t *irec, int offset, xfs_ino_t parent)
 	cnt = target = 0;
 
 	for (i = 0; i < XFS_INODES_PER_CHUNK; i++)  {
-		if (irec->ino_un.plist->pmask & bitmask)  {
+		if (ptbl->pmask & bitmask)  {
 			cnt++;
 			if (i < offset)
 				target++;
@@ -521,7 +701,7 @@ set_inode_parent(ino_tree_node_t *irec, int offset, xfs_ino_t parent)
 	}
 
 #ifdef DEBUG
-	ASSERT(cnt == irec->ino_un.plist->cnt);
+	ASSERT(cnt == ptbl->cnt);
 #endif
 	ASSERT(cnt >= target);
 
@@ -529,43 +709,22 @@ set_inode_parent(ino_tree_node_t *irec, int offset, xfs_ino_t parent)
 	if (!tmp)
 		do_error(_("couldn't memalign pentries table\n"));
 
-	(void) bcopy(irec->ino_un.plist->pentries, tmp,
-			target * sizeof(parent_entry_t));
+	memmove(tmp, ptbl->pentries, target * sizeof(parent_entry_t));
 
 	if (cnt > target)
-		(void) bcopy(irec->ino_un.plist->pentries + target,
-				tmp + target + 1,
+		memmove(tmp + target + 1, ptbl->pentries + target,
 				(cnt - target) * sizeof(parent_entry_t));
 
-	free(irec->ino_un.plist->pentries);
+	free(ptbl->pentries);
 
-	irec->ino_un.plist->pentries = tmp;
+	ptbl->pentries = tmp;
 
 #ifdef DEBUG
-	irec->ino_un.plist->cnt++;
+	ptbl->cnt++;
 #endif
-	irec->ino_un.plist->pentries[target] = parent;
-	irec->ino_un.plist->pmask |= (1LL << offset);
-
-	return;
+	ptbl->pentries[target] = parent;
+	ptbl->pmask |= (1LL << offset);
 }
-
-#if 0
-/*
- * not needed for now since we don't set the parent info
- * until phase 4 -- at which point we know that the directory
- * inode won't be going away -- so we won't ever need to clear
- * directory parent data that we set.
- */
-void
-clear_inode_parent(ino_tree_node_t *irec, int offset)
-{
-	ASSERT(full_backptrs == 0);
-	ASSERT(irec->ino_un.plist != NULL);
-
-	return;
-}
-#endif
 
 xfs_ino_t
 get_inode_parent(ino_tree_node_t *irec, int offset)
@@ -575,8 +734,8 @@ get_inode_parent(ino_tree_node_t *irec, int offset)
 	int		i;
 	int		target;
 
-	if (full_backptrs)
-		ptbl = irec->ino_un.backptrs->parents;
+	if (full_ino_ex_data)
+		ptbl = irec->ino_un.ex_data->parents;
 	else
 		ptbl = irec->ino_un.plist;
 
@@ -598,169 +757,38 @@ get_inode_parent(ino_tree_node_t *irec, int offset)
 	return(0LL);
 }
 
-/*
- * code that deals with the inode descriptor appendages -- the back
- * pointers, link counts and reached bits for phase 6 and phase 7.
- */
-
-void
-add_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
+static void
+alloc_ex_data(ino_tree_node_t *irec)
 {
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
+	parent_list_t 	*ptbl;
 
-	ino_rec->ino_un.backptrs->nlinks[ino_offset]++;
-	XFS_INO_RCHD_SET_RCHD(ino_rec, ino_offset);
+	ptbl = irec->ino_un.plist;
+	irec->ino_un.ex_data  = (ino_ex_data_t *)calloc(1, sizeof(ino_ex_data_t));
+	if (irec->ino_un.ex_data == NULL)
+		do_error(_("could not malloc inode extra data\n"));
 
-	ASSERT(is_inode_reached(ino_rec, ino_offset));
+	irec->ino_un.ex_data->parents = ptbl;
+	irec->ino_un.ex_data->counted_nlinks = calloc(1, irec->nlinkops->nlink_size);
 
-	return;
-}
-
-int
-is_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
-	return(XFS_INO_RCHD_IS_RCHD(ino_rec, ino_offset));
+	if (irec->ino_un.ex_data->counted_nlinks == NULL)
+		do_error(_("could not malloc inode extra data\n"));
 }
 
 void
-add_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
+add_ino_ex_data(xfs_mount_t *mp)
 {
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
-
-	ino_rec->ino_un.backptrs->nlinks[ino_offset]++;
-
-	return;
-}
-
-void
-drop_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
-	ASSERT(ino_rec->ino_un.backptrs->nlinks[ino_offset] > 0);
-
-	if (--ino_rec->ino_un.backptrs->nlinks[ino_offset] == 0)
-		XFS_INO_RCHD_CLR_RCHD(ino_rec, ino_offset);
-
-	return;
-}
-
-int
-is_inode_referenced(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
-	return(ino_rec->ino_un.backptrs->nlinks[ino_offset] > 0);
-}
-
-__uint32_t
-num_inode_references(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.backptrs != NULL);
-	return(ino_rec->ino_un.backptrs->nlinks[ino_offset]);
-}
-
-#if 0
-static backptrs_t	*bptrs;
-static int		bptrs_index;
-#define BPTR_ALLOC_NUM	1000
-
-backptrs_t *
-get_backptr(void)
-{
-	backptrs_t *bptr;
-
-	if (bptrs_index == BPTR_ALLOC_NUM)  {
-		ASSERT(bptrs == NULL);
-
-		if ((bptrs = malloc(sizeof(backptrs_t[BPTR_ALLOC_NUM])))
-				== NULL)  {
-			do_error(_("couldn't malloc ino rec backptrs.\n"));
-		}
-
-		bptrs_index = 0;
-	}
-
-	ASSERT(bptrs != NULL);
-
-	bptr = &bptrs[bptrs_index];
-	bptrs_index++;
-
-	if (bptrs_index == BPTR_ALLOC_NUM)
-		bptrs = NULL;
-
-	bzero(bptr, sizeof(backptrs_t));
-
-	return(bptr);
-}
-#endif
-
-backptrs_t *
-get_backptr(void)
-{
-	backptrs_t *ptr;
-
-	if ((ptr = malloc(sizeof(backptrs_t))) == NULL)
-		do_error(_("could not malloc back pointer table\n"));
-
-	bzero(ptr, sizeof(backptrs_t));
-
-	return(ptr);
-}
-
-void
-add_ino_backptrs(xfs_mount_t *mp)
-{
-#ifdef XR_BCKPTR_DBG
-	xfs_ino_t ino;
-	int j, k;
-#endif /* XR_BCKPTR_DBG */
-	ino_tree_node_t *ino_rec;
-	parent_list_t *tmp;
-	xfs_agnumber_t i;
+	ino_tree_node_t	*ino_rec;
+	xfs_agnumber_t	i;
 
 	for (i = 0; i < mp->m_sb.sb_agcount; i++)  {
 		ino_rec = findfirst_inode_rec(i);
 
 		while (ino_rec != NULL)  {
-			tmp = ino_rec->ino_un.plist;
-			ino_rec->ino_un.backptrs = get_backptr();
-			ino_rec->ino_un.backptrs->parents = tmp;
-
-#ifdef XR_BCKPTR_DBG
-			if (tmp != NULL)  {
-				k = 0;
-				for (j = 0; j < XFS_INODES_PER_CHUNK; j++)  {
-					ino = XFS_AGINO_TO_INO(mp, i,
-						ino_rec->ino_startnum + j);
-					if (ino == 25165846)  {
-						do_warn("THERE 1 !!!\n");
-					}
-					if (tmp->pentries[j] != 0)  {
-						k++;
-						do_warn(
-						"inode %llu - parent %llu\n",
-							ino,
-							tmp->pentries[j]);
-						if (ino == 25165846)  {
-							do_warn("THERE!!!\n");
-						}
-					}
-				}
-
-				if (k != tmp->cnt)  {
-					do_warn(
-					"ERROR - count = %d, counted %d\n",
-						tmp->cnt, k);
-				}
-			}
-#endif /* XR_BCKPTR_DBG */
+			alloc_ex_data(ino_rec);
 			ino_rec = next_ino_rec(ino_rec);
 		}
 	}
-
-	full_backptrs = 1;
-
-	return;
+	full_ino_ex_data = 1;
 }
 
 static __psunsigned_t
@@ -788,6 +816,7 @@ incore_ino_init(xfs_mount_t *mp)
 	int i;
 	int agcount = mp->m_sb.sb_agcount;
 
+	pthread_mutex_init(&ino_flist_lock, NULL);
 	if ((inode_tree_ptrs = malloc(agcount *
 					sizeof(avltree_desc_t *))) == NULL)
 		do_error(_("couldn't malloc inode tree descriptor table\n"));
@@ -816,11 +845,9 @@ incore_ino_init(xfs_mount_t *mp)
 	if ((last_rec = malloc(sizeof(ino_tree_node_t *) * agcount)) == NULL)
 		do_error(_("couldn't malloc uncertain inode cache area\n"));
 
-	bzero(last_rec, sizeof(ino_tree_node_t *) * agcount);
+	memset(last_rec, 0, sizeof(ino_tree_node_t *) * agcount);
 
-	full_backptrs = 0;
-
-	return;
+	full_ino_ex_data = 0;
 }
 
 #ifdef XR_INO_REF_DEBUG
@@ -830,8 +857,6 @@ add_inode_refchecked(xfs_ino_t ino, ino_tree_node_t *ino_rec, int ino_offset)
 	XFS_INOPROC_SET_PROC((ino_rec), (ino_offset));
 
 	ASSERT(is_inode_refchecked(ino, ino_rec, ino_offset));
-
-	return;
 }
 
 int

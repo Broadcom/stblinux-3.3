@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,21 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Apr 11 12:02:19 2011
- *                 MD5 Checksum         8cf142ad25caa9f873c54e8bb2bb1755
+ * Date:           Generated on         Wed Mar  7 03:11:42 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_edu.h $
- * 
- * Hydra_Software_Devel/2   4/12/11 8:35a vanessah
- * SW7425-112: Update rdb files for 7425 B0.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -65,12 +62,12 @@
 /* EDU :: CONFIG :: Swap [02:01] */
 #define BCHP_EDU_CONFIG_Swap_MASK                                  0x00000006
 #define BCHP_EDU_CONFIG_Swap_SHIFT                                 1
-#define BCHP_EDU_CONFIG_Swap_DEFAULT                               0
+#define BCHP_EDU_CONFIG_Swap_DEFAULT                               0x00000000
 
 /* EDU :: CONFIG :: Mode [00:00] */
 #define BCHP_EDU_CONFIG_Mode_MASK                                  0x00000001
 #define BCHP_EDU_CONFIG_Mode_SHIFT                                 0
-#define BCHP_EDU_CONFIG_Mode_DEFAULT                               0
+#define BCHP_EDU_CONFIG_Mode_DEFAULT                               0x00000000
 
 /***************************************************************************
  *DRAM_ADDR - DRAM Address for transaction
@@ -78,7 +75,7 @@
 /* EDU :: DRAM_ADDR :: Address [31:02] */
 #define BCHP_EDU_DRAM_ADDR_Address_MASK                            0xfffffffc
 #define BCHP_EDU_DRAM_ADDR_Address_SHIFT                           2
-#define BCHP_EDU_DRAM_ADDR_Address_DEFAULT                         0
+#define BCHP_EDU_DRAM_ADDR_Address_DEFAULT                         0x00000000
 
 /* EDU :: DRAM_ADDR :: reserved0 [01:00] */
 #define BCHP_EDU_DRAM_ADDR_reserved0_MASK                          0x00000003
@@ -90,7 +87,7 @@
 /* EDU :: EXT_ADDR :: Address [31:02] */
 #define BCHP_EDU_EXT_ADDR_Address_MASK                             0xfffffffc
 #define BCHP_EDU_EXT_ADDR_Address_SHIFT                            2
-#define BCHP_EDU_EXT_ADDR_Address_DEFAULT                          0
+#define BCHP_EDU_EXT_ADDR_Address_DEFAULT                          0x00000000
 
 /* EDU :: EXT_ADDR :: reserved0 [01:00] */
 #define BCHP_EDU_EXT_ADDR_reserved0_MASK                           0x00000003
@@ -106,7 +103,7 @@
 /* EDU :: LENGTH :: Length [09:00] */
 #define BCHP_EDU_LENGTH_Length_MASK                                0x000003ff
 #define BCHP_EDU_LENGTH_Length_SHIFT                               0
-#define BCHP_EDU_LENGTH_Length_DEFAULT                             0
+#define BCHP_EDU_LENGTH_Length_DEFAULT                             0x00000000
 
 /***************************************************************************
  *CMD - Command Type and Start
@@ -118,7 +115,7 @@
 /* EDU :: CMD :: Cmd [00:00] */
 #define BCHP_EDU_CMD_Cmd_MASK                                      0x00000001
 #define BCHP_EDU_CMD_Cmd_SHIFT                                     0
-#define BCHP_EDU_CMD_Cmd_DEFAULT                                   0
+#define BCHP_EDU_CMD_Cmd_DEFAULT                                   0x00000000
 
 /***************************************************************************
  *STOP - Stop
@@ -130,7 +127,7 @@
 /* EDU :: STOP :: Stop [00:00] */
 #define BCHP_EDU_STOP_Stop_MASK                                    0x00000001
 #define BCHP_EDU_STOP_Stop_SHIFT                                   0
-#define BCHP_EDU_STOP_Stop_DEFAULT                                 0
+#define BCHP_EDU_STOP_Stop_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *STATUS - EDU Status bits
@@ -142,12 +139,12 @@
 /* EDU :: STATUS :: Pending [01:01] */
 #define BCHP_EDU_STATUS_Pending_MASK                               0x00000002
 #define BCHP_EDU_STATUS_Pending_SHIFT                              1
-#define BCHP_EDU_STATUS_Pending_DEFAULT                            0
+#define BCHP_EDU_STATUS_Pending_DEFAULT                            0x00000000
 
 /* EDU :: STATUS :: Active [00:00] */
 #define BCHP_EDU_STATUS_Active_MASK                                0x00000001
 #define BCHP_EDU_STATUS_Active_SHIFT                               0
-#define BCHP_EDU_STATUS_Active_DEFAULT                             0
+#define BCHP_EDU_STATUS_Active_DEFAULT                             0x00000000
 
 /***************************************************************************
  *DONE - EDU Done bits
@@ -159,7 +156,7 @@
 /* EDU :: DONE :: Done [01:00] */
 #define BCHP_EDU_DONE_Done_MASK                                    0x00000003
 #define BCHP_EDU_DONE_Done_SHIFT                                   0
-#define BCHP_EDU_DONE_Done_DEFAULT                                 0
+#define BCHP_EDU_DONE_Done_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *ERR_STATUS - EDU Error Status
@@ -171,22 +168,22 @@
 /* EDU :: ERR_STATUS :: NandWrErr [03:03] */
 #define BCHP_EDU_ERR_STATUS_NandWrErr_MASK                         0x00000008
 #define BCHP_EDU_ERR_STATUS_NandWrErr_SHIFT                        3
-#define BCHP_EDU_ERR_STATUS_NandWrErr_DEFAULT                      0
+#define BCHP_EDU_ERR_STATUS_NandWrErr_DEFAULT                      0x00000000
 
 /* EDU :: ERR_STATUS :: NandECCuncor [02:02] */
 #define BCHP_EDU_ERR_STATUS_NandECCuncor_MASK                      0x00000004
 #define BCHP_EDU_ERR_STATUS_NandECCuncor_SHIFT                     2
-#define BCHP_EDU_ERR_STATUS_NandECCuncor_DEFAULT                   0
+#define BCHP_EDU_ERR_STATUS_NandECCuncor_DEFAULT                   0x00000000
 
 /* EDU :: ERR_STATUS :: NandECCcor [01:01] */
 #define BCHP_EDU_ERR_STATUS_NandECCcor_MASK                        0x00000002
 #define BCHP_EDU_ERR_STATUS_NandECCcor_SHIFT                       1
-#define BCHP_EDU_ERR_STATUS_NandECCcor_DEFAULT                     0
+#define BCHP_EDU_ERR_STATUS_NandECCcor_DEFAULT                     0x00000000
 
 /* EDU :: ERR_STATUS :: ErrAck [00:00] */
 #define BCHP_EDU_ERR_STATUS_ErrAck_MASK                            0x00000001
 #define BCHP_EDU_ERR_STATUS_ErrAck_SHIFT                           0
-#define BCHP_EDU_ERR_STATUS_ErrAck_DEFAULT                         0
+#define BCHP_EDU_ERR_STATUS_ErrAck_DEFAULT                         0x00000000
 
 #endif /* #ifndef BCHP_EDU_H__ */
 

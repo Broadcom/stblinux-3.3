@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005,2008 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <libxfs.h>
@@ -35,123 +21,85 @@
 #include "bmap.h"
 
 /*
- * Block mapping code taken from xfs_db.
+ * Track the logical to physical block mapping for inodes.
+ *
+ * Repair only processes one inode at a given time per thread, and the
+ * block map does not have to outlive the processing of a single inode.
+ *
+ * The combination of those factors means we can use pthreads thread-local
+ * storage to store the block map, and we can re-use the allocation over
+ * and over again.
  */
 
-/*
- * Append an extent to the block entry.
- */
-void
-blkent_append(
-	blkent_t	**entp,
-	xfs_dfsbno_t	b,
-	xfs_dfilblks_t	c)
-{
-	blkent_t	*ent;
-	size_t		size;
-	int		i;
+pthread_key_t	dblkmap_key;
+pthread_key_t	ablkmap_key;
 
-	ent = *entp;
-	size = BLKENT_SIZE(c + ent->nblks);
-	if ((*entp = ent = realloc(ent, size)) == NULL) {
-		do_warn(_("realloc failed in blkent_append (%u bytes)\n"),
-			size);
-		return;
-	}
-	for (i = 0; i < c; i++)
-		ent->blks[ent->nblks + i] = b + i;
-	ent->nblks += c;
-}
-
-/*
- * Make a new block entry.
- */
-blkent_t *
-blkent_new(
-	xfs_dfiloff_t	o,
-	xfs_dfsbno_t	b,
-	xfs_dfilblks_t	c)
-{
-	blkent_t	*ent;
-	int		i;
-
-	if ((ent = malloc(BLKENT_SIZE(c))) == NULL) {
-		do_warn(_("malloc failed in blkent_new (%u bytes)\n"),
-			BLKENT_SIZE(c));
-		return ent;
-	}
-	ent->nblks = c;
-	ent->startoff = o;
-	for (i = 0; i < c; i++)
-		ent->blks[i] = b + i;
-	return ent;
-}
-
-/*
- * Prepend an extent to the block entry.
- */
-void
-blkent_prepend(
-	blkent_t	**entp,
-	xfs_dfsbno_t	b,
-	xfs_dfilblks_t	c)
-{
-	int		i;
-	blkent_t	*newent;
-	blkent_t	*oldent;
-
-	oldent = *entp;
-	if ((newent = malloc(BLKENT_SIZE(oldent->nblks + c))) == NULL) {
-		do_warn(_("malloc failed in blkent_prepend (%u bytes)\n"),
-			BLKENT_SIZE(oldent->nblks + c));
-		*entp = newent;
-		return;
-	}
-	newent->nblks = oldent->nblks + c;
-	newent->startoff = oldent->startoff - c;
-	for (i = 0; i < c; i++)
-		newent->blks[i] = b + c;
-	for (; i < oldent->nblks + c; i++)
-		newent->blks[i] = oldent->blks[i - c];
-	free(oldent);
-	*entp = newent;
-}
-
-/*
- * Allocate a block map.
- */
 blkmap_t *
 blkmap_alloc(
-	xfs_extnum_t	nex)
+	xfs_extnum_t	nex,
+	int		whichfork)
 {
+	pthread_key_t	key;
 	blkmap_t	*blkmap;
+
+	ASSERT(whichfork == XFS_DATA_FORK || whichfork == XFS_ATTR_FORK);
 
 	if (nex < 1)
 		nex = 1;
-	if ((blkmap = malloc(BLKMAP_SIZE(nex))) == NULL) {
-		do_warn(_("malloc failed in blkmap_alloc (%u bytes)\n"),
-			BLKMAP_SIZE(nex));
-		return blkmap;
+
+	if (nex > BLKMAP_NEXTS_MAX) {
+#if (BITS_PER_LONG == 32)
+		do_warn(
+	_("Number of extents requested in blkmap_alloc (%d) overflows 32 bits.\n"
+	  "If this is not a corruption, then you will need a 64 bit system\n"
+	  "to repair this filesystem.\n"),
+			nex);
+#endif
+		return NULL;
 	}
-	blkmap->naents = nex;
-	blkmap->nents = 0;
+
+	key = whichfork ? ablkmap_key : dblkmap_key;
+	blkmap = pthread_getspecific(key);
+	if (!blkmap || blkmap->naexts < nex) {
+		blkmap = realloc(blkmap, BLKMAP_SIZE(nex));
+		if (!blkmap) {
+			do_warn(_("malloc failed in blkmap_alloc (%zu bytes)\n"),
+				BLKMAP_SIZE(nex));
+			return NULL;
+		}
+		pthread_setspecific(key, blkmap);
+		blkmap->naexts = nex;
+	}
+
+	blkmap->nexts = 0;
 	return blkmap;
 }
 
 /*
  * Free a block map.
+ *
+ * If the map is a large, uncommon size (say for hundreds of thousands of
+ * extents) then free it to release the memory. This prevents us from pinning
+ * large tracts of memory due to corrupted fork values or one-off fragmented
+ * files. Otherwise we have nothing to do but keep the memory around for the
+ * next inode
  */
 void
 blkmap_free(
 	blkmap_t	*blkmap)
 {
-	blkent_t	**entp;
-	xfs_extnum_t	i;
-
-	if (blkmap == NULL)
+	if (!blkmap)
 		return;
-	for (i = 0, entp = blkmap->ents; i < blkmap->nents; i++, entp++)
-		free(*entp);
+
+	/* consider more than 100k extents rare */
+	if (blkmap->naexts < 100 * 1024)
+		return;
+
+	if (blkmap == pthread_getspecific(dblkmap_key))
+		pthread_setspecific(dblkmap_key, NULL);
+	else
+		pthread_setspecific(ablkmap_key, NULL);
+
 	free(blkmap);
 }
 
@@ -163,103 +111,83 @@ blkmap_get(
 	blkmap_t	*blkmap,
 	xfs_dfiloff_t	o)
 {
-	blkent_t	*ent;
-	blkent_t	**entp;
+	bmap_ext_t	*ext = blkmap->exts;
 	int		i;
 
-	for (i = 0, entp = blkmap->ents; i < blkmap->nents; i++, entp++) {
-		ent = *entp;
-		if (o >= ent->startoff && o < ent->startoff + ent->nblks)
-			return ent->blks[o - ent->startoff];
+	for (i = 0; i < blkmap->nexts; i++, ext++) {
+		if (o >= ext->startoff && o < ext->startoff + ext->blockcount)
+			return ext->startblock + (o - ext->startoff);
 	}
 	return NULLDFSBNO;
 }
 
 /*
- * Get a chunk of entries from a block map.
+ * Get a chunk of entries from a block map - only used for reading dirv2 blocks
  */
 int
 blkmap_getn(
 	blkmap_t	*blkmap,
 	xfs_dfiloff_t	o,
 	xfs_dfilblks_t	nb,
-	bmap_ext_t	**bmpp)
+	bmap_ext_t	**bmpp,
+	bmap_ext_t	*bmpp_single)
 {
-	bmap_ext_t	*bmp;
-	blkent_t	*ent;
-	xfs_dfiloff_t	ento;
-	blkent_t	**entp;
+	bmap_ext_t	*bmp = NULL;
+	bmap_ext_t	*ext;
 	int		i;
 	int		nex;
 
-	for (i = nex = 0, bmp = NULL, entp = blkmap->ents;
-	     i < blkmap->nents;
-	     i++, entp++) {
-		ent = *entp;
-		if (ent->startoff >= o + nb)
+	if (nb == 1) {
+		/*
+		 * in the common case, when mp->m_dirblkfsbs == 1,
+		 * avoid additional malloc/free overhead
+		 */
+		bmpp_single->startblock = blkmap_get(blkmap, o);
+		goto single_ext;
+	}
+	ext = blkmap->exts;
+	nex = 0;
+	for (i = 0; i < blkmap->nexts; i++, ext++) {
+
+		if (ext->startoff >= o + nb)
 			break;
-		if (ent->startoff + ent->nblks <= o)
+		if (ext->startoff + ext->blockcount <= o)
 			continue;
-		for (ento = ent->startoff;
-		     ento < ent->startoff + ent->nblks && ento < o + nb;
-		     ento++) {
-			if (ento < o)
-				continue;
-			if (bmp &&
-			    bmp[nex - 1].startoff + bmp[nex - 1].blockcount ==
-				    ento &&
-			    bmp[nex - 1].startblock + bmp[nex - 1].blockcount ==
-				    ent->blks[ento - ent->startoff])
-				bmp[nex - 1].blockcount++;
-			else {
-				bmp = realloc(bmp, ++nex * sizeof(*bmp));
-				if (bmp == NULL) {
-					do_warn(_("blkmap_getn realloc failed"
-						" (%u bytes)\n"),
-						nex * sizeof(*bmp));
-					continue;
-				}
-				bmp[nex - 1].startoff = ento;
-				bmp[nex - 1].startblock =
-					ent->blks[ento - ent->startoff];
-				bmp[nex - 1].blockcount = 1;
-				bmp[nex - 1].flag = 0;
-			}
+
+		/*
+		 * if all the requested blocks are in one extent (also common),
+		 * use the bmpp_single option as well
+		 */
+		if (!bmp && o >= ext->startoff &&
+		    o + nb <= ext->startoff + ext->blockcount) {
+			bmpp_single->startblock =
+				 ext->startblock + (o - ext->startoff);
+			goto single_ext;
 		}
+
+		/*
+		 * rare case - multiple extents for a single dir block
+		 */
+		bmp = malloc(nb * sizeof(bmap_ext_t));
+		if (!bmp)
+			do_error(_("blkmap_getn malloc failed (%" PRIu64 " bytes)\n"),
+						nb * sizeof(bmap_ext_t));
+
+		bmp[nex].startblock = ext->startblock + (o - ext->startoff);
+		bmp[nex].blockcount = MIN(nb, ext->blockcount -
+				(bmp[nex].startblock - ext->startblock));
+		o += bmp[nex].blockcount;
+		nb -= bmp[nex].blockcount;
+		nex++;
 	}
 	*bmpp = bmp;
 	return nex;
-}
 
-/*
- * Make a block map larger.
- */
-void
-blkmap_grow(
-	blkmap_t	**blkmapp,
-	blkent_t	**entp,
-	blkent_t	*newent)
-{
-	blkmap_t	*blkmap;
-	size_t		size;
-	int		i;
-	int		idx;
-
-	blkmap = *blkmapp;
-	idx = (int)(entp - blkmap->ents);
-	if (blkmap->naents == blkmap->nents) {
-		size = BLKMAP_SIZE(blkmap->nents + 1);
-		if ((*blkmapp = blkmap = realloc(blkmap, size)) == NULL) {
-			do_warn(_("realloc failed in blkmap_grow (%u bytes)\n"),
-				size);
-			return;
-		}
-		blkmap->naents++;
-	}
-	for (i = blkmap->nents; i > idx; i--)
-		blkmap->ents[i] = blkmap->ents[i - 1];
-	blkmap->ents[idx] = newent;
-	blkmap->nents++;
+single_ext:
+	bmpp_single->blockcount = nb;
+	bmpp_single->startoff = 0;	/* not even used by caller! */
+	*bmpp = bmpp_single;
+	return (bmpp_single->startblock != NULLDFSBNO) ? 1 : 0;
 }
 
 /*
@@ -269,12 +197,12 @@ xfs_dfiloff_t
 blkmap_last_off(
 	blkmap_t	*blkmap)
 {
-	blkent_t	*ent;
+	bmap_ext_t	*ext;
 
-	if (!blkmap->nents)
+	if (!blkmap->nexts)
 		return NULLDFILOFF;
-	ent = blkmap->ents[blkmap->nents - 1];
-	return ent->startoff + ent->nblks;
+	ext = blkmap->exts + blkmap->nexts - 1;
+	return ext->startoff + ext->blockcount;
 }
 
 /*
@@ -286,125 +214,102 @@ blkmap_next_off(
 	xfs_dfiloff_t	o,
 	int		*t)
 {
-	blkent_t	*ent;
-	blkent_t	**entp;
+	bmap_ext_t	*ext;
 
-	if (!blkmap->nents)
+	if (!blkmap->nexts)
 		return NULLDFILOFF;
 	if (o == NULLDFILOFF) {
 		*t = 0;
-		ent = blkmap->ents[0];
-		return ent->startoff;
+		return blkmap->exts[0].startoff;
 	}
-	entp = &blkmap->ents[*t];
-	ent = *entp;
-	if (o < ent->startoff + ent->nblks - 1)
+	ext = blkmap->exts + *t;
+	if (o < ext->startoff + ext->blockcount - 1)
 		return o + 1;
-	entp++;
-	if (entp >= &blkmap->ents[blkmap->nents])
+	if (*t >= blkmap->nexts - 1)
 		return NULLDFILOFF;
 	(*t)++;
-	ent = *entp;
-	return ent->startoff;
+	return ext[1].startoff;
 }
 
 /*
- * Set a block value in a block map.
+ * Make a block map larger.
  */
-void
-blkmap_set_blk(
-	blkmap_t	**blkmapp,
-	xfs_dfiloff_t	o,
-	xfs_dfsbno_t	b)
+static blkmap_t *
+blkmap_grow(
+	blkmap_t	*blkmap)
 {
-	blkmap_t	*blkmap;
-	blkent_t	*ent;
-	blkent_t	**entp;
-	blkent_t	*nextent;
+	pthread_key_t	key = dblkmap_key;
+	blkmap_t	*new_blkmap;
+	int		new_naexts = blkmap->naexts + 4;
 
-	blkmap = *blkmapp;
-	for (entp = blkmap->ents; entp < &blkmap->ents[blkmap->nents]; entp++) {
-		ent = *entp;
-		if (o < ent->startoff - 1) {
-			ent = blkent_new(o, b, 1);
-			blkmap_grow(blkmapp, entp, ent);
-			return;
-		}
-		if (o == ent->startoff - 1) {
-			blkent_prepend(entp, b, 1);
-			return;
-		}
-		if (o >= ent->startoff && o < ent->startoff + ent->nblks) {
-			ent->blks[o - ent->startoff] = b;
-			return;
-		}
-		if (o > ent->startoff + ent->nblks)
-			continue;
-		blkent_append(entp, b, 1);
-		if (entp == &blkmap->ents[blkmap->nents - 1])
-			return;
-		ent = *entp;
-		nextent = entp[1];
-		if (ent->startoff + ent->nblks < nextent->startoff)
-			return;
-		blkent_append(entp, nextent->blks[0], nextent->nblks);
-		blkmap_shrink(blkmap, &entp[1]);
-		return;
+	if (pthread_getspecific(key) != blkmap) {
+		key = ablkmap_key;
+		ASSERT(pthread_getspecific(key) == blkmap);
 	}
-	ent = blkent_new(o, b, 1);
-	blkmap_grow(blkmapp, entp, ent);
+
+	if (new_naexts > BLKMAP_NEXTS_MAX) {
+#if (BITS_PER_LONG == 32)
+		do_error(
+	_("Number of extents requested in blkmap_grow (%d) overflows 32 bits.\n"
+	  "You need a 64 bit system to repair this filesystem.\n"),
+			new_naexts);
+#endif
+		return NULL;
+	}
+	if (new_naexts <= 0) {
+		do_error(
+	_("Number of extents requested in blkmap_grow (%d) overflowed the\n"
+	  "maximum number of supported extents (%d).\n"),
+			new_naexts, BLKMAP_NEXTS_MAX);
+		return NULL;
+	}
+
+	new_blkmap = realloc(blkmap, BLKMAP_SIZE(new_naexts));
+	if (!new_blkmap) {
+		do_error(_("realloc failed in blkmap_grow\n"));
+		return NULL;
+	}
+	new_blkmap->naexts = new_naexts;
+	pthread_setspecific(key, new_blkmap);
+	return new_blkmap;
 }
 
 /*
  * Set an extent into a block map.
+ *
+ * If this function fails, it leaves the blkmapp untouched so the caller can
+ * handle the error and free the blkmap appropriately.
  */
-void
+int
 blkmap_set_ext(
 	blkmap_t	**blkmapp,
 	xfs_dfiloff_t	o,
 	xfs_dfsbno_t	b,
 	xfs_dfilblks_t	c)
 {
-	blkmap_t	*blkmap;
-	blkent_t	*ent;
-	blkent_t	**entp;
+	blkmap_t	*blkmap = *blkmapp;
 	xfs_extnum_t	i;
 
-	blkmap = *blkmapp;
-	if (!blkmap->nents) {
-		blkmap->ents[0] = blkent_new(o, b, c);
-		blkmap->nents = 1;
-		return;
+	if (blkmap->nexts == blkmap->naexts) {
+		blkmap = blkmap_grow(blkmap);
+		if (!blkmap)
+			return ENOMEM;
+		*blkmapp = blkmap;
 	}
-	entp = &blkmap->ents[blkmap->nents - 1];
-	ent = *entp;
-	if (ent->startoff + ent->nblks == o) {
-		blkent_append(entp, b, c);
-		return;
-	}
-	if (ent->startoff + ent->nblks < o) {
-		ent = blkent_new(o, b, c);
-		blkmap_grow(blkmapp, &blkmap->ents[blkmap->nents], ent);
-		return;
-	}
-	for (i = 0; i < c; i++)
-		blkmap_set_blk(blkmapp, o + i, b + i);
-}
 
-/*
- * Make a block map smaller.
- */
-void
-blkmap_shrink(
-	blkmap_t	*blkmap,
-	blkent_t	**entp)
-{
-	int		i;
-	int		idx;
+	ASSERT(blkmap->nexts < blkmap->naexts);
+	for (i = 0; i < blkmap->nexts; i++) {
+		if (blkmap->exts[i].startoff > o) {
+			memmove(blkmap->exts + i + 1,
+				blkmap->exts + i,
+				sizeof(bmap_ext_t) * (blkmap->nexts - i));
+			break;
+		}
+	}
 
-	free(*entp);
-	idx = (int)(entp - blkmap->ents);
-	for (i = idx + 1; i < blkmap->nents; i++)
-		blkmap->ents[i] = blkmap->ents[i - 1];
-	blkmap->nents--;
+	blkmap->exts[i].startoff = o;
+	blkmap->exts[i].startblock = b;
+	blkmap->exts[i].blockcount = c;
+	blkmap->nexts++;
+	return 0;
 }

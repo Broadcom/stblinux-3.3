@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -94,8 +80,8 @@ bmroota_key_count(
 	ASSERT(obj == iocur_top->data);
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT(XFS_DFORK_Q(dip) && (char *)block == XFS_DFORK_APTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	return INT_GET(block->bb_numrecs, ARCH_CONVERT);
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	return be16_to_cpu(block->bb_numrecs);
 }
 
 static int
@@ -114,9 +100,8 @@ bmroota_key_offset(
 	dip = obj;
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT(XFS_DFORK_Q(dip) && (char *)block == XFS_DFORK_APTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	kp = XFS_BTREE_KEY_ADDR(iocur_top->len, xfs_bmdr, block, idx,
-		XFS_BTREE_BLOCK_MAXRECS(XFS_DFORK_ASIZE(dip, mp), xfs_bmdr, 0));
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	kp = XFS_BMDR_KEY_ADDR(block, idx);
 	return bitize((int)((char *)kp - (char *)block));
 }
 
@@ -134,8 +119,8 @@ bmroota_ptr_count(
 	ASSERT(obj == iocur_top->data);
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT(XFS_DFORK_Q(dip) && (char *)block == XFS_DFORK_APTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	return INT_GET(block->bb_numrecs, ARCH_CONVERT);
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	return be16_to_cpu(block->bb_numrecs);
 }
 
 static int
@@ -153,9 +138,9 @@ bmroota_ptr_offset(
 	dip = obj;
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT(XFS_DFORK_Q(dip) && (char *)block == XFS_DFORK_APTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	pp = XFS_BTREE_PTR_ADDR(iocur_top->len, xfs_bmdr, block, idx,
-		XFS_BTREE_BLOCK_MAXRECS(XFS_DFORK_ASIZE(dip, mp), xfs_bmdr, 0));
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	pp = XFS_BMDR_PTR_ADDR(block, idx,
+		xfs_bmdr_maxrecs(mp, XFS_DFORK_ASIZE(dip, mp), 0));
 	return bitize((int)((char *)pp - (char *)block));
 }
 
@@ -195,8 +180,8 @@ bmrootd_key_count(
 	ASSERT(obj == iocur_top->data);
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT((char *)block == XFS_DFORK_DPTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	return INT_GET(block->bb_numrecs, ARCH_CONVERT);
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	return be16_to_cpu(block->bb_numrecs);
 }
 
 static int
@@ -207,15 +192,12 @@ bmrootd_key_offset(
 {
 	xfs_bmdr_block_t	*block;
 	xfs_bmdr_key_t		*kp;
-	xfs_dinode_t		*dip;
 
 	ASSERT(bitoffs(startoff) == 0);
 	ASSERT(obj == iocur_top->data);
-	dip = obj;
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	kp = XFS_BTREE_KEY_ADDR(iocur_top->len, xfs_bmdr, block, idx,
-		XFS_BTREE_BLOCK_MAXRECS(XFS_DFORK_DSIZE(dip, mp), xfs_bmdr, 0));
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	kp = XFS_BMDR_KEY_ADDR(block, idx);
 	return bitize((int)((char *)kp - (char *)block));
 }
 
@@ -233,8 +215,8 @@ bmrootd_ptr_count(
 	ASSERT(obj == iocur_top->data);
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
 	ASSERT((char *)block == XFS_DFORK_DPTR(dip));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	return INT_GET(block->bb_numrecs, ARCH_CONVERT);
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	return be16_to_cpu(block->bb_numrecs);
 }
 
 static int
@@ -251,9 +233,9 @@ bmrootd_ptr_offset(
 	ASSERT(obj == iocur_top->data);
 	dip = obj;
 	block = (xfs_bmdr_block_t *)((char *)obj + byteize(startoff));
-	ASSERT(INT_GET(block->bb_level, ARCH_CONVERT) > 0);
-	pp = XFS_BTREE_PTR_ADDR(iocur_top->len, xfs_bmdr, block, idx,
-		XFS_BTREE_BLOCK_MAXRECS(XFS_DFORK_DSIZE(dip, mp), xfs_bmdr, 0));
+	ASSERT(be16_to_cpu(block->bb_level) > 0);
+	pp = XFS_BMDR_PTR_ADDR(block, idx,
+		xfs_bmdr_maxrecs(mp, XFS_DFORK_DSIZE(dip, mp), 0));
 	return bitize((int)((char *)pp - (char *)block));
 }
 

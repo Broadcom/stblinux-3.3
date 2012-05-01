@@ -28,16 +28,7 @@ Linux Instructions
    (on an RPM based system) or the uuid-dev package (on a Debian system)
    as some of the commands make use of the UUID library provided by these.
 
-   If you just want to spin an RPM and/or tar file, use the Makepkgs
-   script in the top level directory. This will configure and build
-   the package and leave binary and src RPMs in the build/rpm
-   directory.  It will also leave a tar file in the build/tar
-   directory.
-
-	# ./Makepkgs verbose
-
-   If you want to build the package and install it manually, use the
-   following steps:
+   To build the package and install it manually, use the following steps:
 
 	# make
 	# su root

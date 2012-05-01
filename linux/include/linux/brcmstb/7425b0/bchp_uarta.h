@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,21 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Apr 11 12:37:09 2011
- *                 MD5 Checksum         8cf142ad25caa9f873c54e8bb2bb1755
+ * Date:           Generated on         Wed Mar  7 03:11:44 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_uarta.h $
- * 
- * Hydra_Software_Devel/2   4/12/11 4:39p vanessah
- * SW7425-112: Update rdb files for 7425 B0.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -68,7 +65,7 @@
 /* UARTA :: RBR :: RBR [07:00] */
 #define BCHP_UARTA_RBR_RBR_MASK                                    0x000000ff
 #define BCHP_UARTA_RBR_RBR_SHIFT                                   0
-#define BCHP_UARTA_RBR_RBR_DEFAULT                                 0
+#define BCHP_UARTA_RBR_RBR_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *THR - Transmit Holding Register
@@ -80,7 +77,7 @@
 /* UARTA :: THR :: THR [07:00] */
 #define BCHP_UARTA_THR_THR_MASK                                    0x000000ff
 #define BCHP_UARTA_THR_THR_SHIFT                                   0
-#define BCHP_UARTA_THR_THR_DEFAULT                                 0
+#define BCHP_UARTA_THR_THR_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *DLH - Divisor Latch High
@@ -92,7 +89,7 @@
 /* UARTA :: DLH :: DLH [07:00] */
 #define BCHP_UARTA_DLH_DLH_MASK                                    0x000000ff
 #define BCHP_UARTA_DLH_DLH_SHIFT                                   0
-#define BCHP_UARTA_DLH_DLH_DEFAULT                                 0
+#define BCHP_UARTA_DLH_DLH_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *DLL - Divisor Latch Low
@@ -104,7 +101,7 @@
 /* UARTA :: DLL :: DLL [07:00] */
 #define BCHP_UARTA_DLL_DLL_MASK                                    0x000000ff
 #define BCHP_UARTA_DLL_DLL_SHIFT                                   0
-#define BCHP_UARTA_DLL_DLL_DEFAULT                                 0
+#define BCHP_UARTA_DLL_DLL_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *IER - Interrupt Enable Register
@@ -116,7 +113,7 @@
 /* UARTA :: IER :: PTIME [07:07] */
 #define BCHP_UARTA_IER_PTIME_MASK                                  0x00000080
 #define BCHP_UARTA_IER_PTIME_SHIFT                                 7
-#define BCHP_UARTA_IER_PTIME_DEFAULT                               0
+#define BCHP_UARTA_IER_PTIME_DEFAULT                               0x00000000
 
 /* UARTA :: IER :: reserved1 [06:04] */
 #define BCHP_UARTA_IER_reserved1_MASK                              0x00000070
@@ -125,22 +122,22 @@
 /* UARTA :: IER :: EDSSI [03:03] */
 #define BCHP_UARTA_IER_EDSSI_MASK                                  0x00000008
 #define BCHP_UARTA_IER_EDSSI_SHIFT                                 3
-#define BCHP_UARTA_IER_EDSSI_DEFAULT                               0
+#define BCHP_UARTA_IER_EDSSI_DEFAULT                               0x00000000
 
 /* UARTA :: IER :: ELSI [02:02] */
 #define BCHP_UARTA_IER_ELSI_MASK                                   0x00000004
 #define BCHP_UARTA_IER_ELSI_SHIFT                                  2
-#define BCHP_UARTA_IER_ELSI_DEFAULT                                0
+#define BCHP_UARTA_IER_ELSI_DEFAULT                                0x00000000
 
 /* UARTA :: IER :: ETBEI [01:01] */
 #define BCHP_UARTA_IER_ETBEI_MASK                                  0x00000002
 #define BCHP_UARTA_IER_ETBEI_SHIFT                                 1
-#define BCHP_UARTA_IER_ETBEI_DEFAULT                               0
+#define BCHP_UARTA_IER_ETBEI_DEFAULT                               0x00000000
 
 /* UARTA :: IER :: ERBFI [00:00] */
 #define BCHP_UARTA_IER_ERBFI_MASK                                  0x00000001
 #define BCHP_UARTA_IER_ERBFI_SHIFT                                 0
-#define BCHP_UARTA_IER_ERBFI_DEFAULT                               0
+#define BCHP_UARTA_IER_ERBFI_DEFAULT                               0x00000000
 
 /***************************************************************************
  *IIR - Interrupt Identity Register
@@ -152,7 +149,7 @@
 /* UARTA :: IIR :: FIFOSE [07:06] */
 #define BCHP_UARTA_IIR_FIFOSE_MASK                                 0x000000c0
 #define BCHP_UARTA_IIR_FIFOSE_SHIFT                                6
-#define BCHP_UARTA_IIR_FIFOSE_DEFAULT                              0
+#define BCHP_UARTA_IIR_FIFOSE_DEFAULT                              0x00000000
 
 /* UARTA :: IIR :: reserved1 [05:04] */
 #define BCHP_UARTA_IIR_reserved1_MASK                              0x00000030
@@ -161,7 +158,7 @@
 /* UARTA :: IIR :: IID [03:00] */
 #define BCHP_UARTA_IIR_IID_MASK                                    0x0000000f
 #define BCHP_UARTA_IIR_IID_SHIFT                                   0
-#define BCHP_UARTA_IIR_IID_DEFAULT                                 1
+#define BCHP_UARTA_IIR_IID_DEFAULT                                 0x00000001
 
 /***************************************************************************
  *FCR - FIFO Control Register
@@ -173,32 +170,32 @@
 /* UARTA :: FCR :: RT [07:06] */
 #define BCHP_UARTA_FCR_RT_MASK                                     0x000000c0
 #define BCHP_UARTA_FCR_RT_SHIFT                                    6
-#define BCHP_UARTA_FCR_RT_DEFAULT                                  0
+#define BCHP_UARTA_FCR_RT_DEFAULT                                  0x00000000
 
 /* UARTA :: FCR :: TET [05:04] */
 #define BCHP_UARTA_FCR_TET_MASK                                    0x00000030
 #define BCHP_UARTA_FCR_TET_SHIFT                                   4
-#define BCHP_UARTA_FCR_TET_DEFAULT                                 0
+#define BCHP_UARTA_FCR_TET_DEFAULT                                 0x00000000
 
 /* UARTA :: FCR :: DMAM [03:03] */
 #define BCHP_UARTA_FCR_DMAM_MASK                                   0x00000008
 #define BCHP_UARTA_FCR_DMAM_SHIFT                                  3
-#define BCHP_UARTA_FCR_DMAM_DEFAULT                                0
+#define BCHP_UARTA_FCR_DMAM_DEFAULT                                0x00000000
 
 /* UARTA :: FCR :: XFIFOR [02:02] */
 #define BCHP_UARTA_FCR_XFIFOR_MASK                                 0x00000004
 #define BCHP_UARTA_FCR_XFIFOR_SHIFT                                2
-#define BCHP_UARTA_FCR_XFIFOR_DEFAULT                              0
+#define BCHP_UARTA_FCR_XFIFOR_DEFAULT                              0x00000000
 
 /* UARTA :: FCR :: RFIFOR [01:01] */
 #define BCHP_UARTA_FCR_RFIFOR_MASK                                 0x00000002
 #define BCHP_UARTA_FCR_RFIFOR_SHIFT                                1
-#define BCHP_UARTA_FCR_RFIFOR_DEFAULT                              0
+#define BCHP_UARTA_FCR_RFIFOR_DEFAULT                              0x00000000
 
 /* UARTA :: FCR :: FIFOE [00:00] */
 #define BCHP_UARTA_FCR_FIFOE_MASK                                  0x00000001
 #define BCHP_UARTA_FCR_FIFOE_SHIFT                                 0
-#define BCHP_UARTA_FCR_FIFOE_DEFAULT                               0
+#define BCHP_UARTA_FCR_FIFOE_DEFAULT                               0x00000000
 
 /***************************************************************************
  *LCR - Line Control Register
@@ -210,12 +207,12 @@
 /* UARTA :: LCR :: DLAB [07:07] */
 #define BCHP_UARTA_LCR_DLAB_MASK                                   0x00000080
 #define BCHP_UARTA_LCR_DLAB_SHIFT                                  7
-#define BCHP_UARTA_LCR_DLAB_DEFAULT                                0
+#define BCHP_UARTA_LCR_DLAB_DEFAULT                                0x00000000
 
 /* UARTA :: LCR :: BC [06:06] */
 #define BCHP_UARTA_LCR_BC_MASK                                     0x00000040
 #define BCHP_UARTA_LCR_BC_SHIFT                                    6
-#define BCHP_UARTA_LCR_BC_DEFAULT                                  0
+#define BCHP_UARTA_LCR_BC_DEFAULT                                  0x00000000
 
 /* UARTA :: LCR :: reserved1 [05:05] */
 #define BCHP_UARTA_LCR_reserved1_MASK                              0x00000020
@@ -224,22 +221,22 @@
 /* UARTA :: LCR :: EPS [04:04] */
 #define BCHP_UARTA_LCR_EPS_MASK                                    0x00000010
 #define BCHP_UARTA_LCR_EPS_SHIFT                                   4
-#define BCHP_UARTA_LCR_EPS_DEFAULT                                 0
+#define BCHP_UARTA_LCR_EPS_DEFAULT                                 0x00000000
 
 /* UARTA :: LCR :: PEN [03:03] */
 #define BCHP_UARTA_LCR_PEN_MASK                                    0x00000008
 #define BCHP_UARTA_LCR_PEN_SHIFT                                   3
-#define BCHP_UARTA_LCR_PEN_DEFAULT                                 0
+#define BCHP_UARTA_LCR_PEN_DEFAULT                                 0x00000000
 
 /* UARTA :: LCR :: STOP [02:02] */
 #define BCHP_UARTA_LCR_STOP_MASK                                   0x00000004
 #define BCHP_UARTA_LCR_STOP_SHIFT                                  2
-#define BCHP_UARTA_LCR_STOP_DEFAULT                                0
+#define BCHP_UARTA_LCR_STOP_DEFAULT                                0x00000000
 
 /* UARTA :: LCR :: DLS [01:00] */
 #define BCHP_UARTA_LCR_DLS_MASK                                    0x00000003
 #define BCHP_UARTA_LCR_DLS_SHIFT                                   0
-#define BCHP_UARTA_LCR_DLS_DEFAULT                                 0
+#define BCHP_UARTA_LCR_DLS_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *MCR - Modem Control Register
@@ -251,37 +248,37 @@
 /* UARTA :: MCR :: SIRE [06:06] */
 #define BCHP_UARTA_MCR_SIRE_MASK                                   0x00000040
 #define BCHP_UARTA_MCR_SIRE_SHIFT                                  6
-#define BCHP_UARTA_MCR_SIRE_DEFAULT                                0
+#define BCHP_UARTA_MCR_SIRE_DEFAULT                                0x00000000
 
 /* UARTA :: MCR :: AFCE [05:05] */
 #define BCHP_UARTA_MCR_AFCE_MASK                                   0x00000020
 #define BCHP_UARTA_MCR_AFCE_SHIFT                                  5
-#define BCHP_UARTA_MCR_AFCE_DEFAULT                                0
+#define BCHP_UARTA_MCR_AFCE_DEFAULT                                0x00000000
 
 /* UARTA :: MCR :: LB [04:04] */
 #define BCHP_UARTA_MCR_LB_MASK                                     0x00000010
 #define BCHP_UARTA_MCR_LB_SHIFT                                    4
-#define BCHP_UARTA_MCR_LB_DEFAULT                                  0
+#define BCHP_UARTA_MCR_LB_DEFAULT                                  0x00000000
 
 /* UARTA :: MCR :: OUT2 [03:03] */
 #define BCHP_UARTA_MCR_OUT2_MASK                                   0x00000008
 #define BCHP_UARTA_MCR_OUT2_SHIFT                                  3
-#define BCHP_UARTA_MCR_OUT2_DEFAULT                                0
+#define BCHP_UARTA_MCR_OUT2_DEFAULT                                0x00000000
 
 /* UARTA :: MCR :: OUT1 [02:02] */
 #define BCHP_UARTA_MCR_OUT1_MASK                                   0x00000004
 #define BCHP_UARTA_MCR_OUT1_SHIFT                                  2
-#define BCHP_UARTA_MCR_OUT1_DEFAULT                                0
+#define BCHP_UARTA_MCR_OUT1_DEFAULT                                0x00000000
 
 /* UARTA :: MCR :: RTS [01:01] */
 #define BCHP_UARTA_MCR_RTS_MASK                                    0x00000002
 #define BCHP_UARTA_MCR_RTS_SHIFT                                   1
-#define BCHP_UARTA_MCR_RTS_DEFAULT                                 0
+#define BCHP_UARTA_MCR_RTS_DEFAULT                                 0x00000000
 
 /* UARTA :: MCR :: DTR [00:00] */
 #define BCHP_UARTA_MCR_DTR_MASK                                    0x00000001
 #define BCHP_UARTA_MCR_DTR_SHIFT                                   0
-#define BCHP_UARTA_MCR_DTR_DEFAULT                                 0
+#define BCHP_UARTA_MCR_DTR_DEFAULT                                 0x00000000
 
 /***************************************************************************
  *LSR - Line Status Register
@@ -293,42 +290,42 @@
 /* UARTA :: LSR :: RFE [07:07] */
 #define BCHP_UARTA_LSR_RFE_MASK                                    0x00000080
 #define BCHP_UARTA_LSR_RFE_SHIFT                                   7
-#define BCHP_UARTA_LSR_RFE_DEFAULT                                 0
+#define BCHP_UARTA_LSR_RFE_DEFAULT                                 0x00000000
 
 /* UARTA :: LSR :: TEMT [06:06] */
 #define BCHP_UARTA_LSR_TEMT_MASK                                   0x00000040
 #define BCHP_UARTA_LSR_TEMT_SHIFT                                  6
-#define BCHP_UARTA_LSR_TEMT_DEFAULT                                1
+#define BCHP_UARTA_LSR_TEMT_DEFAULT                                0x00000001
 
 /* UARTA :: LSR :: THRE [05:05] */
 #define BCHP_UARTA_LSR_THRE_MASK                                   0x00000020
 #define BCHP_UARTA_LSR_THRE_SHIFT                                  5
-#define BCHP_UARTA_LSR_THRE_DEFAULT                                1
+#define BCHP_UARTA_LSR_THRE_DEFAULT                                0x00000001
 
 /* UARTA :: LSR :: BI [04:04] */
 #define BCHP_UARTA_LSR_BI_MASK                                     0x00000010
 #define BCHP_UARTA_LSR_BI_SHIFT                                    4
-#define BCHP_UARTA_LSR_BI_DEFAULT                                  0
+#define BCHP_UARTA_LSR_BI_DEFAULT                                  0x00000000
 
 /* UARTA :: LSR :: FE [03:03] */
 #define BCHP_UARTA_LSR_FE_MASK                                     0x00000008
 #define BCHP_UARTA_LSR_FE_SHIFT                                    3
-#define BCHP_UARTA_LSR_FE_DEFAULT                                  0
+#define BCHP_UARTA_LSR_FE_DEFAULT                                  0x00000000
 
 /* UARTA :: LSR :: PE [02:02] */
 #define BCHP_UARTA_LSR_PE_MASK                                     0x00000004
 #define BCHP_UARTA_LSR_PE_SHIFT                                    2
-#define BCHP_UARTA_LSR_PE_DEFAULT                                  0
+#define BCHP_UARTA_LSR_PE_DEFAULT                                  0x00000000
 
 /* UARTA :: LSR :: OE [01:01] */
 #define BCHP_UARTA_LSR_OE_MASK                                     0x00000002
 #define BCHP_UARTA_LSR_OE_SHIFT                                    1
-#define BCHP_UARTA_LSR_OE_DEFAULT                                  0
+#define BCHP_UARTA_LSR_OE_DEFAULT                                  0x00000000
 
 /* UARTA :: LSR :: DR [00:00] */
 #define BCHP_UARTA_LSR_DR_MASK                                     0x00000001
 #define BCHP_UARTA_LSR_DR_SHIFT                                    0
-#define BCHP_UARTA_LSR_DR_DEFAULT                                  0
+#define BCHP_UARTA_LSR_DR_DEFAULT                                  0x00000000
 
 /***************************************************************************
  *MSR - Modem Status Register
@@ -340,42 +337,42 @@
 /* UARTA :: MSR :: DCD [07:07] */
 #define BCHP_UARTA_MSR_DCD_MASK                                    0x00000080
 #define BCHP_UARTA_MSR_DCD_SHIFT                                   7
-#define BCHP_UARTA_MSR_DCD_DEFAULT                                 0
+#define BCHP_UARTA_MSR_DCD_DEFAULT                                 0x00000000
 
 /* UARTA :: MSR :: RI [06:06] */
 #define BCHP_UARTA_MSR_RI_MASK                                     0x00000040
 #define BCHP_UARTA_MSR_RI_SHIFT                                    6
-#define BCHP_UARTA_MSR_RI_DEFAULT                                  0
+#define BCHP_UARTA_MSR_RI_DEFAULT                                  0x00000000
 
 /* UARTA :: MSR :: DSR [05:05] */
 #define BCHP_UARTA_MSR_DSR_MASK                                    0x00000020
 #define BCHP_UARTA_MSR_DSR_SHIFT                                   5
-#define BCHP_UARTA_MSR_DSR_DEFAULT                                 0
+#define BCHP_UARTA_MSR_DSR_DEFAULT                                 0x00000000
 
 /* UARTA :: MSR :: CTS [04:04] */
 #define BCHP_UARTA_MSR_CTS_MASK                                    0x00000010
 #define BCHP_UARTA_MSR_CTS_SHIFT                                   4
-#define BCHP_UARTA_MSR_CTS_DEFAULT                                 0
+#define BCHP_UARTA_MSR_CTS_DEFAULT                                 0x00000000
 
 /* UARTA :: MSR :: DDCD [03:03] */
 #define BCHP_UARTA_MSR_DDCD_MASK                                   0x00000008
 #define BCHP_UARTA_MSR_DDCD_SHIFT                                  3
-#define BCHP_UARTA_MSR_DDCD_DEFAULT                                0
+#define BCHP_UARTA_MSR_DDCD_DEFAULT                                0x00000000
 
 /* UARTA :: MSR :: TERI [02:02] */
 #define BCHP_UARTA_MSR_TERI_MASK                                   0x00000004
 #define BCHP_UARTA_MSR_TERI_SHIFT                                  2
-#define BCHP_UARTA_MSR_TERI_DEFAULT                                0
+#define BCHP_UARTA_MSR_TERI_DEFAULT                                0x00000000
 
 /* UARTA :: MSR :: DDSR [01:01] */
 #define BCHP_UARTA_MSR_DDSR_MASK                                   0x00000002
 #define BCHP_UARTA_MSR_DDSR_SHIFT                                  1
-#define BCHP_UARTA_MSR_DDSR_DEFAULT                                0
+#define BCHP_UARTA_MSR_DDSR_DEFAULT                                0x00000000
 
 /* UARTA :: MSR :: DCTS [00:00] */
 #define BCHP_UARTA_MSR_DCTS_MASK                                   0x00000001
 #define BCHP_UARTA_MSR_DCTS_SHIFT                                  0
-#define BCHP_UARTA_MSR_DCTS_DEFAULT                                0
+#define BCHP_UARTA_MSR_DCTS_DEFAULT                                0x00000000
 
 /***************************************************************************
  *SCR - Scratchpad Register
@@ -387,7 +384,7 @@
 /* UARTA :: SCR :: SCR [07:00] */
 #define BCHP_UARTA_SCR_SCR_MASK                                    0x000000ff
 #define BCHP_UARTA_SCR_SCR_SHIFT                                   0
-#define BCHP_UARTA_SCR_SCR_DEFAULT                                 0
+#define BCHP_UARTA_SCR_SCR_DEFAULT                                 0x00000000
 
 #endif /* #ifndef BCHP_UARTA_H__ */
 

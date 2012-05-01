@@ -1,39 +1,22 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
-#include "agf.h"
-#include "agfl.h"
-#include "agi.h"
 #include "block.h"
 #include "command.h"
 #include "type.h"
@@ -43,10 +26,7 @@
 #include "print.h"
 #include "sb.h"
 #include "inode.h"
-#include "bnobt.h"
-#include "cntbt.h"
-#include "inobt.h"
-#include "bmapbt.h"
+#include "btblock.h"
 #include "bmroot.h"
 #include "agf.h"
 #include "agfl.h"
@@ -67,8 +47,8 @@ static int		type_f(int argc, char **argv);
 const typ_t	*cur_typ;
 
 static const cmdinfo_t	type_cmd =
-	{ "type", NULL, type_f, 0, 1, 1, "[newtype]",
-	  "set/show current data type", NULL };
+	{ "type", NULL, type_f, 0, 1, 1, N_("[newtype]"),
+	  N_("set/show current data type"), NULL };
 
 const typ_t	typtab[] = {
 	{ TYP_AGF, "agf", handle_struct, agf_hfld },
@@ -119,11 +99,11 @@ type_f(
 
 	if (argc == 1) {
 		if (cur_typ == NULL)
-			dbprintf("no current type\n");
+			dbprintf(_("no current type\n"));
 		else
-			dbprintf("current type is \"%s\"\n", cur_typ->name);
+			dbprintf(_("current type is \"%s\"\n"), cur_typ->name);
 
-		dbprintf("\n supported types are:\n ");
+		dbprintf(_("\n supported types are:\n "));
 		for (tt = typtab, count = 0; tt->name != NULL; tt++) {
 			if ((tt+1)->name != NULL) {
 				dbprintf("%s, ", tt->name);
@@ -138,10 +118,10 @@ type_f(
 	} else {
 		tt = findtyp(argv[1]);
 		if (tt == NULL) {
-			dbprintf("no such type %s\n", argv[1]);
+			dbprintf(_("no such type %s\n"), argv[1]);
 		} else {
 			if (iocur_top->typ == NULL) {
-			    dbprintf("no current object\n");
+			    dbprintf(_("no current object\n"));
 			} else {
 			    iocur_top->typ = cur_typ = tt;
 			}

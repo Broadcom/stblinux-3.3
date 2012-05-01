@@ -1,39 +1,22 @@
-/**************************************************************************
- *									  *
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+/*
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
- *									  *
- **************************************************************************/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 #include <libxfs.h>
-
 #include "avl.h"
 
 #define CERT	ASSERT
@@ -671,34 +654,6 @@ avl_findanyrange(
 	return NULL;
 }
 
-
-/*
- * Returns a pointer to range which contains value.
- */
-avlnode_t *
-avl_findrange(
-	register avltree_desc_t *tree,
-	register __psunsigned_t value)
-{
-	register avlnode_t *np = tree->avl_root;
-
-	while (np) {
-		if (value < AVL_START(tree, np)) {
-			np = np->avl_back;
-			continue;
-		}
-		if (value >= AVL_END(tree, np)) {
-			np = np->avl_forw;
-			continue;
-		}
-		ASSERT(AVL_START(tree, np) <= value &&
-		       value < AVL_END(tree, np));
-		return np;
-	}
-	return NULL;
-}
-
-
 /*
  * Returns a pointer to node which contains exact value.
  */
@@ -1248,7 +1203,7 @@ main()
 	printf("\n");
 
 	while (1) {
-		printf("Command [fpdir] : ");
+		printf(_("Command [fpdir] : "));
 		fgets(linebuf, 256, stdin);
 		if (feof(stdin)) break;
 		cmd[0] = NULL;
@@ -1257,7 +1212,7 @@ main()
 		switch (cmd[0]) {
 		case 'd':
 		case 'f':
-			printf("end of range ? ");
+			printf(_("end of range ? "));
 			fgets(linebuf, 256, stdin);
 			j = atoi(linebuf);
 
@@ -1268,7 +1223,7 @@ main()
 				if (cmd[0] == 'd')
 					avl_delete(&tree, np);
 			} else
-				printf("Cannot find %d\n", i);
+				printf(_("Cannot find %d\n"), i);
 			break;
 		case 'p':
 			avl_print(&tree, tree.avl_root, 0);
@@ -1281,7 +1236,7 @@ main()
 			np = alloc_avlnode();
 			ASSERT(np);
 			np->avl_start = i;
-			printf("size of range ? ");
+			printf(_("size of range ? "));
 			fgets(linebuf, 256, stdin);
 			j = atoi(linebuf);
 
@@ -1292,18 +1247,18 @@ main()
 			avlnode_t	*b, *e, *t;
 			int		checklen;
 
-			printf("End of range ? ");
+			printf(_("End of range ? "));
 			fgets(linebuf, 256, stdin);
 			j = atoi(linebuf);
 
-			printf("checklen 0/1 ? ");
+			printf(_("checklen 0/1 ? "));
 			fgets(linebuf, 256, stdin);
 			checklen = atoi(linebuf);
 
 
 			b = avl_findanyrange(&tree, i, j, checklen);
 			if (b) {
-				printf("Found something\n");
+				printf(_("Found something\n"));
 				t = b;
 				while (t)  {
 					if (t != b &&

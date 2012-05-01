@@ -98,19 +98,25 @@ void __init bchip_check_compat(void)
 	u32 kernel_chip_id = 0, kernel_chip_rev = 0;
 
 #if defined(CONFIG_BCM7231)
-	MAIN_CHIP_ID(7231, a0);
+	MAIN_CHIP_ID(7231, b0);
 #elif defined(CONFIG_BCM7344)
-	MAIN_CHIP_ID(7344, a0);
+	MAIN_CHIP_ID(7344, b0);
 #elif defined(CONFIG_BCM7346)
-	MAIN_CHIP_ID(7346, a0);
+	MAIN_CHIP_ID(7346, b0);
 #elif defined(CONFIG_BCM7358)
 	/* 7358 kernel can boot on 7552, but not vice-versa */
 	ALT_CHIP_ID(7552, a0);
 	MAIN_CHIP_ID(7358, a0);
-#elif defined(CONFIG_BCM7552)
-	MAIN_CHIP_ID(7552, a0);
+#elif defined(CONFIG_BCM7360)
+	MAIN_CHIP_ID(7360, a0);
 #elif defined(CONFIG_BCM7425)
-	MAIN_CHIP_ID(7425, a0);
+	MAIN_CHIP_ID(7425, b0);
+#elif defined(CONFIG_BCM7429)
+	MAIN_CHIP_ID(7429, a0);
+#elif defined(CONFIG_BCM7435)
+	MAIN_CHIP_ID(7435, a0);
+#elif defined(CONFIG_BCM7552)
+	MAIN_CHIP_ID(7552, b0);
 #endif
 	if (!kernel_chip_id)
 		return;
@@ -139,7 +145,8 @@ void __init bchip_check_compat(void)
 #define MMIO_ENDIAN             0
 #endif /* CONFIG_CPU_BIG_ENDIAN */
 
-static int sata3_enable_ssc;
+/* SATA3 SSC per-port bitfield */
+static u32 sata3_enable_ssc;
 
 #define SATA3_MDIO_TXPMD_0_REG_BANK	0x1A0
 #define SATA3_MDIO_BRIDGE_BASE		(BCHP_SATA_GRB_REG_START + 0x100)
@@ -168,6 +175,9 @@ static void brcm_sata3_init_freq(int port, int ssc_enable)
 {
 	u32 bank = SATA3_MDIO_TXPMD_0_REG_BANK + port * 0x10;
 
+	if (ssc_enable)
+		pr_info("SATA3: enabling SSC on port %d\n", port);
+
 	/* TXPMD_control1 - enable SSC force */
 	brcm_sata3_mdio_wr_reg(bank, SATA3_TXPMD_CONTROL1, 0xFFFFFFFC,
 			0x00000003);
@@ -189,9 +199,32 @@ static void brcm_sata3_init_freq(int port, int ssc_enable)
 				0xFFFFFC00, 0x000003DF);
 }
 
+/* Check up to 32 ports, although we typically only have 2 */
+#define SATA_MAX_CHECK_PORTS	32
+
+/*
+ * Check commandline for 'sata3_ssc' options. They can be specified in 2 ways:
+ *  (1) 'sata3_ssc'     -> enable SSC on all ports
+ *  (2) 'sata3_ssc=x,y' -> enable SSC on specific port(s), given a comma-
+ *                         separated list of port numbers
+ */
 static int __init sata3_ssc_setup(char *str)
 {
-	sata3_enable_ssc = 1;
+	int opts[SATA_MAX_CHECK_PORTS + 1], i;
+
+	if (*str == '\0') {
+		/* enable SSC on all ports */
+		sata3_enable_ssc = ~0;
+		return 0;
+	}
+	get_options(str + 1, SATA_MAX_CHECK_PORTS, opts);
+
+	for (i = 0; i < opts[0]; i++) {
+		int port = opts[i + 1];
+		if ((port >= 0) && (port < SATA_MAX_CHECK_PORTS))
+			sata3_enable_ssc |= 1 << port;
+	}
+
 	return 0;
 }
 
@@ -208,7 +241,7 @@ void bchip_sata3_init(void)
 			(DATA_ENDIAN << 2) | (MMIO_ENDIAN << 0));
 
 	for (i = 0; i < ports; i++)
-		brcm_sata3_init_freq(i, sata3_enable_ssc);
+		brcm_sata3_init_freq(i, sata3_enable_ssc & (1 << i));
 #endif
 }
 
@@ -317,95 +350,6 @@ void bchip_moca_init(void)
 #endif
 }
 #endif
-
-#if defined(CONFIG_BRCM_SDIO)
-
-/* Use custom I/O accessors to avoid readl/readw byte swapping in BE mode */
-
-static u32 sdhci_brcm_readl(struct sdhci_host *host, int reg)
-{
-	return __raw_readl(host->ioaddr + reg);
-}
-
-static u16 sdhci_brcm_readw(struct sdhci_host *host, int reg)
-{
-	return __raw_readw(host->ioaddr + reg);
-}
-
-static void sdhci_brcm_writel(struct sdhci_host *host, u32 val, int reg)
-{
-	__raw_writel(val, host->ioaddr + reg);
-}
-
-static void sdhci_brcm_writew(struct sdhci_host *host, u16 val, int reg)
-{
-	__raw_writew(val, host->ioaddr + reg);
-}
-
-static struct sdhci_ops __maybe_unused sdhci_be_ops = {
-	.read_l			= sdhci_brcm_readl,
-	.read_w			= sdhci_brcm_readw,
-	.write_l		= sdhci_brcm_writel,
-	.write_w		= sdhci_brcm_writew,
-};
-
-struct sdhci_pltfm_data sdhci_brcm_pdata = { };
-
-static int nommc;
-
-static int __init nommc_setup(char *str)
-{
-	nommc = 1;
-	return 0;
-}
-
-__setup("nommc", nommc_setup);
-
-int __init bchip_sdio_init(int id, uintptr_t cfg_base)
-{
-#define SDIO_REG(x, y)		(x + BCHP_SDIO_0_CFG_##y - \
-				 BCHP_SDIO_0_CFG_REG_START)
-
-	if (nommc) {
-		printk(KERN_INFO "SDIO_%d: disabled via command line\n", id);
-		return -ENODEV;
-	}
-	if (BDEV_RD(SDIO_REG(cfg_base, SCRATCH)) & 0x01) {
-		printk(KERN_INFO "SDIO_%d: disabled by bootloader\n", id);
-		return -ENODEV;
-	}
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 37)
-	printk(KERN_INFO "SDIO_%d: this core requires Linux 2.6.37 or higher; "
-		"disabling\n", id);
-	return -ENODEV;
-#endif
-	printk(KERN_INFO "SDIO_%d: enabling controller\n", id);
-
-	BDEV_UNSET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0xf000);
-	BDEV_UNSET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL2), 0x00ff);
-#ifdef CONFIG_CPU_LITTLE_ENDIAN
-	/* FRAME_NHW | BUFFER_ABO */
-	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0x3000);
-#else
-	/* WORD_ABO | FRAME_NBO | FRAME_NHW */
-	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL1), 0xe000);
-	/* address swap only */
-	BDEV_SET(SDIO_REG(cfg_base, SDIO_EMMC_CTRL2), 0x0050);
-	sdhci_brcm_pdata.ops = &sdhci_be_ops;
-#endif
-
-#if defined(CONFIG_BCM7231B0) || defined(CONFIG_BCM7346B0)
-	BDEV_SET(SDIO_REG(cfg_base, CAP_REG1), BIT(31));	/* Override=1 */
-#endif
-
-#if defined(CONFIG_BCM7344B0)
-	BDEV_UNSET(SDIO_REG(cfg_base, CAP_REG0), BIT(19));	/* Highspd=0 */
-	BDEV_SET(SDIO_REG(cfg_base, CAP_REG1), BIT(31));	/* Override=1 */
-#endif
-
-	return 0;
-}
-#endif /* defined(CONFIG_BRCM_SDIO) */
 
 void __init bchip_set_features(void)
 {

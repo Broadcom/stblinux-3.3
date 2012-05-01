@@ -27,6 +27,20 @@ AC_DEFUN([AC_TYPE_PSUNSIGNED],
   ])
 
 # 
+# Check if we have a type for __u32
+# 
+AC_DEFUN([AC_TYPE_U32],
+  [ AC_MSG_CHECKING([for __u32 ])
+    AC_TRY_COMPILE([
+#include <asm/types.h>
+#include <stdlib.h>
+#include <stddef.h>
+    ], [
+         __u32  u32;
+    ], AC_DEFINE(HAVE___U32) AC_MSG_RESULT(yes) , AC_MSG_RESULT(no))
+  ])
+
+# 
 # Check type sizes
 # 
 AC_DEFUN([AC_SIZEOF_POINTERS_AND_LONG],
@@ -35,13 +49,13 @@ AC_DEFUN([AC_SIZEOF_POINTERS_AND_LONG],
     fi
     AC_CHECK_SIZEOF(long, 4)
     AC_CHECK_SIZEOF(char *, 4)
-    if test $ac_cv_sizeof_long -eq 4; then
+    if test $ac_cv_sizeof_long -eq 4 -o $ac_cv_sizeof_long -eq 0; then
       AC_DEFINE(HAVE_32BIT_LONG)
     fi
     if test $ac_cv_sizeof_long -eq 8; then
       AC_DEFINE(HAVE_64BIT_LONG)
     fi
-    if test $ac_cv_sizeof_char_p -eq 4; then
+    if test $ac_cv_sizeof_char_p -eq 4 -o $ac_cv_sizeof_char_p -eq 0; then
       AC_DEFINE(HAVE_32BIT_PTR)
     fi
     if test $ac_cv_sizeof_char_p -eq 8; then

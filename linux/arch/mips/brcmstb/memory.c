@@ -25,6 +25,8 @@
 #include <linux/list.h>
 #include <linux/vmalloc.h>
 #include <linux/compiler.h>
+#include <linux/atomic.h>
+#include <linux/printk.h>
 #include <linux/module.h>
 
 #include <asm/page.h>
@@ -36,12 +38,6 @@
 #include <linux/brcmstb/brcmstb.h>
 
 #include <spaces.h>
-
-#if 0
-#define DBG printk
-#else
-#define DBG(...) /* */
-#endif
 
 /*
  * Override default behavior to allow cached access to all valid DRAM ranges
@@ -88,6 +84,20 @@ static struct tlb_entry __maybe_unused uppermem_mappings[] = {
 },
 };
 
+static inline void __cpuinit brcm_write_tlb_entry(int idx,
+	unsigned long entrylo0, unsigned long entrylo1, unsigned long entryhi,
+	unsigned long pagemask)
+{
+	write_c0_entrylo0(entrylo0);
+	write_c0_entrylo1(entrylo1);
+	write_c0_entryhi(entryhi);
+	write_c0_pagemask(pagemask);
+	write_c0_index(idx);
+	mtc0_tlbw_hazard();
+	tlb_write_indexed();
+	tlbw_use_hazard();
+}
+
 /*
  * This function is used instead of add_wired_entry(), because it does not
  * have any external dependencies and is not marked __init
@@ -96,16 +106,8 @@ static inline void __cpuinit brcm_add_wired_entry(unsigned long entrylo0,
 	unsigned long entrylo1, unsigned long entryhi, unsigned long pagemask)
 {
 	int i = read_c0_wired();
-
-	write_c0_entrylo0(entrylo0);
-	write_c0_entrylo1(entrylo1);
-	write_c0_entryhi(entryhi);
-	write_c0_pagemask(pagemask);
-	write_c0_index(i);
 	write_c0_wired(i + 1);
-	mtc0_tlbw_hazard();
-	tlb_write_indexed();
-	tlbw_use_hazard();
+	brcm_write_tlb_entry(i, entrylo0, entrylo1, entryhi, pagemask);
 }
 
 extern void tlb_init(void);
@@ -278,20 +280,20 @@ static int __init consistent_init(void)
 		pgd = pgd_offset(&init_mm, base);
 		pud = pud_alloc(&init_mm, pgd, base);
 		if (!pud) {
-			printk(KERN_ERR "%s: no pud tables\n", __func__);
+			pr_err("%s: no pud tables\n", __func__);
 			ret = -ENOMEM;
 			break;
 		}
 		pmd = pmd_alloc(&init_mm, pud, base);
 		if (!pmd) {
-			printk(KERN_ERR "%s: no pmd tables\n", __func__);
+			pr_err("%s: no pmd tables\n", __func__);
 			ret = -ENOMEM;
 			break;
 		}
 
 		pte = pte_alloc_kernel(pmd, base);
 		if (!pte) {
-			printk(KERN_ERR "%s: no pte tables\n", __func__);
+			pr_err("%s: no pte tables\n", __func__);
 			ret = -ENOMEM;
 			break;
 		}
@@ -325,8 +327,8 @@ int brcm_map_coherent(dma_addr_t dma_handle, void *cac_va, size_t size,
 	off = CONSISTENT_OFFSET(c->vm_start) & (PTRS_PER_PTE-1);
 	pte = consistent_pte[idx] + off;
 
-	DBG("map addr %08lx idx %x off %x pte %p\n", c->vm_start, idx, off,
-		pte);
+	pr_debug("map addr %08lx idx %x off %x pte %p\n",
+		c->vm_start, idx, off, pte);
 
 	do {
 		BUG_ON(!pte_none(*pte));
@@ -357,7 +359,7 @@ void *brcm_unmap_coherent(void *vaddr)
 	c = arm_vm_region_find(&consistent_head, (unsigned long)vaddr);
 	if (!c) {
 		spin_unlock_irqrestore(&consistent_lock, flags);
-		printk(KERN_ERR "%s: invalid VA %p\n", __func__, vaddr);
+		pr_err("%s: invalid VA %p\n", __func__, vaddr);
 		return NULL;
 	}
 	c->vm_active = 0;
@@ -370,7 +372,8 @@ void *brcm_unmap_coherent(void *vaddr)
 	off = CONSISTENT_OFFSET(addr) & (PTRS_PER_PTE-1);
 	pte = consistent_pte[idx] + off;
 
-	DBG("unmap addr %08lx idx %x off %x pte %p\n", addr, idx, off, pte);
+	pr_debug("unmap addr %08lx idx %x off %x pte %p\n",
+		addr, idx, off, pte);
 
 	do {
 		pte_clear(&init_mm, addr, pte);
@@ -451,7 +454,7 @@ static inline unsigned int __init probe_ram_size(void)
 	unsigned long flags;
 	unsigned int i, memsize = 256;
 
-	printk(KERN_INFO "Probing system memory size... ");
+	pr_info("Probing system memory size... ");
 
 	local_irq_save(flags);
 	cache_op(Hit_Writeback_Inv_D, KSEG0);
@@ -477,7 +480,7 @@ static inline unsigned int __init probe_ram_size(void)
 	cache_op(Hit_Writeback_Inv_D, KSEG0);
 	local_irq_restore(flags);
 
-	printk(KERN_CONT "found %u MB\n", memsize);
+	pr_cont("found %u MB\n", memsize);
 
 	return memsize;
 }
@@ -489,15 +492,70 @@ void __init board_get_ram_size(unsigned long *dram0_mb, unsigned long *dram1_mb)
 #if defined(CONFIG_BRCM_FORCED_DRAM1_SIZE)
 	*dram1_mb = CONFIG_BRCM_FORCED_DRAM1_SIZE;
 #endif
-	printk(KERN_INFO "Using %lu MB + %lu MB RAM "
-		"(from kernel configuration)\n", *dram0_mb, *dram1_mb);
+	pr_info("Using %lu MB + %lu MB RAM (from kernel configuration)\n",
+		*dram0_mb, *dram1_mb);
 #else
 	/* DRAM0_SIZE variable from CFE */
 	if (*dram0_mb) {
-		printk(KERN_INFO "Using %lu MB + %lu MB RAM (from CFE)\n",
+		pr_info("Using %lu MB + %lu MB RAM (from CFE)\n",
 			*dram0_mb, *dram1_mb);
 		return;
 	}
 	*dram0_mb = probe_ram_size();
 #endif
+}
+
+static void __init __brcm_wraparound_check(unsigned long start,
+	unsigned long midpoint, int memc_no)
+{
+	int found = 0, idx = read_c0_wired();
+	unsigned long *a, *b, old_a, va = FIXADDR_TOP - 0x2000;
+
+	brcm_write_tlb_entry(idx, ENTRYLO_UNCACHED(start),
+		ENTRYLO_UNCACHED(midpoint), va, PM_4K);
+
+	a = (unsigned long *)(va);
+	b = (unsigned long *)(va + 0x1000);
+
+	old_a = *a;
+	mb();
+
+	*b ^= 0x55555555;
+	mb();
+
+	if (*a != old_a)
+		found = 1;
+	mb();
+
+	*b ^= 0x55555555;
+	mb();
+
+	/* this should always match, but check anyway */
+	if (*a != old_a)
+		found = 1;
+
+	brcm_write_tlb_entry(idx, ENTRYLO_INVALID(), ENTRYLO_INVALID(),
+		UNIQUE_ENTRYHI(idx), PM_4K);
+
+	if (found)
+		panic("DRAM%d wraparound detected at 0x%lx\n",
+			memc_no, midpoint);
+}
+
+void __init brcm_wraparound_check(void)
+{
+	/*
+	 * Find the middle of the DRAM region, compensating for the memory
+	 * hole at the 256MB mark if necessary.  If there is no wraparound
+	 * at the middle address, everything else should be OK.
+	 */
+	if (brcm_dram0_size_mb >= 512)
+		__brcm_wraparound_check(0,
+			(brcm_dram0_size_mb << 19) + 0x10000000, 0);
+	else
+		__brcm_wraparound_check(0, brcm_dram0_size_mb << 19, 0);
+
+	if (brcm_dram1_size_mb)
+		__brcm_wraparound_check(MEMC1_START,
+			brcm_dram1_size_mb << 19, 1);
 }

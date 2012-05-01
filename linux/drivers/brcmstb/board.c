@@ -137,10 +137,6 @@ void board_pinmux_setup(void)
 			aon_gpio_18_pad_ctrl, 0);
 		BDEV_WR_F_RB(AON_PIN_CTRL_PIN_MUX_PAD_CTRL_1,
 			aon_gpio_19_pad_ctrl, 0);
-
-		/* limit speed to 25MHz due to AON pad timing restrictions */
-		BDEV_UNSET(BCHP_SDIO_0_CFG_CAP_REG0, 1 << 19);	/* Highspd=0 */
-		BDEV_SET(BCHP_SDIO_0_CFG_CAP_REG1, 1 << 31);	/* Override=1 */
 	} else {
 		/* set RGMII lines to 2.5V */
 		BDEV_WR_F(SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0,
@@ -345,7 +341,7 @@ void board_pinmux_setup(void)
 		/* V00 boards or A0 parts */
 		BDEV_UNSET(BCHP_GIO_AON_IODIR_LO, 1 << 4);
 		BDEV_SET(BCHP_GIO_AON_DATA_LO, 1 << 4);
-		/* V10 boards with B0 parts use SDIO0_VOLT signal */
+		/* V10 boards with B parts use SDIO0_VOLT signal */
 		AON_PINMUX(2, gpio_100, 5);
 	}
 
@@ -356,6 +352,15 @@ void board_pinmux_setup(void)
 #else
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCA_REG_START);
 #endif
+
+#elif defined(CONFIG_BCM7435)
+
+	PINMUX(16, gpio_088, 1);        /* MoCA LEDs */
+	PINMUX(16, gpio_087, 1);
+
+	PINMUX(18, sgpio_00, 1);        /* MoCA I2C */
+	PINMUX(19, sgpio_01, 1);
+	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCC_REG_START);
 
 #elif defined(CONFIG_BCM7429)
 

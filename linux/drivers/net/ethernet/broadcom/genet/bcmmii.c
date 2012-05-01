@@ -130,10 +130,8 @@ void mii_setup(struct net_device *dev)
 	TRACE(("%s: %s\n", __func__, netif_carrier_ok(pDevCtrl->dev) ?
 				"netif_carrier_on" : "netif_carrier_off"));
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA) {
-		/* MoCA case */
 		netif_carrier_on(pDevCtrl->dev);
-		pDevCtrl->dev->flags |= IFF_RUNNING;
-		return ;
+		return;
 	}
 
 	mii_ethtool_gset(&pDevCtrl->mii, &ecmd);

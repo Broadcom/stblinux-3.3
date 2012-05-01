@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,21 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Apr 11 12:14:58 2011
- *                 MD5 Checksum         8cf142ad25caa9f873c54e8bb2bb1755
+ * Date:           Generated on         Wed Mar  7 03:11:43 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_mem_dma_0.h $
- * 
- * Hydra_Software_Devel/2   4/12/11 8:59a vanessah
- * SW7425-112: Update rdb files for 7425 B0.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -64,12 +61,12 @@
 /* MEM_DMA_0 :: REVISION :: MAJOR [15:08] */
 #define BCHP_MEM_DMA_0_REVISION_MAJOR_MASK                         0x0000ff00
 #define BCHP_MEM_DMA_0_REVISION_MAJOR_SHIFT                        8
-#define BCHP_MEM_DMA_0_REVISION_MAJOR_DEFAULT                      2
+#define BCHP_MEM_DMA_0_REVISION_MAJOR_DEFAULT                      0x00000002
 
 /* MEM_DMA_0 :: REVISION :: MINOR [07:00] */
 #define BCHP_MEM_DMA_0_REVISION_MINOR_MASK                         0x000000ff
 #define BCHP_MEM_DMA_0_REVISION_MINOR_SHIFT                        0
-#define BCHP_MEM_DMA_0_REVISION_MINOR_DEFAULT                      10
+#define BCHP_MEM_DMA_0_REVISION_MINOR_DEFAULT                      0x0000000a
 
 /***************************************************************************
  *FIRST_DESC - MEM_DMA First Descriptor Address Register
@@ -77,7 +74,7 @@
 /* MEM_DMA_0 :: FIRST_DESC :: ADDR [31:00] */
 #define BCHP_MEM_DMA_0_FIRST_DESC_ADDR_MASK                        0xffffffff
 #define BCHP_MEM_DMA_0_FIRST_DESC_ADDR_SHIFT                       0
-#define BCHP_MEM_DMA_0_FIRST_DESC_ADDR_DEFAULT                     0
+#define BCHP_MEM_DMA_0_FIRST_DESC_ADDR_DEFAULT                     0x00000000
 
 /***************************************************************************
  *CTRL - MEM_DMA Control Register
@@ -89,7 +86,7 @@
 /* MEM_DMA_0 :: CTRL :: RUN [00:00] */
 #define BCHP_MEM_DMA_0_CTRL_RUN_MASK                               0x00000001
 #define BCHP_MEM_DMA_0_CTRL_RUN_SHIFT                              0
-#define BCHP_MEM_DMA_0_CTRL_RUN_DEFAULT                            0
+#define BCHP_MEM_DMA_0_CTRL_RUN_DEFAULT                            0x00000000
 
 /***************************************************************************
  *WAKE_CTRL - MEM_DMA Wake Control Register
@@ -101,12 +98,12 @@
 /* MEM_DMA_0 :: WAKE_CTRL :: WAKE_MODE [01:01] */
 #define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_MODE_MASK                    0x00000002
 #define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_MODE_SHIFT                   1
-#define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_MODE_DEFAULT                 0
+#define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_MODE_DEFAULT                 0x00000000
 
 /* MEM_DMA_0 :: WAKE_CTRL :: WAKE [00:00] */
 #define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_MASK                         0x00000001
 #define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_SHIFT                        0
-#define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_DEFAULT                      0
+#define BCHP_MEM_DMA_0_WAKE_CTRL_WAKE_DEFAULT                      0x00000000
 
 /***************************************************************************
  *STATUS - MEM_DMA Status Register
@@ -118,7 +115,7 @@
 /* MEM_DMA_0 :: STATUS :: DMA_STATUS [01:00] */
 #define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_MASK                      0x00000003
 #define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_SHIFT                     0
-#define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_DEFAULT                   0
+#define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_DEFAULT                   0x00000000
 #define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_Idle                      0
 #define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_Busy                      1
 #define BCHP_MEM_DMA_0_STATUS_DMA_STATUS_Sleep                     2
@@ -130,7 +127,7 @@
 /* MEM_DMA_0 :: CUR_DESC :: ADDR [31:00] */
 #define BCHP_MEM_DMA_0_CUR_DESC_ADDR_MASK                          0xffffffff
 #define BCHP_MEM_DMA_0_CUR_DESC_ADDR_SHIFT                         0
-#define BCHP_MEM_DMA_0_CUR_DESC_ADDR_DEFAULT                       0
+#define BCHP_MEM_DMA_0_CUR_DESC_ADDR_DEFAULT                       0x00000000
 
 /***************************************************************************
  *CUR_BYTE - MEM_DMA Current Byte Count Register
@@ -142,7 +139,7 @@
 /* MEM_DMA_0 :: CUR_BYTE :: COUNT [24:00] */
 #define BCHP_MEM_DMA_0_CUR_BYTE_COUNT_MASK                         0x01ffffff
 #define BCHP_MEM_DMA_0_CUR_BYTE_COUNT_SHIFT                        0
-#define BCHP_MEM_DMA_0_CUR_BYTE_COUNT_DEFAULT                      0
+#define BCHP_MEM_DMA_0_CUR_BYTE_COUNT_DEFAULT                      0x00000000
 
 /***************************************************************************
  *SCRATCH - MEM_DMA Scratch Register
@@ -150,7 +147,7 @@
 /* MEM_DMA_0 :: SCRATCH :: SCRATCH_BIT [31:00] */
 #define BCHP_MEM_DMA_0_SCRATCH_SCRATCH_BIT_MASK                    0xffffffff
 #define BCHP_MEM_DMA_0_SCRATCH_SCRATCH_BIT_SHIFT                   0
-#define BCHP_MEM_DMA_0_SCRATCH_SCRATCH_BIT_DEFAULT                 0
+#define BCHP_MEM_DMA_0_SCRATCH_SCRATCH_BIT_DEFAULT                 0x00000000
 
 #endif /* #ifndef BCHP_MEM_DMA_0_H__ */
 

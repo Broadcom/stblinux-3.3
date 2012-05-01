@@ -1,37 +1,23 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
-#include "explore.h"
+#include <xfs/path.h>
 
 /*
  * When growing a filesystem, this is the most significant
@@ -40,11 +26,6 @@
  */
 
 #define XFS_MAX_INODE_SIG_BITS 32
-
-char	*fname;		/* mount point name */
-char	*datadev;	/* data device name */
-char	*logdev;	/*  log device name */
-char	*rtdev;		/*   RT device name */
 
 static void
 usage(void)
@@ -74,31 +55,35 @@ void
 report_info(
 	xfs_fsop_geom_t	geo,
 	char		*mntpoint,
-	int		unwritten,
+	int		isint,
+	char		*logname,
+	char		*rtname,
+	int		lazycount,
 	int		dirversion,
 	int		logversion,
-	int		isint)
+	int		attrversion,
+	int		cimode)
 {
 	printf(_(
 	    "meta-data=%-22s isize=%-6u agcount=%u, agsize=%u blks\n"
-	    "         =%-22s sectsz=%-5u\n"
+	    "         =%-22s sectsz=%-5u attr=%u\n"
 	    "data     =%-22s bsize=%-6u blocks=%llu, imaxpct=%u\n"
-	    "         =%-22s sunit=%-6u swidth=%u blks, unwritten=%u\n"
-	    "naming   =version %-14u bsize=%-6u\n"
+	    "         =%-22s sunit=%-6u swidth=%u blks\n"
+	    "naming   =version %-14u bsize=%-6u ascii-ci=%d\n"
 	    "log      =%-22s bsize=%-6u blocks=%u, version=%u\n"
-	    "         =%-22s sectsz=%-5u sunit=%u blks\n"
+	    "         =%-22s sectsz=%-5u sunit=%u blks, lazy-count=%u\n"
 	    "realtime =%-22s extsz=%-6u blocks=%llu, rtextents=%llu\n"),
 
 		mntpoint, geo.inodesize, geo.agcount, geo.agblocks,
-		"", geo.sectsize,
+		"", geo.sectsize, attrversion,
 		"", geo.blocksize, (unsigned long long)geo.datablocks,
 			geo.imaxpct,
-		"", geo.sunit, geo.swidth, unwritten,
-		dirversion, geo.dirblocksize,
-		isint ? _("internal") : _("external"), geo.blocksize,
-			geo.logblocks, logversion,
-		"", geo.logsectsize, geo.logsunit / geo.blocksize,
-		geo.rtblocks ? _("external") : _("none"),
+		"", geo.sunit, geo.swidth,
+  		dirversion, geo.dirblocksize, cimode,
+		isint ? _("internal") : logname ? logname : _("external"),
+			geo.blocksize, geo.logblocks, logversion,
+		"", geo.logsectsize, geo.logsunit / geo.blocksize, lazycount,
+		!geo.rtblocks ? _("none") : rtname ? rtname : _("external"),
 		geo.rtextsize * geo.blocksize, (unsigned long long)geo.rtblocks,
 			(unsigned long long)geo.rtextents);
 }
@@ -110,6 +95,7 @@ main(int argc, char **argv)
 	int			c;	/* current option character */
 	long long		ddsize;	/* device size in 512-byte blocks */
 	int			dflag;	/* -d flag */
+	int			attrversion;/* attribute version number */
 	int			dirversion; /* directory version number */
 	int			logversion; /* log version number */
 	long long		dlsize;	/* device size in 512-byte blocks */
@@ -125,13 +111,18 @@ main(int argc, char **argv)
 	long long		lsize;	/* new log size in fs blocks */
 	int			maxpct;	/* -m flag value */
 	int			mflag;	/* -m flag */
-	char			*mtab;	/* mount table file (/etc/mtab) */
 	int			nflag;	/* -n flag */
 	xfs_fsop_geom_t		ngeo;	/* new fs geometry */
 	int			rflag;	/* -r flag */
 	long long		rsize;	/* new rt size in fs blocks */
-	int			unwritten; /* unwritten extent flag */
+	int			ci;	/* ASCII case-insensitive fs */
+	int			lazycount; /* lazy superblock counters */
 	int			xflag;	/* -x flag */
+	char			*fname;	/* mount point name */
+	char			*datadev; /* data device name */
+	char			*logdev;  /*  log device name */
+	char			*rtdev;	/*   RT device name */
+	fs_path_t		*fs;	/* mount point information */
 	libxfs_init_t		xi;	/* libxfs structure */
 
 	progname = basename(argv[0]);
@@ -139,10 +130,10 @@ main(int argc, char **argv)
 	bindtextdomain(PACKAGE, LOCALEDIR);
 	textdomain(PACKAGE);
 
-	mtab = NULL;
 	maxpct = esize = 0;
 	dsize = lsize = rsize = 0LL;
 	aflag = dflag = iflag = lflag = mflag = nflag = rflag = xflag = 0;
+	ci = 0;
 
 	while ((c = getopt(argc, argv, "dD:e:ilL:m:np:rR:t:xV")) != EOF) {
 		switch (c) {
@@ -182,7 +173,7 @@ main(int argc, char **argv)
 			rflag = 1;
 			break;
 		case 't':
-			mtab = optarg;
+			mtab_file = optarg;
 			break;
 		case 'x':
 			lflag = xflag = 1;
@@ -202,7 +193,18 @@ main(int argc, char **argv)
 	if (dflag + lflag + rflag == 0)
 		aflag = 1;
 
-	explore_mtab(mtab, argv[optind]);
+	fs_table_initialise(0, NULL, 0, NULL);
+	fs = fs_table_lookup(argv[optind], FS_MOUNT_POINT);
+	if (!fs) {
+		fprintf(stderr, _("%s: %s is not a mounted XFS filesystem\n"),
+			progname, argv[optind]);
+		return 1;
+	}
+
+	fname = fs->fs_dir;
+	datadev = fs->fs_name;
+	logdev = fs->fs_log;
+	rtdev = fs->fs_rt;
 
 	ffd = open(fname, O_RDONLY);
 	if (ffd < 0) {
@@ -235,13 +237,16 @@ main(int argc, char **argv)
 		}
 	}
 	isint = geo.logstart > 0;
-	unwritten = geo.flags & XFS_FSOP_GEOM_FLAGS_EXTFLG ? 1 : 0;
+	lazycount = geo.flags & XFS_FSOP_GEOM_FLAGS_LAZYSB ? 1 : 0;
 	dirversion = geo.flags & XFS_FSOP_GEOM_FLAGS_DIRV2 ? 2 : 1;
 	logversion = geo.flags & XFS_FSOP_GEOM_FLAGS_LOGV2 ? 2 : 1;
-
+	attrversion = geo.flags & XFS_FSOP_GEOM_FLAGS_ATTR2 ? 2 : \
+			(geo.flags & XFS_FSOP_GEOM_FLAGS_ATTR ? 1 : 0);
+	ci = geo.flags & XFS_FSOP_GEOM_FLAGS_DIRV2CI ? 1 : 0;
 	if (nflag) {
-		report_info(geo, fname, unwritten, dirversion, logversion,
-				isint);
+		report_info(geo, datadev, isint, logdev, rtdev,
+				lazycount, dirversion, logversion,
+				attrversion, ci);
 		exit(0);
 	}
 
@@ -249,11 +254,10 @@ main(int argc, char **argv)
 	 * Need root access from here on (using raw devices)...
 	 */
 
-	bzero(&xi, sizeof(xi));
+	memset(&xi, 0, sizeof(xi));
 	xi.dname = datadev;
 	xi.logname = logdev;
 	xi.rtname = rtdev;
-	xi.notvolok = 1;
 	xi.isreadonly = LIBXFS_ISREADONLY;
 
 	if (!libxfs_init(&xi))
@@ -277,7 +281,9 @@ main(int argc, char **argv)
 		exit(1);
 	}
 
-	report_info(geo, fname, unwritten, dirversion, logversion, isint);
+	report_info(geo, datadev, isint, logdev, rtdev,
+			lazycount, dirversion, logversion,
+			attrversion, ci);
 
 	ddsize = xi.dsize;
 	dlsize = ( xi.logBBsize? xi.logBBsize :
@@ -298,7 +304,6 @@ main(int argc, char **argv)
 	error = 0;
 	if (dflag | aflag) {
 		xfs_growfs_data_t	in;
-		__uint64_t		new_agcount;
 
 		if (!mflag)
 			maxpct = geo.imaxpct;
@@ -311,9 +316,6 @@ main(int argc, char **argv)
 				(long long)(ddsize/(geo.blocksize/BBSIZE)));
 			error = 1;
 		}
-
-		new_agcount = dsize / geo.agblocks
-			   + (dsize % geo.agblocks != 0);
 
 		if (!error && dsize < geo.datablocks) {
 			fprintf(stderr, _("data size %lld too small,"
@@ -447,5 +449,5 @@ main(int argc, char **argv)
 	if (geo.rtextsize != ngeo.rtextsize)
 		printf(_("realtime extent size changed from %d to %d\n"),
 			geo.rtextsize, ngeo.rtextsize);
-	exit(0);
+	exit(error);
 }

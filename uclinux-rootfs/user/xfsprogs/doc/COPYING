@@ -1,8 +1,7 @@
-The library named "libhandle" is licensed under Version 2.1 of the GNU Lesser
-General Public License.
+The library named "libhandle" and some specific header files (including
+<xfs/xfs.h>) are licensed under the GNU Lesser General Public License.
 
-All other components are licensed under Version 2 of the GNU General Public
-License.
+All other components are licensed under the GNU General Public License.
 
 ----------------------------------------------------------------------
 

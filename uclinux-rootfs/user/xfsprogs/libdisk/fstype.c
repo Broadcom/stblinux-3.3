@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2003,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <stdio.h>
@@ -82,6 +68,7 @@ swapped(unsigned short a) {
     Added jfs - Christoph Hellwig
     Added sysv - Tim Launchbury
     Added udf - Bryce Nesbitt
+    Added gfs/gfs2, btrfs - Eric Sandeen
 */
 
 /*
@@ -155,16 +142,16 @@ may_be_swap(const char *s) {
 
 /* rather weak necessary condition */
 static int
-may_be_adfs(const u_char *s) {
-	u_char *p;
+may_be_adfs(const struct adfs_super_block *sb) {
+	char *p;
 	int sum;
 
-	p = (u_char *) s + 511;
+	p = (char *)sb->s_checksum;
 	sum = 0;
-	while(--p != s)
+	while(--p != (char *)sb)
 		sum = (sum >> 8) + (sum & 0xff) + *p;
 
-	return (sum == p[511]);
+	return (sum & 0xff) == sb->s_checksum[0];
 }
 
 static int is_reiserfs_magic_string (struct reiserfs_super_block * rs)
@@ -206,6 +193,8 @@ fstype(const char *device) {
     struct hpfs_super_block hpfssb;
     struct adfs_super_block adfssb;
     struct sysv_super_block svsb;
+    struct gfs2_sb gfs2sb;
+    struct btrfs_super_block btrfssb;
     struct stat statbuf;
 
     /* opening and reading an arbitrary unknown path can have
@@ -213,11 +202,11 @@ fstype(const char *device) {
        to a block device or ordinary file */
     if (stat (device, &statbuf) ||
 	!(S_ISBLK(statbuf.st_mode) || S_ISREG(statbuf.st_mode)))
-      return 0;
+      return NULL;
 
     fd = open(device, O_RDONLY);
     if (fd < 0)
-      return 0;
+      return NULL;
 
     /* do seeks and reads in disk order, otherwise a very short
        partition may cause a failure because of read error */
@@ -315,7 +304,7 @@ fstype(const char *device) {
              goto io_error;
 
 	/* only a weak test */
-        if (may_be_adfs((u_char *) &adfssb)
+        if (may_be_adfs(&adfssb)
             && (adfsblksize(adfssb) >= 8 &&
                 adfsblksize(adfssb) <= 10))
              type = "adfs";
@@ -396,11 +385,40 @@ fstype(const char *device) {
     }
 
     if (!type) {
+	/* block 64 */
+	if (lseek(fd, GFS_SUPERBLOCK_OFFSET, SEEK_SET) != GFS_SUPERBLOCK_OFFSET
+	    || read(fd, (char *) &gfs2sb, sizeof(gfs2sb)) != sizeof(gfs2sb))
+	    goto io_error;
+	if (gfsmagic(gfs2sb)) {
+		if (gfsformat(gfs2sb) == GFS_FORMAT_FS &&
+		    gfsmultiformat(gfs2sb) == GFS_FORMAT_MULTI)
+			type = "gfs";
+		else if (gfsformat(gfs2sb) == GFS2_FORMAT_FS &&
+			 gfsmultiformat(gfs2sb) == GFS2_FORMAT_MULTI)
+			type = "gfs2";
+	}
+    }
+
+    if (!type) {
+	/* block 64 */
+	if (lseek(fd, BTRFS_SUPER_INFO_OFFSET, SEEK_SET) != BTRFS_SUPER_INFO_OFFSET 
+	    || read(fd, (char *) &btrfssb, sizeof(btrfssb)) != sizeof(btrfssb))
+	    goto io_error;
+	if (!strncmp((char *)(btrfssb.magic), BTRFS_MAGIC,
+                    sizeof(btrfssb.magic))) {
+		type = "btrfs";
+	}
+    }
+
+    if (!type) {
 	    /* perhaps the user tries to mount the swap space
-	       on a new disk; warn her before she does mke2fs on it */
+	       on a new disk; warn her before she does mkfs on it */
 	    int pagesize = getpagesize();
 	    int rd;
-	    char buf[32768];
+	    char buf[128 * 1024];	/* 64k is current max pagesize */
+
+	    if (pagesize > sizeof(buf))
+		    abort();
 
 	    rd = pagesize;
 	    if (rd < 8192)
@@ -420,5 +438,5 @@ fstype(const char *device) {
 
 io_error:
     close(fd);
-    return 0;
+    return NULL;
 }

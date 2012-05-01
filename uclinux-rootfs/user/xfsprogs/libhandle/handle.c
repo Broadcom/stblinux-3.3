@@ -1,42 +1,25 @@
 /*
- * Copyright (c) 1995, 2001-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995, 2001-2003, 2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2.1 of the GNU Lesser General Public License
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
- * USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <xfs/libxfs.h>
-
-/* attributes.h (purposefully) unavailable to xfsprogs, make do */
-struct attrlist_cursor { __u32 opaque[4]; };
-
+#include <libgen.h>
+#include <xfs/xfs.h>
 #include <xfs/handle.h>
+#include <xfs/parent.h>
 
 /* just pick a value we know is more than big enough */
 #define	MAXHANSIZ	64
@@ -58,6 +41,7 @@ typedef union {
 
 static int obj_to_handle(char *, int, unsigned int, comarg_t, void**, size_t*);
 static int handle_to_fsfd(void *, char **);
+static char *path_to_fspath(char *path);
 
 
 /*
@@ -75,27 +59,42 @@ struct fdhash {
 	char	fspath[MAXPATHLEN];
 };
 
-static struct fdhash *fdhash_head;
+static struct fdhash *fdhash_head = NULL;
 
 int
 path_to_fshandle(
 	char		*path,		/* input,  path to convert */
-	void		**hanp,		/* output, pointer to data */
-	size_t		*hlen)		/* output, size of returned data */
+	void		**fshanp,	/* output, pointer to data */
+	size_t		*fshlen)	/* output, size of returned data */
 {
 	int		result;
 	int		fd;
 	comarg_t	obj;
 	struct fdhash	*fdhp;
+	char		*tmppath;
+	char		*fspath;
 
-	fd = open(path, O_RDONLY);
+	fspath = path_to_fspath(path);
+	if (fspath == NULL)
+		return -1;
+
+	fd = open(fspath, O_RDONLY);
 	if (fd < 0)
 		return -1;
 
 	obj.path = path;
-	result = obj_to_handle(path, fd, XFS_IOC_PATH_TO_FSHANDLE,
-				obj, hanp, hlen);
-	if (result >= 0) {
+	result = obj_to_handle(fspath, fd, XFS_IOC_PATH_TO_FSHANDLE,
+				obj, fshanp, fshlen);
+	if (result < 0) {
+		close(fd);
+		return result;
+	}
+
+	if (handle_to_fsfd(*fshanp, &tmppath) >= 0) {
+		/* this filesystem is already in the cache */
+		close(fd);
+	} else {
+		/* new filesystem. add it to the cache */
 		fdhp = malloc(sizeof(struct fdhash));
 		if (fdhp == NULL) {
 			errno = ENOMEM;
@@ -103,14 +102,11 @@ path_to_fshandle(
 		}
 
 		fdhp->fsfd = fd;
-		fdhp->fnxt = NULL;
-		strncpy(fdhp->fspath, path, sizeof(fdhp->fspath));
-		memcpy(fdhp->fsh, *hanp, FSIDSIZE);
+		strncpy(fdhp->fspath, fspath, sizeof(fdhp->fspath));
+		memcpy(fdhp->fsh, *fshanp, FSIDSIZE);
 
-		if (fdhash_head)
-			fdhash_head->fnxt = fdhp;
-		else
-			fdhash_head       = fdhp;
+		fdhp->fnxt = fdhash_head;
+		fdhash_head = fdhp;
 	}
 
 	return result;
@@ -125,17 +121,59 @@ path_to_handle(
 	int		fd;
 	int		result;
 	comarg_t	obj;
+	char		*fspath;
 
-	fd = open(path, O_RDONLY);
+	fspath = path_to_fspath(path);
+	if (fspath == NULL)
+		return -1;
+
+	fd = open(fspath, O_RDONLY);
 	if (fd < 0)
 		return -1;
 
 	obj.path = path;
-	result = obj_to_handle(path, fd, XFS_IOC_PATH_TO_HANDLE,
+	result = obj_to_handle(fspath, fd, XFS_IOC_PATH_TO_HANDLE,
 				obj, hanp, hlen);
 	close(fd);
 	return result;
 }
+
+/* Given a path, return a suitable "fspath" for use in obtaining
+ * an fd for xfsctl calls. For regular files and directories the
+ * input path is sufficient. For other types the parent directory
+ * is used to avoid issues with opening dangling symlinks and
+ * potentially blocking in an open on a named pipe. Also
+ * symlinks to files on other filesystems would be a problem,
+ * since an fd would be obtained for the wrong fs.
+ */
+static char *
+path_to_fspath(char *path)
+{
+	static char dirpath[MAXPATHLEN];
+	struct stat statbuf;
+
+	if (lstat(path, &statbuf) != 0)
+		return NULL;
+
+	if (S_ISREG(statbuf.st_mode) || S_ISDIR(statbuf.st_mode))
+		return path;
+
+	strcpy(dirpath, path);
+	return dirname(dirpath);
+}
+
+int
+fd_to_handle (
+	int		fd,		/* input,  file descriptor */
+	void		**hanp,		/* output, pointer to data */
+	size_t		*hlen)		/* output, size of returned data */
+{
+	comarg_t	obj;
+
+	obj.fd = fd;
+	return obj_to_handle(NULL, fd, XFS_IOC_FD_TO_HANDLE, obj, hanp, hlen);
+}
+
 
 int
 handle_to_fshandle(
@@ -144,11 +182,15 @@ handle_to_fshandle(
 	void		**fshanp,
 	size_t		*fshlen)
 {
-	if (hlen < FSIDSIZE)
-		return EINVAL;
+	if (hlen < FSIDSIZE) {
+		errno = EINVAL;
+		return -1;
+	}
 	*fshanp = malloc(FSIDSIZE);
-	if (*fshanp == NULL)
-		return ENOMEM;
+	if (*fshanp == NULL) {
+		errno = ENOMEM;
+		return -1;
+	}
 	*fshlen = FSIDSIZE;
 	memcpy(*fshanp, hanp, FSIDSIZE);
 	return 0;
@@ -159,6 +201,12 @@ handle_to_fsfd(void *hanp, char **path)
 {
 	struct fdhash	*fdhp;
 
+	/*
+	 * Look in cache for matching fsid field in the handle
+	 * (which is at the start of the handle).
+	 * When found return the file descriptor and path that
+	 * we have in the cache.
+	 */
 	for (fdhp = fdhash_head; fdhp != NULL; fdhp = fdhp->fnxt) {
 		if (memcmp(fdhp->fsh, hanp, FSIDSIZE) == 0) {
 			*path = fdhp->fspath;
@@ -180,6 +228,7 @@ obj_to_handle(
 {
 	char		hbuf [MAXHANSIZ];
 	int		ret;
+	__uint32_t	handlen;
 	xfs_fsop_handlereq_t hreq;
 
 	if (opcode == XFS_IOC_FD_TO_HANDLE) {
@@ -194,20 +243,45 @@ obj_to_handle(
 	hreq.ihandle  = NULL;
 	hreq.ihandlen = 0;
 	hreq.ohandle  = hbuf;
-	hreq.ohandlen = (__u32 *)hlen;
+	hreq.ohandlen = &handlen;
 
 	ret = xfsctl(fspath, fsfd, opcode, &hreq);
 	if (ret)
 		return ret;
 
-	*hanp = malloc(*hlen);
+	*hanp = malloc(handlen);
 	if (*hanp == NULL) {
 		errno = ENOMEM;
 		return -1;
 	}
 
-	memcpy(*hanp, hbuf, (int) *hlen);
+	memcpy(*hanp, hbuf, handlen);
+	*hlen = handlen;
 	return 0;
+}
+
+int
+open_by_fshandle(
+	void		*fshanp,
+	size_t		fshlen,
+	int		rw)
+{
+	int		fsfd;
+	char		*path;
+	xfs_fsop_handlereq_t hreq;
+
+	if ((fsfd = handle_to_fsfd(fshanp, &path)) < 0)
+		return -1;
+
+	hreq.fd       = 0;
+	hreq.path     = NULL;
+	hreq.oflags   = rw | O_LARGEFILE;
+	hreq.ihandle  = fshanp;
+	hreq.ihandlen = fshlen;
+	hreq.ohandle  = NULL;
+	hreq.ohandlen = NULL;
+
+	return xfsctl(path, fsfd, XFS_IOC_OPEN_BY_HANDLE, &hreq);
 }
 
 int
@@ -216,11 +290,11 @@ open_by_handle(
 	size_t		hlen,
 	int		rw)
 {
-	int		fd;
+	int		fsfd;
 	char		*path;
 	xfs_fsop_handlereq_t hreq;
 
-	if ((fd = handle_to_fsfd(hanp, &path)) < 0)
+	if ((fsfd = handle_to_fsfd(hanp, &path)) < 0)
 		return -1;
 
 	hreq.fd       = 0;
@@ -231,7 +305,7 @@ open_by_handle(
 	hreq.ohandle  = NULL;
 	hreq.ohandlen = NULL;
 
-	return xfsctl(path, fd, XFS_IOC_OPEN_BY_HANDLE, &hreq);
+	return xfsctl(path, fsfd, XFS_IOC_OPEN_BY_HANDLE, &hreq);
 }
 
 int
@@ -242,6 +316,7 @@ readlink_by_handle(
 	size_t		bufsiz)
 {
 	int		fd;
+	__u32		buflen = (__u32)bufsiz;
 	char		*path;
 	xfs_fsop_handlereq_t hreq;
 
@@ -254,11 +329,12 @@ readlink_by_handle(
 	hreq.ihandle  = hanp;
 	hreq.ihandlen = hlen;
 	hreq.ohandle  = buf;
-	hreq.ohandlen = (__u32 *)&bufsiz;
+	hreq.ohandlen = &buflen;
 
 	return xfsctl(path, fd, XFS_IOC_READLINK_BY_HANDLE, &hreq);
 }
 
+/*ARGSUSED4*/
 int
 attr_multi_by_handle(
 	void		*hanp,
@@ -297,7 +373,7 @@ attr_list_by_handle(
 	int		flags,
 	struct attrlist_cursor *cursor)
 {
-	int		fd;
+	int		error, fd;
 	char		*path;
 	xfs_fsop_attrlist_handlereq_t alhreq;
 
@@ -314,10 +390,41 @@ attr_list_by_handle(
 
 	memcpy(&alhreq.pos, cursor, sizeof(alhreq.pos));
 	alhreq.flags = flags;
-	alhreq.buflen = bufsize;
 	alhreq.buffer = buf;
+	alhreq.buflen = bufsize;
+	/* prevent needless EINVAL from the kernel */
+	if (alhreq.buflen > XATTR_LIST_MAX)
+		alhreq.buflen = XATTR_LIST_MAX;
 
-	return xfsctl(path, fd, XFS_IOC_ATTRLIST_BY_HANDLE, &alhreq);
+	error = xfsctl(path, fd, XFS_IOC_ATTRLIST_BY_HANDLE, &alhreq);
+
+	memcpy(cursor, &alhreq.pos, sizeof(alhreq.pos));
+	return error;
+}
+
+int
+parents_by_handle(
+	void		*hanp,
+	size_t		hlen,
+	parent_t	*buf,
+	size_t		bufsiz,
+	unsigned int	*count)
+	
+{
+	errno = EOPNOTSUPP;
+	return -1;
+}
+
+int
+parentpaths_by_handle(
+	void		*hanp,
+	size_t		hlen,
+	parent_t	*buf,
+	size_t		bufsiz,
+	unsigned int	*count)
+{
+	errno = EOPNOTSUPP;
+	return -1;
 }
 
 int
@@ -346,6 +453,7 @@ fssetdm_by_handle(
 	return xfsctl(path, fd, XFS_IOC_FSSETDM_BY_HANDLE, &dmhreq);
 }
 
+/*ARGSUSED1*/
 void
 free_handle(
 	void		*hanp,

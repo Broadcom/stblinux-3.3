@@ -136,6 +136,9 @@ static void show_backtrace(struct task_struct *task, const struct pt_regs *regs)
 	unsigned long ra = regs->regs[31];
 	unsigned long pc = regs->cp0_epc;
 
+	if (!task)
+		task = current;
+
 	if (raw_show_trace || !__kernel_text_address(pc)) {
 		show_raw_backtrace(sp);
 		return;
@@ -1143,7 +1146,7 @@ asmlinkage void do_mt(struct pt_regs *regs)
 		printk(KERN_DEBUG "YIELD Scheduler Exception\n");
 		break;
 	case 5:
-		printk(KERN_DEBUG "Gating Storage Schedulier Exception\n");
+		printk(KERN_DEBUG "Gating Storage Scheduler Exception\n");
 		break;
 	default:
 		printk(KERN_DEBUG "*** UNKNOWN THREAD EXCEPTION %d ***\n",

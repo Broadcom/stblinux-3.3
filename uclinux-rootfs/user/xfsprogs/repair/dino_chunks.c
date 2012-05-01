@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <libxfs.h>
@@ -40,6 +26,8 @@
 #include "dir.h"
 #include "dinode.h"
 #include "versions.h"
+#include "prefetch.h"
+#include "progress.h"
 
 /*
  * validates inode block or chunk, returns # of good inodes
@@ -68,13 +56,13 @@ check_aginode_block(xfs_mount_t	*mp,
 	bp = libxfs_readbuf(mp->m_dev, XFS_AGB_TO_DADDR(mp, agno, agbno),
 			XFS_FSB_TO_BB(mp, 1), 0);
 	if (!bp) {
-		do_warn(_("cannot read agbno (%u/%u), disk block %lld\n"), agno,
-			agbno, (xfs_daddr_t)XFS_AGB_TO_DADDR(mp, agno, agbno));
+		do_warn(_("cannot read agbno (%u/%u), disk block %" PRId64 "\n"),
+			agno, agbno, XFS_AGB_TO_DADDR(mp, agno, agbno));
 		return(0);
 	}
 
 	for (i = 0; i < mp->m_sb.sb_inopblock; i++)  {
-		dino_p = XFS_MAKE_IPTR(mp, bp, i);
+		dino_p = xfs_make_iptr(mp, bp, i);
 		if (!verify_uncertain_dinode(mp, dino_p, agno,
 				XFS_OFFBNO_TO_AGINO(mp, agbno, i)))
 			cnt++;
@@ -130,6 +118,7 @@ verify_inode_chunk(xfs_mount_t		*mp,
 	int		i;
 	int		j;
 	int		state;
+	xfs_extlen_t	blen;
 
 	agno = XFS_INO_TO_AGNO(mp, ino);
 	agino = XFS_INO_TO_AGINO(mp, ino);
@@ -161,7 +150,10 @@ verify_inode_chunk(xfs_mount_t		*mp,
 		if (check_inode_block(mp, ino) == 0)
 			return(0);
 
-		switch (state = get_agbno_state(mp, agno, agbno))  {
+		pthread_mutex_lock(&ag_locks[agno]);
+
+		state = get_bmap(agno, agbno);
+		switch (state) {
 		case XR_E_INO:
 			do_warn(
 		_("uncertain inode block %d/%d already known\n"),
@@ -170,7 +162,7 @@ verify_inode_chunk(xfs_mount_t		*mp,
 		case XR_E_UNKNOWN:
 		case XR_E_FREE1:
 		case XR_E_FREE:
-			set_agbno_state(mp, agno, agbno, XR_E_INO);
+			set_bmap(agno, agbno, XR_E_INO);
 			break;
 		case XR_E_MULT:
 		case XR_E_INUSE:
@@ -182,15 +174,18 @@ verify_inode_chunk(xfs_mount_t		*mp,
 			do_warn(
 		_("inode block %d/%d multiply claimed, (state %d)\n"),
 				agno, agbno, state);
-			set_agbno_state(mp, agno, agbno, XR_E_MULT);
+			set_bmap(agno, agbno, XR_E_MULT);
+			pthread_mutex_unlock(&ag_locks[agno]);
 			return(0);
 		default:
 			do_warn(
 		_("inode block %d/%d bad state, (state %d)\n"),
 				agno, agbno, state);
-			set_agbno_state(mp, agno, agbno, XR_E_INO);
+			set_bmap(agno, agbno, XR_E_INO);
 			break;
 		}
+
+		pthread_mutex_unlock(&ag_locks[agno]);
 
 		start_agino = XFS_OFFBNO_TO_AGINO(mp, agbno, 0);
 		*start_ino = XFS_AGINO_TO_INO(mp, agno, start_agino);
@@ -199,9 +194,9 @@ verify_inode_chunk(xfs_mount_t		*mp,
 		 * put new inode record(s) into inode tree
 		 */
 		for (j = 0; j < chunks_pblock; j++)  {
-			if ((irec_p = find_inode_rec(agno, start_agino))
+			if ((irec_p = find_inode_rec(mp, agno, start_agino))
 					== NULL)  {
-				irec_p = set_inode_free_alloc(agno,
+				irec_p = set_inode_free_alloc(mp, agno,
 							start_agino);
 				for (i = 1; i < XFS_INODES_PER_CHUNK; i++)
 					set_inode_free(irec_p, i);
@@ -259,7 +254,7 @@ verify_inode_chunk(xfs_mount_t		*mp,
 		start_agino = XFS_OFFBNO_TO_AGINO(mp, start_agbno, 0);
 		*start_ino = XFS_AGINO_TO_INO(mp, agno, start_agino);
 
-		irec_p = set_inode_free_alloc(agno,
+		irec_p = set_inode_free_alloc(mp, agno,
 				XFS_OFFBNO_TO_AGINO(mp, start_agbno, 0));
 
 		for (i = 1; i < XFS_INODES_PER_CHUNK; i++)
@@ -297,7 +292,7 @@ verify_inode_chunk(xfs_mount_t		*mp,
 	 */
 	irec_before_p = irec_after_p = NULL;
 
-	find_inode_rec_range(agno, XFS_OFFBNO_TO_AGINO(mp, start_agbno, 0),
+	find_inode_rec_range(mp, agno, XFS_OFFBNO_TO_AGINO(mp, start_agbno, 0),
 		XFS_OFFBNO_TO_AGINO(mp, end_agbno, mp->m_sb.sb_inopblock - 1),
 		&irec_before_p, &irec_after_p);
 
@@ -438,31 +433,32 @@ verify_inode_chunk(xfs_mount_t		*mp,
 	 * user data -- we're probably here as a result of a directory
 	 * entry or an iunlinked pointer
 	 */
-	for (j = 0, cur_agbno = chunk_start_agbno;
-			cur_agbno < chunk_stop_agbno; cur_agbno++)  {
-		switch (state = get_agbno_state(mp, agno, cur_agbno))  {
+	pthread_mutex_lock(&ag_locks[agno]);
+	for (cur_agbno = chunk_start_agbno;
+	     cur_agbno < chunk_stop_agbno;
+	     cur_agbno += blen)  {
+		state = get_bmap_ext(agno, cur_agbno, chunk_stop_agbno, &blen);
+		switch (state) {
 		case XR_E_MULT:
 		case XR_E_INUSE:
 		case XR_E_INUSE_FS:
 		case XR_E_FS_MAP:
 			do_warn(
-		_("inode block %d/%d multiply claimed, (state %d)\n"),
+	_("inode block %d/%d multiply claimed, (state %d)\n"),
 				agno, cur_agbno, state);
-			set_agbno_state(mp, agno, cur_agbno, XR_E_MULT);
-			j = 1;
-			break;
+			set_bmap_ext(agno, cur_agbno, blen, XR_E_MULT);
+			pthread_mutex_unlock(&ag_locks[agno]);
+			return 0;
 		case XR_E_INO:
 			do_error(
-		_("uncertain inode block overlap, agbno = %d, ino = %llu\n"),
+	_("uncertain inode block overlap, agbno = %d, ino = %" PRIu64 "\n"),
 				agbno, ino);
 			break;
 		default:
 			break;
 		}
-
-		if (j)
-			return(0);
 	}
+	pthread_mutex_unlock(&ag_locks[agno]);
 
 	/*
 	 * ok, chunk is good.  put the record into the tree if required,
@@ -474,9 +470,9 @@ verify_inode_chunk(xfs_mount_t		*mp,
 	start_agino = XFS_OFFBNO_TO_AGINO(mp, chunk_start_agbno, 0);
 	*start_ino = XFS_AGINO_TO_INO(mp, agno, start_agino);
 
-	ASSERT(find_inode_rec(agno, start_agino) == NULL);
+	ASSERT(find_inode_rec(mp, agno, start_agino) == NULL);
 
-	irec_p = set_inode_free_alloc(agno, start_agino);
+	irec_p = set_inode_free_alloc(mp, agno, start_agino);
 	for (i = 1; i < XFS_INODES_PER_CHUNK; i++)
 		set_inode_free(irec_p, i);
 
@@ -485,18 +481,22 @@ verify_inode_chunk(xfs_mount_t		*mp,
 
 	set_inode_used(irec_p, agino - start_agino);
 
+	pthread_mutex_lock(&ag_locks[agno]);
+
 	for (cur_agbno = chunk_start_agbno;
-			cur_agbno < chunk_stop_agbno; cur_agbno++)  {
-		switch (state = get_agbno_state(mp, agno, cur_agbno))  {
+	     cur_agbno < chunk_stop_agbno;
+	     cur_agbno += blen)  {
+		state = get_bmap_ext(agno, cur_agbno, chunk_stop_agbno, &blen);
+		switch (state) {
 		case XR_E_INO:
 			do_error(
-		_("uncertain inode block %llu already known\n"),
+		_("uncertain inode block %" PRIu64 " already known\n"),
 				XFS_AGB_TO_FSB(mp, agno, cur_agbno));
 			break;
 		case XR_E_UNKNOWN:
 		case XR_E_FREE1:
 		case XR_E_FREE:
-			set_agbno_state(mp, agno, cur_agbno, XR_E_INO);
+			set_bmap_ext(agno, cur_agbno, blen, XR_E_INO);
 			break;
 		case XR_E_MULT:
 		case XR_E_INUSE:
@@ -510,10 +510,11 @@ verify_inode_chunk(xfs_mount_t		*mp,
 			do_warn(
 		_("inode block %d/%d bad state, (state %d)\n"),
 				agno, cur_agbno, state);
-			set_agbno_state(mp, agno, cur_agbno, XR_E_INO);
+			set_bmap_ext(agno, cur_agbno, blen, XR_E_INO);
 			break;
 		}
 	}
+	pthread_mutex_unlock(&ag_locks[agno]);
 
 	return(ino_cnt);
 }
@@ -553,7 +554,7 @@ verify_aginode_chunk_irec(xfs_mount_t	*mp,
 	ino_tree_node_t *irec = NULL;
 
 	if (verify_aginode_chunk(mp, agno, agino, &start_agino))
-		irec = find_inode_rec(agno, start_agino);
+		irec = find_inode_rec(mp, agno, start_agino);
 
 	return(irec);
 }
@@ -566,29 +567,39 @@ verify_aginode_chunk_irec(xfs_mount_t	*mp,
  *
  * *bogus is set to 1 if the entire set of inodes is bad.
  */
+
 /* ARGSUSED */
-int
-process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
-			ino_tree_node_t *first_irec, int ino_discovery,
-			int check_dups, int extra_attr_check, int *bogus)
+static int
+process_inode_chunk(
+	xfs_mount_t 		*mp,
+	xfs_agnumber_t		agno,
+	int 			num_inos,
+	ino_tree_node_t 	*first_irec,
+	int 			ino_discovery,
+	int 			check_dups,
+	int 			extra_attr_check,
+	int 			*bogus)
 {
 	xfs_ino_t		parent;
 	ino_tree_node_t		*ino_rec;
-	xfs_buf_t		*bp;
+	xfs_buf_t		**bplist;
 	xfs_dinode_t		*dino;
 	int			icnt;
 	int			status;
 	int			is_used;
 	int			state;
-	int			done;
 	int			ino_dirty;
 	int			irec_offset;
 	int			ibuf_offset;
 	xfs_agino_t		agino;
 	xfs_agblock_t		agbno;
+	xfs_ino_t		ino;
 	int			dirty = 0;
-	int			cleared = 0;
 	int			isa_dir = 0;
+	int			blks_per_cluster;
+	int			cluster_count;
+	int			bp_index;
+	int			cluster_offset;
 
 	ASSERT(first_irec != NULL);
 	ASSERT(XFS_AGINO_TO_OFFSET(mp, first_irec->ino_startnum) == 0);
@@ -596,44 +607,75 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 	*bogus = 0;
 	ASSERT(XFS_IALLOC_BLOCKS(mp) > 0);
 
+	blks_per_cluster = XFS_INODE_CLUSTER_SIZE(mp) >> mp->m_sb.sb_blocklog;
+	if (blks_per_cluster == 0)
+		blks_per_cluster = 1;
+	cluster_count = XFS_INODES_PER_CHUNK / inodes_per_cluster;
+	if (cluster_count == 0)
+		cluster_count = 1;
+
 	/*
 	 * get all blocks required to read in this chunk (may wind up
 	 * having to process more chunks in a multi-chunk per block fs)
 	 */
 	agbno = XFS_AGINO_TO_AGBNO(mp, first_irec->ino_startnum);
 
-	bp = libxfs_readbuf(mp->m_dev, XFS_AGB_TO_DADDR(mp, agno, agbno),
-			XFS_FSB_TO_BB(mp, XFS_IALLOC_BLOCKS(mp)), 0);
-	if (!bp) {
-		do_warn(_("cannot read inode %llu, disk block %lld, cnt %d\n"),
-			XFS_AGINO_TO_INO(mp, agno, first_irec->ino_startnum),
-			XFS_AGB_TO_DADDR(mp, agno, agbno),
-			(int)XFS_FSB_TO_BB(mp, XFS_IALLOC_BLOCKS(mp)));
-		return(1);
-	}
-
 	/*
 	 * set up first irec
 	 */
 	ino_rec = first_irec;
+
+	bplist = malloc(cluster_count * sizeof(xfs_buf_t *));
+	if (bplist == NULL)
+		do_error(_("failed to allocate %zd bytes of memory\n"),
+			cluster_count * sizeof(xfs_buf_t *));
+
+	for (bp_index = 0; bp_index < cluster_count; bp_index++) {
+		pftrace("about to read off %llu in AG %d",
+			XFS_AGB_TO_DADDR(mp, agno, agbno), agno);
+
+		bplist[bp_index] = libxfs_readbuf(mp->m_dev,
+					XFS_AGB_TO_DADDR(mp, agno, agbno),
+					XFS_FSB_TO_BB(mp, blks_per_cluster), 0);
+		if (!bplist[bp_index]) {
+			do_warn(_("cannot read inode %" PRIu64 ", disk block %" PRId64 ", cnt %d\n"),
+				XFS_AGINO_TO_INO(mp, agno, first_irec->ino_startnum),
+				XFS_AGB_TO_DADDR(mp, agno, agbno),
+				XFS_FSB_TO_BB(mp, blks_per_cluster));
+			while (bp_index > 0) {
+				bp_index--;
+				libxfs_putbuf(bplist[bp_index]);
+			}
+			free(bplist);
+			return(1);
+		}
+		agbno += blks_per_cluster;
+
+		pftrace("readbuf %p (%llu, %d) in AG %d", bplist[bp_index],
+			(long long)XFS_BUF_ADDR(bplist[bp_index]),
+			XFS_BUF_COUNT(bplist[bp_index]), agno);
+	}
+	agbno = XFS_AGINO_TO_AGBNO(mp, first_irec->ino_startnum);
+
 	/*
 	 * initialize counters
 	 */
 	irec_offset = 0;
 	ibuf_offset = 0;
+	cluster_offset = 0;
 	icnt = 0;
 	status = 0;
-	done = 0;
+	bp_index = 0;
 
 	/*
 	 * verify inode chunk if necessary
 	 */
 	if (ino_discovery)  {
-		while (!done)  {
+		for (;;)  {
 			/*
 			 * make inode pointer
 			 */
-			dino = XFS_MAKE_IPTR(mp, bp, icnt);
+			dino = xfs_make_iptr(mp, bplist[bp_index], cluster_offset);
 			agino = irec_offset + ino_rec->ino_startnum;
 
 			/*
@@ -651,6 +693,7 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 
 			irec_offset++;
 			icnt++;
+			cluster_offset++;
 
 			if (icnt == XFS_IALLOC_INODES(mp) &&
 					irec_offset == XFS_INODES_PER_CHUNK)  {
@@ -658,8 +701,6 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 				 * done! - finished up irec and block
 				 * simultaneously
 				 */
-				libxfs_putbuf(bp);
-				done = 1;
 				break;
 			} else if (irec_offset == XFS_INODES_PER_CHUNK)  {
 				/*
@@ -669,6 +710,10 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 				ASSERT(ino_rec->ino_startnum == agino + 1);
 				irec_offset = 0;
 			}
+			if (cluster_offset == inodes_per_cluster) {
+				bp_index++;
+				cluster_offset = 0;
+			}
 		}
 
 		/*
@@ -677,8 +722,9 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 		 */
 		if (!status)  {
 			*bogus = 1;
-			if (!done) /* already free'd */
-			  libxfs_putbuf(bp);
+			for (bp_index = 0; bp_index < cluster_count; bp_index++)
+				libxfs_putbuf(bplist[bp_index]);
+			free(bplist);
 			return(0);
 		}
 
@@ -688,55 +734,43 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 		ino_rec = first_irec;
 
 		irec_offset = 0;
-		ibuf_offset = 0;
+		cluster_offset = 0;
+		bp_index = 0;
 		icnt = 0;
 		status = 0;
-		done = 0;
-
-		/* nathans TODO ... memory leak here?: */
-
-		/*
-		 * get first block
-		 */
-		bp = libxfs_readbuf(mp->m_dev,
-				XFS_AGB_TO_DADDR(mp, agno, agbno),
-				XFS_FSB_TO_BB(mp, XFS_IALLOC_BLOCKS(mp)), 0);
-		if (!bp) {
-			do_warn(_("can't read inode %llu, disk block %lld, "
-				"cnt %d\n"), XFS_AGINO_TO_INO(mp, agno, agino),
-				XFS_AGB_TO_DADDR(mp, agno, agbno),
-				(int)XFS_FSB_TO_BB(mp, XFS_IALLOC_BLOCKS(mp)));
-			return(1);
-		}
 	}
 
 	/*
 	 * mark block as an inode block in the incore bitmap
 	 */
-	switch (state = get_agbno_state(mp, agno, agbno))  {
+	pthread_mutex_lock(&ag_locks[agno]);
+	state = get_bmap(agno, agbno);
+	switch (state) {
 	case XR_E_INO:	/* already marked */
 		break;
 	case XR_E_UNKNOWN:
 	case XR_E_FREE:
 	case XR_E_FREE1:
-		set_agbno_state(mp, agno, agbno, XR_E_INO);
+		set_bmap(agno, agbno, XR_E_INO);
 		break;
 	case XR_E_BAD_STATE:
 		do_error(_("bad state in block map %d\n"), state);
 		break;
 	default:
-		set_agbno_state(mp, agno, agbno, XR_E_MULT);
-		do_warn(_("inode block %llu multiply claimed, state was %d\n"),
+		set_bmap(agno, agbno, XR_E_MULT);
+		do_warn(_("inode block %" PRIu64 " multiply claimed, state was %d\n"),
 			XFS_AGB_TO_FSB(mp, agno, agbno), state);
 		break;
 	}
+	pthread_mutex_unlock(&ag_locks[agno]);
 
-	while (!done)  {
+	for (;;) {
 		/*
 		 * make inode pointer
 		 */
-		dino = XFS_MAKE_IPTR(mp, bp, icnt);
+		dino = xfs_make_iptr(mp, bplist[bp_index], cluster_offset);
 		agino = irec_offset + ino_rec->ino_startnum;
+		ino = XFS_AGINO_TO_INO(mp, agno, agino);
 
 		is_used = 3;
 		ino_dirty = 0;
@@ -744,8 +778,7 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 
 		status = process_dinode(mp, dino, agno, agino,
 				is_inode_free(ino_rec, irec_offset),
-				&ino_dirty, &cleared, &is_used,
-				ino_discovery, check_dups,
+				&ino_dirty, &is_used,ino_discovery, check_dups,
 				extra_attr_check, &isa_dir, &parent);
 
 		ASSERT(is_used != 3);
@@ -760,23 +793,27 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 		 */
 		if (is_used)  {
 			if (is_inode_free(ino_rec, irec_offset))  {
-				if (verbose || no_modify ||
-				    XFS_AGINO_TO_INO(mp, agno, agino) !=
-							old_orphanage_ino)  {
-					do_warn(_("imap claims in-use inode "
-						  "%llu is free, "),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+				if (verbose || no_modify)  {
+					do_warn(
+	_("imap claims in-use inode %" PRIu64 " is free, "),
+						ino);
 				}
 
-				if (verbose || (!no_modify &&
-				    XFS_AGINO_TO_INO(mp, agno, agino) !=
-						old_orphanage_ino))
+				if (verbose || !no_modify)
 					do_warn(_("correcting imap\n"));
 				else
 					do_warn(_("would correct imap\n"));
 			}
 			set_inode_used(ino_rec, irec_offset);
+
+			/*
+			 * store on-disk nlink count for comparing in phase 7
+			 */
+			set_inode_disk_nlinks(ino_rec, irec_offset,
+				dino->di_version > 1
+					? be32_to_cpu(dino->di_nlink)
+					: be16_to_cpu(dino->di_onlink));
+
 		} else  {
 			set_inode_free(ino_rec, irec_offset);
 		}
@@ -806,73 +843,72 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 		}
 
 		if (status)  {
-			if (mp->m_sb.sb_rootino ==
-					XFS_AGINO_TO_INO(mp, agno, agino))  {
+			if (mp->m_sb.sb_rootino == ino) {
 				need_root_inode = 1;
 
 				if (!no_modify)  {
-					do_warn(_("cleared root inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("cleared root inode %" PRIu64 "\n"),
+						ino);
 				} else  {
-					do_warn(_("would clear root inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("would clear root inode %" PRIu64 "\n"),
+						ino);
 				}
-			} else if (mp->m_sb.sb_rbmino ==
-					XFS_AGINO_TO_INO(mp, agno, agino))  {
+			} else if (mp->m_sb.sb_rbmino == ino) {
 				need_rbmino = 1;
 
 				if (!no_modify)  {
-					do_warn(_("cleared realtime bitmap "
-						  "inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("cleared realtime bitmap inode %" PRIu64 "\n"),
+						ino);
 				} else  {
-					do_warn(_("would clear realtime bitmap "
-						  "inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("would clear realtime bitmap inode %" PRIu64 "\n"),
+						ino);
 				}
-			} else if (mp->m_sb.sb_rsumino ==
-					XFS_AGINO_TO_INO(mp, agno, agino))  {
+			} else if (mp->m_sb.sb_rsumino == ino) {
 				need_rsumino = 1;
 
 				if (!no_modify)  {
-					do_warn(_("cleared realtime summary "
-						  "inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("cleared realtime summary inode %" PRIu64 "\n"),
+						ino);
 				} else  {
-					do_warn(_("would clear realtime summary"
-						  " inode %llu\n"),
-						XFS_AGINO_TO_INO(mp, agno,
-						agino));
+					do_warn(
+	_("would clear realtime summary inode %" PRIu64 "\n"),
+						ino);
 				}
 			} else if (!no_modify)  {
-				do_warn(_("cleared inode %llu\n"),
-					XFS_AGINO_TO_INO(mp, agno, agino));
+				do_warn(_("cleared inode %" PRIu64 "\n"),
+					ino);
 			} else  {
-				do_warn(_("would have cleared inode %llu\n"),
-					XFS_AGINO_TO_INO(mp, agno, agino));
+				do_warn(_("would have cleared inode %" PRIu64 "\n"),
+					ino);
 			}
 		}
 
 		irec_offset++;
 		ibuf_offset++;
 		icnt++;
+		cluster_offset++;
 
 		if (icnt == XFS_IALLOC_INODES(mp) &&
 				irec_offset == XFS_INODES_PER_CHUNK)  {
 			/*
 			 * done! - finished up irec and block simultaneously
 			 */
-			if (dirty && !no_modify)
-				libxfs_writebuf(bp, 0);
-			else
-				libxfs_putbuf(bp);
+			for (bp_index = 0; bp_index < cluster_count; bp_index++) {
+				pftrace("put/writebuf %p (%llu) in AG %d",
+					bplist[bp_index], (long long)
+					XFS_BUF_ADDR(bplist[bp_index]), agno);
 
-			done = 1;
+				if (dirty && !no_modify)
+					libxfs_writebuf(bplist[bp_index], 0);
+				else
+					libxfs_putbuf(bplist[bp_index]);
+			}
+			free(bplist);
 			break;
 		} else if (ibuf_offset == mp->m_sb.sb_inopblock)  {
 			/*
@@ -882,25 +918,28 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 			ibuf_offset = 0;
 			agbno++;
 
-			switch (state = get_agbno_state(mp, agno, agbno))  {
+			pthread_mutex_lock(&ag_locks[agno]);
+			state = get_bmap(agno, agbno);
+			switch (state) {
 			case XR_E_INO:	/* already marked */
 				break;
 			case XR_E_UNKNOWN:
 			case XR_E_FREE:
 			case XR_E_FREE1:
-				set_agbno_state(mp, agno, agbno, XR_E_INO);
+				set_bmap(agno, agbno, XR_E_INO);
 				break;
 			case XR_E_BAD_STATE:
 				do_error(_("bad state in block map %d\n"),
 					state);
 				break;
 			default:
-				set_agbno_state(mp, agno, agbno, XR_E_MULT);
-				do_warn(_("inode block %llu multiply claimed, "
-					  "state was %d\n"),
+				set_bmap(agno, agbno, XR_E_MULT);
+				do_warn(
+	_("inode block %" PRIu64 " multiply claimed, state was %d\n"),
 					XFS_AGB_TO_FSB(mp, agno, agbno), state);
 				break;
 			}
+			pthread_mutex_unlock(&ag_locks[agno]);
 
 		} else if (irec_offset == XFS_INODES_PER_CHUNK)  {
 			/*
@@ -909,6 +948,10 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
 			ino_rec = next_ino_rec(ino_rec);
 			ASSERT(ino_rec->ino_startnum == agino + 1);
 			irec_offset = 0;
+		}
+		if (cluster_offset == inodes_per_cluster) {
+			bp_index++;
+			cluster_offset = 0;
 		}
 	}
 	return(0);
@@ -927,13 +970,21 @@ process_inode_chunk(xfs_mount_t *mp, xfs_agnumber_t agno, int num_inos,
  * phase 4 after we've run through and set the bitmap once.
  */
 void
-process_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno,
-		int ino_discovery, int check_dups, int extra_attr_check)
+process_aginodes(
+	xfs_mount_t		*mp,
+	prefetch_args_t		*pf_args,
+	xfs_agnumber_t		agno,
+	int 			ino_discovery,
+	int 			check_dups,
+	int 			extra_attr_check)
 {
-	int num_inos, bogus;
-	ino_tree_node_t *ino_rec, *first_ino_rec, *prev_ino_rec;
-
+	int 			num_inos, bogus;
+	ino_tree_node_t 	*ino_rec, *first_ino_rec, *prev_ino_rec;
+#ifdef XR_PF_TRACE
+	int			count;
+#endif
 	first_ino_rec = ino_rec = findfirst_inode_rec(agno);
+
 	while (ino_rec != NULL)  {
 		/*
 		 * paranoia - step through inode records until we step
@@ -945,7 +996,6 @@ process_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno,
 		 */
 		num_inos = XFS_INODES_PER_CHUNK;
 		while (num_inos < XFS_IALLOC_INODES(mp) && ino_rec != NULL)  {
-			ASSERT(ino_rec != NULL);
 			/*
 			 * inodes chunks will always be aligned and sized
 			 * correctly
@@ -956,8 +1006,18 @@ process_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno,
 
 		ASSERT(num_inos == XFS_IALLOC_INODES(mp));
 
+		if (pf_args) {
+			sem_post(&pf_args->ra_count);
+#ifdef XR_PF_TRACE
+			sem_getvalue(&pf_args->ra_count, &count);
+			pftrace("processing inode chunk %p in AG %d (sem count = %d)",
+				first_ino_rec, agno, count);
+#endif
+		}
+
 		if (process_inode_chunk(mp, agno, num_inos, first_ino_rec,
-				ino_discovery, check_dups, extra_attr_check, &bogus))  {
+				ino_discovery, check_dups, extra_attr_check,
+				&bogus))  {
 			/* XXX - i/o error, we've got a problem */
 			abort();
 		}
@@ -983,12 +1043,13 @@ process_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno,
 				if ((ino_rec = next_ino_rec(ino_rec)) != NULL)
 					num_inos += XFS_INODES_PER_CHUNK;
 
-				get_inode_rec(agno, prev_ino_rec);
+				get_inode_rec(mp, agno, prev_ino_rec);
 				free_inode_rec(agno, prev_ino_rec);
 			}
 
 			first_ino_rec = ino_rec;
 		}
+		PROG_RPT_INC(prog_rpt_done[agno], num_inos);
 	}
 }
 
@@ -1050,14 +1111,14 @@ check_uncertain_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno)
 					XFS_INODES_PER_CHUNK)
 				continue;
 
-			if ((nrec = find_inode_rec(agno, agino)) == NULL)
+			if ((nrec = find_inode_rec(mp, agno, agino)) == NULL)
 				if (!verify_aginum(mp, agno, agino))
 					if (verify_aginode_chunk(mp, agno,
 							agino, &start))
 						got_some = 1;
 		}
 
-		get_uncertain_inode_rec(agno, irec);
+		get_uncertain_inode_rec(mp, agno, irec);
 		free_inode_rec(agno, irec);
 
 		irec = findfirst_uncertain_inode_rec(agno);
@@ -1140,7 +1201,7 @@ process_uncertain_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno)
 					XFS_INODES_PER_CHUNK)
 				continue;
 
-			if ((nrec = find_inode_rec(agno, agino)) != NULL)
+			if ((nrec = find_inode_rec(mp, agno, agino)) != NULL)
 				continue;
 
 			/*
@@ -1171,7 +1232,7 @@ process_uncertain_aginodes(xfs_mount_t *mp, xfs_agnumber_t agno)
 		 * now return the uncertain inode record to the free pool
 		 * and pull another one off the list for processing
 		 */
-		get_uncertain_inode_rec(agno, irec);
+		get_uncertain_inode_rec(mp, agno, irec);
 		free_inode_rec(agno, irec);
 
 		irec = findfirst_uncertain_inode_rec(agno);

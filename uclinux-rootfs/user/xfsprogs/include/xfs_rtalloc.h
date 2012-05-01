@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2003,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef __XFS_RTALLOC_H__
 #define	__XFS_RTALLOC_H__
@@ -35,12 +21,10 @@
 struct xfs_mount;
 struct xfs_trans;
 
-#define XFS_IS_REALTIME_INODE(ip) ((ip)->i_d.di_flags & XFS_DIFLAG_REALTIME)
-
 /* Min and max rt extent sizes, specified in bytes */
 #define	XFS_MAX_RTEXTSIZE	(1024 * 1024 * 1024)	/* 1GB */
-#define	XFS_DFL_RTEXTSIZE	(64 * 1024)	        /* 64KB */
-#define	XFS_MIN_RTEXTSIZE	(4 * 1024)		/* 4KB */
+#define	XFS_DFL_RTEXTSIZE	(64 * 1024)	        /* 64kB */
+#define	XFS_MIN_RTEXTSIZE	(4 * 1024)		/* 4kB */
 
 /*
  * Constants for bit manipulations.
@@ -77,7 +61,7 @@ struct xfs_trans;
 #define	XFS_RTLOBIT(w)	xfs_lowbit32(w)
 #define	XFS_RTHIBIT(w)	xfs_highbit32(w)
 
-#if XFS_BIG_FILESYSTEMS
+#if XFS_BIG_BLKNOS
 #define	XFS_RTBLOCKLOG(b)	xfs_highbit64(b)
 #else
 #define	XFS_RTBLOCKLOG(b)	xfs_highbit32(b)
@@ -124,6 +108,9 @@ xfs_rtfree_extent(
 int					/* error */
 xfs_rtmount_init(
 	struct xfs_mount	*mp);	/* file system mount structure */
+void
+xfs_rtunmount_inodes(
+	struct xfs_mount	*mp);
 
 /*
  * Get the bitmap and summary inodes into the mount structure
@@ -148,24 +135,6 @@ xfs_rtpick_extent(
 	xfs_rtblock_t		*pick);	/* result rt extent */
 
 /*
- * Debug code: print out the value of a range in the bitmap.
- */
-void
-xfs_rtprint_range(
-	struct xfs_mount	*mp,	/* file system mount structure */
-	struct xfs_trans	*tp,	/* transaction pointer */
-	xfs_rtblock_t		start,	/* starting block to print */
-	xfs_extlen_t		len);	/* length to print */
-
-/*
- * Debug code: print the summary file.
- */
-void
-xfs_rtprint_summary(
-	struct xfs_mount	*mp,	/* file system mount structure */
-	struct xfs_trans	*tp);	/* transaction pointer */
-
-/*
  * Grow the realtime area of the filesystem.
  */
 int
@@ -178,8 +147,18 @@ xfs_growfs_rt(
 # define xfs_rtfree_extent(t,b,l)                       (ENOSYS)
 # define xfs_rtpick_extent(m,t,l,rb)                    (ENOSYS)
 # define xfs_growfs_rt(mp,in)                           (ENOSYS)
-# define xfs_rtmount_init(m)    (((mp)->m_sb.sb_rblocks == 0)? 0 : (ENOSYS))
+static inline int		/* error */
+xfs_rtmount_init(
+	xfs_mount_t	*mp)	/* file system mount structure */
+{
+	if (mp->m_sb.sb_rblocks == 0)
+		return 0;
+
+	cmn_err(CE_WARN, "XFS: Not built with CONFIG_XFS_RT");
+	return ENOSYS;
+}
 # define xfs_rtmount_inodes(m)  (((mp)->m_sb.sb_rblocks == 0)? 0 : (ENOSYS))
+# define xfs_rtunmount_inodes(m)
 #endif	/* CONFIG_XFS_RT */
 
 #endif	/* __KERNEL__ */

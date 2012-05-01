@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -53,17 +39,17 @@ static int	version_f(int argc, char **argv);
 static void     version_help(void);
 
 static const cmdinfo_t	sb_cmd =
-	{ "sb", NULL, sb_f, 0, 1, 1, "[agno]",
-	  "set current address to sb header", sb_help };
+	{ "sb", NULL, sb_f, 0, 1, 1, N_("[agno]"),
+	  N_("set current address to sb header"), sb_help };
 static const cmdinfo_t	uuid_cmd =
-	{ "uuid", NULL, uuid_f, 0, 1, 1, "[uuid]",
-	  "write/print FS uuid", uuid_help };
+	{ "uuid", NULL, uuid_f, 0, 1, 1, N_("[uuid]"),
+	  N_("write/print FS uuid"), uuid_help };
 static const cmdinfo_t	label_cmd =
-	{ "label", NULL, label_f, 0, 1, 1, "[label]",
-	  "write/print FS label", label_help };
+	{ "label", NULL, label_f, 0, 1, 1, N_("[label]"),
+	  N_("write/print FS label"), label_help };
 static const cmdinfo_t	version_cmd =
-	{ "version", NULL, version_f, 0, 1, 1, "[feature]",
-	  "set feature bit(s) in the sb version field", version_help };
+	{ "version", NULL, version_f, 0, -1, 1, N_("[feature | [vnum fnum]]"),
+	  N_("set feature bit(s) in the sb version field"), version_help };
 
 void
 sb_init(void)
@@ -121,6 +107,8 @@ const field_t	sb_flds[] = {
 	{ "logsectlog", FLDT_UINT8D, OI(OFF(logsectlog)), C1, 0, TYP_NONE },
 	{ "logsectsize", FLDT_UINT16D, OI(OFF(logsectsize)), C1, 0, TYP_NONE },
 	{ "logsunit", FLDT_UINT32D, OI(OFF(logsunit)), C1, 0, TYP_NONE },
+	{ "features2", FLDT_UINT32X, OI(OFF(features2)), C1, 0, TYP_NONE },
+	{ "bad_features2", FLDT_UINT32X, OI(OFF(bad_features2)), C1, 0, TYP_NONE },
 	{ NULL }
 };
 
@@ -132,7 +120,7 @@ const field_t	sb_hfld[] = {
 static void
 sb_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n"
 " set allocation group superblock\n"
 "\n"
@@ -146,7 +134,7 @@ sb_help(void)
 " remaining allocation groups only serve as backup for filesystem recovery.\n"
 " The icount/ifree/fdblocks/frextents are only updated in superblock 0.\n"
 "\n"
-);
+));
 }
 
 static int
@@ -160,7 +148,7 @@ sb_f(
 	if (argc > 1) {
 		agno = (xfs_agnumber_t)strtoul(argv[1], &p, 0);
 		if (*p != '\0' || agno >= mp->m_sb.sb_agcount) {
-			dbprintf("bad allocation group number %s\n", argv[1]);
+			dbprintf(_("bad allocation group number %s\n"), argv[1]);
 			return 0;
 		}
 		cur_agno = agno;
@@ -192,25 +180,25 @@ get_sb(xfs_agnumber_t agno, xfs_sb_t *sb)
 		XFS_FSS_TO_BB(mp, 1), DB_RING_IGN, NULL);
 
 	if (!iocur_top->data) {
-		dbprintf("can't read superblock for AG %u\n", agno);
+		dbprintf(_("can't read superblock for AG %u\n"), agno);
 		pop_cur();
 		return 0;
 	}
 
-	libxfs_xlate_sb(iocur_top->data, sb, 1, ARCH_CONVERT, XFS_SB_ALL_BITS);
+	libxfs_sb_from_disk(sb, iocur_top->data);
 
 	if (sb->sb_magicnum != XFS_SB_MAGIC) {
-		dbprintf("bad sb magic # %#x in AG %u\n",
+		dbprintf(_("bad sb magic # %#x in AG %u\n"),
 			sb->sb_magicnum, agno);
 		return 0;
 	}
-	if (!XFS_SB_GOOD_VERSION(sb)) {
-		dbprintf("bad sb version # %#x in AG %u\n",
+	if (!xfs_sb_good_version(sb)) {
+		dbprintf(_("bad sb version # %#x in AG %u\n"),
 			sb->sb_versionnum, agno);
 		return 0;
 	}
 	if (agno == 0 && sb->sb_inprogress != 0) {
-		dbprintf("mkfs not completed successfully\n");
+		dbprintf(_("mkfs not completed successfully\n"));
 		return 0;
 	}
 	return 1;
@@ -219,22 +207,22 @@ get_sb(xfs_agnumber_t agno, xfs_sb_t *sb)
 /* workaround craziness in the xlog routines */
 int xlog_recover_do_trans(xlog_t *log, xlog_recover_t *t, int p) { return 0; }
 
-static int
-zero_log(uuid_t *uuidp)
+int
+sb_logcheck(void)
 {
 	xlog_t		log;
 	xfs_daddr_t	head_blk, tail_blk;
 
 	if (mp->m_sb.sb_logstart) {
 		if (x.logdev && x.logdev != x.ddev) {
-			dbprintf("aborting - external log specified for FS "
-				 "with an internal log\n");
+			dbprintf(_("aborting - external log specified for FS "
+				 "with an internal log\n"));
 			return 0;
 		}
 	} else {
 		if (!x.logdev || (x.logdev == x.ddev)) {
-			dbprintf("aborting - no external log specified for FS "
-				 "with an external log\n");
+			dbprintf(_("aborting - no external log specified for FS "
+				 "with an external log\n"));
 			return 0;
 		}
 	}
@@ -250,30 +238,39 @@ zero_log(uuid_t *uuidp)
 	log.l_logBBstart = x.logBBstart;
 	log.l_mp = mp;
 
-	if (xlog_find_tail(&log, &head_blk, &tail_blk, 0)) {
-		dbprintf("ERROR: cannot find log head/tail, run xfs_repair\n");
+	if (xlog_find_tail(&log, &head_blk, &tail_blk)) {
+		dbprintf(_("ERROR: cannot find log head/tail, run xfs_repair\n"));
 		return 0;
 	}
 	if (head_blk != tail_blk) {
-		dbprintf(
+		dbprintf(_(
 "ERROR: The filesystem has valuable metadata changes in a log which needs to\n"
 "be replayed.  Mount the filesystem to replay the log, and unmount it before\n"
 "re-running %s.  If you are unable to mount the filesystem, then use\n"
 "the xfs_repair -L option to destroy the log and attempt a repair.\n"
 "Note that destroying the log may cause corruption -- please attempt a mount\n"
-"of the filesystem before doing this.\n", progname);
+"of the filesystem before doing this.\n"), progname);
 		return 0;
 	}
+	return 1;
+}
 
-	dbprintf("Clearing log and setting UUID\n");
+static int
+sb_logzero(uuid_t *uuidp)
+{
+	if (!sb_logcheck())
+		return 0;
 
-	if (libxfs_log_clear(log.l_dev,
+	dbprintf(_("Clearing log and setting UUID\n"));
+
+	if (libxfs_log_clear(
+			(mp->m_sb.sb_logstart == 0) ? x.logdev : x.ddev,
 			XFS_FSB_TO_DADDR(mp, mp->m_sb.sb_logstart),
 			(xfs_extlen_t)XFS_FSB_TO_BB(mp, mp->m_sb.sb_logblocks),
 			uuidp,
-			XFS_SB_VERSION_HASLOGV2(&mp->m_sb) ? 2 : 1,
+			xfs_sb_version_haslogv2(&mp->m_sb) ? 2 : 1,
 			mp->m_sb.sb_logsunit, XLOG_FMT)) {
-		dbprintf("ERROR: cannot clear the log\n");
+		dbprintf(_("ERROR: cannot clear the log\n"));
 		return 0;
 	}
 	return 1;
@@ -283,7 +280,7 @@ zero_log(uuid_t *uuidp)
 static void
 uuid_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n"
 " write/print FS uuid\n"
 "\n"
@@ -301,7 +298,7 @@ uuid_help(void)
 "As a side effect of writing the UUID, the log is cleared (which is fine\n"
 "on a CLEANLY unmounted FS).\n"
 "\n"
-);
+));
 }
 
 static uuid_t *
@@ -320,7 +317,7 @@ do_uuid(xfs_agnumber_t agno, uuid_t *uuid)
 	}
 	/* set uuid */
 	memcpy(&tsb.sb_uuid, uuid, sizeof(uuid_t));
-	libxfs_xlate_sb(iocur_top->data, &tsb, -1, ARCH_CONVERT, XFS_SB_UUID);
+	libxfs_sb_to_disk(iocur_top->data, &tsb, XFS_SB_UUID);
 	write_cur();
 	return uuid;
 }
@@ -336,51 +333,51 @@ uuid_f(
 	uuid_t		*uup = NULL;
 
 	if (argc != 1 && argc != 2) {
-		dbprintf("invalid parameters\n");
+		dbprintf(_("invalid parameters\n"));
 		return 0;
 	}
 
 	if (argc == 2) {	/* WRITE UUID */
 
 		if ((x.isreadonly & LIBXFS_ISREADONLY) || !expert_mode) {
-			dbprintf("%s: not in expert mode, writing disabled\n",
+			dbprintf(_("%s: not in expert mode, writing disabled\n"),
 				progname);
 			return 0;
 		}
 
 		if (!strcasecmp(argv[1], "generate")) {
-			uuid_generate(uu);
+			platform_uuid_generate(&uu);
 		} else if (!strcasecmp(argv[1], "nil")) {
-			uuid_clear(uu);
+			platform_uuid_clear(&uu);
 		} else if (!strcasecmp(argv[1], "rewrite")) {
 			uup = do_uuid(0, NULL);
 			if (!uup) {
-				dbprintf("failed to read UUID from AG 0\n");
+				dbprintf(_("failed to read UUID from AG 0\n"));
 				return 0;
 			}
 			memcpy(&uu, uup, sizeof(uuid_t));
-			uuid_unparse(uu, bp);
-			dbprintf("old UUID = %s\n", bp);
+			platform_uuid_unparse(&uu, bp);
+			dbprintf(_("old UUID = %s\n"), bp);
 		} else {
-			if (uuid_parse(argv[1], uu)) {
-				dbprintf("invalid UUID\n");
+			if (platform_uuid_parse(argv[1], &uu)) {
+				dbprintf(_("invalid UUID\n"));
 				return 0;
 			}
 		}
 
-		/* clear the log (setting uuid) if its not dirty */
-		if (!zero_log(&uu))
+		/* clear the log (setting uuid) if it's not dirty */
+		if (!sb_logzero(&uu))
 			return 0;
 
-		dbprintf("writing all SBs\n");
+		dbprintf(_("writing all SBs\n"));
 		for (agno = 0; agno < mp->m_sb.sb_agcount; agno++)
 			if (!do_uuid(agno, &uu)) {
-				dbprintf("failed to set UUID in AG %d\n", agno);
+				dbprintf(_("failed to set UUID in AG %d\n"), agno);
 				break;
 			}
 
-		uuid_unparse(uu, bp);
-		dbprintf("new UUID = %s\n", bp);
+		platform_uuid_unparse(&uu, bp);
+		dbprintf(_("new UUID = %s\n"), bp);
 		return 0;
 
 	} else {	/* READ+CHECK UUID */
@@ -388,14 +385,14 @@ uuid_f(
 		for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
 			uup = do_uuid(agno, NULL);
 			if (!uup) {
-				dbprintf("failed to read UUID from AG %d\n",
+				dbprintf(_("failed to read UUID from AG %d\n"),
 					agno);
 				return 0;
 			}
 			if (agno) {
 				if (memcmp(&uu, uup, sizeof(uuid_t))) {
-					dbprintf("warning: UUID in AG %d "
-						 "differs to the primary SB\n",
+					dbprintf(_("warning: UUID in AG %d "
+						 "differs to the primary SB\n"),
 						agno);
 					break;
 				}
@@ -405,15 +402,15 @@ uuid_f(
 		}
 		if (mp->m_sb.sb_logstart) {
 			if (x.logdev && x.logdev != x.ddev)
-				dbprintf("warning - external log specified "
-					 "for FS with an internal log\n");
+				dbprintf(_("warning - external log specified "
+					 "for FS with an internal log\n"));
 		} else if (!x.logdev || (x.logdev == x.ddev)) {
-			dbprintf("warning - no external log specified "
-				 "for FS with an external log\n");
+			dbprintf(_("warning - no external log specified "
+				 "for FS with an external log\n"));
 		}
 
-		uuid_unparse(uu, bp);
-		dbprintf("UUID = %s\n", bp);
+		platform_uuid_unparse(&uu, bp);
+		dbprintf(_("UUID = %s\n"), bp);
 	}
 
 	return 0;
@@ -423,7 +420,7 @@ uuid_f(
 static void
 label_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n"
 " write/print FS label\n"
 "\n"
@@ -438,7 +435,7 @@ label_help(void)
 "specified value.  The maximum length of a label is 12 characters - use of a\n"
 "longer label will result in truncation and a warning will be issued.\n"
 "\n"
-);
+));
 }
 
 static char *
@@ -461,7 +458,7 @@ do_label(xfs_agnumber_t agno, char *label)
 	/* set label */
 	if ((len = strlen(label)) > sizeof(tsb.sb_fname)) {
 		if (agno == 0)
-			dbprintf("%s: truncating label length from %d to %d\n",
+			dbprintf(_("%s: truncating label length from %d to %d\n"),
 				progname, (int)len, (int)sizeof(tsb.sb_fname));
 		len = sizeof(tsb.sb_fname);
 	}
@@ -473,7 +470,7 @@ do_label(xfs_agnumber_t agno, char *label)
 	memset(&tsb.sb_fname, 0, sizeof(tsb.sb_fname));
 	memcpy(&tsb.sb_fname, label, len);
 	memcpy(&lbl[0], &tsb.sb_fname, sizeof(tsb.sb_fname));
-	libxfs_xlate_sb(iocur_top->data, &tsb, -1, ARCH_CONVERT, XFS_SB_FNAME);
+	libxfs_sb_to_disk(iocur_top->data, &tsb, XFS_SB_FNAME);
 	write_cur();
 	return &lbl[0];
 }
@@ -488,40 +485,40 @@ label_f(
 	xfs_agnumber_t	ag;
 
 	if (argc != 1 && argc != 2) {
-		dbprintf("invalid parameters\n");
+		dbprintf(_("invalid parameters\n"));
 		return 0;
 	}
 
 	if (argc == 2) {	/* WRITE LABEL */
 
 		if ((x.isreadonly & LIBXFS_ISREADONLY) || !expert_mode) {
-			dbprintf("%s: not in expert mode, writing disabled\n",
+			dbprintf(_("%s: not in expert mode, writing disabled\n"),
 				progname);
 			return 0;
 		}
 
-		dbprintf("writing all SBs\n");
+		dbprintf(_("writing all SBs\n"));
 		for (ag = 0; ag < mp->m_sb.sb_agcount; ag++)
 			if ((p = do_label(ag, argv[1])) == NULL) {
-				dbprintf("failed to set label in AG %d\n", ag);
+				dbprintf(_("failed to set label in AG %d\n"), ag);
 				break;
 			}
-		dbprintf("new label = \"%s\"\n", p);
+		dbprintf(_("new label = \"%s\"\n"), p);
 
 	} else {	/* READ LABEL */
 
 		for (ag = 0; ag < mp->m_sb.sb_agcount; ag++) {
 			p = do_label(ag, NULL);
 			if (!p) {
-				dbprintf("failed to read label in AG %d\n", ag);
+				dbprintf(_("failed to read label in AG %d\n"), ag);
 				return 0;
 			}
 			if (!ag)
 				memcpy(&sb.sb_fname, p, sizeof(sb.sb_fname));
 			else if (memcmp(&sb.sb_fname, p, sizeof(sb.sb_fname)))
-				dbprintf("warning: AG %d label differs\n", ag);
+				dbprintf(_("warning: AG %d label differs\n"), ag);
 		}
-		dbprintf("label = \"%s\"\n", p);
+		dbprintf(_("label = \"%s\"\n"), p);
 	}
 	return 0;
 }
@@ -530,7 +527,7 @@ label_f(
 static void
 version_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n"
 " set/print feature bits in sb version\n"
 "\n"
@@ -538,26 +535,44 @@ version_help(void)
 "\n"
 " 'version'          - print current feature bits\n"
 " 'version extflg'   - enable unwritten extents\n"
+" 'version attr1'    - enable v1 inline extended attributes\n"
+" 'version attr2'    - enable v2 inline extended attributes\n"
+" 'version log2'     - enable v2 log format\n"
 "\n"
 "The version function prints currently enabled features for a filesystem\n"
-"according to its the version field of the primary superblock.\n"
+"according to the version field of its primary superblock.\n"
 "It can also be used to enable selected features, such as support for\n"
-"unwritten extents.  The upated version is written into to all AGs.\n"
+"unwritten extents.  The updated version is written into all AGs.\n"
 "\n"
-);
+));
 }
 
 static int
-do_version(xfs_agnumber_t agno, __uint16_t versionnum)
+do_version(xfs_agnumber_t agno, __uint16_t version, __uint32_t features)
 {
 	xfs_sb_t	tsb;
+	__int64_t	fields = 0;
 
 	if (!get_sb(agno, &tsb))
 		return 0;
 
-	tsb.sb_versionnum = versionnum;
-	libxfs_xlate_sb(iocur_top->data, &tsb,
-			-1, ARCH_CONVERT, XFS_SB_VERSIONNUM);
+	if (xfs_sb_has_mismatched_features2(&tsb)) {
+		dbprintf(_("Superblock has mismatched features2 fields, "
+			   "skipping modification\n"));
+		return 0;
+	}
+
+	if ((version & XFS_SB_VERSION_LOGV2BIT) &&
+					!xfs_sb_version_haslogv2(&tsb)) {
+		tsb.sb_logsunit = 1;
+		fields |= (1LL << XFS_SBS_LOGSUNIT);
+	}
+
+	tsb.sb_versionnum = version;
+	tsb.sb_features2 = features;
+	tsb.sb_bad_features2 = features;
+	fields |= XFS_SB_VERSIONNUM | XFS_SB_FEATURES2 | XFS_SB_BAD_FEATURES2;
+	libxfs_sb_to_disk(iocur_top->data, &tsb, fields);
 	write_cur();
 	return 1;
 }
@@ -577,26 +592,36 @@ version_string(
 	else if (XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_4)
 		strcpy(s, "V4");
 
-	if (XFS_SB_VERSION_HASATTR(sbp))
+	if (xfs_sb_version_hasattr(sbp))
 		strcat(s, ",ATTR");
-	if (XFS_SB_VERSION_HASNLINK(sbp))
+	if (xfs_sb_version_hasnlink(sbp))
 		strcat(s, ",NLINK");
-	if (XFS_SB_VERSION_HASQUOTA(sbp))
+	if (xfs_sb_version_hasquota(sbp))
 		strcat(s, ",QUOTA");
-	if (XFS_SB_VERSION_HASALIGN(sbp))
+	if (xfs_sb_version_hasalign(sbp))
 		strcat(s, ",ALIGN");
-	if (XFS_SB_VERSION_HASDALIGN(sbp))
+	if (xfs_sb_version_hasdalign(sbp))
 		strcat(s, ",DALIGN");
-	if (XFS_SB_VERSION_HASSHARED(sbp))
+	if (xfs_sb_version_hasshared(sbp))
 		strcat(s, ",SHARED");
-	if (XFS_SB_VERSION_HASDIRV2(sbp))
+	if (xfs_sb_version_hasdirv2(sbp))
 		strcat(s, ",DIRV2");
-	if (XFS_SB_VERSION_HASLOGV2(sbp))
+	if (xfs_sb_version_haslogv2(sbp))
 		strcat(s, ",LOGV2");
-	if (XFS_SB_VERSION_HASEXTFLGBIT(sbp))
+	if (xfs_sb_version_hasextflgbit(sbp))
 		strcat(s, ",EXTFLG");
-	if (XFS_SB_VERSION_HASSECTOR(sbp))
+	if (xfs_sb_version_hassector(sbp))
 		strcat(s, ",SECTOR");
+	if (xfs_sb_version_hasasciici(sbp))
+		strcat(s, ",ASCII_CI");
+	if (xfs_sb_version_hasmorebits(sbp))
+		strcat(s, ",MOREBITS");
+	if (xfs_sb_version_hasattr2(sbp))
+		strcat(s, ",ATTR2");
+	if (xfs_sb_version_haslazysbcount(sbp))
+		strcat(s, ",LAZYSBCOUNT");
+	if (xfs_sb_version_hasprojid32bit(sbp))
+		strcat(s, ",PROJID32BIT");
 	return s;
 }
 
@@ -606,12 +631,13 @@ version_f(
 	char		**argv)
 {
 	__uint16_t	version = 0;
+	__uint32_t	features = 0;
 	xfs_agnumber_t	ag;
 
 	if (argc == 2) {	/* WRITE VERSION */
 
 		if ((x.isreadonly & LIBXFS_ISREADONLY) || !expert_mode) {
-			dbprintf("%s: not in expert mode, writing disabled\n",
+			dbprintf(_("%s: not in expert mode, writing disabled\n"),
 				progname);
 			return 0;
 		}
@@ -629,32 +655,89 @@ version_f(
 				version = 0x0034 | XFS_SB_VERSION_EXTFLGBIT;
 				break;
 			case XFS_SB_VERSION_4:
-				if (XFS_SB_VERSION_HASEXTFLGBIT(&mp->m_sb))
-					dbprintf("unwritten extents flag"
-						 " is already enabled\n");
+				if (xfs_sb_version_hasextflgbit(&mp->m_sb))
+					dbprintf(_("unwritten extents flag"
+						 " is already enabled\n"));
 				else
 					version = mp->m_sb.sb_versionnum |
 						  XFS_SB_VERSION_EXTFLGBIT;
 				break;
 			}
+		} else if (!strcasecmp(argv[1], "log2")) {
+			switch (XFS_SB_VERSION_NUM(&mp->m_sb)) {
+			case XFS_SB_VERSION_1:
+				version = 0x0004 | XFS_SB_VERSION_LOGV2BIT;
+				break;
+			case XFS_SB_VERSION_2:
+				version = 0x0014 | XFS_SB_VERSION_LOGV2BIT;
+				break;
+			case XFS_SB_VERSION_3:
+				version = 0x0034 | XFS_SB_VERSION_LOGV2BIT;
+				break;
+			case XFS_SB_VERSION_4:
+				if (xfs_sb_version_haslogv2(&mp->m_sb))
+					dbprintf(_("version 2 log format"
+						 " is already in use\n"));
+				else
+					version = mp->m_sb.sb_versionnum |
+						  XFS_SB_VERSION_LOGV2BIT;
+				break;
+			}
+		} else if (!strcasecmp(argv[1], "attr1")) {
+			if (xfs_sb_version_hasattr2(&mp->m_sb)) {
+				if (!(mp->m_sb.sb_features2 &=
+						~XFS_SB_VERSION2_ATTR2BIT))
+					mp->m_sb.sb_versionnum &=
+						~XFS_SB_VERSION_MOREBITSBIT;
+			}
+			xfs_sb_version_addattr(&mp->m_sb);
+			version = mp->m_sb.sb_versionnum;
+			features = mp->m_sb.sb_features2;
+		} else if (!strcasecmp(argv[1], "attr2")) {
+			xfs_sb_version_addattr(&mp->m_sb);
+			xfs_sb_version_addattr2(&mp->m_sb);
+			version = mp->m_sb.sb_versionnum;
+			features = mp->m_sb.sb_features2;
+		} else if (!strcasecmp(argv[1], "projid32bit")) {
+			xfs_sb_version_addprojid32bit(&mp->m_sb);
+			version = mp->m_sb.sb_versionnum;
+			features = mp->m_sb.sb_features2;
 		} else {
-			dbprintf("%s: invalid version change command \"%s\"\n",
+			dbprintf(_("%s: invalid version change command \"%s\"\n"),
 				progname, argv[1]);
 			return 0;
 		}
 
 		if (version) {
-			dbprintf("writing all SBs\n");
+			dbprintf(_("writing all SBs\n"));
 			for (ag = 0; ag < mp->m_sb.sb_agcount; ag++)
-				if (!do_version(ag, version)) {
-					dbprintf("failed to set versionnum "
-						 "in AG %d\n", ag);
+				if (!do_version(ag, version, features)) {
+					dbprintf(_("failed to set versionnum "
+						 "in AG %d\n"), ag);
 					break;
 				}
 			mp->m_sb.sb_versionnum = version;
+			mp->m_sb.sb_features2 = features;
 		}
 	}
-	dbprintf("versionnum [0x%x] = %s\n", mp->m_sb.sb_versionnum,
-			version_string(&mp->m_sb));
+
+	if (argc == 3) {	/* VERSIONNUM + FEATURES2 */
+		char	*sp;
+
+		version = mp->m_sb.sb_versionnum;
+		features = mp->m_sb.sb_features2;
+		mp->m_sb.sb_versionnum = strtoul(argv[1], &sp, 0);
+		mp->m_sb.sb_features2 = strtoul(argv[2], &sp, 0);
+	}
+
+	dbprintf(_("versionnum [0x%x+0x%x] = %s\n"), mp->m_sb.sb_versionnum,
+			mp->m_sb.sb_features2, version_string(&mp->m_sb));
+
+	if (argc == 3) {	/* now reset... */
+		mp->m_sb.sb_versionnum = version;
+		mp->m_sb.sb_features2 = features;
+		return 0;
+	}
+
 	return 0;
 }

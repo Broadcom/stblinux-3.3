@@ -1,61 +1,47 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2003,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.	 Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #define ustat __kernel_ustat
-
-/* THT: On the PC this fails for some reason, so move sys/mount.h to the top */
-#include <sys/mount.h>
-#include <linux/fs.h>
-
 #include <xfs/libxfs.h>
 #include <mntent.h>
 #include <sys/stat.h>
 #undef ustat
-
-#include <sys/statfs.h>
-#include <sys/types.h>
-
+#include <sys/ustat.h>
+#include <sys/mount.h>
 #include <sys/ioctl.h>
+#include <sys/sysinfo.h>
 
+int platform_has_uuid = 1;
 extern char *progname;
+static int max_block_alignment;
 
 #ifndef BLKGETSIZE64
-# define BLKGETSIZE64	_IOR(0x12,114,sizeof(__uint64_t))
+# define BLKGETSIZE64	_IOR(0x12,114,size_t)
 #endif
 #ifndef BLKBSZSET
-# define BLKBSZSET	_IOW(0x12,113,sizeof(int))
+# define BLKBSZSET	_IOW(0x12,113,size_t)
 #endif
 #ifndef BLKSSZGET
 # define BLKSSZGET	_IO(0x12,104)
+#endif
+
+#ifndef RAMDISK_MAJOR
+#define RAMDISK_MAJOR	1	/* ramdisk major number */
 #endif
 
 #define PROC_MOUNTED	"/proc/mounts"
@@ -63,7 +49,8 @@ extern char *progname;
 int
 platform_check_ismounted(char *name, char *block, struct stat64 *s, int verbose)
 {
-	struct statfs	ust;
+	/* Pad ust; pre-2.6.28 linux copies out too much in 32bit compat mode */
+	struct ustat	ust[2];
 	struct stat64	st;
 
 	if (!s) {
@@ -74,7 +61,7 @@ platform_check_ismounted(char *name, char *block, struct stat64 *s, int verbose)
 		s = &st;
 	}
 
-	if (statfs(s->st_rdev, &ust) >= 0) {
+	if (ustat(s->st_rdev, ust) >= 0) {
 		if (verbose)
 			fprintf(stderr,
 				_("%s: %s contains a mounted filesystem\n"),
@@ -93,7 +80,7 @@ platform_check_iswritable(char *name, char *block, struct stat64 *s, int fatal)
 	struct mntent	*mnt;
 	char		mounts[MAXPATHLEN];
 
-	strcpy(mounts, access(PROC_MOUNTED, R_OK)? PROC_MOUNTED : MOUNTED);
+	strcpy(mounts, (!access(PROC_MOUNTED, R_OK)) ? PROC_MOUNTED : MOUNTED);
 	if ((f = setmntent(mounts, "r")) == NULL) {
 		fprintf(stderr, _("%s: %s contains a possibly writable, "
 				"mounted filesystem\n"), progname, name);
@@ -117,20 +104,27 @@ platform_check_iswritable(char *name, char *block, struct stat64 *s, int fatal)
 	return sts;
 }
 
-void
-platform_set_blocksize(int fd, char *path, int blocksize)
+int
+platform_set_blocksize(int fd, char *path, dev_t device, int blocksize, int fatal)
 {
-	if (ioctl(fd, BLKBSZSET, &blocksize) < 0) {
-		fprintf(stderr, _("%s: warning - cannot set blocksize "
-				"on block device %s: %s\n"),
-			progname, path, strerror(errno));
+	int error = 0;
+
+	if (major(device) != RAMDISK_MAJOR) {
+		if ((error = ioctl(fd, BLKBSZSET, &blocksize)) < 0) {
+			fprintf(stderr, _("%s: %s - cannot set blocksize "
+					"%d on block device %s: %s\n"),
+				progname, fatal ? "error": "warning",
+				blocksize, path, strerror(errno));
+		}
 	}
+	return error;
 }
 
 void
-platform_flush_device(int fd)
+platform_flush_device(int fd, dev_t device)
 {
-	ioctl(fd, BLKFLSBUF, 0);
+	if (major(device) != RAMDISK_MAJOR)
+		ioctl(fd, BLKFLSBUF, 0);
 }
 
 void
@@ -149,6 +143,8 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 	if ((st.st_mode & S_IFMT) == S_IFREG) {
 		*sz = (long long)(st.st_size >> 9);
 		*bsz = BBSIZE;
+		if (BBSIZE > max_block_alignment)
+			max_block_alignment = BBSIZE;
 		return;
 	}
 
@@ -175,4 +171,51 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 			progname, path, strerror(errno));
 		*bsz = BBSIZE;
 	}
+	if (*bsz > max_block_alignment)
+		max_block_alignment = *bsz;
+}
+
+char *
+platform_findrawpath(char *path)
+{
+	return path;
+}
+
+char *
+platform_findblockpath(char *path)
+{
+	return path;
+}
+
+int
+platform_direct_blockdev(void)
+{
+	return 1;
+}
+
+int
+platform_align_blockdev(void)
+{
+	if (!max_block_alignment)
+		return getpagesize();
+	return max_block_alignment;
+}
+
+int
+platform_nproc(void)
+{
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
+unsigned long
+platform_physmem(void)
+{
+	struct sysinfo  si;
+
+	if (sysinfo(&si) < 0) {
+		fprintf(stderr, _("%s: can't determine memory size\n"),
+			progname);
+		exit(1);
+	}
+	return (si.totalram >> 10) * si.mem_unit;	/* kilobytes */
 }

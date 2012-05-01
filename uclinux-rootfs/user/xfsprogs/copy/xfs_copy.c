@@ -1,40 +1,26 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * Copyright (c) 2000-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * 
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- * 
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- * 
- * http://www.sgi.com 
- * 
- * For further information regarding this notice, see: 
- * 
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ *
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Modified by Broadcom on 2012/03/15
+ *
  */
 
-#define ustat __kernel_ustat
 #include <xfs/libxfs.h>
 #include <sys/stat.h>
-#undef ustat
-#include <sys/ustat.h>
 #include <sys/wait.h>
 #include <pthread.h>
 #include <signal.h>
@@ -42,6 +28,8 @@
 #include "xfs_copy.h"
 
 #define	rounddown(x, y)	(((x)/(y))*(y))
+
+extern int	platform_check_ismounted(char *, char *, struct stat64 *, int);
 
 int		logfd;
 char 		*logfile_name;
@@ -86,23 +74,40 @@ xfs_off_t write_log_header(int fd, wbuf *w, xfs_mount_t *mp);
 #define PRE	0x08		/* append strerror string */
 #define LAST	0x10		/* final message we print */
 
+
+static void
+signal_maskfunc(int sig, int how)
+{
+	sigset_t set;
+
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+	sigprocmask(how, &set, NULL);
+}
+
 void
 do_message(int flags, int code, const char *fmt, ...)
 {
 	va_list	ap;
 	int	eek = 0;
 
-	va_start(ap, fmt);
-	if (flags & LOG)
+	if (flags & LOG) {
+		va_start(ap, fmt);
 		if (vfprintf(logerr, fmt, ap) <= 0)
 			eek = 1;
+		va_end(ap);
+	}
 	if (eek)
 		flags |= ERR;	/* failed, force stderr */
-	if (flags & ERR)
+	if (flags & ERR) {
+		va_start(ap, fmt);
 		vfprintf(stderr, fmt, ap);
-	else if (flags & OUT)
+		va_end(ap);
+	} else if (flags & OUT) {
+		va_start(ap, fmt);
 		vfprintf(stdout, fmt, ap);
-	va_end(ap);
+		va_end(ap);
+	}
 
 	if (flags & PRE) {
 		do_message(flags & ~PRE, 0, ":  %s\n", strerror(code));
@@ -222,6 +227,7 @@ handle_error:
 		pthread_mutex_unlock(&mainwait);
 	pthread_mutex_unlock(&glob_masks.mutex);
 	pthread_exit(NULL);
+	return NULL;
 }
 
 void
@@ -244,7 +250,7 @@ killall(void)
 }
 
 void
-handler()
+handler(int sig)
 {
 	pid_t	pid = getpid();
 	int	status, i;
@@ -280,7 +286,7 @@ handler()
 					pthread_exit(NULL);
 				}
 
-				sigset(SIGCLD, handler);
+				signal(SIGCHLD, handler);
 				return;
 			} else  {
 				/* it just croaked it bigtime, log it */
@@ -302,7 +308,7 @@ handler()
 	do_warn(_("%s: Unknown child died (should never happen!)\n"), progname);
 	die_perror();
 	pthread_exit(NULL);
-	sigset(SIGCLD, handler);
+	signal(SIGCHLD, handler);
 }
 
 void
@@ -358,12 +364,16 @@ static xfs_off_t source_position = -1;
 wbuf *
 wbuf_init(wbuf *buf, int data_size, int data_align, int min_io_size, int id)
 {
-	buf->id = id;
-	if ((buf->data = memalign(data_align, data_size)) == NULL)
-		return NULL;
+	ASSERT(data_size % BBSIZE == 0);
+	while ((buf->data = memalign(data_align, data_size)) == NULL) {
+		data_size >>= 1;
+		if (data_size < min_io_size)
+			return NULL;
+	}
 	ASSERT(min_io_size % BBSIZE == 0);
 	buf->min_io_size = min_io_size;
-	buf->size = MAX(data_size, 2*min_io_size);
+	buf->size = data_size;
+	buf->id = id;
 	return buf;
 }
 
@@ -438,7 +448,7 @@ read_ag_header(int fd, xfs_agnumber_t agno, wbuf *buf, ag_header_t *ag,
 	off = XFS_AG_DADDR(mp, agno, XFS_SB_DADDR);
 	buf->position = (xfs_off_t) off * (xfs_off_t) BBSIZE;
 	length = buf->length = first_agbno * blocksize;
-	
+
 	/* handle alignment stuff */
 
 	newpos = rounddown(buf->position, (xfs_off_t) buf->min_io_size);
@@ -457,13 +467,13 @@ read_ag_header(int fd, xfs_agnumber_t agno, wbuf *buf, ag_header_t *ag,
 	read_wbuf(fd, buf, mp);
 	ASSERT(buf->length >= length);
 
-	ag->xfs_sb = (xfs_sb_t *) (buf->data + diff);
-	ASSERT(INT_GET(ag->xfs_sb->sb_magicnum, ARCH_CONVERT)==XFS_SB_MAGIC);
+	ag->xfs_sb = (xfs_dsb_t *) (buf->data + diff);
+	ASSERT(be32_to_cpu(ag->xfs_sb->sb_magicnum) == XFS_SB_MAGIC);
 	ag->xfs_agf = (xfs_agf_t *) (buf->data + diff + sectorsize);
-	ASSERT(INT_GET(ag->xfs_agf->agf_magicnum, ARCH_CONVERT)==XFS_AGF_MAGIC);
-	ag->xfs_agi = (xfs_agi_t *) (buf->data + diff + 2*sectorsize);
-	ASSERT(INT_GET(ag->xfs_agi->agi_magicnum, ARCH_CONVERT)==XFS_AGI_MAGIC);
-	ag->xfs_agfl = (xfs_agfl_t *) (buf->data + diff + 3*sectorsize);
+	ASSERT(be32_to_cpu(ag->xfs_agf->agf_magicnum) == XFS_AGF_MAGIC);
+	ag->xfs_agi = (xfs_agi_t *) (buf->data + diff + 2 * sectorsize);
+	ASSERT(be32_to_cpu(ag->xfs_agi->agi_magicnum) == XFS_AGI_MAGIC);
+	ag->xfs_agfl = (xfs_agfl_t *) (buf->data + diff + 3 * sectorsize);
 }
 
 
@@ -482,9 +492,9 @@ write_wbuf(void)
 		if (target[i].state != INACTIVE)
 			pthread_mutex_unlock(&targ[i].wait);	/* wake up */
 
-	sigrelse(SIGCLD);
+	signal_maskfunc(SIGCHLD, SIG_UNBLOCK);
 	pthread_mutex_lock(&mainwait);
-	sighold(SIGCLD);
+	signal_maskfunc(SIGCHLD, SIG_BLOCK);
 }
 
 
@@ -496,7 +506,8 @@ main(int argc, char **argv)
 	int		open_flags;
 	xfs_off_t	pos, end_pos;
 	size_t		length;
-	int		c, size, sizeb, first_residue, tmp_residue;
+	int		c, first_residue, tmp_residue;
+	__uint64_t	size, sizeb;
 	__uint64_t	numblocks = 0;
 	int		wblocks = 0;
 	int		num_threads = 0;
@@ -506,7 +517,7 @@ main(int argc, char **argv)
 	int		wbuf_miniosize;
 	int		source_is_file = 0;
 	int		buffered_output = 0;
-	int		duplicate_uuids = 0;
+	int		duplicate = 0;
 	uint		btree_levels, current_level;
 	ag_header_t	ag_hdr;
 	xfs_mount_t	*mp;
@@ -516,14 +527,13 @@ main(int argc, char **argv)
 	xfs_agnumber_t	num_ags, agno;
 	xfs_agblock_t	bno;
 	xfs_daddr_t	begin, next_begin, ag_begin, new_begin, ag_end;
-	xfs_alloc_block_t *block;
+	struct xfs_btree_block *block;
 	xfs_alloc_ptr_t	*ptr;
 	xfs_alloc_rec_t	*rec_ptr;
 	extern char	*optarg;
 	extern int	optind;
 	libxfs_init_t	xargs;
 	thread_args	*tcarg;
-	struct ustat	ustat_buf;
 	struct stat64	statbuf;
 
 	progname = basename(argv[0]);
@@ -538,7 +548,7 @@ main(int argc, char **argv)
 			buffered_output = 1;
 			break;
 		case 'd':
-			duplicate_uuids = 1;
+			duplicate = 1;
 			break;
 		case 'L':
 			logfile_name = optarg;
@@ -632,13 +642,13 @@ main(int argc, char **argv)
 		}
 
 		wbuf_align = d.d_mem;
-		wbuf_size = d.d_maxiosz;
+		wbuf_size = MIN(d.d_maxiosz, 1 * 1024 * 1024);
 		wbuf_miniosize = d.d_miniosz;
 	} else  {
 		/* set arbitrary I/O params, miniosize at least 1 disk block */
 
-		wbuf_align = 4096*4;
-		wbuf_size = 1024 * 4000;
+		wbuf_align = getpagesize();
+		wbuf_size = 1 * 1024 * 1024;
 		wbuf_miniosize = -1;	/* set after mounting source fs */
 	}
 
@@ -647,7 +657,7 @@ main(int argc, char **argv)
 		 * check to make sure a filesystem isn't mounted
 		 * on the device
 		 */
-		if (ustat(statbuf.st_rdev, &ustat_buf) == 0)  {
+		if (platform_check_ismounted(source_name, NULL, &statbuf, 0))  {
 			do_log(
 	_("%s:  Warning -- a filesystem is mounted on the source device.\n"),
 				progname);
@@ -661,9 +671,8 @@ main(int argc, char **argv)
 	/* prepare the libxfs_init structure */
 
 	memset(&xargs, 0, sizeof(xargs));
-	xargs.notvolmsg = "oh no %s";
+	xargs.isdirect = LIBXFS_DIRECT;
 	xargs.isreadonly = LIBXFS_ISREADONLY;
-	xargs.notvolok = 1;
 
 	if (source_is_file)  {
 		xargs.dname = source_name;
@@ -682,7 +691,7 @@ main(int argc, char **argv)
 	sbp = libxfs_readbuf(xargs.ddev, XFS_SB_DADDR, 1, 0);
 	memset(&mbuf, 0, sizeof(xfs_mount_t));
 	sb = &mbuf.m_sb;
-	libxfs_xlate_sb(XFS_BUF_PTR(sbp), sb, 1, ARCH_CONVERT, XFS_SB_ALL_BITS);
+	libxfs_sb_from_disk(sb, XFS_BUF_TO_SBP(sbp));
 
 	mp = libxfs_mount(&mbuf, sb, xargs.ddev, xargs.logdev, xargs.rtdev, 1);
 	if (mp == NULL) {
@@ -740,7 +749,7 @@ main(int argc, char **argv)
 
 	for (i = 0; i < num_targets; i++)  {
 		int	write_last_block = 0;
-	
+
 		if (stat64(target[i].name, &statbuf) < 0)  {
 			/* ok, assume it's a file and create it */
 
@@ -760,7 +769,8 @@ main(int argc, char **argv)
 			 * check to make sure a filesystem isn't mounted
 			 * on the device
 			 */
-			if (ustat(statbuf.st_rdev, &ustat_buf) == 0)  {
+			if (platform_check_ismounted(target[i].name,
+							NULL, &statbuf, 0))  {
 				do_log(_("%s:  a filesystem is mounted "
 					"on target device \"%s\".\n"
 					"%s cannot copy to mounted filesystems."
@@ -801,7 +811,7 @@ main(int argc, char **argv)
 				}
 			}
 		} else  {
-			char	*lb[XFS_MAX_SECTORSIZE] = { 0 };
+			char	*lb[XFS_MAX_SECTORSIZE] = { NULL };
 			off64_t	off;
 
 			/* ensure device files are sufficiently large */
@@ -846,12 +856,12 @@ main(int argc, char **argv)
 		exit(1);
 	}
 	/* need to start out blocking */
-	pthread_mutex_lock(&mainwait); 
+	pthread_mutex_lock(&mainwait);
 
 	/* set up sigchild signal handler */
 
-	sigset(SIGCLD, handler);
-	sighold(SIGCLD);
+	signal(SIGCHLD, handler);
+	signal_maskfunc(SIGCHLD, SIG_BLOCK);
 
 	/* make children */
 
@@ -862,10 +872,10 @@ main(int argc, char **argv)
 	}
 
 	for (i = 0, tcarg = targ; i < num_targets; i++, tcarg++)  {
-		if (!duplicate_uuids)
-			uuid_generate(tcarg->uuid);
+		if (!duplicate)
+			platform_uuid_generate(&tcarg->uuid);
 		else
-			uuid_copy(tcarg->uuid, mp->m_sb.sb_uuid);
+			platform_uuid_copy(&tcarg->uuid, &mp->m_sb.sb_uuid);
 
 		if (pthread_mutex_init(&tcarg->wait, NULL) != 0)  {
 			do_log(_("Error creating thread mutex %d\n"), i);
@@ -873,7 +883,7 @@ main(int argc, char **argv)
 			exit(1);
 		}
 		/* need to start out blocking */
-		pthread_mutex_lock(&tcarg->wait); 
+		pthread_mutex_lock(&tcarg->wait);
 	}
 
 	for (i = 0, tcarg = targ; i < num_targets; i++, tcarg++)  {
@@ -901,7 +911,7 @@ main(int argc, char **argv)
 			    - (__uint64_t)mp->m_sb.sb_fdblocks + 10 * num_ags));
 
 	kids = num_targets;
-	block = (xfs_alloc_block_t *) btree_buf.data;
+	block = (struct xfs_btree_block *) btree_buf.data;
 
 	for (agno = 0; agno < num_ags && kids > 0; agno++)  {
 		/* read in first blocks of the ag */
@@ -912,11 +922,11 @@ main(int argc, char **argv)
 		/* set the in_progress bit for the first AG */
 
 		if (agno == 0)
-			INT_SET(ag_hdr.xfs_sb->sb_inprogress, ARCH_CONVERT, 1);
+			ag_hdr.xfs_sb->sb_inprogress = 1;
 
 		/* save what we need (agf) in the btree buffer */
 
-		bcopy(ag_hdr.xfs_agf, btree_buf.data, source_sectorsize);
+		memmove(btree_buf.data, ag_hdr.xfs_agf, source_sectorsize);
 		ag_hdr.xfs_agf = (xfs_agf_t *) btree_buf.data;
 		btree_buf.length = source_blocksize;
 
@@ -926,16 +936,14 @@ main(int argc, char **argv)
 
 		/* traverse btree until we get to the leftmost leaf node */
 
-		bno = INT_GET(ag_hdr.xfs_agf->agf_roots[XFS_BTNUM_BNOi],
-			ARCH_CONVERT);
+		bno = be32_to_cpu(ag_hdr.xfs_agf->agf_roots[XFS_BTNUM_BNOi]);
 		current_level = 0;
-		btree_levels = INT_GET(
-			ag_hdr.xfs_agf->agf_levels[XFS_BTNUM_BNOi],
-			ARCH_CONVERT);
+		btree_levels = be32_to_cpu(ag_hdr.xfs_agf->
+						agf_levels[XFS_BTNUM_BNOi]);
 
 		ag_end = XFS_AGB_TO_DADDR(mp, agno,
-			INT_GET(ag_hdr.xfs_agf->agf_length,ARCH_CONVERT) - 1)
-			+ source_blocksize/BBSIZE;
+				be32_to_cpu(ag_hdr.xfs_agf->agf_length) - 1)
+				+ source_blocksize / BBSIZE;
 
 		for (;;) {
 			/* none of this touches the w_buf buffer */
@@ -949,19 +957,18 @@ main(int argc, char **argv)
 			btree_buf.length = source_blocksize;
 
 			read_wbuf(source_fd, &btree_buf, mp);
-			block = (xfs_alloc_block_t *) ((char *) btree_buf.data
-					+ pos - btree_buf.position);
+			block = (struct xfs_btree_block *)
+				 ((char *)btree_buf.data +
+				  pos - btree_buf.position);
 
-			ASSERT(INT_GET(block->bb_magic,ARCH_CONVERT) ==
-				XFS_ABTB_MAGIC);
+			ASSERT(be32_to_cpu(block->bb_magic) == XFS_ABTB_MAGIC);
 
-			if (INT_GET(block->bb_level,ARCH_CONVERT) == 0)
+			if (be16_to_cpu(block->bb_level) == 0)
 				break;
 
-			ptr = XFS_BTREE_PTR_ADDR(sourceb_blocksize, xfs_alloc,
-				block, 1, mp->m_alloc_mxr[1]),
-
-			bno = *ptr;
+			ptr = XFS_ALLOC_PTR_ADDR(mp, block, 1,
+							mp->m_alloc_mxr[1]);
+			bno = be32_to_cpu(ptr[0]);
 		}
 
 		/* align first data copy but don't overwrite ag header */
@@ -976,7 +983,7 @@ main(int argc, char **argv)
 		/* handle the rest of the ag */
 
 		for (;;) {
-			if (INT_GET(block->bb_level,ARCH_CONVERT) != 0)  {
+			if (be16_to_cpu(block->bb_level) != 0)  {
 				do_log(
 			_("WARNING:  source filesystem inconsistent.\n"));
 				do_log(
@@ -984,12 +991,9 @@ main(int argc, char **argv)
 				exit(1);
 			}
 
-			rec_ptr = XFS_BTREE_REC_ADDR(source_blocksize,
-				xfs_alloc, block, 1, mp->m_alloc_mxr[0]);
-
-			for (i = 0;
-			     i < INT_GET(block->bb_numrecs,ARCH_CONVERT);
-			     i++, rec_ptr++)  {
+			rec_ptr = XFS_ALLOC_REC_ADDR(mp, block, 1);
+			for (i = 0; i < be16_to_cpu(block->bb_numrecs);
+							i++, rec_ptr++)  {
 				/* calculate in daddr's */
 
 				begin = next_begin;
@@ -1008,9 +1012,9 @@ main(int argc, char **argv)
 				 * range bigger than required
 				 */
 
-				sizeb = XFS_AGB_TO_DADDR(mp, agno,
-					INT_GET(rec_ptr->ar_startblock,
-						ARCH_CONVERT)) - begin;
+				sizeb = XFS_AGB_TO_DADDR(mp, agno, 
+					be32_to_cpu(rec_ptr->ar_startblock)) - 
+						begin;
 				size = roundup(sizeb <<BBSHIFT, wbuf_miniosize);
 				if (size > 0)  {
 					/* copy extent */
@@ -1046,35 +1050,31 @@ main(int argc, char **argv)
 				/* round next starting point down */
 
 				new_begin = XFS_AGB_TO_DADDR(mp, agno,
-						INT_GET(rec_ptr->ar_startblock,
-							ARCH_CONVERT) +
-					 	INT_GET(rec_ptr->ar_blockcount,
-							ARCH_CONVERT));
+						be32_to_cpu(rec_ptr->ar_startblock) +
+					 	be32_to_cpu(rec_ptr->ar_blockcount));
 				next_begin = rounddown(new_begin,
 						w_buf.min_io_size >> BBSHIFT);
 			}
 
-			if (INT_GET(block->bb_rightsib,ARCH_CONVERT) ==
-			    NULLAGBLOCK)
+			if (be32_to_cpu(block->bb_u.s.bb_rightsib) == NULLAGBLOCK)
 				break;
 
 			/* read in next btree record block */
 
 			btree_buf.position = pos = (xfs_off_t)
-				XFS_AGB_TO_DADDR(mp, agno,
-					INT_GET(block->bb_rightsib,
-						ARCH_CONVERT)) << BBSHIFT;
+				XFS_AGB_TO_DADDR(mp, agno, be32_to_cpu(
+						block->bb_u.s.bb_rightsib)) << BBSHIFT;
 			btree_buf.length = source_blocksize;
 
 			/* let read_wbuf handle alignment */
 
 			read_wbuf(source_fd, &btree_buf, mp);
 
-			block = (xfs_alloc_block_t *) ((char *) btree_buf.data
-					+ pos - btree_buf.position);
+			block = (struct xfs_btree_block *)
+				 ((char *) btree_buf.data +
+				  pos - btree_buf.position);
 
-			ASSERT(INT_GET(block->bb_magic,ARCH_CONVERT) ==
-				XFS_ABTB_MAGIC);
+			ASSERT(be32_to_cpu(block->bb_magic) == XFS_ABTB_MAGIC);
 		}
 
 		/*
@@ -1119,30 +1119,33 @@ main(int argc, char **argv)
 	}
 
 	if (kids > 0)  {
-		/* write a clean log using the specified UUID */
+		if (!duplicate)  {
 
-		for (j = 0, tcarg = targ; j < num_targets; j++)  {
-			w_buf.owner = tcarg;
-			w_buf.length = rounddown(w_buf.size, w_buf.min_io_size);
+			/* write a clean log using the specified UUID */
+			for (j = 0, tcarg = targ; j < num_targets; j++)  {
+				w_buf.owner = tcarg;
+				w_buf.length = rounddown(w_buf.size,
+							 w_buf.min_io_size);
+				pos = write_log_header(
+							source_fd, &w_buf, mp);
+				end_pos = write_log_trailer(
+							source_fd, &w_buf, mp);
+				w_buf.position = pos;
+				memset(w_buf.data, 0, w_buf.length);
 
-			pos = write_log_header(source_fd, &w_buf, mp);
-			end_pos = write_log_trailer(source_fd, &w_buf, mp);
-
-			w_buf.position = pos;
-			memset(w_buf.data, 0, w_buf.length);
-
-			while (w_buf.position < end_pos)  {
-				do_write(tcarg);
-				w_buf.position += w_buf.length;
+				while (w_buf.position < end_pos)  {
+					do_write(tcarg);
+					w_buf.position += w_buf.length;
+				}
+				tcarg++;
 			}
-			tcarg++;
+		} else {
+			num_ags = 1;
 		}
 
 		/* reread and rewrite superblocks (UUID and in-progress) */
 		/* [backwards, so inprogress bit only updated when done] */
 
-		if (duplicate_uuids)
-			num_ags = 1;
 		for (i = num_ags - 1; i >= 0; i--)  {
 			read_ag_header(source_fd, i, &w_buf, &ag_hdr, mp,
 				source_blocksize, source_sectorsize);
@@ -1152,7 +1155,8 @@ main(int argc, char **argv)
 			/* do each thread in turn, each has its own UUID */
 
 			for (j = 0, tcarg = targ; j < num_targets; j++)  {
-				uuid_copy(ag_hdr.xfs_sb->sb_uuid, tcarg->uuid);
+				platform_uuid_copy(&ag_hdr.xfs_sb->sb_uuid,
+							&tcarg->uuid);
 				do_write(tcarg);
 				tcarg++;
 			}
@@ -1163,7 +1167,7 @@ main(int argc, char **argv)
 
 	check_errors();
 	killall();
-	pthread_exit(NULL);		
+	pthread_exit(NULL);
 	/*NOTREACHED*/
 	return 0;
 }
@@ -1186,7 +1190,7 @@ next_log_chunk(xfs_caddr_t p, int offset, void *private)
 /*
  * Writes a log header at the start of the log (with the real
  * filesystem UUID embedded into it), and writes to all targets.
- * 
+ *
  * Returns the next buffer-length-aligned disk address.
  */
 xfs_off_t
@@ -1208,12 +1212,12 @@ write_log_header(int fd, wbuf *buf, xfs_mount_t *mp)
 	}
 
 	offset = libxfs_log_header(p, &buf->owner->uuid,
-			XFS_SB_VERSION_HASLOGV2(&mp->m_sb) ? 2 : 1,
+			xfs_sb_version_haslogv2(&mp->m_sb) ? 2 : 1,
 			mp->m_sb.sb_logsunit, XLOG_FMT,
 			next_log_chunk, buf);
 	do_write(buf->owner);
 
-	return logstart + roundup(offset, buf->length);
+	return roundup(logstart + offset, buf->length);
 }
 
 /*

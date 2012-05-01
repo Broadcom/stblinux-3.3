@@ -445,6 +445,7 @@ int __ref brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 	/* CPU reconfiguration */
 	brcmstb_cpu_setup();
 	bmips_ebase_setup();
+	cpumask_clear(&bmips_booted_mask);
 
 	/* restore RTS */
 	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_0_REG_START,

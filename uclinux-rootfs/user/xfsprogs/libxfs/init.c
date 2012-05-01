@@ -1,43 +1,36 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.	 Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <xfs/libxfs.h>
+#include <xfs.h>
 #include <sys/stat.h>
 #include "init.h"
 
-#define findrawpath(x)	x
-#define findblockpath(x) x
-
 char *progname = "libxfs";	/* default, changed by each tool */
+
+struct cache *libxfs_icache;	/* global inode cache */
+int libxfs_ihash_size;		/* #buckets in icache */
+
+struct cache *libxfs_bcache;	/* global buffer cache */
+int libxfs_bhash_size;		/* #buckets in bcache */
+
+int	use_xfs_buf_lock;	/* global flag: use xfs_buf_t locks for MT */
+
+static void manage_zones(int);	/* setup global zones */
 
 /*
  * dev_map - map open devices to fd.
@@ -87,36 +80,53 @@ libxfs_device_to_fd(dev_t device)
 	fprintf(stderr, _("%s: %s: device %lld is not open\n"),
 		progname, __FUNCTION__, (long long)device);
 	exit(1);
+	/* NOTREACHED */
 }
 
 /* libxfs_device_open:
  *     open a device and return its device number
  */
 dev_t
-libxfs_device_open(char *path, int creat, int readonly, int setblksize)
+libxfs_device_open(char *path, int creat, int xflags, int setblksize)
 {
-	int		fd;
 	dev_t		dev;
-	int		d;
-	struct stat	statb;
+	int		fd, d, flags;
+	int		readonly, dio, excl;
+	struct stat64	statb;
 
-	if ((fd = open(path,
-			(readonly ? O_RDONLY : O_RDWR) |
-			(creat ? O_CREAT|O_TRUNC : 0),
-			0666)) < 0) {
+	readonly = (xflags & LIBXFS_ISREADONLY);
+	excl = (xflags & LIBXFS_EXCLUSIVELY) && !creat;
+	dio = (xflags & LIBXFS_DIRECT) && !creat && platform_direct_blockdev();
+
+retry:
+	flags = (readonly ? O_RDONLY : O_RDWR) | \
+		(creat ? (O_CREAT|O_TRUNC) : 0) | \
+		(dio ? O_DIRECT : 0) | \
+		(excl ? O_EXCL : 0);
+
+	if ((fd = open(path, flags, 0666)) < 0) {
+		if (errno == EINVAL && --dio == 0)
+			goto retry;
 		fprintf(stderr, _("%s: cannot open %s: %s\n"),
 			progname, path, strerror(errno));
 		exit(1);
 	}
 
-	if (stat(path, &statb)<0) {
+	if (fstat64(fd, &statb) < 0) {
 		fprintf(stderr, _("%s: cannot stat %s: %s\n"),
 			progname, path, strerror(errno));
 		exit(1);
 	}
 
 	if (!readonly && setblksize && (statb.st_mode & S_IFMT) == S_IFBLK) {
-		platform_set_blocksize(fd, path, 512);
+		if (setblksize == 1)
+			/* use the default blocksize */
+			(void)platform_set_blocksize(fd, path, statb.st_rdev, XFS_MIN_SECTORSIZE, 0);
+		else {
+			/* given an explicit blocksize to use */
+			if (platform_set_blocksize(fd, path, statb.st_rdev, setblksize, 1))
+			    exit(1);
+		}
 	}
 
 	/*
@@ -144,6 +154,7 @@ libxfs_device_open(char *path, int creat, int readonly, int setblksize)
 	fprintf(stderr, _("%s: %s: too many open devices\n"),
 		progname, __FUNCTION__);
 	exit(1);
+	/* NOTREACHED */
 }
 
 void
@@ -159,7 +170,7 @@ libxfs_device_close(dev_t dev)
 			dev_map[d].dev = dev_map[d].fd = 0;
 
 			fsync(fd);
-			platform_flush_device(fd);
+			platform_flush_device(fd, dev);
 			close(fd);
 
 			return;
@@ -182,13 +193,13 @@ check_open(char *path, int flags, char **rawfile, char **blockfile)
 		perror(path);
 		return 0;
 	}
-	if (!(*rawfile = findrawpath(path))) {
+	if (!(*rawfile = platform_findrawpath(path))) {
 		fprintf(stderr, _("%s: "
 				  "can't find a character device matching %s\n"),
 			progname, path);
 		return 0;
 	}
-	if (!(*blockfile = findblockpath(path))) {
+	if (!(*blockfile = platform_findblockpath(path))) {
 		fprintf(stderr, _("%s: "
 				  "can't find a block device matching %s\n"),
 			progname, path);
@@ -196,7 +207,7 @@ check_open(char *path, int flags, char **rawfile, char **blockfile)
 	}
 	if (!readonly && !inactive && platform_check_ismounted(path, *blockfile, NULL, 1))
 		return 0;
-	
+
 	if (inactive && check_isactive(path, *blockfile, ((readonly|dangerously)?1:0)))
 		return 0;
 
@@ -222,8 +233,6 @@ libxfs_init(libxfs_init_t *a)
 	char		*rtname;
 	char		rtpath[25];
 	int		rval = 0;
-	int		readonly;
-	int		inactive;
 	int		flags;
 
 	dpath[0] = logpath[0] = rtpath[0] = '\0';
@@ -238,101 +247,30 @@ libxfs_init(libxfs_init_t *a)
 	(void)getcwd(curdir,MAXPATHLEN);
 	needcd = 0;
 	fd = -1;
-	readonly = (a->isreadonly & LIBXFS_ISREADONLY);
-	inactive = (a->isreadonly & LIBXFS_ISINACTIVE);
-	flags = a->isreadonly;
+	flags = (a->isreadonly | a->isdirect);
+
+	radix_tree_init();
 
 	if (a->volname) {
 		if(!check_open(a->volname,flags,&rawfile,&blockfile))
 			goto done;
 		needcd = 1;
 		fd = open(rawfile, O_RDONLY);
-#ifdef HAVE_VOLUME_MANAGER
-		xlv_getdev_t getdev;
-		if (ioctl(fd, DIOCGETVOLDEV, &getdev) < 0)
-#else
-		if (1)
-#endif
-		{
-			if (a->notvolok) {
-				dname = a->dname = a->volname;
-				a->volname = NULL;
-				goto voldone;
-			}
-			fprintf(stderr, _("%s: "
-				"%s is not a volume device name\n"),
-				progname, a->volname);
-			if (a->notvolmsg)
-				fprintf(stderr, a->notvolmsg, a->volname);
-			goto done;
-		}
-#ifdef HAVE_VOLUME_MANAGER
-		if (getdev.data_subvol_dev && dname) {
-			fprintf(stderr, _("%s: "
-				"%s has a data subvolume, cannot specify %s\n"),
-				progname, a->volname, dname);
-			goto done;
-		}
-		if (getdev.log_subvol_dev && logname) {
-			fprintf(stderr, _("%s: "
-				"%s has a log subvolume, cannot specify %s\n"),
-				progname, a->volname, logname);
-			goto done;
-		}
-		if (getdev.rt_subvol_dev && rtname) {
-			fprintf(stderr, _("%s: %s has a realtime subvolume, "
-				"cannot specify %s\n"),
-				progname, a->volname, rtname);
-			goto done;
-		}
-		if (!dname && getdev.data_subvol_dev) {
-			strcpy(dpath, "/tmp/libxfsdXXXXXX");
-			(void)mktemp(dpath);
-			if (mknod(dpath, S_IFCHR | 0600,
-				  getdev.data_subvol_dev) < 0) {
-				fprintf(stderr, _("%s: mknod failed: %s\n"),
-					progname, strerror(errno));
-				goto done;
-			}
-			dname = dpath;
-		}
-		if (!logname && getdev.log_subvol_dev) {
-			strcpy(logpath, "/tmp/libxfslXXXXXX");
-			(void)mktemp(logpath);
-			if (mknod(logpath, S_IFCHR | 0600,
-				  getdev.log_subvol_dev) < 0) {
-				fprintf(stderr, _("%s: mknod failed: %s\n"),
-					progname, strerror(errno));
-				goto done;
-			}
-			logname = logpath;
-		}
-		if (!rtname && getdev.rt_subvol_dev) {
-			strcpy(rtpath, "/tmp/libxfsrXXXXXX");
-			(void)mktemp(rtpath);
-			if (mknod(rtpath, S_IFCHR | 0600,
-				  getdev.rt_subvol_dev) < 0) {
-				fprintf(stderr, _("%s: mknod failed: %s\n"),
-					progname, strerror(errno));
-				goto done;
-			}
-			rtname = rtpath;
-		}
-#endif
+		dname = a->dname = a->volname;
+		a->volname = NULL;
 	}
-voldone:
 	if (dname) {
 		if (dname[0] != '/' && needcd)
 			chdir(curdir);
 		if (a->disfile) {
-			a->ddev= libxfs_device_open(dname, a->dcreat, readonly,
+			a->ddev= libxfs_device_open(dname, a->dcreat, flags,
 						    a->setblksize);
 			a->dfd = libxfs_device_to_fd(a->ddev);
 		} else {
 			if (!check_open(dname, flags, &rawfile, &blockfile))
 				goto done;
 			a->ddev = libxfs_device_open(rawfile,
-					a->dcreat, readonly, a->setblksize);
+					a->dcreat, flags, a->setblksize);
 			a->dfd = libxfs_device_to_fd(a->ddev);
 			platform_findsizes(rawfile, a->dfd,
 						&a->dsize, &a->dbsize);
@@ -345,13 +283,13 @@ voldone:
 			chdir(curdir);
 		if (a->lisfile) {
 			a->logdev = libxfs_device_open(logname,
-					a->lcreat, readonly, a->setblksize);
+					a->lcreat, flags, a->setblksize);
 			a->logfd = libxfs_device_to_fd(a->logdev);
 		} else {
 			if (!check_open(logname, flags, &rawfile, &blockfile))
 				goto done;
 			a->logdev = libxfs_device_open(rawfile,
-					a->lcreat, readonly, a->setblksize);
+					a->lcreat, flags, a->setblksize);
 			a->logfd = libxfs_device_to_fd(a->logdev);
 			platform_findsizes(rawfile, a->logfd,
 						&a->logBBsize, &a->lbsize);
@@ -364,13 +302,13 @@ voldone:
 			chdir(curdir);
 		if (a->risfile) {
 			a->rtdev = libxfs_device_open(rtname,
-					a->rcreat, readonly, a->setblksize);
+					a->rcreat, flags, a->setblksize);
 			a->rtfd = libxfs_device_to_fd(a->rtdev);
 		} else {
 			if (!check_open(rtname, flags, &rawfile, &blockfile))
 				goto done;
 			a->rtdev = libxfs_device_open(rawfile,
-					a->rcreat, readonly, a->setblksize);
+					a->rcreat, flags, a->setblksize);
 			a->rtfd = libxfs_device_to_fd(a->rtdev);
 			platform_findsizes(rawfile, a->rtfd,
 						&a->rtsize, &a->rtbsize);
@@ -395,6 +333,14 @@ voldone:
 	}
 	if (needcd)
 		chdir(curdir);
+	if (!libxfs_ihash_size)
+		libxfs_ihash_size = LIBXFS_IHASHSIZE(sbp);
+	libxfs_icache = cache_init(libxfs_ihash_size, &libxfs_icache_operations);
+	if (!libxfs_bhash_size)
+		libxfs_bhash_size = LIBXFS_BHASHSIZE(sbp);
+	libxfs_bcache = cache_init(libxfs_bhash_size, &libxfs_bcache_operations);
+	use_xfs_buf_lock = a->usebuflock;
+	manage_zones(0);
 	rval = 1;
 done:
 	if (dpath[0])
@@ -421,40 +367,47 @@ done:
 static void
 manage_zones(int release)
 {
-	extern xfs_zone_t	*xfs_ili_zone;
-	extern xfs_zone_t	*xfs_inode_zone;
-	extern xfs_zone_t	*xfs_ifork_zone;
-	extern xfs_zone_t	*xfs_dabuf_zone;
-	extern xfs_zone_t	*xfs_buf_item_zone;
-	extern xfs_zone_t	*xfs_da_state_zone;
-	extern xfs_zone_t	*xfs_btree_cur_zone;
-	extern xfs_zone_t	*xfs_bmap_free_item_zone;
+	extern kmem_zone_t	*xfs_buf_zone;
+	extern kmem_zone_t	*xfs_ili_zone;
+	extern kmem_zone_t	*xfs_inode_zone;
+	extern kmem_zone_t	*xfs_ifork_zone;
+	extern kmem_zone_t	*xfs_dabuf_zone;
+	extern kmem_zone_t	*xfs_buf_item_zone;
+	extern kmem_zone_t	*xfs_da_state_zone;
+	extern kmem_zone_t	*xfs_btree_cur_zone;
+	extern kmem_zone_t	*xfs_bmap_free_item_zone;
+	extern kmem_zone_t	*xfs_log_item_desc_zone;
 	extern void		xfs_dir_startup();
 
 	if (release) {	/* free zone allocation */
-		libxfs_free(xfs_inode_zone);
-		libxfs_free(xfs_ifork_zone);
-		libxfs_free(xfs_dabuf_zone);
-		libxfs_free(xfs_buf_item_zone);
-		libxfs_free(xfs_da_state_zone);
-		libxfs_free(xfs_btree_cur_zone);
-		libxfs_free(xfs_bmap_free_item_zone);
+		kmem_free(xfs_buf_zone);
+		kmem_free(xfs_inode_zone);
+		kmem_free(xfs_ifork_zone);
+		kmem_free(xfs_dabuf_zone);
+		kmem_free(xfs_buf_item_zone);
+		kmem_free(xfs_da_state_zone);
+		kmem_free(xfs_btree_cur_zone);
+		kmem_free(xfs_bmap_free_item_zone);
+		kmem_free(xfs_log_item_desc_zone);
 		return;
 	}
 	/* otherwise initialise zone allocation */
-	xfs_inode_zone = libxfs_zone_init(sizeof(xfs_inode_t), "xfs_inode");
-	xfs_ifork_zone = libxfs_zone_init(sizeof(xfs_ifork_t), "xfs_ifork");
-	xfs_dabuf_zone = libxfs_zone_init(sizeof(xfs_dabuf_t), "xfs_dabuf");
-	xfs_ili_zone = libxfs_zone_init(
+	xfs_buf_zone = kmem_zone_init(sizeof(xfs_buf_t), "xfs_buffer");
+	xfs_inode_zone = kmem_zone_init(sizeof(xfs_inode_t), "xfs_inode");
+	xfs_ifork_zone = kmem_zone_init(sizeof(xfs_ifork_t), "xfs_ifork");
+	xfs_dabuf_zone = kmem_zone_init(sizeof(xfs_dabuf_t), "xfs_dabuf");
+	xfs_ili_zone = kmem_zone_init(
 			sizeof(xfs_inode_log_item_t), "xfs_inode_log_item");
-	xfs_buf_item_zone = libxfs_zone_init(
+	xfs_buf_item_zone = kmem_zone_init(
 			sizeof(xfs_buf_log_item_t), "xfs_buf_log_item");
-	xfs_da_state_zone = libxfs_zone_init(
+	xfs_da_state_zone = kmem_zone_init(
 			sizeof(xfs_da_state_t), "xfs_da_state");
-	xfs_btree_cur_zone = libxfs_zone_init(
+	xfs_btree_cur_zone = kmem_zone_init(
 			sizeof(xfs_btree_cur_t), "xfs_btree_cur");
-	xfs_bmap_free_item_zone = libxfs_zone_init(
+	xfs_bmap_free_item_zone = kmem_zone_init(
 			sizeof(xfs_bmap_free_item_t), "xfs_bmap_free_item");
+	xfs_log_item_desc_zone = kmem_zone_init(
+			sizeof(struct xfs_log_item_desc), "xfs_log_item_desc");
 	xfs_dir_startup();
 }
 
@@ -471,7 +424,7 @@ rtmount_inodes(xfs_mount_t *mp)
 	sbp = &mp->m_sb;
 	if (sbp->sb_rbmino == NULLFSINO)
 		return 0;
-	error = libxfs_iread(mp, NULL, sbp->sb_rbmino, &mp->m_rbmip, 0);
+	error = libxfs_iget(mp, NULL, sbp->sb_rbmino, 0, &mp->m_rbmip, 0);
 	if (error) {
 		fprintf(stderr,
 			_("%s: cannot read realtime bitmap inode (%d)\n"),
@@ -480,8 +433,9 @@ rtmount_inodes(xfs_mount_t *mp)
 	}
 	ASSERT(mp->m_rbmip != NULL);
 	ASSERT(sbp->sb_rsumino != NULLFSINO);
-	error = libxfs_iread(mp, NULL, sbp->sb_rsumino, &mp->m_rsumip, 0);
+	error = libxfs_iget(mp, NULL, sbp->sb_rsumino, 0, &mp->m_rsumip, 0);
 	if (error) {
+		libxfs_iput(mp->m_rbmip, 0);
 		fprintf(stderr,
 			_("%s: cannot read realtime summary inode (%d)\n"),
 			progname, error);
@@ -496,7 +450,8 @@ rtmount_inodes(xfs_mount_t *mp)
  */
 static int
 rtmount_init(
-	xfs_mount_t	*mp)	/* file system mount structure */
+	xfs_mount_t	*mp,	/* file system mount structure */
+	int		flags)
 {
 	xfs_buf_t	*bp;	/* buffer for last block of subvolume */
 	xfs_daddr_t	d;	/* address of last block of subvolume */
@@ -505,7 +460,7 @@ rtmount_init(
 	sbp = &mp->m_sb;
 	if (sbp->sb_rblocks == 0)
 		return 0;
-	if (mp->m_rtdev == 0) {
+	if (mp->m_rtdev == 0 && !(flags & LIBXFS_MOUNT_DEBUGGER)) {
 		fprintf(stderr, _("%s: filesystem has a realtime subvolume\n"),
 			progname);
 		return -1;
@@ -516,6 +471,13 @@ rtmount_init(
 		sbp->sb_rbmblocks;
 	mp->m_rsumsize = roundup(mp->m_rsumsize, sbp->sb_blocksize);
 	mp->m_rbmip = mp->m_rsumip = NULL;
+
+	/*
+	 * Allow debugger to be run without the realtime device present.
+	 */
+	if (flags & LIBXFS_MOUNT_DEBUGGER)
+		return 0;
+
 	/*
 	 * Check that the realtime section is an ok size.
 	 */
@@ -537,7 +499,125 @@ rtmount_init(
 	return 0;
 }
 
-#define XFS_MOUNT_32BITINODES	0x1
+
+/*
+ * Core dir v1 mount code for allowing reading of these dirs.
+ */
+static void
+libxfs_dirv1_mount(
+	xfs_mount_t	*mp)
+{
+	mp->m_dir_node_ents = mp->m_attr_node_ents =
+		(XFS_LBSIZE(mp) - (uint)sizeof(xfs_da_node_hdr_t)) /
+		(uint)sizeof(xfs_da_node_entry_t);
+	mp->m_dir_magicpct = (XFS_LBSIZE(mp) * 37) / 100;
+	mp->m_dirblksize = mp->m_sb.sb_blocksize;
+	mp->m_dirblkfsbs = 1;
+}
+
+static int
+libxfs_initialize_perag(
+	xfs_mount_t	*mp,
+	xfs_agnumber_t	agcount,
+	xfs_agnumber_t	*maxagi)
+{
+	xfs_agnumber_t	index, max_metadata;
+	xfs_agnumber_t	first_initialised = 0;
+	xfs_perag_t	*pag;
+	xfs_agino_t	agino;
+	xfs_ino_t	ino;
+	xfs_sb_t	*sbp = &mp->m_sb;
+	int		error = -ENOMEM;
+
+	/*
+	 * Walk the current per-ag tree so we don't try to initialise AGs
+	 * that already exist (growfs case). Allocate and insert all the
+	 * AGs we don't find ready for initialisation.
+	 */
+	for (index = 0; index < agcount; index++) {
+		pag = xfs_perag_get(mp, index);
+		if (pag) {
+			xfs_perag_put(pag);
+			continue;
+		}
+		if (!first_initialised)
+			first_initialised = index;
+
+		pag = kmem_zalloc(sizeof(*pag), KM_MAYFAIL);
+		if (!pag)
+			goto out_unwind;
+		pag->pag_agno = index;
+		pag->pag_mount = mp;
+
+		if (radix_tree_insert(&mp->m_perag_tree, index, pag)) {
+			error = -EEXIST;
+			goto out_unwind;
+		}
+	}
+
+	/*
+	 * If we mount with the inode64 option, or no inode overflows
+	 * the legacy 32-bit address space clear the inode32 option.
+	 */
+	agino = XFS_OFFBNO_TO_AGINO(mp, sbp->sb_agblocks - 1, 0);
+	ino = XFS_AGINO_TO_INO(mp, agcount - 1, agino);
+
+	if ((mp->m_flags & XFS_MOUNT_SMALL_INUMS) && ino > XFS_MAXINUMBER_32)
+		mp->m_flags |= XFS_MOUNT_32BITINODES;
+	else
+		mp->m_flags &= ~XFS_MOUNT_32BITINODES;
+
+	if (mp->m_flags & XFS_MOUNT_32BITINODES) {
+		/*
+		 * Calculate how much should be reserved for inodes to meet
+		 * the max inode percentage.
+		 */
+		if (mp->m_maxicount) {
+			__uint64_t	icount;
+
+			icount = sbp->sb_dblocks * sbp->sb_imax_pct;
+			do_div(icount, 100);
+			icount += sbp->sb_agblocks - 1;
+			do_div(icount, sbp->sb_agblocks);
+			max_metadata = icount;
+		} else {
+			max_metadata = agcount;
+		}
+
+		for (index = 0; index < agcount; index++) {
+			ino = XFS_AGINO_TO_INO(mp, index, agino);
+			if (ino > XFS_MAXINUMBER_32) {
+				index++;
+				break;
+			}
+
+			pag = xfs_perag_get(mp, index);
+			pag->pagi_inodeok = 1;
+			if (index < max_metadata)
+				pag->pagf_metadata = 1;
+			xfs_perag_put(pag);
+		}
+	} else {
+		for (index = 0; index < agcount; index++) {
+			pag = xfs_perag_get(mp, index);
+			pag->pagi_inodeok = 1;
+			xfs_perag_put(pag);
+		}
+	}
+
+	if (maxagi)
+		*maxagi = index;
+	return 0;
+
+out_unwind:
+	kmem_free(pag);
+	for (; index > first_initialised; index--) {
+		pag = radix_tree_delete(&mp->m_perag_tree, index);
+		kmem_free(pag);
+	}
+	return error;
+}
+
 /*
  * Mount structure initialization, provides a filled-in xfs_mount_t
  * such that the numerous XFS_* macros can be used.  If dev is zero,
@@ -555,23 +635,22 @@ libxfs_mount(
 	xfs_daddr_t	d;
 	xfs_buf_t	*bp;
 	xfs_sb_t	*sbp;
-	size_t		size;
 	int		error;
 
 	mp->m_dev = dev;
 	mp->m_rtdev = rtdev;
 	mp->m_logdev = logdev;
-	mp->m_flags = XFS_MOUNT_32BITINODES;
+	mp->m_flags = (LIBXFS_MOUNT_32BITINODES|LIBXFS_MOUNT_32BITINOOPT);
 	mp->m_sb = *sb;
+	INIT_RADIX_TREE(&mp->m_perag_tree, GFP_KERNEL);
 	sbp = &(mp->m_sb);
-	manage_zones(0);
 
-	libxfs_mount_common(mp, sb);
+	xfs_mount_common(mp, sb);
 
-	libxfs_alloc_compute_maxlevels(mp);
-	libxfs_bmap_compute_maxlevels(mp, XFS_DATA_FORK);
-	libxfs_bmap_compute_maxlevels(mp, XFS_ATTR_FORK);
-	libxfs_ialloc_compute_maxlevels(mp);
+	xfs_alloc_compute_maxlevels(mp);
+	xfs_bmap_compute_maxlevels(mp, XFS_DATA_FORK);
+	xfs_bmap_compute_maxlevels(mp, XFS_ATTR_FORK);
+	xfs_ialloc_compute_maxlevels(mp);
 
 	if (sbp->sb_imax_pct) {
 		/* Make sure the maximum inode count is a multiple of the
@@ -588,7 +667,7 @@ libxfs_mount(
 	/*
 	 * Set whether we're using stripe alignment.
 	 */
-	if (XFS_SB_VERSION_HASDALIGN(&mp->m_sb)) {
+	if (xfs_sb_version_hasdalign(&mp->m_sb)) {
 		mp->m_dalign = sbp->sb_unit;
 		mp->m_swidth = sbp->sb_width;
 	}
@@ -596,7 +675,7 @@ libxfs_mount(
 	/*
 	 * Set whether we're using inode alignment.
 	 */
-	if (XFS_SB_VERSION_HASALIGN(&mp->m_sb) &&
+	if (xfs_sb_version_hasalign(&mp->m_sb) &&
 	    mp->m_sb.sb_inoalignmt >=
 	    XFS_B_TO_FSBT(mp, mp->m_inode_cluster_size))
 		mp->m_inoalign_mask = mp->m_sb.sb_inoalignmt - 1;
@@ -606,8 +685,8 @@ libxfs_mount(
 	 * If we are using stripe alignment, check whether
 	 * the stripe unit is a multiple of the inode alignment
 	 */
-	if (   mp->m_dalign
-	    && mp->m_inoalign_mask && !(mp->m_dalign & mp->m_inoalign_mask))
+	if (mp->m_dalign && mp->m_inoalign_mask &&
+					!(mp->m_dalign & mp->m_inoalign_mask))
 		mp->m_sinoalign = mp->m_dalign;
 	else
 		mp->m_sinoalign = 0;
@@ -623,13 +702,21 @@ libxfs_mount(
 	}
 
 	/* Initialize the appropriate directory manager */
-	if (XFS_SB_VERSION_HASDIRV2(sbp))
-		libxfs_dir2_mount(mp);
-	else
-		libxfs_dir_mount(mp);
+	if (xfs_sb_version_hasdirv2(sbp))
+		xfs_dir_mount(mp);
+	else {
+		fprintf(stderr, _("%s: WARNING - filesystem uses v1 dirs,"
+				"limited functionality provided.\n"), progname);
+		libxfs_dirv1_mount(mp);
+	}
+
+	/* Initialize cached values for the attribute manager */
+	mp->m_attr_magicpct = (mp->m_sb.sb_blocksize * 37) / 100;
+	if (xfs_sb_version_hasattr2(&mp->m_sb))
+		mp->m_flags |= LIBXFS_MOUNT_ATTR2;
 
 	/* Initialize the precomputed transaction reservations values */
-	libxfs_trans_init(mp);
+	xfs_trans_init(mp);
 
 	if (dev == 0)	/* maxtrres, we have no device so leave now */
 		return mp;
@@ -641,8 +728,8 @@ libxfs_mount(
 		fprintf(stderr, _("%s: data size check failed\n"), progname);
 		if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 			return NULL;
-	}
-	libxfs_putbuf(bp);
+	} else
+		libxfs_putbuf(bp);
 
 	if (mp->m_logdev && mp->m_logdev != mp->m_dev) {
 		d = (xfs_daddr_t) XFS_FSB_TO_BB(mp, mp->m_sb.sb_logblocks);
@@ -656,31 +743,29 @@ libxfs_mount(
 			if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 				return NULL;
 		}
-		libxfs_putbuf(bp);
+		if (bp)
+			libxfs_putbuf(bp);
 	}
 
 	/* Initialize realtime fields in the mount structure */
-	if (!(flags & LIBXFS_MOUNT_DEBUGGER) && rtmount_init(mp)) {
+	if (rtmount_init(mp, flags)) {
 		fprintf(stderr, _("%s: realtime device init failed\n"),
 			progname);
 			return NULL;
 	}
 
-	/* Allocate and initialize the per-ag data */
-	size = sbp->sb_agcount * sizeof(xfs_perag_t);
-	if (size && (mp->m_perag = calloc(size, 1)) == NULL) {
-		fprintf(stderr, _("%s: failed to alloc %ld bytes: %s\n"),
-			progname, (long)size, strerror(errno));
+	error = libxfs_initialize_perag(mp, sbp->sb_agcount, &mp->m_maxagi);
+	if (error) {
+		fprintf(stderr, _("%s: perag init failed\n"),
+			progname);
 		exit(1);
 	}
-
-	libxfs_initialize_perag(mp, sbp->sb_agcount);
 
 	/*
 	 * mkfs calls mount before the root inode is allocated.
 	 */
 	if ((flags & LIBXFS_MOUNT_ROOTINOS) && sbp->sb_rootino != NULLFSINO) {
-		error = libxfs_iread(mp, NULL, sbp->sb_rootino,
+		error = libxfs_iget(mp, NULL, sbp->sb_rootino, 0,
 				&mp->m_rootip, 0);
 		if (error) {
 			fprintf(stderr, _("%s: cannot read root inode (%d)\n"),
@@ -690,11 +775,36 @@ libxfs_mount(
 		}
 		ASSERT(mp->m_rootip != NULL);
 	}
-	if ((flags & LIBXFS_MOUNT_ROOTINOS) &&
-	    !(flags & LIBXFS_MOUNT_DEBUGGER) &&
-	    rtmount_inodes(mp))
+	if ((flags & LIBXFS_MOUNT_ROOTINOS) && rtmount_inodes(mp)) {
+		if (mp->m_rootip)
+			libxfs_iput(mp->m_rootip, 0);
 		return NULL;
+	}
+
+	/*
+	 * mkfs calls mount before the AGF/AGI structures are written.
+	 */
+	if ((flags & LIBXFS_MOUNT_ROOTINOS) && sbp->sb_rootino != NULLFSINO &&
+	    xfs_sb_version_haslazysbcount(&mp->m_sb)) {
+		error = xfs_initialize_perag_data(mp, sbp->sb_agcount);
+		if (error) {
+			fprintf(stderr, _("%s: cannot init perag data (%d)\n"),
+				progname, error);
+			return NULL;
+		}
+	}
+
 	return mp;
+}
+
+void
+libxfs_rtmount_destroy(xfs_mount_t *mp)
+{
+	if (mp->m_rsumip)
+		libxfs_iput(mp->m_rsumip, 0);
+	if (mp->m_rbmip)
+		libxfs_iput(mp->m_rbmip, 0);
+	mp->m_rsumip = mp->m_rbmip = NULL;
 }
 
 /*
@@ -703,6 +813,58 @@ libxfs_mount(
 void
 libxfs_umount(xfs_mount_t *mp)
 {
+	struct xfs_perag	*pag;
+	int			agno;
+
+	libxfs_rtmount_destroy(mp);
+	libxfs_icache_purge();
+	libxfs_bcache_purge();
+
+	for (agno = 0; agno < mp->m_maxagi; agno++) {
+		pag = radix_tree_delete(&mp->m_perag_tree, agno);
+		kmem_free(pag);
+	}
+}
+
+/*
+ * Release any global resources used by libxfs.
+ */
+void
+libxfs_destroy(void)
+{
 	manage_zones(1);
-	free(mp->m_perag);
+	cache_destroy(libxfs_icache);
+	cache_destroy(libxfs_bcache);
+}
+
+int
+libxfs_device_alignment(void)
+{
+	return platform_align_blockdev();
+}
+
+void
+libxfs_report(FILE *fp)
+{
+	time_t t;
+	char *c;
+
+	cache_report(fp, "libxfs_icache", libxfs_icache);
+	cache_report(fp, "libxfs_bcache", libxfs_bcache);
+
+	t = time(NULL);
+	c = asctime(localtime(&t));
+	fprintf(fp, "%s", c);
+}
+
+int
+libxfs_nproc(void)
+{
+	return platform_nproc();
+}
+
+unsigned long
+libxfs_physmem(void)
+{
+	return platform_physmem();
 }

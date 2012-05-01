@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -94,32 +80,28 @@ getbitval(
 	bit = bitoffs(bitoff);
 	signext = (flags & BVSIGNED) != 0;
 	z4 = ((__psint_t)p & 0xf) == 0 && bit == 0;
-	if (nbits == 64 && z4) {
-		if (signext)
-			return (__int64_t)INT_GET(*(__int64_t *)p, ARCH_CONVERT);
-		else
-			return (__int64_t)INT_GET(*(__uint64_t *)p, ARCH_CONVERT);
-	}
+	if (nbits == 64 && z4)
+		return be64_to_cpu(*(__be64 *)p);
 	z3 = ((__psint_t)p & 0x7) == 0 && bit == 0;
 	if (nbits == 32 && z3) {
 		if (signext)
-			return (__int64_t)INT_GET(*(__int32_t *)p, ARCH_CONVERT);
+			return (__s32)be32_to_cpu(*(__be32 *)p);
 		else
-			return (__int64_t)INT_GET(*(__uint32_t *)p, ARCH_CONVERT);
+			return (__u32)be32_to_cpu(*(__be32 *)p);
 	}
 	z2 = ((__psint_t)p & 0x3) == 0 && bit == 0;
 	if (nbits == 16 && z2) {
 		if (signext)
-			return (__int64_t)INT_GET(*(__int16_t *)p, ARCH_CONVERT);
+			return (__s16)be16_to_cpu(*(__be16 *)p);
 		else
-			return (__int64_t)INT_GET(*(__uint16_t *)p, ARCH_CONVERT);
+			return (__u16)be16_to_cpu(*(__be16 *)p);
 	}
 	z1 = ((__psint_t)p & 0x1) == 0 && bit == 0;
 	if (nbits == 8 && z1) {
 		if (signext)
-			return (__int64_t)INT_GET(*(__int8_t *)p, ARCH_CONVERT);
+			return *(__s8 *)p;
 		else
-			return (__int64_t)INT_GET(*(__uint8_t *)p, ARCH_CONVERT);
+			return *(__u8 *)p;
 	}
 
 

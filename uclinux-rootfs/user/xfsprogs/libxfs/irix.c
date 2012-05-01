@@ -1,37 +1,26 @@
 /*
- * Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2003,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
+#include <diskinfo.h>
+#include <sys/sysmp.h>
 
+int platform_has_uuid = 0;
 extern char *progname;
 extern __int64_t findsize(char *);
 
@@ -47,20 +36,14 @@ platform_check_iswritable(char *name, char *block, struct stat64 *s, int fatal)
 	return 1;
 }
 
-void
-platform_set_blocksize(int fd, char *path, int blocksize)
+int
+platform_set_blocksize(int fd, char *path, dev_t device, int blocksize, int fatal)
 {
-	return;
+	return fatal;
 }
 
 void
-platform_get_blocksize(int fd, char *path)
-{
-	return BBSIZE;
-}
-
-void
-platform_flush_device(int fd)
+platform_flush_device(int fd, dev_t device)
 {
 	return;
 }
@@ -82,4 +65,47 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 		*sz = findsize(path);
 	}
 	*bsz = BBSIZE;
+}
+
+char *
+platform_findrawpath(char *path)
+{
+	return findrawpath(path);
+}
+
+char *
+platform_findblockpath(char *path)
+{
+	return findblockpath(path);
+}
+
+int
+platform_direct_blockdev(void)
+{
+	return 0;
+}
+
+int
+platform_align_blockdev(void)
+{
+	return (sizeof(void *));
+}
+
+int
+platform_nproc(void)
+{
+	return sysmp(MP_NPROCS);
+}
+
+unsigned long
+platform_physmem(void)
+{
+	struct rminfo ri;
+
+	if (sysmp(MP_SAGET, MPSA_RMINFO, &ri, sizeof(ri)) < 0)
+		fprintf(stderr, _("%s: can't determine memory size\n"),
+			progname);
+		exit(1);
+	}
+	return (ri.physmem >> 10) * getpagesize();	/* kilobytes */
 }

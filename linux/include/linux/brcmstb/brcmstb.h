@@ -27,7 +27,6 @@
 #include <linux/if_ether.h>
 #include <linux/device.h>
 
-#include "../drivers/mmc/host/sdhci-pltfm.h"
 #include <linux/brcmstb/brcmapi.h>
 
 #if defined(CONFIG_MIPS)
@@ -263,6 +262,7 @@
 #include <linux/brcmstb/7425b0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7425b0/bchp_nand.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_dma.h>
+#include <linux/brcmstb/7425b0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_misc.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_misc_perst.h>
@@ -336,6 +336,7 @@
 #include <linux/brcmstb/7435a0/bchp_ddr40_phy_word_lane_1_1.h>
 #include <linux/brcmstb/7435a0/bchp_ebi.h>
 #include <linux/brcmstb/7435a0/bchp_edu.h>
+#include <linux/brcmstb/7435a0/bchp_flash_dma.h>
 #include <linux/brcmstb/7435a0/bchp_gio.h>
 #include <linux/brcmstb/7435a0/bchp_gio_aon.h>
 #include <linux/brcmstb/7435a0/bchp_hif_cpu_intr1.h>
@@ -354,6 +355,7 @@
 #include <linux/brcmstb/7435a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7435a0/bchp_nand.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_dma.h>
+#include <linux/brcmstb/7435a0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_misc.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_misc_perst.h>
@@ -409,6 +411,7 @@
 #include <linux/brcmstb/7445a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7445a0/bchp_nand.h>
 #include <linux/brcmstb/7445a0/bchp_pcie_dma.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7445a0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7445a0/bchp_pcie_misc.h>
 #include <linux/brcmstb/7445a0/bchp_pcie_misc_perst.h>
@@ -690,13 +693,13 @@ void board_pinmux_setup(void);
 void __init board_get_ram_size(unsigned long *dram0_mb,
 	unsigned long *dram1_mb);
 int __init board_get_partition_map(struct mtd_partition **p);
+void __init brcm_wraparound_check(void);
 
 int __init bchip_strap_flash_type(void);
 void brcmstb_cpu_setup(void);
 void bchip_sata3_init(void);
 void bchip_usb_init(void);
 void bchip_moca_init(void);
-int bchip_sdio_init(int id, uintptr_t cfg_base);
 void __init bchip_check_compat(void);
 void __init bchip_set_features(void);
 void __init bchip_early_setup(void);
@@ -836,8 +839,6 @@ extern unsigned long brcm_dram1_size_mb;
 extern unsigned long brcm_dram1_linux_mb;
 extern unsigned long brcm_dram1_start;
 extern unsigned long brcm_min_auth_region_size;
-
-extern struct sdhci_pltfm_data sdhci_brcm_pdata;
 
 /* NMI / TP1 reset vector */
 extern char brcm_reset_nmi_vec[];

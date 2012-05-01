@@ -1,38 +1,26 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2004-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
 #include "type.h"
+#include "fprint.h"
 #include "faddr.h"
+#include "field.h"
 #include "inode.h"
 #include "io.h"
 #include "bit.h"
@@ -49,12 +37,12 @@ fa_agblock(
 	xfs_agblock_t	bno;
 
 	if (cur_agno == NULLAGNUMBER) {
-		dbprintf("no current allocation group, cannot set new addr\n");
+		dbprintf(_("no current allocation group, cannot set new addr\n"));
 		return;
 	}
 	bno = (xfs_agblock_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLAGBLOCK) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	ASSERT(typtab[next].typnm == next);
@@ -72,12 +60,12 @@ fa_agino(
 	xfs_agino_t	agino;
 
 	if (cur_agno == NULLAGNUMBER) {
-		dbprintf("no current allocation group, cannot set new addr\n");
+		dbprintf(_("no current allocation group, cannot set new addr\n"));
 		return;
 	}
 	agino = (xfs_agino_t)getbitval(obj, bit, bitsz(agino), BVUNSIGNED);
 	if (agino == NULLAGINO) {
-		dbprintf("null inode number, cannot set new addr\n");
+		dbprintf(_("null inode number, cannot set new addr\n"));
 		return;
 	}
 	set_cur_inode(XFS_AGINO_TO_INO(mp, cur_agno, agino));
@@ -97,13 +85,13 @@ fa_attrblock(
 
 	bno = (__uint32_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == 0) {
-		dbprintf("null attribute block number, cannot set new addr\n");
+		dbprintf(_("null attribute block number, cannot set new addr\n"));
 		return;
 	}
 	nex = 1;
 	bmap(bno, 1, XFS_ATTR_FORK, &nex, &bm);
 	if (nex == 0) {
-		dbprintf("attribute block is unmapped\n");
+		dbprintf(_("attribute block is unmapped\n"));
 		return;
 	}
 	dfsbno = bm.startblock + (bno - bm.startoff);
@@ -126,13 +114,13 @@ fa_cfileoffa(
 	bno = (xfs_dfiloff_t)getbitval(obj, bit, BMBT_STARTOFF_BITLEN,
 		BVUNSIGNED);
 	if (bno == NULLDFILOFF) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	nex = 1;
 	bmap(bno, 1, XFS_ATTR_FORK, &nex, &bm);
 	if (nex == 0) {
-		dbprintf("file block is unmapped\n");
+		dbprintf(_("file block is unmapped\n"));
 		return;
 	}
 	dfsbno = bm.startblock + (bno - bm.startoff);
@@ -157,14 +145,14 @@ fa_cfileoffd(
 	bno = (xfs_dfiloff_t)getbitval(obj, bit, BMBT_STARTOFF_BITLEN,
 		BVUNSIGNED);
 	if (bno == NULLDFILOFF) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	nex = nb = next == TYP_DIR2 ? mp->m_dirblkfsbs : 1;
 	bmp = malloc(nb * sizeof(*bmp));
 	bmap(bno, nb, XFS_DATA_FORK, &nex, bmp);
 	if (nex == 0) {
-		dbprintf("file block is unmapped\n");
+		dbprintf(_("file block is unmapped\n"));
 		free(bmp);
 		return;
 	}
@@ -184,16 +172,18 @@ fa_cfsblock(
 	typnm_t		next)
 {
 	xfs_dfsbno_t	bno;
+	int		nb;
 
 	bno = (xfs_dfsbno_t)getbitval(obj, bit, BMBT_STARTBLOCK_BITLEN,
 		BVUNSIGNED);
 	if (bno == NULLDFSBNO) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
+	nb = next == TYP_DIR2 ? mp->m_dirblkfsbs : 1;
 	ASSERT(typtab[next].typnm == next);
-	set_cur(&typtab[next], XFS_FSB_TO_DADDR(mp, bno), blkbb, DB_RING_ADD,
-		NULL);
+	set_cur(&typtab[next], XFS_FSB_TO_DADDR(mp, bno), nb * blkbb,
+		DB_RING_ADD, NULL);
 }
 
 void
@@ -209,13 +199,13 @@ fa_dfiloffa(
 
 	bno = (xfs_dfiloff_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLDFILOFF) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	nex = 1;
 	bmap(bno, 1, XFS_ATTR_FORK, &nex, &bm);
 	if (nex == 0) {
-		dbprintf("file block is unmapped\n");
+		dbprintf(_("file block is unmapped\n"));
 		return;
 	}
 	dfsbno = bm.startblock + (bno - bm.startoff);
@@ -239,14 +229,14 @@ fa_dfiloffd(
 
 	bno = (xfs_dfiloff_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLDFILOFF) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	nex = nb = next == TYP_DIR2 ? mp->m_dirblkfsbs : 1;
 	bmp = malloc(nb * sizeof(*bmp));
 	bmap(bno, nb, XFS_DATA_FORK, &nex, bmp);
 	if (nex == 0) {
-		dbprintf("file block is unmapped\n");
+		dbprintf(_("file block is unmapped\n"));
 		free(bmp);
 		return;
 	}
@@ -269,7 +259,7 @@ fa_dfsbno(
 
 	bno = (xfs_dfsbno_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLDFSBNO) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	ASSERT(typtab[next].typnm == next);
@@ -292,14 +282,14 @@ fa_dirblock(
 
 	bno = (__uint32_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == 0) {
-		dbprintf("null directory block number, cannot set new addr\n");
+		dbprintf(_("null directory block number, cannot set new addr\n"));
 		return;
 	}
 	nex = mp->m_dirblkfsbs;
 	bmp = malloc(nex * sizeof(*bmp));
 	bmap(bno, mp->m_dirblkfsbs, XFS_DATA_FORK, &nex, bmp);
 	if (nex == 0) {
-		dbprintf("directory block is unmapped\n");
+		dbprintf(_("directory block is unmapped\n"));
 		free(bmp);
 		return;
 	}
@@ -323,7 +313,7 @@ fa_drfsbno(
 
 	bno = (xfs_drfsbno_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLDRFSBNO) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	ASSERT(typtab[next].typnm == next);
@@ -342,7 +332,7 @@ fa_drtbno(
 
 	bno = (xfs_drtbno_t)getbitval(obj, bit, bitsz(bno), BVUNSIGNED);
 	if (bno == NULLDRTBNO) {
-		dbprintf("null block number, cannot set new addr\n");
+		dbprintf(_("null block number, cannot set new addr\n"));
 		return;
 	}
 	/* need set_cur to understand rt subvolume */
@@ -360,7 +350,7 @@ fa_ino(
 	ASSERT(next == TYP_INODE);
 	ino = (xfs_ino_t)getbitval(obj, bit, bitsz(ino), BVUNSIGNED);
 	if (ino == NULLFSINO) {
-		dbprintf("null inode number, cannot set new addr\n");
+		dbprintf(_("null inode number, cannot set new addr\n"));
 		return;
 	}
 	set_cur_inode(ino);
@@ -378,7 +368,7 @@ fa_ino4(
 	ASSERT(next == TYP_INODE);
 	ino = (xfs_ino_t)getbitval(obj, bit, bitsz(ino4), BVUNSIGNED);
 	if (ino == NULLFSINO) {
-		dbprintf("null inode number, cannot set new addr\n");
+		dbprintf(_("null inode number, cannot set new addr\n"));
 		return;
 	}
 	set_cur_inode(ino);
@@ -396,7 +386,7 @@ fa_ino8(
 	ASSERT(next == TYP_INODE);
 	ino = (xfs_ino_t)getbitval(obj, bit, bitsz(ino8), BVUNSIGNED);
 	if (ino == NULLFSINO) {
-		dbprintf("null inode number, cannot set new addr\n");
+		dbprintf(_("null inode number, cannot set new addr\n"));
 		return;
 	}
 	set_cur_inode(ino);

@@ -164,32 +164,39 @@ static inline void brcm_bogus_release(struct device *dev)
 
 #if defined(CONFIG_BRCM_SDIO)
 
+static int nommc;
+
+static int __init nommc_setup(char *str)
+{
+	nommc = 1;
+	return 0;
+}
+
+__setup("nommc", nommc_setup);
+
 static void __init brcm_add_sdio_host(int id, uintptr_t cfg_base,
 	uintptr_t host_base, int irq)
 {
-	struct resource res[2];
-	struct platform_device *pdev;
+	struct resource res[3];
 
-	/*
-	 * CFE will disable EMMC (via CFG SCRATCH bit 0) if something else is
-	 * connected to the shared EMMC/EBI pins
-	 */
-	if (bchip_sdio_init(id, cfg_base) < 0)
+	if (nommc) {
+		printk(KERN_INFO "SDIO_%d: disabled via command line\n", id);
 		return;
-
+	}
 	memset(&res, 0, sizeof(res));
 	res[0].start = BPHYSADDR(host_base);
 	res[0].end = BPHYSADDR(host_base + 0xff);
 	res[0].flags = IORESOURCE_MEM;
 
-	res[1].start = res[1].end = irq;
-	res[1].flags = IORESOURCE_IRQ;
+	res[1].start = BPHYSADDR(cfg_base);
+	res[1].end = BPHYSADDR(cfg_base + 0xff);
+	res[1].flags = IORESOURCE_MEM;
 
-	pdev = platform_device_alloc("sdhci", id);
-	platform_device_add_resources(pdev, res, 2);
-	platform_device_add_data(pdev, &sdhci_brcm_pdata,
-		sizeof(sdhci_brcm_pdata));
-	platform_device_add(pdev);
+	res[2].start = res[2].end = irq;
+	res[2].flags = IORESOURCE_IRQ;
+
+	platform_device_register_simple("sdhci-brcmstb", id, res,
+					ARRAY_SIZE(res));
 }
 
 #endif /* defined(CONFIG_BRCM_SDIO) */

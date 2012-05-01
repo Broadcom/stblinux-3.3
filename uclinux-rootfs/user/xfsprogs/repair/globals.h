@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifndef _XFS_REPAIR_GLOBAL_H
@@ -73,14 +59,12 @@
 #define	NUM_SBS			8	/* max # of sbs to verify */
 #define NUM_AGH_SECTS		4	/* # of components in an ag header */
 
-#define	MEM_ALIGN		128	/* I/O buf alignment - a cache line */
-
 /*
  * secondary sb mask -- if the secondary sb feature bits has a
  * the partial sb mask bit set, then you depend on the fields
  * in it up to and including sb_inoalignmt but the unused part of the
  * sector may have trash in it.  If the sb has any bits set that are in
- * the good mask, then the entire sb and sector are good (was bzero'ed
+ * the good mask, then the entire sb and sector are good (was zero'ed
  * by mkfs).  The third mask is for filesystems made by pre-6.5 campus
  * alpha mkfs's.  Those are rare so we'll check for those under
  * a special option.
@@ -120,7 +104,7 @@ EXTERN int	fs_fd;			/* filesystem fd */
 
 EXTERN int	verbose;
 EXTERN int	no_modify;
-EXTERN int	dangerously;		/* live danderously ... repair a ro mounted fs */
+EXTERN int	dangerously;		/* live dangerously ... fix ro mount */
 EXTERN int	isa_file;
 EXTERN int	zap_log;
 EXTERN int	dumpcore;		/* abort, not exit on fatal errs */
@@ -132,6 +116,8 @@ EXTERN char	*log_name;		/* Name of log device */
 EXTERN int	log_spec;		/* Log dev specified as option */
 EXTERN char	*rt_name;		/* Name of realtime device */
 EXTERN int	rt_spec;		/* Realtime dev specified as option */
+EXTERN int	convert_lazy_count;	/* Convert lazy-count mode on/off */
+EXTERN int	lazy_count;		/* What to set if to if converting */
 
 /* misc status variables */
 
@@ -153,6 +139,7 @@ EXTERN int		have_uquotino;
 EXTERN int		have_gquotino;
 EXTERN int		lost_uquotino;
 EXTERN int		lost_gquotino;
+EXTERN int		lost_pquotino;
 
 EXTERN xfs_agino_t	first_prealloc_ino;
 EXTERN xfs_agino_t	last_prealloc_ino;
@@ -163,16 +150,11 @@ EXTERN xfs_agblock_t	inobt_root;
 /* configuration vars -- fs geometry dependent */
 
 EXTERN int		inodes_per_block;
-EXTERN int		inodes_per_cluster;	/* inodes per inode buffer */
+EXTERN int		inodes_per_cluster;
 EXTERN unsigned int	glob_agcount;
 EXTERN int		chunks_pblock;	/* # of 64-ino chunks per allocation */
 EXTERN int		max_symlink_blocks;
 EXTERN __int64_t	fs_max_file_offset;
-
-/* block allocation bitmaps */
-
-EXTERN __uint64_t	**ba_bmap;	/* see incore.h */
-EXTERN __uint64_t	*rt_ba_bmap;	/* see incore.h */
 
 /* realtime info */
 
@@ -181,12 +163,12 @@ EXTERN xfs_suminfo_t	*sumcompute;
 
 /* inode tree records have full or partial backptr fields ? */
 
-EXTERN int		full_backptrs;	/*
-					 * if 1, use backptrs_t component
-					 * of ino_un union, if 0, use
-					 * parent_list_t component.  see
-					 * incore.h for more details
-					 */
+EXTERN int		full_ino_ex_data;/*
+					  * if 1, use ino_ex_data_t component
+					  * of ino_un union, if 0, use
+					  * parent_list_t component.  see
+					  * incore.h for more details
+					  */
 
 #define ORPHANAGE	"lost+found"
 
@@ -197,13 +179,22 @@ EXTERN __uint64_t	sb_ifree;	/* free inodes */
 EXTERN __uint64_t	sb_fdblocks;	/* free data blocks */
 EXTERN __uint64_t	sb_frextents;	/* free realtime extents */
 
-EXTERN xfs_ino_t	orphanage_ino;
-EXTERN xfs_ino_t	old_orphanage_ino;
-
 /* superblock geometry info */
 
 EXTERN xfs_extlen_t	sb_inoalignmt;
 EXTERN __uint32_t	sb_unit;
 EXTERN __uint32_t	sb_width;
+
+extern size_t 		ts_dirbuf_size;
+extern size_t 		ts_dir_freemap_size;
+extern size_t 		ts_attr_freemap_size;
+
+EXTERN pthread_mutex_t	*ag_locks;
+
+EXTERN int 		report_interval;
+EXTERN __uint64_t 	*prog_rpt_done;
+
+EXTERN int		ag_stride;
+EXTERN int		thread_count;
 
 #endif /* _XFS_REPAIR_GLOBAL_H */

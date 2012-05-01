@@ -2,47 +2,95 @@
 .SH NAME
 xfs_bmap \- print block mapping for an XFS file
 .SH SYNOPSIS
-.nf
-\f3xfs_bmap\f1 [ \f3\-a\f1 ] [ \f3\-l\f1 ] [ \f3\-d\f1 ] [ \f3\-n \f2nnn\f1 ] file ...
-.fi
+.B xfs_bmap
+[
+.B \-adlpv
+] [
+.B \-n
+.I num_extents
+]
+.I file
 .SH DESCRIPTION
-.I xfs_bmap
+.B xfs_bmap
 prints the map of disk blocks used by files in an XFS filesystem.
-The map lists each \f2extent\fP used by the file, as well as regions
-in the file that do not have any corresponding blocks (\f2hole\f1s).
+The map lists each
+.I extent
+used by the file, as well as regions
+in the file that do not have any corresponding blocks (holes).
 Each line of the listings takes the following form:
-
-.Ex
-\f2extent\f1\f7: [\f1\f2startoffset\f1\f7..\f1\f2endoffset\f1\f7]: \c
-\f1\f2startblock\f1\f7..\f1\f2endblock\f1
-.Ee
-
-Holes are marked by replacing the \f2startblock..endblock\f1 with \f2hole\fP.
+.PP
+.RS
+.IR extent ": [" startoffset .. endoffset "]: " startblock .. endblock
+.RE
+.PP
+Holes are marked by replacing the
+.IR startblock .. endblock " with " hole .
 All the file offsets and disk blocks are in units of 512-byte blocks,
 no matter what the filesystem's block size is.
 .PP
+.SH OPTIONS
+.TP
+.B \-a
+If this option is specified, information about the file's
+attribute fork is printed instead of the default data fork.
+.TP
+.B \-d
 If portions of the file have been migrated offline by
 a DMAPI application, a DMAPI read event will be generated to
 bring those portions back online before the disk block map is
-printed.  However if the \f3-d\f1 option is used, no DMAPI read event
-will be generated for a DMAPI file and offline portions will be reported as holes.
-.PP
-If the \f3-l\f1 option is used, then
-
-.Ex
-\f1\f2<nblocks>\f1\f7 \f1\f2blocks\f1\f7
-.Ee
-
-will be appended to each line.  \f1\f2Nblocks\f1\f7 is the length
-of the extent described on the line in units of 512-byte blocks.
-.PP
-If the \f3\-a\f1 option is given, information about the file's
-attribute fork is printed instead of the default data fork.
-.PP
-If the \f3\-n \f2nnn\f1 option is given, \f3xfs_bmap\f1 obtains the extent
-list of the file in groups of \f2nnn\f1 extents.
-In the absence of \f3\-n\f1, \f3xfs_bmap\f1 queries the system for
-the number of extents in the file and uses that value to compute 
-the group size.
+printed.  However if the
+.B \-d
+option is used, no DMAPI read event will be generated for a
+DMAPI file and offline portions will be reported as holes.
+.TP
+.B \-l
+If this option is used, then
+.IP
+.RS 1.2i
+.RI < nblocks ">  blocks"
+.RE
+.IP
+will be appended to each line.
+.I nblocks
+is the length of the extent described on the line in units of 512-byte blocks.
+.IP
+This flag has no effect if the
+.B \-v
+option is used.
+.TP
+.BI \-n " num_extents"
+If this option is given,
+.B xfs_bmap
+obtains the extent list of the file in groups of
+.I num_extents
+extents. In the absence of
+.BR \-n ", " xfs_bmap
+queries the system for the number of extents in the file and uses that
+value to compute the group size.
+.TP
+.B \-p
+If this option is used,
+.B xfs_bmap
+obtains all unwritten (preallocated) extents that do not contain written
+data. With the
+.B \-v
+option, the
+.I flags
+column will show which extents are preallocated/unwritten.
+.TP
+.B \-v
+Shows verbose information. When this flag is specified, additional AG
+specific information is appended to each line in the following form:
+.IP
+.RS 1.2i
+.IR agno " (" startagoffset .. endagoffset ") " nblocks " " flags
+.RE
+.IP
+A second
+.B \-v
+option will print out the
+.I flags
+legend.
 .SH SEE ALSO
-xfs(5).
+.BR xfs_fsr (8),
+.BR xfs (5).

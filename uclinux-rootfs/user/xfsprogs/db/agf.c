@@ -1,37 +1,22 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
-#include "agf.h"
 #include "command.h"
 #include "type.h"
 #include "faddr.h"
@@ -41,13 +26,14 @@
 #include "bit.h"
 #include "output.h"
 #include "init.h"
+#include "agf.h"
 
 static int agf_f(int argc, char **argv);
 static void agf_help(void);
 
 static const cmdinfo_t agf_cmd =
-	{ "agf", NULL, agf_f, 0, 1, 1, "[agno]",
-	  "set address to agf header", agf_help };
+	{ "agf", NULL, agf_f, 0, 1, 1, N_("[agno]"),
+	  N_("set address to agf header"), agf_help };
 
 const field_t	agf_hfld[] = {
 	{ "", FLDT_AGF, OI(0), C1, 0, TYP_NONE },
@@ -82,13 +68,14 @@ const field_t	agf_flds[] = {
 	{ "flcount", FLDT_UINT32D, OI(OFF(flcount)), C1, 0, TYP_NONE },
 	{ "freeblks", FLDT_EXTLEN, OI(OFF(freeblks)), C1, 0, TYP_NONE },
 	{ "longest", FLDT_EXTLEN, OI(OFF(longest)), C1, 0, TYP_NONE },
+	{ "btreeblks", FLDT_UINT32D, OI(OFF(btreeblks)), C1, 0, TYP_NONE },
 	{ NULL }
 };
 
 static void
 agf_help(void)
 {
-	dbprintf(
+	dbprintf(_(
 "\n"
 " set allocation group free block list\n"
 "\n"
@@ -100,7 +87,7 @@ agf_help(void)
 " contains the root of two different freespace btrees:\n"
 " The 'cnt' btree keeps track freespace indexed on section size.\n"
 " The 'bno' btree tracks sections of freespace indexed on block number.\n"
-);
+));
 }
 
 static int
@@ -114,7 +101,7 @@ agf_f(
 	if (argc > 1) {
 		agno = (xfs_agnumber_t)strtoul(argv[1], &p, 0);
 		if (*p != '\0' || agno >= mp->m_sb.sb_agcount) {
-			dbprintf("bad allocation group number %s\n", argv[1]);
+			dbprintf(_("bad allocation group number %s\n"), argv[1]);
 			return 0;
 		}
 		cur_agno = agno;

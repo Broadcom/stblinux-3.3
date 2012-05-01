@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2004-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -94,6 +80,9 @@ const field_t	attr_leaf_entry_flds[] = {
 	  0, TYP_NONE },
 	{ "root", FLDT_UINT1,
 	  OI(LEOFF(flags) + bitsz(__uint8_t) - XFS_ATTR_ROOT_BIT - 1), C1, 0,
+	  TYP_NONE },
+	{ "secure", FLDT_UINT1,
+	  OI(LEOFF(flags) + bitsz(__uint8_t) - XFS_ATTR_SECURE_BIT - 1), C1, 0,
 	  TYP_NONE },
 	{ "local", FLDT_UINT1,
 	  OI(LEOFF(flags) + bitsz(__uint8_t) - XFS_ATTR_LOCAL_BIT - 1), C1, 0,
@@ -169,12 +158,9 @@ attr_leaf_entries_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC) {
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC) 
 		return 0;
-	}
-
-	return INT_GET(block->hdr.count, ARCH_CONVERT);
+	return be16_to_cpu(block->hdr.count);
 }
 
 /*ARGSUSED*/
@@ -187,8 +173,7 @@ attr_leaf_hdr_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	return INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						== XFS_ATTR_LEAF_MAGIC;
+	return be16_to_cpu(block->hdr.info.magic) == XFS_ATTR_LEAF_MAGIC;
 }
 
 static int
@@ -204,14 +189,12 @@ attr_leaf_name_local_count(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off)
-			return (INT_GET(e->flags, ARCH_CONVERT)
-						& XFS_ATTR_LOCAL) != 0;
+		if (be16_to_cpu(e->nameidx) == off)
+			return (e->flags & XFS_ATTR_LOCAL) != 0;
 	}
 	return 0;
 }
@@ -230,15 +213,14 @@ attr_leaf_name_local_name_count(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off) {
-			if (INT_GET(e->flags, ARCH_CONVERT) & XFS_ATTR_LOCAL) {
-				l = XFS_ATTR_LEAF_NAME_LOCAL(block, i);
-				return INT_GET(l->namelen, ARCH_CONVERT);
+		if (be16_to_cpu(e->nameidx) == off) {
+			if (e->flags & XFS_ATTR_LOCAL) {
+				l = xfs_attr_leaf_name_local(block, i);
+				return l->namelen;
 			} else
 				return 0;
 		}
@@ -260,15 +242,14 @@ attr_leaf_name_local_value_count(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off) {
-			if (INT_GET(e->flags, ARCH_CONVERT) & XFS_ATTR_LOCAL) {
-				l = XFS_ATTR_LEAF_NAME_LOCAL(block, i);
-				return INT_GET(l->valuelen, ARCH_CONVERT);
+		if (be16_to_cpu(e->nameidx) == off) {
+			if (e->flags & XFS_ATTR_LOCAL) {
+				l = xfs_attr_leaf_name_local(block, i);
+				return be16_to_cpu(l->valuelen);
 			} else
 				return 0;
 		}
@@ -293,18 +274,18 @@ attr_leaf_name_local_value_offset(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
 
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off)
-		    break;
+		if (be16_to_cpu(e->nameidx) == off)
+			break;
 	}
-	if (i>=INT_GET(block->hdr.count, ARCH_CONVERT)) return 0;
+	if (i >= be16_to_cpu(block->hdr.count)) 
+		return 0;
 
-	l = XFS_ATTR_LEAF_NAME_LOCAL(block, i);
+	l = xfs_attr_leaf_name_local(block, i);
 	vp = (char *)&l->nameval[l->namelen];
 	return (int)bitize(vp - (char *)l);
 }
@@ -322,13 +303,12 @@ attr_leaf_name_remote_count(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off)
-			return (INT_GET(e->flags, ARCH_CONVERT) & XFS_ATTR_LOCAL) == 0;
+		if (be16_to_cpu(e->nameidx) == off)
+			return (e->flags & XFS_ATTR_LOCAL) == 0;
 	}
 	return 0;
 }
@@ -347,15 +327,14 @@ attr_leaf_name_remote_name_count(
 	ASSERT(bitoffs(startoff) == 0);
 	off = byteize(startoff);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	for (i = 0; i < INT_GET(block->hdr.count, ARCH_CONVERT); i++) {
+	for (i = 0; i < be16_to_cpu(block->hdr.count); i++) {
 		e = &block->entries[i];
-		if (INT_GET(e->nameidx, ARCH_CONVERT) == off) {
-			if (!(INT_GET(e->flags, ARCH_CONVERT) & XFS_ATTR_LOCAL)) {
-				r = XFS_ATTR_LEAF_NAME_REMOTE(block, i);
-				return INT_GET(r->namelen, ARCH_CONVERT);
+		if (be16_to_cpu(e->nameidx) == off) {
+			if (!(e->flags & XFS_ATTR_LOCAL)) {
+				r = xfs_attr_leaf_name_remote(block, i);
+				return r->namelen;
 			} else
 				return 0;
 		}
@@ -377,17 +356,16 @@ attr_leaf_name_size(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
 	e = &block->entries[idx];
-	if (INT_GET(e->flags, ARCH_CONVERT) & XFS_ATTR_LOCAL) {
-		l = XFS_ATTR_LEAF_NAME_LOCAL(block, idx);
-		return (int)bitize(XFS_ATTR_LEAF_ENTSIZE_LOCAL(INT_GET(l->namelen, ARCH_CONVERT),
-								INT_GET(l->valuelen, ARCH_CONVERT)));
+	if (e->flags & XFS_ATTR_LOCAL) {
+		l = xfs_attr_leaf_name_local(block, idx);
+		return (int)bitize(xfs_attr_leaf_entsize_local(l->namelen,
+					be16_to_cpu(l->valuelen)));
 	} else {
-		r = XFS_ATTR_LEAF_NAME_REMOTE(block, idx);
-		return (int)bitize(XFS_ATTR_LEAF_ENTSIZE_REMOTE(INT_GET(r->namelen, ARCH_CONVERT)));
+		r = xfs_attr_leaf_name_remote(block, idx);
+		return (int)bitize(xfs_attr_leaf_entsize_remote(r->namelen));
 	}
 }
 
@@ -401,10 +379,9 @@ attr_leaf_nvlist_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_ATTR_LEAF_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_ATTR_LEAF_MAGIC)
 		return 0;
-	return INT_GET(block->hdr.count, ARCH_CONVERT);
+	return be16_to_cpu(block->hdr.count);
 }
 
 /*ARGSUSED*/
@@ -420,7 +397,7 @@ attr_leaf_nvlist_offset(
 	ASSERT(startoff == 0);
 	block = obj;
 	e = &block->entries[idx];
-	return bitize(INT_GET(e->nameidx, ARCH_CONVERT));
+	return bitize(be16_to_cpu(e->nameidx));
 }
 
 /*ARGSUSED*/
@@ -433,10 +410,9 @@ attr_node_btree_count(
 
 	ASSERT(startoff == 0);		/* this is a base structure */
 	block = obj;
-	if (INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						!= XFS_DA_NODE_MAGIC)
+	if (be16_to_cpu(block->hdr.info.magic) != XFS_DA_NODE_MAGIC)
 		return 0;
-	return INT_GET(block->hdr.count, ARCH_CONVERT);
+	return be16_to_cpu(block->hdr.count);
 }
 
 /*ARGSUSED*/
@@ -449,8 +425,7 @@ attr_node_hdr_count(
 
 	ASSERT(startoff == 0);
 	block = obj;
-	return INT_GET(block->hdr.info.magic, ARCH_CONVERT)
-						== XFS_DA_NODE_MAGIC;
+	return be16_to_cpu(block->hdr.info.magic) == XFS_DA_NODE_MAGIC;
 }
 
 /*ARGSUSED*/

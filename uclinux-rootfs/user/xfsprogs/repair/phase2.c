@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2002,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxlog.h>
@@ -37,9 +23,10 @@
 #include "protos.h"
 #include "err_protos.h"
 #include "incore.h"
+#include "progress.h"
+#include "scan.h"
 
 void	set_mp(xfs_mount_t *mpp);
-void	scan_ag(xfs_agnumber_t agno);
 
 /* workaround craziness in the xlog routines */
 int xlog_recover_do_trans(xlog_t *log, xlog_recover_t *t, int p) { return 0; }
@@ -63,14 +50,25 @@ zero_log(xfs_mount_t *mp)
 	log.l_logBBsize = x.logBBsize;
 	log.l_logBBstart = x.logBBstart;
 	log.l_mp = mp;
+	if (xfs_sb_version_hassector(&mp->m_sb)) {
+		log.l_sectbb_log = mp->m_sb.sb_logsectlog - BBSHIFT;
+		ASSERT(log.l_sectbb_log <= mp->m_sectbb_log);
+		/* for larger sector sizes, must have v2 or external log */
+		ASSERT(log.l_sectbb_log == 0 ||
+			log.l_logBBstart == 0 ||
+			xfs_sb_version_haslogv2(&mp->m_sb));
+		ASSERT(mp->m_sb.sb_logsectlog >= BBSHIFT);
+	}
+	log.l_sectbb_mask = (1 << log.l_sectbb_log) - 1;
 
-	if ((error = xlog_find_tail(&log, &head_blk, &tail_blk, 0))) {
+	if ((error = xlog_find_tail(&log, &head_blk, &tail_blk))) {
 		do_warn(_("zero_log: cannot find log head/tail "
 			  "(xlog_find_tail=%d), zeroing it anyway\n"),
 			error);
 	} else {
 		if (verbose) {
-			do_warn(_("zero_log: head block %lld tail block %lld\n"),
+			do_warn(
+	_("zero_log: head block %" PRId64 " tail block %" PRId64 "\n"),
 				head_blk, tail_blk);
 		}
 		if (head_blk != tail_blk) {
@@ -95,7 +93,7 @@ zero_log(xfs_mount_t *mp)
 		XFS_FSB_TO_DADDR(mp, mp->m_sb.sb_logstart),
 		(xfs_extlen_t)XFS_FSB_TO_BB(mp, mp->m_sb.sb_logblocks),
 		&mp->m_sb.sb_uuid,
-		XFS_SB_VERSION_HASLOGV2(&mp->m_sb) ? 2 : 1,
+		xfs_sb_version_haslogv2(&mp->m_sb) ? 2 : 1,
 		mp->m_sb.sb_logsunit, XLOG_FMT);
 }
 
@@ -109,10 +107,10 @@ zero_log(xfs_mount_t *mp)
  */
 
 void
-phase2(xfs_mount_t *mp)
+phase2(
+	struct xfs_mount	*mp,
+	int			scan_threads)
 {
-	xfs_agnumber_t		i;
-	xfs_agblock_t		b;
 	int			j;
 	ino_tree_node_t		*ino_rec;
 
@@ -137,25 +135,18 @@ phase2(xfs_mount_t *mp)
 
 	do_log(_("        - scan filesystem freespace and inode maps...\n"));
 
-	/*
-	 * account for space used by ag headers and log if internal
-	 */
-	set_bmap_log(mp);
-	set_bmap_fs(mp);
-
 	bad_ino_btree = 0;
 
-	for (i = 0; i < mp->m_sb.sb_agcount; i++)  {
-		scan_ag(i);
-#ifdef XR_INODE_TRACE
-		print_inode_list(i);
-#endif
-	}
+	set_progress_msg(PROG_FMT_SCAN_AG, (__uint64_t) glob_agcount);
+
+	scan_ags(mp, scan_threads);
+
+	print_final_rpt();
 
 	/*
 	 * make sure we know about the root inode chunk
 	 */
-	if ((ino_rec = find_inode_rec(0, mp->m_sb.sb_rootino)) == NULL)  {
+	if ((ino_rec = find_inode_rec(mp, 0, mp->m_sb.sb_rootino)) == NULL)  {
 		ASSERT(mp->m_sb.sb_rbmino == mp->m_sb.sb_rootino + 1 &&
 			mp->m_sb.sb_rsumino == mp->m_sb.sb_rootino + 2);
 		do_warn(_("root inode chunk not found\n"));
@@ -163,7 +154,7 @@ phase2(xfs_mount_t *mp)
 		/*
 		 * mark the first 3 used, the rest are free
 		 */
-		ino_rec = set_inode_used_alloc(0,
+		ino_rec = set_inode_used_alloc(mp, 0,
 				(xfs_agino_t) mp->m_sb.sb_rootino);
 		set_inode_used(ino_rec, 1);
 		set_inode_used(ino_rec, 2);
@@ -174,11 +165,8 @@ phase2(xfs_mount_t *mp)
 		/*
 		 * also mark blocks
 		 */
-		for (b = 0; b < mp->m_ialloc_blks; b++)  {
-			set_agbno_state(mp, 0,
-				b + XFS_INO_TO_AGBNO(mp, mp->m_sb.sb_rootino),
-				XR_E_INO);
-		}
+		set_bmap_ext(0, XFS_INO_TO_AGBNO(mp, mp->m_sb.sb_rootino),
+			     mp->m_ialloc_blks, XR_E_INO);
 	} else  {
 		do_log(_("        - found root inode chunk\n"));
 

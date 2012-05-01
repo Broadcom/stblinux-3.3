@@ -1,33 +1,19 @@
 /*
- * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2000-2001,2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write the Free Software Foundation, Inc., 59
- * Temple Place - Suite 330, Boston MA 02111-1307, USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <xfs/libxfs.h>
@@ -36,10 +22,7 @@
 #include "fprint.h"
 #include "field.h"
 #include "inode.h"
-#include "bnobt.h"
-#include "cntbt.h"
-#include "inobt.h"
-#include "bmapbt.h"
+#include "btblock.h"
 #include "bmroot.h"
 #include "bit.h"
 #include "agf.h"
@@ -101,7 +84,7 @@ const ftattr_t	ftattrtab[] = {
 	  fa_attrblock, NULL },
 	{ FLDT_ATTRSHORT, "attrshort", NULL, (char *)attr_shortform_flds,
 	  attrshort_size, FTARG_SIZE, NULL, attr_shortform_flds },
-	{ FLDT_BMAPBTA, "bmapbta", NULL, (char *)bmapbta_flds, bmapbta_size,
+	{ FLDT_BMAPBTA, "bmapbta", NULL, (char *)bmapbta_flds, btblock_size,
 	  FTARG_SIZE, NULL, bmapbta_flds },
 	{ FLDT_BMAPBTAKEY, "bmapbtakey", fp_sarray, (char *)bmapbta_key_flds,
 	  SI(bitsz(xfs_bmbt_key_t)), 0, NULL, bmapbta_key_flds },
@@ -109,7 +92,7 @@ const ftattr_t	ftattrtab[] = {
 	  SI(bitsz(xfs_bmbt_ptr_t)), 0, fa_dfsbno, NULL },
 	{ FLDT_BMAPBTAREC, "bmapbtarec", fp_sarray, (char *)bmapbta_rec_flds,
 	  SI(bitsz(xfs_bmbt_rec_t)), 0, NULL, bmapbta_rec_flds },
-	{ FLDT_BMAPBTD, "bmapbtd", NULL, (char *)bmapbtd_flds, bmapbtd_size,
+	{ FLDT_BMAPBTD, "bmapbtd", NULL, (char *)bmapbtd_flds, btblock_size,
 	  FTARG_SIZE, NULL, bmapbtd_flds },
 	{ FLDT_BMAPBTDKEY, "bmapbtdkey", fp_sarray, (char *)bmapbtd_key_flds,
 	  SI(bitsz(xfs_bmbt_key_t)), 0, NULL, bmapbtd_key_flds },
@@ -129,7 +112,7 @@ const ftattr_t	ftattrtab[] = {
 	  SI(bitsz(xfs_bmdr_key_t)), 0, NULL, bmrootd_key_flds },
 	{ FLDT_BMROOTDPTR, "bmrootdptr", fp_num, "%llu",
 	  SI(bitsz(xfs_bmdr_ptr_t)), 0, fa_dfsbno, NULL },
-	{ FLDT_BNOBT, "bnobt", NULL, (char *)bnobt_flds, bnobt_size, FTARG_SIZE,
+	{ FLDT_BNOBT, "bnobt", NULL, (char *)bnobt_flds, btblock_size, FTARG_SIZE,
 	  NULL, bnobt_flds },
 	{ FLDT_BNOBTKEY, "bnobtkey", fp_sarray, (char *)bnobt_key_flds,
 	  SI(bitsz(xfs_alloc_key_t)), 0, NULL, bnobt_key_flds },
@@ -150,7 +133,7 @@ const ftattr_t	ftattrtab[] = {
 	{ FLDT_CHARNS, "charns", fp_charns, NULL, SI(bitsz(char)), 0, NULL,
 	  NULL },
 	{ FLDT_CHARS, "chars", fp_num, "%c", SI(bitsz(char)), 0, NULL, NULL },
-	{ FLDT_CNTBT, "cntbt", NULL, (char *)cntbt_flds, cntbt_size, FTARG_SIZE,
+	{ FLDT_CNTBT, "cntbt", NULL, (char *)cntbt_flds, btblock_size, FTARG_SIZE,
 	  NULL, cntbt_flds },
 	{ FLDT_CNTBTKEY, "cntbtkey", fp_sarray, (char *)cntbt_key_flds,
 	  SI(bitsz(xfs_alloc_key_t)), 0, NULL, cntbt_key_flds },
@@ -168,7 +151,7 @@ const ftattr_t	ftattrtab[] = {
 	{ FLDT_DINODE_A, "dinode_a", NULL, (char *)inode_a_flds, inode_a_size,
 	  FTARG_SIZE|FTARG_OKEMPTY, NULL, inode_a_flds },
 	{ FLDT_DINODE_CORE, "dinode_core", NULL, (char *)inode_core_flds,
-	  SI(bitsz(xfs_dinode_core_t)), 0, NULL, inode_core_flds },
+	  SI(bitsz(xfs_dinode_t)), 0, NULL, inode_core_flds },
 	{ FLDT_DINODE_FMT, "dinode_fmt", fp_dinode_fmt, NULL,
 	  SI(bitsz(__int8_t)), 0, NULL, NULL },
 	{ FLDT_DINODE_U, "dinode_u", NULL, (char *)inode_u_flds, inode_u_size,
@@ -261,7 +244,7 @@ const ftattr_t	ftattrtab[] = {
 	  FTARG_SIGNED, NULL, NULL },
 	{ FLDT_INO, "ino", fp_num, "%llu", SI(bitsz(xfs_ino_t)), FTARG_DONULL,
 	  fa_ino, NULL },
-	{ FLDT_INOBT, "inobt",  NULL, (char *)inobt_flds, inobt_size,
+	{ FLDT_INOBT, "inobt",  NULL, (char *)inobt_flds, btblock_size,
 	  FTARG_SIZE, NULL, inobt_flds },
 	{ FLDT_INOBTKEY, "inobtkey", fp_sarray, (char *)inobt_key_flds,
 	  SI(bitsz(xfs_inobt_key_t)), 0, NULL, inobt_key_flds },

@@ -1,51 +1,37 @@
 /*
- * Copyright (c) 1995, 2001 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995, 2001, 2004-2005 Silicon Graphics, Inc.
+ * All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2.1 of the GNU Lesser General Public License
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it would be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * Further, this software is distributed without any warranty that it is
- * free of the rightful claim of any third person regarding infringement
- * or the like.  Any license provided herein, whether implied or
- * otherwise, applies only to this software file.  Patent licenses, if
- * any, provided herein do not apply to combinations of this program with
- * other software, or any other product whatsoever.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this program; if not, write the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307,
- * USA.
- *
- * Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- * Mountain View, CA  94043, or:
- *
- * http://www.sgi.com
- *
- * For further information regarding this notice, see:
- *
- * http://oss.sgi.com/projects/GenInfo/SGIGPLNoticeExplan/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #ifndef __XQM_H__
 #define __XQM_H__
 
-#include <xfs/libxfs.h>
+#include <xfs/xfs.h>
 
 /*
  * Disk quota - quotactl(2) commands for the XFS Quota Manager (XQM).
  */
 
 #define XQM_CMD(x)	(('X'<<8)+(x))	/* note: forms first QCMD argument */
-#define Q_XQUOTAON	XQM_CMD(0x1)	/* enable accounting/enforcement */
-#define Q_XQUOTAOFF	XQM_CMD(0x2)	/* disable accounting/enforcement */
-#define Q_XGETQUOTA	XQM_CMD(0x3)	/* get disk limits and usage */
-#define Q_XSETQLIM	XQM_CMD(0x4)	/* set disk limits */
-#define Q_XGETQSTAT	XQM_CMD(0x5)	/* get quota subsystem status */
-#define Q_XQUOTARM	XQM_CMD(0x6)	/* free disk space used by dquots */
+#define Q_XQUOTAON	XQM_CMD(1)	/* enable accounting/enforcement */
+#define Q_XQUOTAOFF	XQM_CMD(2)	/* disable accounting/enforcement */
+#define Q_XGETQUOTA	XQM_CMD(3)	/* get disk limits and usage */
+#define Q_XSETQLIM	XQM_CMD(4)	/* set disk limits */
+#define Q_XGETQSTAT	XQM_CMD(5)	/* get quota subsystem status */
+#define Q_XQUOTARM	XQM_CMD(6)	/* free disk space used by dquots */
+#define Q_XQUOTASYNC	XQM_CMD(7)	/* delalloc flush, updates dquots */
 
 /*
  * fs_disk_quota structure:
@@ -69,14 +55,14 @@ typedef struct fs_disk_quota {
 	__s32		d_itimer;	/* zero if within inode limits */
 					/* if not, we refuse service */
 	__s32		d_btimer;	/* similar to above; for disk blocks */
-	__u16		d_iwarns;       /* # warnings issued wrt num inodes */
-	__u16		d_bwarns;       /* # warnings issued wrt disk blocks */
+	__u16	  	d_iwarns;       /* # warnings issued wrt num inodes */
+	__u16	  	d_bwarns;       /* # warnings issued wrt disk blocks */
 	__s32		d_padding2;	/* padding2 - for future use */
 	__u64		d_rtb_hardlimit;/* absolute limit on realtime blks */
 	__u64		d_rtb_softlimit;/* preferred limit on RT disk blks */
 	__u64		d_rtbcount;	/* # realtime blocks owned */
 	__s32		d_rtbtimer;	/* similar to above; for RT disk blks */
-	__u16		d_rtbwarns;     /* # warnings issued wrt RT disk blks */
+	__u16	  	d_rtbwarns;     /* # warnings issued wrt RT disk blks */
 	__s16		d_padding3;	/* padding3 - for future use */
 	char		d_padding4[8];	/* yet more padding */
 } fs_disk_quota_t;
@@ -87,7 +73,7 @@ typedef struct fs_disk_quota {
 #define FS_DQ_ISOFT	(1<<0)
 #define FS_DQ_IHARD	(1<<1)
 #define FS_DQ_BSOFT	(1<<2)
-#define FS_DQ_BHARD	(1<<3)
+#define FS_DQ_BHARD 	(1<<3)
 #define FS_DQ_RTBSOFT	(1<<4)
 #define FS_DQ_RTBHARD	(1<<5)
 #define FS_DQ_LIMIT_MASK	(FS_DQ_ISOFT | FS_DQ_IHARD | FS_DQ_BSOFT | \
@@ -101,17 +87,21 @@ typedef struct fs_disk_quota {
  */
 #define FS_DQ_BTIMER	(1<<6)
 #define FS_DQ_ITIMER	(1<<7)
-#define FS_DQ_RTBTIMER	(1<<8)
+#define FS_DQ_RTBTIMER 	(1<<8)
 #define FS_DQ_TIMER_MASK	(FS_DQ_BTIMER | FS_DQ_ITIMER | FS_DQ_RTBTIMER)
 
 /*
- * The following constants define the default amount of time given a user
- * before the soft limits are treated as hard limits (usually resulting
- * in an allocation failure).  These may be modified by the quotactl(2)
- * system call with the Q_XSETQLIM command.
+ * Warning counts are set in both super user's dquot and others. For others,
+ * warnings are set/cleared by the administrators (or automatically by going
+ * below the soft limit).  Superusers warning values set the warning limits
+ * for the rest.  In case these values are zero, the DQ_{F,B}WARNLIMIT values
+ * defined below are used.
+ * These values also apply only to the d_fieldmask field for Q_XSETQLIM.
  */
-#define	DQ_FTIMELIMIT	(7 * 24*60*60)		/* 1 week */
-#define	DQ_BTIMELIMIT	(7 * 24*60*60)		/* 1 week */
+#define FS_DQ_BWARNS	(1<<9)
+#define FS_DQ_IWARNS	(1<<10)
+#define FS_DQ_RTBWARNS	(1<<11)
+#define FS_DQ_WARNS_MASK	(FS_DQ_BWARNS | FS_DQ_IWARNS | FS_DQ_RTBWARNS)
 
 /*
  * Various flags related to quotactl(2).  Only relevant to XFS filesystems.
@@ -120,21 +110,23 @@ typedef struct fs_disk_quota {
 #define XFS_QUOTA_UDQ_ENFD	(1<<1)  /* user quota limits enforcement */
 #define XFS_QUOTA_GDQ_ACCT	(1<<2)  /* group quota accounting */
 #define XFS_QUOTA_GDQ_ENFD	(1<<3)  /* group quota limits enforcement */
+#define XFS_QUOTA_PDQ_ACCT	(1<<4)  /* project quota accounting */
+#define XFS_QUOTA_PDQ_ENFD	(1<<5)  /* project quota limits enforcement */
 
 #define XFS_USER_QUOTA		(1<<0)	/* user quota type */
-#define XFS_PROJ_QUOTA		(1<<1)	/* (IRIX) project quota type */
+#define XFS_PROJ_QUOTA		(1<<1)	/* project quota type */
 #define XFS_GROUP_QUOTA		(1<<2)	/* group quota type */
 
 /*
  * fs_quota_stat is the struct returned in Q_XGETQSTAT for a given file system.
- * Provides a centralized way to get meta infomation about the quota subsystem.
+ * Provides a centralized way to get meta information about the quota subsystem.
  * eg. space taken up for user and group quotas, number of dquots currently
  * incore.
  */
 #define FS_QSTAT_VERSION	1	/* fs_quota_stat.qs_version */
 
 /*
- * Some basic infomation about 'quota files'.
+ * Some basic information about 'quota files'.
  */
 typedef struct fs_qfilestat {
 	__u64		qfs_ino;	/* inode number */

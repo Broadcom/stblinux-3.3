@@ -57,6 +57,9 @@ file_copy()
 			find . -print | grep -E -v '/CVS' | cpio -p${V}dumL ${ROMFSDIR}${dst}
 		)
 	else
+		if [ -d "${ROMFSDIR}${dst}" ]; then
+			dst=${dst}/`basename ${src}`
+		fi
 		rm -f ${ROMFSDIR}${dst}
 		[ "$v" ] && echo "cp ${src} ${ROMFSDIR}${dst}"
 		cp ${src} ${ROMFSDIR}${dst}
