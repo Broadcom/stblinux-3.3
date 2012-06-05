@@ -19,6 +19,7 @@ endif
 all::
 	if [ ! -e Makefile ]; then \
 		./configure $(CFGOPTS) || exit 1 ; \
+		touch configure config.status ; \
 	fi
 	$(MAKE) -f Makefile
 

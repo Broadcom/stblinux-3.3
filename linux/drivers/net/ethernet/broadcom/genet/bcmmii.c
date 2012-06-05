@@ -119,13 +119,16 @@ int mii_probe(struct net_device *dev, void *p)
 }
 
 /*
- * restart auto-negotiation, config UMAC and RGMII block
+ * setup netdev link state when PHY link status change and
+ * update UMAC and RGMII block when link up
  */
 void mii_setup(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd ;
 	volatile struct uniMacRegs *umac = pDevCtrl->umac;
+	int cur_link;
+	int prev_link;
 
 	TRACE(("%s: %s\n", __func__, netif_carrier_ok(pDevCtrl->dev) ?
 				"netif_carrier_on" : "netif_carrier_off"));
@@ -133,26 +136,14 @@ void mii_setup(struct net_device *dev)
 		netif_carrier_on(pDevCtrl->dev);
 		return;
 	}
-
-	mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
-
-	if (mii_link_ok(&pDevCtrl->mii) && !netif_carrier_ok(pDevCtrl->dev)) {
-		printk(KERN_INFO "%s: Link is up, %d Mbps %s Duplex\n",
-			pDevCtrl->dev->name,
-			ecmd.speed,
-			ecmd.duplex == DUPLEX_FULL ? "Full" : "Half");
-	} else if (!mii_link_ok(&pDevCtrl->mii) &&
-			netif_carrier_ok(pDevCtrl->dev)) {
-		printk(KERN_INFO "%s: Link is down\n", pDevCtrl->dev->name);
-		return;
-	}
-
-	mii_check_link(&pDevCtrl->mii);
-	/*
-	 * program UMAC and RGMII block accordingly, if the PHY is
-	 * not capable of in-band signaling.
-	 */
-	if (pDevCtrl->phyType != BRCM_PHY_TYPE_EXT_RGMII_IBS) {
+	cur_link = mii_link_ok(&pDevCtrl->mii);
+	prev_link = netif_carrier_ok(pDevCtrl->dev);
+	if (cur_link && !prev_link) {
+		mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
+		/*
+		 * program UMAC and RGMII block accordingly, if the PHY is
+		 * not capable of in-band signaling.
+		 */
 		GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~OOB_DISABLE;
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_LINK;
 		if (ecmd.duplex == DUPLEX_FULL)
@@ -160,30 +151,45 @@ void mii_setup(struct net_device *dev)
 		else
 			umac->cmd |= CMD_HD_EN;
 		/* speed */
-		umac->cmd = umac->cmd & ~(CMD_SPEED_MASK << CMD_SPEED_SHIFT);
+		umac->cmd = umac->cmd &
+				~(CMD_SPEED_MASK << CMD_SPEED_SHIFT);
 		if (ecmd.speed == SPEED_10)
-			umac->cmd |= (UMAC_SPEED_10 << CMD_SPEED_SHIFT);
+			umac->cmd |=
+				(UMAC_SPEED_10 << CMD_SPEED_SHIFT);
 		else if (ecmd.speed == SPEED_100)
-			umac->cmd |= (UMAC_SPEED_100 << CMD_SPEED_SHIFT);
+			umac->cmd |=
+				(UMAC_SPEED_100 << CMD_SPEED_SHIFT);
 		else if (ecmd.speed == SPEED_1000)
-			umac->cmd |= (UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
-	}
-	/* pause capability */
-	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT ||
-			pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII) {
-		unsigned int val;
-		val = mii_read(dev, pDevCtrl->phyAddr, MII_LPA);
-		if (!(val & LPA_PAUSE_CAP)) {
-			umac->cmd |= CMD_RX_PAUSE_IGNORE;
-			umac->cmd |= CMD_TX_PAUSE_IGNORE;
+			umac->cmd |=
+				(UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
+
+		/* pause capability */
+		if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT ||
+		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII) {
+			unsigned int val;
+			val = mii_read(dev, pDevCtrl->phyAddr, MII_LPA);
+			if (!(val & LPA_PAUSE_CAP)) {
+				umac->cmd |= CMD_RX_PAUSE_IGNORE;
+				umac->cmd |= CMD_TX_PAUSE_IGNORE;
+			}
+		} else if (pDevCtrl->extPhy) { /* RGMII only */
+			unsigned int val;
+			val = mii_read(dev,
+				pDevCtrl->phyAddr, MII_BRCM_AUX_STAT_SUM);
+			if (!(val & MII_BRCM_AUX_GPHY_RX_PAUSE))
+				umac->cmd |= CMD_RX_PAUSE_IGNORE;
+			if (!(val & MII_BRCM_AUX_GPHY_TX_PAUSE))
+				umac->cmd |= CMD_TX_PAUSE_IGNORE;
 		}
-	} else if (pDevCtrl->extPhy) { /* RGMII only */
-		unsigned int val;
-		val = mii_read(dev, pDevCtrl->phyAddr, MII_BRCM_AUX_STAT_SUM);
-		if (!(val & MII_BRCM_AUX_GPHY_RX_PAUSE))
-			umac->cmd |= CMD_RX_PAUSE_IGNORE;
-		if (!(val & MII_BRCM_AUX_GPHY_TX_PAUSE))
-			umac->cmd |= CMD_TX_PAUSE_IGNORE;
+		netif_carrier_on(pDevCtrl->dev);
+		printk(KERN_INFO "%s: Link up, %d Mbps %s Duplex\n",
+			pDevCtrl->dev->name,
+			ecmd.speed,
+			ecmd.duplex == DUPLEX_FULL ? "Full" : "Half");
+	} else if (!cur_link && prev_link) {
+		netif_carrier_off(pDevCtrl->dev);
+		printk(KERN_INFO "%s: Link down\n", pDevCtrl->dev->name);
+		return;
 	}
 }
 
@@ -191,8 +197,7 @@ int mii_init(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	volatile struct uniMacRegs *umac;
-	int bmcr;
-	u32 id_mode_dis = pDevCtrl->phySpeed == 100 ? BIT(16) : 0;
+	u32 id_mode_dis = pDevCtrl->phySpeed == SPEED_100 ? BIT(16) : 0;
 
 	umac = pDevCtrl->umac;
 	pDevCtrl->mii.phy_id = pDevCtrl->phyAddr;
@@ -202,8 +207,6 @@ int mii_init(struct net_device *dev)
 	pDevCtrl->mii.mdio_read = mii_read;
 	pDevCtrl->mii.mdio_write = mii_write;
 
-	/* Enable autoneg if it's not */
-	bmcr = mii_read(dev, pDevCtrl->phyAddr, MII_BMCR);
 	switch (pDevCtrl->phyType) {
 
 	case BRCM_PHY_TYPE_INT:
@@ -222,7 +225,6 @@ int mii_init(struct net_device *dev)
 	case BRCM_PHY_TYPE_EXT_MII:
 		pDevCtrl->mii.supports_gmii = 0;
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_EPHY;
-		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
 		printk(KERN_INFO "Config EPHY through MDIO\n");
 		break;
 	case BRCM_PHY_TYPE_EXT_RGMII_NO_ID:
@@ -237,20 +239,14 @@ int mii_init(struct net_device *dev)
 		/* fall through */
 	case BRCM_PHY_TYPE_EXT_RGMII:
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN | id_mode_dis;
-		pDevCtrl->mii.supports_gmii = 1;
-		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
-		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
+		if (pDevCtrl->phySpeed == SPEED_1000) {
+			pDevCtrl->mii.supports_gmii = 1;
+			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
+		} else if (pDevCtrl->phySpeed == SPEED_100) {
+			pDevCtrl->mii.supports_gmii = 0;
+			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_EPHY;
+		}
 		printk(KERN_INFO "Config GPHY through MDIO\n");
-		break;
-	case BRCM_PHY_TYPE_EXT_RGMII_IBS:
-		/* Use in-band signaling for auto config.*/
-		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN | id_mode_dis |
-						  OOB_DISABLE;
-		umac->cmd |= CMD_AUTO_CONFIG;
-		pDevCtrl->mii.supports_gmii = 1;
-		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
-		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, bmcr|MII_BMCR);
-		printk(KERN_INFO "Automatic Config GPHY\n");
 		break;
 	case BRCM_PHY_TYPE_MOCA:
 		printk(KERN_INFO "Config MoCA...\n");

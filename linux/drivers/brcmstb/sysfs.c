@@ -253,6 +253,8 @@ static struct device_attribute brcmstb_attr_list[] = {
 		brcm_pm_store_ddr_timeout),
 	__ATTR(standby_flags, 0644, brcm_pm_show_standby_flags,
 		brcm_pm_store_standby_flags),
+	__ATTR(standby_timeout, 0644, brcm_pm_show_standby_timeout,
+		brcm_pm_store_standby_timeout),
 	__ATTR(time_at_wakeup, 0444, brcm_pm_show_time_at_wakeup, NULL),
 #if defined(CONFIG_BRCM_HAS_1GB_MEMC1)
 	__ATTR(memc1_power, 0644, brcm_pm_show_memc1_power,

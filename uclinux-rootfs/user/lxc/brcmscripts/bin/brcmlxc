@@ -66,7 +66,12 @@ function brcmlxc_start()
 	# user might have already enabled bridging
 	ifconfig br0 >& /dev/null || bridge-start
 
-	exec lxc-start -n guest
+	if [ -n "$1" ]; then
+		lxc-start -n guest /etc/init.d/rcS "$@"
+		brcmlxc_stop
+	else
+		exec lxc-start -n guest /bin/sh
+	fi
 }
 
 function brcmlxc_stop()

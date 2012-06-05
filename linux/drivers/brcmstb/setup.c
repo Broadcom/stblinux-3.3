@@ -113,7 +113,7 @@ static struct ahci_platform_data brcm_ahci_pdata = {
 };
 
 static struct platform_device brcm_ahci_pdev = {
-	.name		= "ahci",
+	.name		= "strict-ahci",
 	.id		= 0,
 	.resource	= brcm_ahci_resource,
 	.num_resources	= ARRAY_SIZE(brcm_ahci_resource),

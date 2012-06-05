@@ -341,7 +341,7 @@ static void set_cmd_regs(struct mtd_info *mtd, uint32_t cmd, uint32_t flcmcdr_va
 }
 
 static int flctl_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
-				uint8_t *buf, int page)
+				uint8_t *buf, int oob_required, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -363,7 +363,7 @@ static int flctl_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 }
 
 static void flctl_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
-				   const uint8_t *buf)
+				   const uint8_t *buf, int oob_required)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -836,8 +836,6 @@ static int __devinit flctl_probe(struct platform_device *pdev)
 	flctl->hwecc = pdata->has_hwecc;
 
 	flctl_register_init(flctl, pdata->flcmncr_val);
-
-	nand->options = NAND_NO_AUTOINCR;
 
 	/* Set address of hardware control function */
 	/* 20 us command delay time */

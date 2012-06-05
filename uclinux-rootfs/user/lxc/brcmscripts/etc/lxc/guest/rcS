@@ -8,4 +8,4 @@ mount -t sysfs none /sys
 mount -t tmpfs none /dev/shm
 
 [ -e /sys/class/net/eth0 ] && udhcpc -i eth0
-exec /bin/sh
+exec "$@"

@@ -142,6 +142,7 @@ config BCM7360A0
 	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_AON
@@ -211,6 +212,37 @@ config BCM7429A0
 	#select BRCM_PWR_HANDSHAKE_V1
 	#select BRCM_HAS_DIGITAL_DDR_PHY
 
+config BCM7429B0
+	bool "7429 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7429
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_20
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_6
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_EDU
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	#select BRCM_HAS_AON
+	#select BRCM_PWR_HANDSHAKE_V1
+	#select BRCM_HAS_DIGITAL_DDR_PHY
+
 config BCM7435A0
 	bool "7435 Ax"
 	depends on MIPS
@@ -232,7 +264,43 @@ config BCM7435A0
 	select BRCM_HAS_NOR
 	select BRCM_HAS_NAND_MAJOR_6
 	select BRCM_HAS_NAND_MINOR_2
-	select BRCM_HAS_EDU
+	#select BRCM_HAS_EDU
+	select BRCM_HAS_FLASH_DMA
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_2GB_MEMC0
+	select BRCM_HAS_1GB_MEMC1
+	#select BRCM_HAS_AON
+	#select BRCM_PWR_HANDSHAKE_V1
+	#select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7435B0
+	bool "7435 Bx"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7435
+	select BRCM_HAS_BMIPS5000
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_HAS_DUALCORE
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_PCIE
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_MOCA_20
+	select BRCM_MOCA_ON_GENET_1
+	select BRCM_GENET_V3
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_6
+	select BRCM_HAS_NAND_MINOR_2
+	#select BRCM_HAS_EDU
+	select BRCM_HAS_FLASH_DMA
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_EMMC
@@ -263,6 +331,7 @@ config BCM7445A0
 	#select BRCM_HAS_NAND_MAJOR_6
 	#select BRCM_HAS_NAND_MINOR_0
 	#select BRCM_HAS_EDU
+	select BRCM_HAS_FLASH_DMA
 	#select BRCM_HAS_BSPI_V4
 	#select BRCM_HAS_SDIO_V1
 	#select BRCM_HAS_EMMC
@@ -291,6 +360,35 @@ config BCM7552B0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7584A0
+	bool "7584 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7584
+	select BRCM_HAS_BMIPS4380
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_HAS_GENET_1
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_1GB_MEMC0
 	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
@@ -929,6 +1027,10 @@ config BRCM_HAS_NAND
 
 config BRCM_HAS_EDU
 	bool
+	depends on !BRCM_HAS_FLASH_DMA
+
+config BRCM_HAS_FLASH_DMA
+	bool
 
 config BRCM_HAS_SPI
 	bool
@@ -1104,6 +1206,9 @@ config BCM7445
 	bool
 
 config BCM7552
+	bool
+
+config BCM7584
 	bool
 
 endmenu

@@ -395,19 +395,21 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	# basic hardware support
 
 	if(defined($linux{"CONFIG_BRCM_MOCA"})) {
-		$vendor{"CONFIG_USER_NONFREE_MOCA"} = "y";
-		$vendor{"CONFIG_USER_NONFREE_MOCA_GEN1"} = "n";
-		$vendor{"CONFIG_USER_NONFREE_MOCA_GEN2"} = "n";
-		$vendor{"CONFIG_USER_NONFREE_MOCA_GEN3"} = "n";
+		$vendor{"CONFIG_USER_MOCA_MOCA1"} = "y";
+		$vendor{"CONFIG_USER_MOCA_NONE"} = "n";
+		$vendor{"CONFIG_USER_MOCA_MOCA2"} = "n";
+		$vendor{"CONFIG_USER_MOCA_GEN1"} = "n";
+		$vendor{"CONFIG_USER_MOCA_GEN2"} = "n";
+		$vendor{"CONFIG_USER_MOCA_GEN3"} = "n";
 
 		if(defined($linux{"CONFIG_BRCM_HAS_MOCA_11"})) {
-			$vendor{"CONFIG_USER_NONFREE_MOCA_GEN1"} = "y";
+			$vendor{"CONFIG_USER_MOCA_GEN1"} = "y";
 		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_11_LITE"})) {
-			$vendor{"CONFIG_USER_NONFREE_MOCA_GEN1"} = "y";
+			$vendor{"CONFIG_USER_MOCA_GEN1"} = "y";
 		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_11_PLUS"})) {
-			$vendor{"CONFIG_USER_NONFREE_MOCA_GEN2"} = "y";
+			$vendor{"CONFIG_USER_MOCA_GEN2"} = "y";
 		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20"})) {
-			$vendor{"CONFIG_USER_NONFREE_MOCA_GEN3"} = "y";
+			$vendor{"CONFIG_USER_MOCA_GEN3"} = "y";
 		}
 	}
 
@@ -601,7 +603,10 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$busybox{"CONFIG_WGET"} = "n";
 			$busybox{"CONFIG_ZCIP"} = "n";
 			$linux{"CONFIG_NET"} = "n";
-			$vendor{"CONFIG_USER_NONFREE_MOCA"} = "n";
+
+			$vendor{"CONFIG_USER_MOCA_NONE"} = "y";
+			$vendor{"CONFIG_USER_MOCA_MOCA1"} = "n";
+			$vendor{"CONFIG_USER_MOCA_MOCA2"} = "n";
 		} elsif($mod eq "lttng") {
 
 			# Enable LTTng

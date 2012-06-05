@@ -42,7 +42,7 @@ char brcm_mtd_flash_type[CFE_STRING_SIZE];
 /* MoCA 3450 I2C port */
 unsigned long brcm_moca_i2c_base;
 
-/* Default MoCA RF band (can be overridden by CFE_BOARDNAME in prom.c) */
+/* Default MoCA RF band (can be overridden in board_pinmux_setup) */
 #ifdef CONFIG_BRCM_HAS_MOCA_MIDRF
 unsigned long brcm_moca_rf_band = MOCA_BAND_MIDRF;
 #else
@@ -238,6 +238,13 @@ void board_pinmux_setup(void)
 	PINMUX(16, sgpio_04, 1);	/* MoCA I2C */
 	PINMUX(16, sgpio_05, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCD_REG_START);
+
+	/* 7344 is normally MidRF, but some 7418 boards are HighRF */
+	if (strstarts(brcm_cfe_boardname, "BCM97418SAT") ||
+	    strstarts(brcm_cfe_boardname, "BCM97418SFF_RVU"))
+		brcm_moca_rf_band = MOCA_BAND_MIDRF;
+	else if (strstarts(brcm_cfe_boardname, "BCM97418"))
+		brcm_moca_rf_band = MOCA_BAND_HIGHRF;
 
 #elif defined(CONFIG_BCM7346)
 

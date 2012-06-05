@@ -457,10 +457,7 @@ static void bcmgenet_gphy_link_status(struct work_struct *work)
 	struct BcmEnet_devctrl *pDevCtrl = container_of(work,
 			struct BcmEnet_devctrl, bcmgenet_link_work);
 
-	if (mii_link_ok(&pDevCtrl->mii))
-		netif_carrier_on(pDevCtrl->dev);
-	else
-		netif_carrier_off(pDevCtrl->dev);
+	mii_setup(pDevCtrl->dev);
 }
 /* --------------------------------------------------------------------------
 Name: bcmgenet_gphy_link_timer
@@ -1690,23 +1687,9 @@ static void bcmgenet_irq_task(struct work_struct *work)
 	}
 
 	/* Link UP/DOWN event */
-	if (pDevCtrl->irq0_stat & UMAC_IRQ_LINK_UP) {
-		printk(KERN_CRIT "%s Link UP.\n", pDevCtrl->dev->name);
-		/* Clear soft-copy of irq status*/
-		pDevCtrl->irq0_stat &= ~UMAC_IRQ_LINK_UP;
-
-		if (!(pDevCtrl->umac->cmd & CMD_AUTO_CONFIG)) {
-			printk(KERN_CRIT "Auto config phy\n");
-			mii_setup(pDevCtrl->dev);
-		}
-		netif_carrier_on(pDevCtrl->dev);
-	} else if (pDevCtrl->irq0_stat & UMAC_IRQ_LINK_DOWN) {
-		printk(KERN_CRIT "%s Link DOWN.\n", pDevCtrl->dev->name);
-		/* clear soft-copy of irq status */
-		pDevCtrl->irq0_stat &= ~UMAC_IRQ_LINK_DOWN;
-		/* TODO:Disable DMA Rx channels.  */
-		/* In case there are packets in the Rx descriptor */
-		netif_carrier_off(pDevCtrl->dev);
+	if (pDevCtrl->irq0_stat & (UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN)) {
+		pDevCtrl->irq0_stat &= ~(UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN);
+		mii_setup(pDevCtrl->dev);
 	}
 }
 /*
@@ -3403,8 +3386,9 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		if (pDevCtrl->ext) {
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
-			udelay(5);
+			udelay(1);
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+			udelay(100);
 		}
 		/* enable 64 clock MDIO */
 		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
@@ -3435,8 +3419,9 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 			/* enable APD */
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
-			udelay(5);
+			udelay(1);
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+			udelay(100);
 		}
 		/* enable 64 clock MDIO */
 		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
@@ -3584,8 +3569,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	pDevCtrl->phySpeed = cfg->phy_speed;
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
 	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
-	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_NO_ID ||
-	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_IBS)
+	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_NO_ID)
 		pDevCtrl->extPhy = 1;
 
 	pDevCtrl->pdev = pdev;

@@ -89,9 +89,11 @@ void brcmstb_cpu_setup(void)
 	/* clear BHTD to enable branch history table */
 	clear_c0_brcm_config_0(BIT(21));
 
-	/* XI enable */
-	if (kernel_uses_smartmips_rixi)
+	/* XI/ROTR enable */
+	if (kernel_uses_smartmips_rixi) {
 		set_c0_brcm_config_0(BIT(23));
+		set_c0_brcm_cmt_ctrl(BIT(15));
+	}
 
 #elif defined(CONFIG_CPU_BMIPS5000)
 

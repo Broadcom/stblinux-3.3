@@ -15,12 +15,16 @@ mainmenu_option next_comment
 comment 'Broadcom STB Configuration'
 
 bool 'Broadcom power management'	CONFIG_USER_BRCM_PM
-bool 'Broadcom nonfree MoCA drivers'	CONFIG_USER_NONFREE_MOCA
-if [ "$CONFIG_USER_NONFREE_MOCA" = "y" ]; then
+
+choice 'Broadcom MoCA support'	"None		CONFIG_USER_MOCA_NONE \
+				 MoCA-1.1	CONFIG_USER_MOCA_MOCA1 \
+				 MoCA-2.0	CONFIG_USER_MOCA_MOCA2" None
+
+if [ "$CONFIG_USER_MOCA_MOCA1" = "y" -o "$CONFIG_USER_MOCA_MOCA2" = "y" ]; then
 	define_bool CONFIG_LIB_LIBGCC y
-	bool 'Install Gen1 firmware'	CONFIG_USER_NONFREE_MOCA_GEN1
-	bool 'Install Gen2 firmware'	CONFIG_USER_NONFREE_MOCA_GEN2
-	bool 'Install Gen3 firmware'	CONFIG_USER_NONFREE_MOCA_GEN3
+	bool 'Install Gen1 firmware'	CONFIG_USER_MOCA_GEN1
+	bool 'Install Gen2 firmware'	CONFIG_USER_MOCA_GEN2
+	bool 'Install Gen3 firmware'	CONFIG_USER_MOCA_GEN3
 fi
 
 endmenu

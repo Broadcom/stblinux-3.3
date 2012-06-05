@@ -322,9 +322,15 @@ static dma_addr_t cur_pa_d;
  ***********************************************************************/
 static void _brcm_mem_dma_start_transfer(int on, int sync)
 {
-	BDEV_WR_F_RB(MEM_DMA_0_CTRL, RUN, !!on);
-	if (sync)
-		brcm_mem_dma_wait_for_ready(BRCM_MEM_DMA_TIMEOUT);
+	/* clear RUN bit and wait for IDLE */
+	BDEV_WR_F_RB(MEM_DMA_0_CTRL, RUN, 0);
+	brcm_mem_dma_wait_for_ready(BRCM_MEM_DMA_TIMEOUT);
+
+	if (on) {
+		BDEV_WR_F_RB(MEM_DMA_0_CTRL, RUN, 1);
+		if (sync)
+			brcm_mem_dma_wait_for_ready(BRCM_MEM_DMA_TIMEOUT);
+	}
 }
 
 /***********************************************************************

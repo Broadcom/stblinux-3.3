@@ -1084,7 +1084,7 @@ static void write_page(struct mtd_info *mtd, struct nand_chip *chip,
  * by write_page above.
  * */
 static void denali_write_page(struct mtd_info *mtd, struct nand_chip *chip,
-				const uint8_t *buf)
+				const uint8_t *buf, int oob_required)
 {
 	/* for regular page writes, we let HW handle all the ECC
 	 * data written to the device. */
@@ -1096,7 +1096,7 @@ static void denali_write_page(struct mtd_info *mtd, struct nand_chip *chip,
  * write_page() function above.
  */
 static void denali_write_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
-					const uint8_t *buf)
+					const uint8_t *buf, int oob_required)
 {
 	/* for raw page writes, we want to disable ECC and simply write
 	   whatever data is in the buffer. */
@@ -1110,16 +1110,15 @@ static int denali_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 }
 
 static int denali_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
-			   int page, int sndcmd)
+			   int page)
 {
 	read_oob_data(mtd, chip->oob_poi, page);
 
-	return 0; /* notify NAND core to send command to
-			   NAND device. */
+	return 0;
 }
 
 static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
-			    uint8_t *buf, int page)
+			    uint8_t *buf, int oob_required, int page)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 
@@ -1171,7 +1170,7 @@ static int denali_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 }
 
 static int denali_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
-				uint8_t *buf, int page)
+				uint8_t *buf, int oob_required, int page)
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 

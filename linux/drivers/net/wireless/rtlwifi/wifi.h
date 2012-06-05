@@ -36,6 +36,7 @@
 #include <linux/vmalloc.h>
 #include <linux/usb.h>
 #include <net/mac80211.h>
+#include <linux/completion.h>
 #include "debug.h"
 
 #define RF_CHANGE_BY_INIT			0
@@ -64,7 +65,7 @@
 #define QOS_QUEUE_NUM				4
 #define RTL_MAC80211_NUM_QUEUE			5
 #define REALTEK_USB_VENQT_MAX_BUF_SIZE		254
-
+#define RTL_USB_MAX_RX_COUNT			100
 #define QBSS_LOAD_SIZE				5
 #define MAX_WMMELE_LENGTH			64
 
@@ -1045,7 +1046,6 @@ struct rtl_hal {
 	u16 fw_subversion;
 	bool h2c_setinprogress;
 	u8 last_hmeboxnum;
-	bool fw_ready;
 	/*Reserve page start offset except beacon in TxQ. */
 	u8 fw_rsvdpage_startoffset;
 	u8 h2c_txcmd_seq;
@@ -1591,6 +1591,7 @@ struct rtl_debug {
 };
 
 struct rtl_priv {
+	struct completion firmware_loading_complete;
 	struct rtl_locks locks;
 	struct rtl_works works;
 	struct rtl_mac mac80211;
@@ -1612,6 +1613,7 @@ struct rtl_priv {
 	struct rtl_rate_priv *rate_priv;
 
 	struct rtl_debug dbg;
+	int max_fw_size;
 
 	/*
 	 *hal_cfg : for diff cards
@@ -1624,6 +1626,10 @@ struct rtl_priv {
 	   and was used to indicate status of
 	   interface or hardware */
 	unsigned long status;
+
+	/* data buffer pointer for USB reads */
+	__le32 *usb_data;
+	int usb_data_index;
 
 	/*This must be the last item so
 	   that it points to the data allocated

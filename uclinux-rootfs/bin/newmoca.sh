@@ -17,12 +17,22 @@ if [[ "$tarball" = http* ]]; then
 	tarball=$local_tarball
 fi
 
-if [ ! -d user/moca ]; then
+if [[ "$tarball" = MoCADriver_* ]]; then
+	mocadir=user/moca
+	binaries="mocad,mocactl,soapserver"
+	pkg=moca
+else
+	mocadir=user/moca2
+	binaries="mocad,mocap"
+	pkg=moca2
+fi
+
+if [ ! -d $mocadir ]; then
 	echo "error: this program must be run from the uclinux-rootfs dir"
 	exit 1
 fi
 
-oldver=$(cat user/moca/version)
+oldver=$(cat $mocadir/version)
 
 tc=$(cat toolchain)
 if [ -d /opt/toolschains/$tc/bin ]; then
@@ -40,11 +50,11 @@ fi
 
 set -ex
 
-rm -rf user/moca/{src,fw,mipsel,mips}
-mkdir user/moca/{src,fw,mipsel,mips}
-cp $tarball user/moca/src/TARBALL
+rm -rf $mocadir/{src,fw,mipsel,mips}
+mkdir $mocadir/{src,fw,mipsel,mips}
+cp $tarball $mocadir/src/TARBALL
 
-pushd user/moca/src
+pushd $mocadir/src
 if [[ "$tarball" = *tar ]]; then
 	tar xf TARBALL
 	base="${base}.bz2"
@@ -61,28 +71,28 @@ else
 	exit 1
 fi
 
-cp mocacore-gen*.bin ../fw/
+cp moca*-gen*.bin ../fw/
 
 make clean
 make CROSS=mipsel-linux-
-cp bin/{mocad,mocactl,soapserver} ../mipsel/
+eval cp bin/{$binaries} ../mipsel/
 mipsel-linux-strip --strip-all ../mipsel/*
 
 make clean
 make CROSS=mips-linux-
-cp bin/{mocad,mocactl,soapserver} ../mips/
+eval cp bin/{$binaries} ../mips/
 mips-linux-strip --strip-all ../mips/*
 
 popd
 
 ver=${base%.tar.bz2}
-echo $ver > user/moca/version
+echo $ver > $mocadir/version
 
-rm -rf user/moca/src
+rm -rf $mocadir/src
 
 if [ -n "$jid" ]; then
-	git add user/moca
-	echo -e "moca: Update to $ver\n\nrefs #$jid" | git commit -sF -
+	git add $mocadir
+	echo -e "$pkg: Update to $ver\n\nrefs #$jid" | git commit -sF -
 fi
 
 set +ex

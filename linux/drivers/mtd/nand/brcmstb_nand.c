@@ -81,6 +81,21 @@ module_param(wp_on, int, 0444);
 #define CMD_LOW_LEVEL_OP	0x10
 #endif
 
+struct brcm_nand_dma_desc {
+	u32 next_desc;
+	u32 next_desc_ext;
+	u32 cmd_irq;
+	u32 dram_addr;
+	u32 dram_addr_ext;
+	u32 tfr_len;
+	u32 total_len;
+	u32 flash_addr;
+	u32 flash_addr_ext;
+	u32 cs;
+	u32 pad2[5];
+	u32 status_valid;
+} __packed;
+
 /* 512B flash cache in the NAND controller HW */
 #define FC_SHIFT		9U
 #define FC_BYTES		512U
@@ -108,6 +123,12 @@ module_param(wp_on, int, 0444);
 #define EDU_VA_OK(x)		(!is_vmalloc_addr((const void *)(x)))
 #else
 #define EDU_VA_OK(x)		0
+#endif
+
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+#define DMA_VA_OK(x)		(!is_vmalloc_addr((const void *)(x)))
+#else
+#define DMA_VA_OK(x)		0
 #endif
 
 #if CONTROLLER_VER >= 60
@@ -188,6 +209,10 @@ struct brcmstb_nand_controller {
 	unsigned int		irq;
 	int			cmd_pending;
 	struct completion	done;
+
+	struct brcm_nand_dma_desc *dma_desc;
+	dma_addr_t dma_pa;
+	int dma_count;
 
 #ifdef CONFIG_BRCM_HAS_EDU
 	/* EDU info, per-transaction */
@@ -384,6 +409,17 @@ static int write_oob_to_regs(int i, const u8 *oob, int sas, int sector_1k)
 
 static irqreturn_t brcmstb_nand_irq(int irq, void *data)
 {
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	if (HIF_TEST_IRQ(FLASH_DMA_DONE)) {
+		HIF_ACK_IRQ(FLASH_DMA_DONE);
+		if (ctrl.dma_count) {
+			ctrl.dma_count = 0;
+			complete(&ctrl.done);
+		}
+		return IRQ_HANDLED;
+	}
+#endif /* CONFIG_BRCM_HAS_FLASH_DMA */
+
 	if (HIF_TEST_IRQ(NAND_CTLRDY)) {
 		HIF_ACK_IRQ(NAND_CTLRDY);
 #ifdef CONFIG_BRCM_HAS_EDU
@@ -514,6 +550,10 @@ static void brcmstb_nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 	if (!native_cmd)
 		return;
 
+	/* Avoid propagating a negative, don't-care address */
+	if (page_addr < 0)
+		addr = 0;
+
 	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
 		(host->cs << 16) | ((addr >> 32) & 0xffff));
 	BDEV_WR_RB(BCHP_NAND_CMD_ADDRESS, addr & 0xffffffff);
@@ -576,6 +616,66 @@ static void brcmstb_nand_erase_cmd(struct mtd_info *mtd, int page)
 {
 	struct nand_chip *chip = mtd->priv;
 	chip->cmdfunc(mtd, NAND_CMD_ERASE1, -1, page);
+}
+
+static int __maybe_unused brcmstb_nand_fill_dma_desc(
+		struct brcmstb_nand_host *host,
+		struct brcm_nand_dma_desc *desc, u64 addr, u64 buf, u32 len,
+		u8 dma_cmd)
+{
+	memset(desc, 0, sizeof(*desc));
+	/*
+	 * Descriptors are written in native byte order (wordwise)
+	 * Enable IRQ, STOP bit; TYPE=head+tail
+	 */
+	desc->cmd_irq = (dma_cmd << 24) | (0x02 << 8) | 0x03;
+#ifdef CONFIG_CPU_BIG_ENDIAN
+	desc->cmd_irq |= 0x01 << 12;
+#endif
+	desc->dram_addr = buf & 0xffffffff;
+	desc->dram_addr_ext = buf >> 32;
+	desc->tfr_len = len;
+	desc->total_len = len;
+	desc->flash_addr = addr & 0xffffffff;
+	desc->flash_addr_ext = addr >> 32;
+	desc->cs = host->cs;
+	desc->status_valid = 0x01;
+	return 0;
+}
+
+static int brcmstb_nand_dma_trans(struct brcmstb_nand_host *host, u64 addr,
+	u32 *buf, u32 len, u8 dma_cmd)
+{
+	int ret = 0;
+
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	struct mtd_info *mtd = &host->mtd;
+	struct nand_chip *chip = &host->chip;
+	dma_addr_t buf_pa;
+	int dir = dma_cmd == CMD_PAGE_READ ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
+
+	ctrl.cmd_pending = dma_cmd;
+	ctrl.dma_count = 1;
+	buf_pa = dma_map_single(&host->pdev->dev, buf, len, dir);
+	brcmstb_nand_fill_dma_desc(host, ctrl.dma_desc, addr, (u64)buf_pa, len,
+			dma_cmd);
+	brcmstb_nand_wp(mtd, dma_cmd == CMD_PAGE_READ);
+
+	/* Start FLASH_DMA engine */
+	BDEV_WR_RB(BCHP_FLASH_DMA_FIRST_DESC, ctrl.dma_pa);
+	HIF_DISABLE_IRQ(NAND_CTLRDY);
+	mb();
+	BDEV_WR_F(FLASH_DMA_CTRL, RUN, 1);
+	BDEV_WR_F(FLASH_DMA_CTRL, WAKE, 1);
+
+	brcmstb_nand_waitfunc(mtd, chip);
+
+	HIF_ACK_IRQ(NAND_CTLRDY);
+	HIF_ENABLE_IRQ(NAND_CTLRDY);
+	dma_unmap_single(&host->pdev->dev, buf_pa, len, dir);
+#endif
+
+	return ret;
 }
 
 static int brcmstb_nand_edu_trans(struct brcmstb_nand_host *host, u64 addr,
@@ -681,27 +781,42 @@ static int brcmstb_nand_read(struct mtd_info *mtd,
 {
 	struct brcmstb_nand_host *host = chip->priv;
 	u64 err_addr;
-	bool use_edu;
+	bool use_edu, use_dma;
 
 	DBG("%s %llx -> %p\n", __func__, (unsigned long long)addr, buf);
 
 	BDEV_WR_RB(BCHP_NAND_ECC_UNC_ADDR, 0);
 	BDEV_WR_RB(BCHP_NAND_ECC_CORR_ADDR, 0);
-	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
-		(host->cs << 16) | ((addr >> 32) & 0xffff));
+#if CONTROLLER_VER >= 60
+	BDEV_WR_RB(BCHP_NAND_UNCORR_ERROR_COUNT, 0);
+	BDEV_WR_RB(BCHP_NAND_CORR_ERROR_COUNT, 0);
+#endif
 
-	if (oob)
-		memset(oob, 0x99, mtd->oobsize);
-
+	/* Don't use FLASH_DMA if buffer is not 32-byte aligned */
+	use_dma = buf && !oob && DMA_VA_OK(buf) && likely(!((u32)buf & 0x1f));
 	/* Don't use EDU if buffer is not 32-bit aligned */
 	use_edu = buf && EDU_VA_OK(buf) && likely(!((u32)buf & 0x03));
 
-	if (use_edu) {
-		if (brcmstb_nand_edu_trans(host, addr, buf, oob, trans,
-				EDU_CMD_READ))
+	if (use_dma) {
+		if (brcmstb_nand_dma_trans(host, addr, buf, trans * FC_BYTES,
+					CMD_PAGE_READ))
 			return -EIO;
 	} else {
-		brcmstb_nand_read_by_pio(mtd, chip, addr, trans, buf, oob);
+
+		BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
+				(host->cs << 16) | ((addr >> 32) & 0xffff));
+
+		if (oob)
+			memset(oob, 0x99, mtd->oobsize);
+
+		if (use_edu) {
+			if (brcmstb_nand_edu_trans(host, addr, buf, oob, trans,
+					EDU_CMD_READ))
+				return -EIO;
+		} else {
+			brcmstb_nand_read_by_pio(mtd, chip, addr, trans, buf,
+					oob);
+		}
 	}
 
 	err_addr = BDEV_RD(BCHP_NAND_ECC_UNC_ADDR) |
@@ -734,33 +849,33 @@ static int brcmstb_nand_read(struct mtd_info *mtd,
 }
 
 static int brcmstb_nand_read_page(struct mtd_info *mtd,
-	struct nand_chip *chip, uint8_t *buf, int page)
+	struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 
 	return brcmstb_nand_read(mtd, chip, host->last_addr,
-			mtd->writesize >> FC_SHIFT, (u32 *)buf,
-			(u8 *)chip->oob_poi);
+			mtd->writesize >> FC_SHIFT, (u32 *)buf, oob);
 }
 
 static int brcmstb_nand_read_page_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, uint8_t *buf, int page)
+	struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 	int ret;
 
 	WR_ACC_CONTROL(host->cs, RD_ECC_EN, 0);
 	WR_ACC_CONTROL(host->cs, ECC_LEVEL, 0);
 	ret = brcmstb_nand_read(mtd, chip, host->last_addr,
-			mtd->writesize >> FC_SHIFT,
-			(u32 *)buf, (u8 *)chip->oob_poi);
+			mtd->writesize >> FC_SHIFT, (u32 *)buf, oob);
 	WR_ACC_CONTROL(host->cs, ECC_LEVEL, host->hwcfg.ecc_level);
 	WR_ACC_CONTROL(host->cs, RD_ECC_EN, 1);
 	return ret;
 }
 
 static int brcmstb_nand_read_oob(struct mtd_info *mtd,
-	struct nand_chip *chip, int page, int sndcmd)
+	struct nand_chip *chip, int page)
 {
 	return brcmstb_nand_read(mtd, chip, (u64)page << chip->page_shift,
 			mtd->writesize >> FC_SHIFT,
@@ -768,7 +883,7 @@ static int brcmstb_nand_read_oob(struct mtd_info *mtd,
 }
 
 static int brcmstb_nand_read_oob_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, int page, int sndcmd)
+	struct nand_chip *chip, int page)
 {
 	struct brcmstb_nand_host *host = chip->priv;
 
@@ -842,6 +957,13 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 		buf = (u32 *)((u32)buf & ~0x03);
 	}
 
+	if (buf && !oob && DMA_VA_OK(buf) && !((u32)buf & 0x1f)) {
+		if (brcmstb_nand_dma_trans(host, addr, (u32 *)buf,
+					mtd->writesize, CMD_PROGRAM_PAGE))
+			return -EIO;
+		return 0;
+	}
+
 	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
 		(host->cs << 16) | ((addr >> 32) & 0xffff));
 
@@ -887,21 +1009,22 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 }
 
 static void brcmstb_nand_write_page(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf)
+	struct nand_chip *chip, const uint8_t *buf, int oob_required)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 
-	brcmstb_nand_write(mtd, chip, host->last_addr, (u32 *)buf, (u8 *)chip->oob_poi);
+	brcmstb_nand_write(mtd, chip, host->last_addr, (u32 *)buf, oob);
 }
 
 static void brcmstb_nand_write_page_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf)
+	struct nand_chip *chip, const uint8_t *buf, int oob_required)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	u8 *oob = oob_required ? (u8 *)chip->oob_poi : NULL;
 
 	WR_ACC_CONTROL(host->cs, WR_ECC_EN, 0);
-	brcmstb_nand_write(mtd, chip, host->last_addr, (u32 *)buf,
-		(u8 *)chip->oob_poi);
+	brcmstb_nand_write(mtd, chip, host->last_addr, (u32 *)buf, oob);
 	WR_ACC_CONTROL(host->cs, WR_ECC_EN, 1);
 }
 
@@ -1122,6 +1245,9 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 	WR_ACC_CONTROL(host->cs, RD_ERASED_ECC_EN, 0);
 	WR_ACC_CONTROL(host->cs, PARTIAL_PAGE_EN, 0);
 	WR_ACC_CONTROL(host->cs, PAGE_HIT_EN, 1);
+#if CONTROLLER_VER >= 60
+	WR_ACC_CONTROL(host->cs, PREFETCH_EN, 1);
+#endif
 	mb();
 
 	return 0;
@@ -1257,8 +1383,7 @@ static int __devinit brcmstb_nand_probe(struct platform_device *pdev)
 		ret = -ENXIO;
 		goto out;
 	}
-	chip->options |= NAND_NO_SUBPAGE_WRITE | NAND_NO_AUTOINCR |
-		NAND_SKIP_BBTSCAN;
+	chip->options |= NAND_NO_SUBPAGE_WRITE | NAND_SKIP_BBTSCAN;
 	chip->bbt_options |= NAND_BBT_USE_FLASH | NAND_BBT_NO_OOB;
 	if (nand_scan_tail(mtd) || brcmstb_nand_setup_dev(host) ||
 			chip->scan_bbt(mtd)) {
@@ -1319,6 +1444,9 @@ static int brcmstb_nand_suspend(struct device *dev)
 		ctrl.corr_stat_threshold =
 			BDEV_RD(BCHP_NAND_CORR_STAT_THRESHOLD);
 		ctrl.hif_intr2 = HIF_ENABLED_IRQ(NAND_CTLRDY);
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+		ctrl.hif_intr2 |= HIF_ENABLED_IRQ(FLASH_DMA_DONE);
+#endif
 
 		ctrl.acc_control = BDEV_RD(REG_ACC_CONTROL(host->cs));
 		ctrl.config = BDEV_RD(REG_CONFIG(host->cs));
@@ -1354,8 +1482,12 @@ static int brcmstb_nand_resume(struct device *dev)
 		BDEV_WR_RB(REG_TIMING_2(host->cs), ctrl.timing_2);
 
 		HIF_ACK_IRQ(NAND_CTLRDY);
-		if (ctrl.hif_intr2)
+		if (ctrl.hif_intr2) {
 			HIF_ENABLE_IRQ(NAND_CTLRDY);
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+			HIF_ENABLE_IRQ(FLASH_DMA_DONE);
+#endif
+		}
 
 		nand_scan_ident(mtd, 1, NULL);
 	}
@@ -1396,11 +1528,25 @@ static int __init brcmstb_nand_init(void)
 		return err;
 	}
 
-#ifdef CONFIG_BRCM_HAS_EDU
+#if defined(CONFIG_BRCM_HAS_FLASH_DMA)
+	if (!request_mem_region(BREG_PA(FLASH_DMA), BREG_LEN(FLASH_DMA),
+				DRV_NAME)) {
+		printk(KERN_ERR "%s: can't request memory region\n", __func__);
+		goto out4;
+	}
+	BDEV_WR_F(FLASH_DMA_MODE, MODE, 1);
+	BDEV_WR_F(FLASH_DMA_MODE, STOP_ON_ERROR, 0);
+	BDEV_WR(BCHP_FLASH_DMA_ERROR_STATUS, 0);
+	ctrl.dma_desc = dma_alloc_coherent(NULL, sizeof(*ctrl.dma_desc),
+			&ctrl.dma_pa, GFP_KERNEL);
+	if (!ctrl.dma_desc) {
+		printk(KERN_ERR "%s: can't allocate memory\n", __func__);
+		goto out3;
+	}
+#elif defined(CONFIG_BRCM_HAS_EDU)
 	if (!request_mem_region(BREG_PA(EDU), BREG_LEN(EDU), DRV_NAME)) {
 		printk(KERN_ERR "%s: can't request memory region\n", __func__);
-		release_mem_region(BREG_PA(NAND), BREG_LEN(NAND));
-		return err;
+		goto out4;
 	}
 
 #ifdef CONFIG_CPU_LITTLE_ENDIAN
@@ -1433,6 +1579,10 @@ static int __init brcmstb_nand_init(void)
 
 	HIF_ACK_IRQ(NAND_CTLRDY);
 	HIF_ENABLE_IRQ(NAND_CTLRDY);
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	HIF_ACK_IRQ(FLASH_DMA_DONE);
+	HIF_ENABLE_IRQ(FLASH_DMA_DONE);
+#endif
 
 	err = request_irq(ctrl.irq, brcmstb_nand_irq, IRQF_SHARED,
 		DRV_NAME, &ctrl);
@@ -1454,11 +1604,20 @@ static int __init brcmstb_nand_init(void)
 
 out:
 	HIF_DISABLE_IRQ(NAND_CTLRDY);
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	HIF_DISABLE_IRQ(FLASH_DMA_DONE);
+#endif
 	free_irq(ctrl.irq, &ctrl);
 out2:
-#ifdef CONFIG_BRCM_HAS_EDU
+#if defined(CONFIG_BRCM_HAS_FLASH_DMA)
+	dma_free_coherent(NULL, sizeof(*ctrl.dma_desc), ctrl.dma_desc,
+			ctrl.dma_pa);
+out3:
+	release_mem_region(BREG_PA(FLASH_DMA), BREG_LEN(FLASH_DMA));
+#elif defined(CONFIG_BRCM_HAS_EDU)
 	release_mem_region(BREG_PA(EDU), BREG_LEN(EDU));
 #endif
+out4:
 	release_mem_region(BREG_PA(NAND), BREG_LEN(NAND));
 	return err;
 }
@@ -1466,9 +1625,17 @@ out2:
 static void __exit brcmstb_nand_exit(void)
 {
 	HIF_DISABLE_IRQ(NAND_CTLRDY);
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	HIF_DISABLE_IRQ(FLASH_DMA_DONE);
+#endif
 	free_irq(ctrl.irq, &ctrl);
 	platform_driver_unregister(&brcmstb_nand_driver);
 
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+	dma_free_coherent(NULL, sizeof(*ctrl.dma_desc), ctrl.dma_desc,
+			ctrl.dma_pa);
+	release_mem_region(BREG_PA(FLASH_DMA), BREG_LEN(FLASH_DMA));
+#endif
 #ifdef CONFIG_BRCM_HAS_EDU
 	release_mem_region(BREG_PA(EDU), BREG_LEN(EDU));
 #endif

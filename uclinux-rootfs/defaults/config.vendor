@@ -5,7 +5,9 @@
 #
 # Broadcom STB Configuration
 #
-# CONFIG_USER_NONFREE_MOCA is not set
+CONFIG_USER_MOCA_NONE=y
+# CONFIG_USER_MOCA_MOCA1 is not set
+# CONFIG_USER_MOCA_MOCA2 is not set
 # CONFIG_USER_BRCM_PM is not set
 
 #

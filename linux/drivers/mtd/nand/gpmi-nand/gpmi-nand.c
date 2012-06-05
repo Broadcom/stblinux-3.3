@@ -841,7 +841,7 @@ static void block_mark_swapping(struct gpmi_nand_data *this,
 }
 
 static int gpmi_ecc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
-				uint8_t *buf, int page)
+				uint8_t *buf, int oob_required, int page)
 {
 	struct gpmi_nand_data *this = chip->priv;
 	struct bch_geometry *nfc_geo = &this->bch_geometry;
@@ -907,28 +907,31 @@ static int gpmi_ecc_read_page(struct mtd_info *mtd, struct nand_chip *chip,
 		mtd->ecc_stats.corrected += corrected;
 	}
 
-	/*
-	 * It's time to deliver the OOB bytes. See gpmi_ecc_read_oob() for
-	 * details about our policy for delivering the OOB.
-	 *
-	 * We fill the caller's buffer with set bits, and then copy the block
-	 * mark to th caller's buffer. Note that, if block mark swapping was
-	 * necessary, it has already been done, so we can rely on the first
-	 * byte of the auxiliary buffer to contain the block mark.
-	 */
-	memset(chip->oob_poi, ~0, mtd->oobsize);
-	chip->oob_poi[0] = ((uint8_t *) auxiliary_virt)[0];
+	if (oob_required) {
+		/*
+		 * It's time to deliver the OOB bytes. See gpmi_ecc_read_oob()
+		 * for details about our policy for delivering the OOB.
+		 *
+		 * We fill the caller's buffer with set bits, and then copy the
+		 * block mark to th caller's buffer. Note that, if block mark
+		 * swapping was necessary, it has already been done, so we can
+		 * rely on the first byte of the auxiliary buffer to contain
+		 * the block mark.
+		 */
+		memset(chip->oob_poi, ~0, mtd->oobsize);
+		chip->oob_poi[0] = ((uint8_t *) auxiliary_virt)[0];
 
-	read_page_swap_end(this, buf, mtd->writesize,
-			this->payload_virt, this->payload_phys,
-			nfc_geo->payload_size,
-			payload_virt, payload_phys);
+		read_page_swap_end(this, buf, mtd->writesize,
+				this->payload_virt, this->payload_phys,
+				nfc_geo->payload_size,
+				payload_virt, payload_phys);
+	}
 exit_nfc:
 	return ret;
 }
 
-static void gpmi_ecc_write_page(struct mtd_info *mtd,
-				struct nand_chip *chip, const uint8_t *buf)
+static void gpmi_ecc_write_page(struct mtd_info *mtd, struct nand_chip *chip,
+				const uint8_t *buf, int oob_required)
 {
 	struct gpmi_nand_data *this = chip->priv;
 	struct bch_geometry *nfc_geo = &this->bch_geometry;
@@ -1067,7 +1070,7 @@ exit_auxiliary:
  * this driver.
  */
 static int gpmi_ecc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
-				int page, int sndcmd)
+				int page)
 {
 	struct gpmi_nand_data *this = chip->priv;
 
@@ -1090,11 +1093,7 @@ static int gpmi_ecc_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 		chip->oob_poi[0] = chip->read_byte(mtd);
 	}
 
-	/*
-	 * Return true, indicating that the next call to this function must send
-	 * a command.
-	 */
-	return true;
+	return 0;
 }
 
 static int
@@ -1124,7 +1123,7 @@ static int gpmi_block_markbad(struct mtd_info *mtd, loff_t ofs)
 		chip->bbt[block >> 2] |= 0x01 << ((block & 0x03) << 1);
 
 	/* Do we have a flash based bad block table ? */
-	if (chip->options & NAND_BBT_USE_FLASH)
+	if (chip->bbt_options & NAND_BBT_USE_FLASH)
 		ret = nand_update_bbt(mtd, ofs);
 	else {
 		chipnr = (int)(ofs >> chip->chip_shift);
@@ -1308,7 +1307,7 @@ static int __devinit mx23_write_transcription_stamp(struct gpmi_nand_data *this)
 		/* Write the first page of the current stride. */
 		dev_dbg(dev, "Writing an NCB fingerprint in page 0x%x\n", page);
 		chip->cmdfunc(mtd, NAND_CMD_SEQIN, 0x00, page);
-		chip->ecc.write_page_raw(mtd, chip, buffer);
+		chip->ecc.write_page_raw(mtd, chip, buffer, 0);
 		chip->cmdfunc(mtd, NAND_CMD_PAGEPROG, -1, -1);
 
 		/* Wait for the write to finish. */

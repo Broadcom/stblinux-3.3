@@ -863,9 +863,22 @@ static void wait_barrier(struct r10conf *conf)
 	spin_lock_irq(&conf->resync_lock);
 	if (conf->barrier) {
 		conf->nr_waiting++;
-		wait_event_lock_irq(conf->wait_barrier, !conf->barrier,
+		/* Wait for the barrier to drop.
+		 * However if there are already pending
+		 * requests (preventing the barrier from
+		 * rising completely), and the
+		 * pre-process bio queue isn't empty,
+		 * then don't wait, as we need to empty
+		 * that queue to get the nr_pending
+		 * count down.
+		 */
+		wait_event_lock_irq(conf->wait_barrier,
+				    !conf->barrier ||
+				    (conf->nr_pending &&
+				     current->bio_list &&
+				     !bio_list_empty(current->bio_list)),
 				    conf->resync_lock,
-				    );
+			);
 		conf->nr_waiting--;
 	}
 	conf->nr_pending++;
@@ -1729,6 +1742,7 @@ static void sync_request_write(struct mddev *mddev, struct r10bio *r10_bio)
 	struct r10conf *conf = mddev->private;
 	int i, first;
 	struct bio *tbio, *fbio;
+	int vcnt;
 
 	atomic_set(&r10_bio->remaining, 1);
 
@@ -1743,10 +1757,10 @@ static void sync_request_write(struct mddev *mddev, struct r10bio *r10_bio)
 	first = i;
 	fbio = r10_bio->devs[i].bio;
 
+	vcnt = (r10_bio->sectors + (PAGE_SIZE >> 9) - 1) >> (PAGE_SHIFT - 9);
 	/* now find blocks with errors */
 	for (i=0 ; i < conf->copies ; i++) {
 		int  j, d;
-		int vcnt = r10_bio->sectors >> (PAGE_SHIFT-9);
 
 		tbio = r10_bio->devs[i].bio;
 
@@ -1812,7 +1826,6 @@ static void sync_request_write(struct mddev *mddev, struct r10bio *r10_bio)
 	 */
 	for (i = 0; i < conf->copies; i++) {
 		int j, d;
-		int vcnt = r10_bio->sectors >> (PAGE_SHIFT-9);
 
 		tbio = r10_bio->devs[i].repl_bio;
 		if (!tbio || !tbio->bi_end_io)

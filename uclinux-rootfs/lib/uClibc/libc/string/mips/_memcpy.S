@@ -47,15 +47,26 @@
 
 	.data
 	.align  2
-	.type	__cputype, @object
-	.size	__cputype, 4
-__cputype:
+	.type	__memcpy_impl, @object
+	.size	__memcpy_impl, 4
+__memcpy_impl:
 	.word	0
 
+
+__str_bmips3300:
+	.string	"bmips3300"
 __str_bmips4380:
 	.string	"bmips4380"
 __str_bmips5000:
 	.string	"bmips5000"
+__cpulist:
+	.word	_3300_memcpy
+	.word	__str_bmips3300
+	.word	_4380_memcpy
+	.word	__str_bmips4380
+	.word	_5000_memcpy
+	.word	__str_bmips5000
+	.word	0
 
 
 	.text
@@ -66,20 +77,14 @@ ENTRY (memcpy)
 	.cpload	t9
 #endif
 
-	lw	t0, __cputype
+	lw	t0, __memcpy_impl
 	beqz	t0, detect_cpu		# based on cpu type
 	nop
 
-detect_done:
-	li	t1, 4380
-	beq	t0, t1, _4380_memcpy
+	jr	t0
 	nop
 
-	li	t1, 5000
-	beq	t0, t1, _5000_memcpy
-	nop
-
-	/* default case: BMIPS3300 memcpy() */
+_3300_memcpy:
 
 #undef L
 #define	L(x)	__BMIPS3300_memcpy_##x
@@ -1998,46 +2003,43 @@ L(uaRemain):
 	move	a2, t0
 
 detect_cpu:
-	li	t0, 3300		# 3300 = default setting
 	lw	v0, __auxv_platform
-	beqz	v0, detect_done		# don't store the result, because
-	nop				# memcpy() can be called before
-					# uClibc_main()
+	la	t6, __uclibc_memcpy
+	beqz	v0, 6f			# just fall back to the normal uClibc
+	nop				# memcpy() if we are called before
+					# uClibc_main(), or missing auxv data
 
-	li	t0, 4380
-	move	t1, v0
-	la	t2, __str_bmips4380
-
+	la	t5, __cpulist		# scan __cpulist for the right match
 1:
-	lb	t3, 0(t1)		# simple string compare
+	lw	t0, 0(t5)		# pointer to memcpy implementation
+	beqz	t0, 4f
+	lw	t2, 4(t5)		# pointer to ID string
+
+	move	t1, v0
+2:
+	lb	t3, 0(t1)		# simple string compare ($t1 vs $t2)
 	lb	t4, 0(t2)
-	bne	t3, t4, 2f
+	bne	t3, t4, 3f
 	addiu	t1, 1
-	beqz	t3, 3f
+	beqz	t3, 5f
 	addiu	t2, 1
-	bnez	t4, 1b
+	bnez	t4, 2b
 	nop
 
-2:
-	li	t0, 5000
-	move	t1, v0
-	la	t2, __str_bmips5000
-
-1:
-	lb	t3, 0(t1)
-	lb	t4, 0(t2)
-	bne	t3, t4, 2f
-	addiu	t1, 1
-	beqz	t3, 3f
-	addiu	t2, 1
-	bnez	t4, 1b
-	nop
-
-2:
-	li	t0, 3300
 3:
-	sw	t0, __cputype
-	b	detect_done
+	b	1b			# no match on this string; loop
+	addiu	t5, 8
+
+4:
+	move	t0, t6			# no match on any string
+
+5:
+	la	t1, __memcpy_impl	# store the pointer to the right code
+	jr	t0
+	sw	t0, 0(t1)
+
+6:
+	jr	t6
 	nop
 
 	.set	reorder

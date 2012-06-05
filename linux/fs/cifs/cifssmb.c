@@ -458,7 +458,10 @@ CIFSSMBNegotiate(unsigned int xid, struct cifs_ses *ses)
 			goto neg_err_exit;
 		}
 		server->sec_mode = (__u8)le16_to_cpu(rsp->SecurityMode);
-		server->maxReq = le16_to_cpu(rsp->MaxMpxCount);
+		server->maxReq = min_t(unsigned int,
+				       le16_to_cpu(rsp->MaxMpxCount),
+				       cifs_max_pending);
+		server->oplocks = server->maxReq > 1 ? enable_oplocks : false;
 		server->maxBuf = le16_to_cpu(rsp->MaxBufSize);
 		server->max_vcs = le16_to_cpu(rsp->MaxNumberVcs);
 		/* even though we do not use raw we might as well set this
@@ -564,7 +567,9 @@ CIFSSMBNegotiate(unsigned int xid, struct cifs_ses *ses)
 
 	/* one byte, so no need to convert this or EncryptionKeyLen from
 	   little endian */
-	server->maxReq = le16_to_cpu(pSMBr->MaxMpxCount);
+	server->maxReq = min_t(unsigned int, le16_to_cpu(pSMBr->MaxMpxCount),
+			       cifs_max_pending);
+	server->oplocks = server->maxReq > 1 ? enable_oplocks : false;
 	/* probably no need to store and check maxvcs */
 	server->maxBuf = le32_to_cpu(pSMBr->MaxBufferSize);
 	server->max_rw = le32_to_cpu(pSMBr->MaxRawSize);
@@ -4826,8 +4831,12 @@ parse_DFS_referrals(TRANSACTION2_GET_DFS_REFER_RSP *pSMBr,
 		max_len = data_end - temp;
 		node->node_name = cifs_strndup_from_utf16(temp, max_len,
 						is_unicode, nls_codepage);
-		if (!node->node_name)
+		if (!node->node_name) {
 			rc = -ENOMEM;
+			goto parse_DFS_referrals_exit;
+		}
+
+		ref++;
 	}
 
 parse_DFS_referrals_exit:
