@@ -512,6 +512,8 @@ struct ebi_cs_info {
 	unsigned long		start;
 	unsigned long		len;
 	int			width;
+	unsigned long		base_reg;
+	unsigned long		config_reg;
 };
 
 static struct ebi_cs_info cs_info[NUM_CS];
@@ -692,6 +694,17 @@ static void __init brcm_setup_cs(int cs, int nr_parts,
 static int __initdata noflash;
 static int __initdata nandcs[NUM_CS];
 
+void ebi_restore_settings(void)
+{
+	int i;
+	for (i = 0; i < NUM_CS; i++) {
+		BDEV_WR(BCHP_EBI_CS_BASE_0 + (i * 8), cs_info[i].base_reg);
+#ifdef BCHP_EBI_CS_CONFIG_0
+		BDEV_WR(BCHP_EBI_CS_CONFIG_0 + (i * 8), cs_info[i].config_reg);
+#endif
+	}
+}
+
 static struct map_info brcm_dummy_map = {
 	.name			= "DUMMY",
 };
@@ -745,11 +758,13 @@ static int __init brcmstb_mtd_setup(void)
 		base = BDEV_RD(BCHP_EBI_CS_BASE_0 + (i * 8));
 		size = base & 0x0f;
 
+		cs_info[i].base_reg = base;
 		cs_info[i].start = (base >> (13 + size)) << (13 + size);
 		cs_info[i].len = 8192UL << (base & 0xf);
 
 #ifdef BCHP_EBI_CS_CONFIG_0
 		config = BDEV_RD(BCHP_EBI_CS_CONFIG_0 + (i * 8));
+		cs_info[i].config_reg = config;
 		if (config & BCHP_EBI_CS_CONFIG_0_enable_MASK)
 			cs_info[i].type = TYPE_NOR;
 
@@ -848,6 +863,12 @@ static int __init nandcs_setup(char *str)
 }
 
 __setup("nandcs", nandcs_setup);
+
+#else /* defined(CONFIG_BRCM_FLASH) */
+
+void ebi_restore_settings(void)
+{
+}
 
 #endif /* defined(CONFIG_BRCM_FLASH) */
 

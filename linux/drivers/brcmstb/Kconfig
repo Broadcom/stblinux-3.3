@@ -208,9 +208,9 @@ config BCM7429A0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
-	#select BRCM_HAS_AON
-	#select BRCM_PWR_HANDSHAKE_V1
-	#select BRCM_HAS_DIGITAL_DDR_PHY
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7429B0
 	bool "7429 Bx"
@@ -239,9 +239,9 @@ config BCM7429B0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
-	#select BRCM_HAS_AON
-	#select BRCM_PWR_HANDSHAKE_V1
-	#select BRCM_HAS_DIGITAL_DDR_PHY
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7435A0
 	bool "7435 Ax"
@@ -679,7 +679,7 @@ config BRCM_PM
 choice
 	prompt "System clocksource"
 	depends on BRCMSTB && MIPS
-	default CSRC_R4K if !SMP && !BRCM_CPU_DIV
+	default CSRC_R4K_BRCMSTB if !SMP && !BRCM_CPU_DIV
 	default CSRC_WKTMR if BRCM_HAS_WKTMR
 	default CSRC_UPG
 	help
@@ -693,9 +693,10 @@ config CSRC_WKTMR
 	  Say Y to use the 27Mhz "WKTMR" clocksource.  This is usually
 	  the best choice.
 
-config CSRC_R4K
+config CSRC_R4K_BRCMSTB
 	bool "CP0 COUNT/COMPARE"
 	depends on !BRCM_CPU_DIV
+	select CSRC_R4K
 	help
 	  Say Y to use the CP0 COUNT/COMPARE timer.  This should not be
 	  used in SMP mode because each CPU (TP) has its own independent

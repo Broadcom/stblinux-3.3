@@ -214,9 +214,8 @@ int mii_init(struct net_device *dev)
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_INT_EPHY;
 		/* enable APD */
 		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PHY_RESET;
-		udelay(5);
-		pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PHY_RESET;
+		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, BMCR_RESET);
+		udelay(1);
 		/* enable 64 clock MDIO */
 		mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
 		mii_read(dev, pDevCtrl->phyAddr, 0x1d);

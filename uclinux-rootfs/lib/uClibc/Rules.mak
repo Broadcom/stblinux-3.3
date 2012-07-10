@@ -534,10 +534,19 @@ link.asneeded = $(if $(findstring yy,$(CC_FLAG_ASNEEDED)$(CC_FLAG_NO_ASNEEDED)),
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
 export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UCLIBC_LDSO) )" || echo "$(UCLIBC_LDSO)")
-ifeq ($(UCLIBC_HAS_BACKTRACE),y)
+
 # Only used in installed libc.so linker script
-UBACKTRACE_FULL_NAME := $(RUNTIME_PREFIX)lib/$(UBACKTRACE_DSO)
-export UBACKTRACE_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UBACKTRACE_FULL_NAME) )" || echo "$(UBACKTRACE_FULL_NAME)")
+ifeq ($(UCLIBC_HAS_BACKTRACE),y)
+
+ifeq ($(HARDWIRED_ABSPATH),y)
+UBACKTRACE_FULL_NAME := $(subst //,/,$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UBACKTRACE_DSO))
+else
+UBACKTRACE_FULL_NAME := $(UBACKTRACE_DSO)
+endif
+
+export UBACKTRACE_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && \
+	echo "GROUP ( AS_NEEDED ( $(UBACKTRACE_FULL_NAME) ) )" || \
+	echo "GROUP ( $(UBACKTRACE_FULL_NAME) )")
 else
 export UBACKTRACE_ASNEEDED:=""
 endif

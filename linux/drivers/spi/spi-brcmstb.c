@@ -273,6 +273,9 @@ static u32 bcmspi_read_interrupt(void)
 
 static void bcmspi_flush_prefetch_buffers(struct bcmspi_priv *priv)
 {
+	/* Force rising edge for the b0/b1 'flush' field */
+	priv->bspi_hw->b0_ctrl = 0;
+	priv->bspi_hw->b1_ctrl = 0;
 	priv->bspi_hw->b0_ctrl = 1;
 	priv->bspi_hw->b1_ctrl = 1;
 }

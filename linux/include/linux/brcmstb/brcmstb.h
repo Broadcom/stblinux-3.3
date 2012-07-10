@@ -307,6 +307,7 @@
 #include <linux/brcmstb/7429a0/bchp_irq1.h>
 #include <linux/brcmstb/7429a0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7429a0/bchp_memc_ddr_0.h>
+#include <linux/brcmstb/7429a0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7429a0/bchp_nand.h>
 #include <linux/brcmstb/7429a0/bchp_sata_top_ctrl.h>
@@ -346,6 +347,7 @@
 #include <linux/brcmstb/7429b0/bchp_irq1.h>
 #include <linux/brcmstb/7429b0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7429b0/bchp_memc_ddr_0.h>
+#include <linux/brcmstb/7429b0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429b0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7429b0/bchp_nand.h>
 #include <linux/brcmstb/7429b0/bchp_sata_top_ctrl.h>
@@ -821,6 +823,8 @@ void __init board_get_ram_size(unsigned long *dram0_mb,
 	unsigned long *dram1_mb);
 int __init board_get_partition_map(struct mtd_partition **p);
 void __init brcm_wraparound_check(void);
+
+void ebi_restore_settings(void);
 
 int __init bchip_strap_flash_type(void);
 void brcmstb_cpu_setup(void);

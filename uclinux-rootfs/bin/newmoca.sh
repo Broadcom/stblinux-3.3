@@ -17,7 +17,7 @@ if [[ "$tarball" = http* ]]; then
 	tarball=$local_tarball
 fi
 
-if [[ "$tarball" = MoCADriver_* ]]; then
+if [[ "$base" = MoCADriver_* ]]; then
 	mocadir=user/moca
 	binaries="mocad,mocactl,soapserver"
 	pkg=moca

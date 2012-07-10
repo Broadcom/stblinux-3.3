@@ -453,6 +453,7 @@ int __ref brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 
 	/* restore I/O context */
 	board_pinmux_setup();
+	ebi_restore_settings();
 
 	/* restore CP0 context */
 	brcm_pm_restore_cp0_context(&s3_context);
