@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,21 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Jun 13 14:53:39 2011
- *                 MD5 Checksum         a14f8e7f638a7ebe759043ff756befc5
+ * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_aon_ctrl.h $
- * 
- * Hydra_Software_Devel/3   6/14/11 12:56p vanessah
- * SW7425-715: 7425 B0 RDB resync
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -49,12 +46,13 @@
 #define BCHP_AON_CTRL_PM_CTRL                    0x00408004 /* Control register for Power Controller */
 #define BCHP_AON_CTRL_PM_STATUS                  0x00408008 /* Status register for Power Controller */
 #define BCHP_AON_CTRL_PM_IRQ_INPUT_STATUS        0x0040800c /* Power Management IRQ input status */
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT         0x00408010 /* Power Management Wait counter in place of Wait for MIPS IRQ */
-#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER        0x00408014 /* Deep Standby Assertion Timer */
-#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER         0x00408018 /* Deep Standby Wakeup Timer */
-#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE    0x0040801c /* Control register for Power Controller */
-#define BCHP_AON_CTRL_PM_LED_CTRL                0x00408020 /* LED set control register */
-#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES     0x00408024 /* LED set control register */
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT          0x00408010 /* Power Management Wait counter in place of Wait for Host CPU IRQ */
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER     0x00408014 /* Power Good Guardband Timer for Host CPU */
+#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER        0x00408018 /* Deep Standby Assertion Timer */
+#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER         0x0040801c /* Deep Standby Wakeup Timer */
+#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE    0x00408020 /* Control register for Power Controller */
+#define BCHP_AON_CTRL_PM_LED_CTRL                0x00408024 /* LED set control register */
+#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES     0x00408028 /* LED set control register */
 #define BCHP_AON_CTRL_HLCD_CTRL                  0x00408030 /* HW LED Clock Driver Control */
 #define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER    0x00408034 /* Second Fraction Counter Initial value */
 #define BCHP_AON_CTRL_TIME_COUNTER               0x00408038 /* Hour/Minute Counter Initial value */
@@ -89,22 +87,22 @@
 /* AON_CTRL :: RESET_CTRL :: front_panel_reset_enable_lock [03:03] */
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_lock_MASK 0x00000008
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_lock_SHIFT 3
-#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_lock_DEFAULT 0
+#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_lock_DEFAULT 0x00000000
 
 /* AON_CTRL :: RESET_CTRL :: front_panel_reset_enable [02:02] */
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_MASK     0x00000004
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_SHIFT    2
-#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_DEFAULT  0
+#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_enable_DEFAULT  0x00000000
 
 /* AON_CTRL :: RESET_CTRL :: front_panel_reset_polarity [01:01] */
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_polarity_MASK   0x00000002
 #define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_polarity_SHIFT  1
-#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_polarity_DEFAULT 0
+#define BCHP_AON_CTRL_RESET_CTRL_front_panel_reset_polarity_DEFAULT 0x00000000
 
 /* AON_CTRL :: RESET_CTRL :: clear_reset_history [00:00] */
 #define BCHP_AON_CTRL_RESET_CTRL_clear_reset_history_MASK          0x00000001
 #define BCHP_AON_CTRL_RESET_CTRL_clear_reset_history_SHIFT         0
-#define BCHP_AON_CTRL_RESET_CTRL_clear_reset_history_DEFAULT       0
+#define BCHP_AON_CTRL_RESET_CTRL_clear_reset_history_DEFAULT       0x00000000
 
 /***************************************************************************
  *PM_CTRL - Control register for Power Controller
@@ -116,53 +114,61 @@
 /* AON_CTRL :: PM_CTRL :: min_s3_width_timer_bypass [07:07] */
 #define BCHP_AON_CTRL_PM_CTRL_min_s3_width_timer_bypass_MASK       0x00000080
 #define BCHP_AON_CTRL_PM_CTRL_min_s3_width_timer_bypass_SHIFT      7
-#define BCHP_AON_CTRL_PM_CTRL_min_s3_width_timer_bypass_DEFAULT    0
+#define BCHP_AON_CTRL_PM_CTRL_min_s3_width_timer_bypass_DEFAULT    0x00000000
 
 /* AON_CTRL :: PM_CTRL :: pm_fast_power_down [06:06] */
 #define BCHP_AON_CTRL_PM_CTRL_pm_fast_power_down_MASK              0x00000040
 #define BCHP_AON_CTRL_PM_CTRL_pm_fast_power_down_SHIFT             6
-#define BCHP_AON_CTRL_PM_CTRL_pm_fast_power_down_DEFAULT           0
+#define BCHP_AON_CTRL_PM_CTRL_pm_fast_power_down_DEFAULT           0x00000000
 
 /* AON_CTRL :: PM_CTRL :: pm_warm_boot [05:05] */
 #define BCHP_AON_CTRL_PM_CTRL_pm_warm_boot_MASK                    0x00000020
 #define BCHP_AON_CTRL_PM_CTRL_pm_warm_boot_SHIFT                   5
-#define BCHP_AON_CTRL_PM_CTRL_pm_warm_boot_DEFAULT                 0
+#define BCHP_AON_CTRL_PM_CTRL_pm_warm_boot_DEFAULT                 0x00000000
 
 /* AON_CTRL :: PM_CTRL :: pm_deep_standby [04:04] */
 #define BCHP_AON_CTRL_PM_CTRL_pm_deep_standby_MASK                 0x00000010
 #define BCHP_AON_CTRL_PM_CTRL_pm_deep_standby_SHIFT                4
-#define BCHP_AON_CTRL_PM_CTRL_pm_deep_standby_DEFAULT              0
+#define BCHP_AON_CTRL_PM_CTRL_pm_deep_standby_DEFAULT              0x00000000
 
-/* AON_CTRL :: PM_CTRL :: pm_clk_divider_reset_en [03:03] */
-#define BCHP_AON_CTRL_PM_CTRL_pm_clk_divider_reset_en_MASK         0x00000008
-#define BCHP_AON_CTRL_PM_CTRL_pm_clk_divider_reset_en_SHIFT        3
-#define BCHP_AON_CTRL_PM_CTRL_pm_clk_divider_reset_en_DEFAULT      1
+/* AON_CTRL :: PM_CTRL :: pm_enable_cpu_pwrdn [03:03] */
+#define BCHP_AON_CTRL_PM_CTRL_pm_enable_cpu_pwrdn_MASK             0x00000008
+#define BCHP_AON_CTRL_PM_CTRL_pm_enable_cpu_pwrdn_SHIFT            3
+#define BCHP_AON_CTRL_PM_CTRL_pm_enable_cpu_pwrdn_DEFAULT          0x00000001
 
-/* AON_CTRL :: PM_CTRL :: pm_use_mips_ready_ctrl [02:02] */
-#define BCHP_AON_CTRL_PM_CTRL_pm_use_mips_ready_ctrl_MASK          0x00000004
-#define BCHP_AON_CTRL_PM_CTRL_pm_use_mips_ready_ctrl_SHIFT         2
-#define BCHP_AON_CTRL_PM_CTRL_pm_use_mips_ready_ctrl_DEFAULT       0
+/* AON_CTRL :: PM_CTRL :: pm_use_cpu_ready_ctrl [02:02] */
+#define BCHP_AON_CTRL_PM_CTRL_pm_use_cpu_ready_ctrl_MASK           0x00000004
+#define BCHP_AON_CTRL_PM_CTRL_pm_use_cpu_ready_ctrl_SHIFT          2
+#define BCHP_AON_CTRL_PM_CTRL_pm_use_cpu_ready_ctrl_DEFAULT        0x00000000
 
 /* AON_CTRL :: PM_CTRL :: pm_enable_pll_pwrdn [01:01] */
 #define BCHP_AON_CTRL_PM_CTRL_pm_enable_pll_pwrdn_MASK             0x00000002
 #define BCHP_AON_CTRL_PM_CTRL_pm_enable_pll_pwrdn_SHIFT            1
-#define BCHP_AON_CTRL_PM_CTRL_pm_enable_pll_pwrdn_DEFAULT          0
+#define BCHP_AON_CTRL_PM_CTRL_pm_enable_pll_pwrdn_DEFAULT          0x00000000
 
 /* AON_CTRL :: PM_CTRL :: pm_start_pwrdn [00:00] */
 #define BCHP_AON_CTRL_PM_CTRL_pm_start_pwrdn_MASK                  0x00000001
 #define BCHP_AON_CTRL_PM_CTRL_pm_start_pwrdn_SHIFT                 0
-#define BCHP_AON_CTRL_PM_CTRL_pm_start_pwrdn_DEFAULT               0
+#define BCHP_AON_CTRL_PM_CTRL_pm_start_pwrdn_DEFAULT               0x00000000
 
 /***************************************************************************
  *PM_STATUS - Status register for Power Controller
  ***************************************************************************/
-/* AON_CTRL :: PM_STATUS :: pm_wait_count_upper_bits [31:26] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_MASK      0xfc000000
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_SHIFT     26
+/* AON_CTRL :: PM_STATUS :: pm_wait_count_upper_bits [31:28] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_MASK      0xf0000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_count_upper_bits_SHIFT     28
 
-/* AON_CTRL :: PM_STATUS :: pm_wait_counter_active [25:25] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_MASK        0x02000000
-#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_SHIFT       25
+/* AON_CTRL :: PM_STATUS :: pm_wait_counter_active [27:27] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_MASK        0x08000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_wait_counter_active_SHIFT       27
+
+/* AON_CTRL :: PM_STATUS :: pm_power_down_cpu [26:26] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_power_down_cpu_MASK             0x04000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_power_down_cpu_SHIFT            26
+
+/* AON_CTRL :: PM_STATUS :: pm_cpu_reset_b [25:25] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_cpu_reset_b_MASK                0x02000000
+#define BCHP_AON_CTRL_PM_STATUS_pm_cpu_reset_b_SHIFT               25
 
 /* AON_CTRL :: PM_STATUS :: pm_s3_wakeup_reset_ [24:24] */
 #define BCHP_AON_CTRL_PM_STATUS_pm_s3_wakeup_reset__MASK           0x01000000
@@ -192,9 +198,9 @@
 #define BCHP_AON_CTRL_PM_STATUS_pm_ignore_inputs_MASK              0x00040000
 #define BCHP_AON_CTRL_PM_STATUS_pm_ignore_inputs_SHIFT             18
 
-/* AON_CTRL :: PM_STATUS :: pm_rst_clock_div [17:17] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_rst_clock_div_MASK              0x00020000
-#define BCHP_AON_CTRL_PM_STATUS_pm_rst_clock_div_SHIFT             17
+/* AON_CTRL :: PM_STATUS :: pm_s2_standby [17:17] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_s2_standby_MASK                 0x00020000
+#define BCHP_AON_CTRL_PM_STATUS_pm_s2_standby_SHIFT                17
 
 /* AON_CTRL :: PM_STATUS :: pm_pwrdn_pll_req [16:16] */
 #define BCHP_AON_CTRL_PM_STATUS_pm_pwrdn_pll_req_MASK              0x00010000
@@ -236,9 +242,9 @@
 #define BCHP_AON_CTRL_PM_STATUS_pm_bsp_ready_for_pwrdn_MASK        0x00000080
 #define BCHP_AON_CTRL_PM_STATUS_pm_bsp_ready_for_pwrdn_SHIFT       7
 
-/* AON_CTRL :: PM_STATUS :: pm_mips_ready_for_pwrdn [06:06] */
-#define BCHP_AON_CTRL_PM_STATUS_pm_mips_ready_for_pwrdn_MASK       0x00000040
-#define BCHP_AON_CTRL_PM_STATUS_pm_mips_ready_for_pwrdn_SHIFT      6
+/* AON_CTRL :: PM_STATUS :: pm_cpu_ready_for_pwrdn [06:06] */
+#define BCHP_AON_CTRL_PM_STATUS_pm_cpu_ready_for_pwrdn_MASK        0x00000040
+#define BCHP_AON_CTRL_PM_STATUS_pm_cpu_ready_for_pwrdn_SHIFT       6
 
 /* AON_CTRL :: PM_STATUS :: pm_sec_avd_rptd_clk_disable [05:05] */
 #define BCHP_AON_CTRL_PM_STATUS_pm_sec_avd_rptd_clk_disable_MASK   0x00000020
@@ -254,16 +260,17 @@
 #define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_TRANSITION_TO_STANDBY  4
 #define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_STANDBY                5
 #define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_STANDBY_WITH_PLLS_ON   6
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_RESET_216_108_CLKS     7
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_TRANSITION_TO_ACTIVE   8
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_FAST_PWRDN             9
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_ENTRY_S1  10
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_COLD_ENTRY_S2 11
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_WARM_ENTRY_S2 12
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_ENTRY_S3  13
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY           14
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_EXIT_S1   15
-#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_EXIT_S2   16
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_HOLD_CPU_POWERED_DOWN  7
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_POWER_UP_CPU           8
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_TRANSITION_TO_ACTIVE   9
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_FAST_PWRDN             10
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_ENTRY_S1  11
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_COLD_ENTRY_S2 12
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_WARM_ENTRY_S2 13
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_ENTRY_S3  14
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY           15
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_EXIT_S1   16
+#define BCHP_AON_CTRL_PM_STATUS_pm_state_PM_DEEP_STANDBY_EXIT_S2   17
 
 /***************************************************************************
  *PM_IRQ_INPUT_STATUS - Power Management IRQ input status
@@ -273,16 +280,28 @@
 #define BCHP_AON_CTRL_PM_IRQ_INPUT_STATUS_pm_irq_input_status_SHIFT 0
 
 /***************************************************************************
- *PM_MIPS_WAIT_COUNT - Power Management Wait counter in place of Wait for MIPS IRQ
+ *PM_CPU_WAIT_COUNT - Power Management Wait counter in place of Wait for Host CPU IRQ
  ***************************************************************************/
-/* AON_CTRL :: PM_MIPS_WAIT_COUNT :: reserved0 [31:16] */
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT_reserved0_MASK            0xffff0000
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT_reserved0_SHIFT           16
+/* AON_CTRL :: PM_CPU_WAIT_COUNT :: reserved0 [31:16] */
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT_reserved0_MASK             0xffff0000
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT_reserved0_SHIFT            16
 
-/* AON_CTRL :: PM_MIPS_WAIT_COUNT :: counter_start_value [15:00] */
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT_counter_start_value_MASK  0x0000ffff
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT_counter_start_value_SHIFT 0
-#define BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT_counter_start_value_DEFAULT 16
+/* AON_CTRL :: PM_CPU_WAIT_COUNT :: counter_start_value [15:00] */
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT_counter_start_value_MASK   0x0000ffff
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT_counter_start_value_SHIFT  0
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT_counter_start_value_DEFAULT 0x00000010
+
+/***************************************************************************
+ *PM_CPU_GUARDBAND_TIMER - Power Good Guardband Timer for Host CPU
+ ***************************************************************************/
+/* AON_CTRL :: PM_CPU_GUARDBAND_TIMER :: reserved0 [31:10] */
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER_reserved0_MASK        0xfffffc00
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER_reserved0_SHIFT       10
+
+/* AON_CTRL :: PM_CPU_GUARDBAND_TIMER :: counter_start_value [09:00] */
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER_counter_start_value_MASK 0x000003ff
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER_counter_start_value_SHIFT 0
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER_counter_start_value_DEFAULT 0x0000007f
 
 /***************************************************************************
  *PM_S3_STANDBY_TIMER - Deep Standby Assertion Timer
@@ -294,7 +313,7 @@
 /* AON_CTRL :: PM_S3_STANDBY_TIMER :: counter_start_value [26:00] */
 #define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER_counter_start_value_MASK 0x07ffffff
 #define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER_counter_start_value_SHIFT 0
-#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER_counter_start_value_DEFAULT 540000
+#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER_counter_start_value_DEFAULT 0x00083d60
 
 /***************************************************************************
  *PM_S3_WAKEUP_TIMER - Deep Standby Wakeup Timer
@@ -306,7 +325,7 @@
 /* AON_CTRL :: PM_S3_WAKEUP_TIMER :: counter_start_value [26:00] */
 #define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER_counter_start_value_MASK  0x07ffffff
 #define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER_counter_start_value_SHIFT 0
-#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER_counter_start_value_DEFAULT 540000
+#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER_counter_start_value_DEFAULT 0x00083d60
 
 /***************************************************************************
  *PM_FAST_PWRDN_PRECHARGE - Control register for Power Controller
@@ -318,7 +337,7 @@
 /* AON_CTRL :: PM_FAST_PWRDN_PRECHARGE :: pm_fast_power_down_precharge [23:00] */
 #define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE_pm_fast_power_down_precharge_MASK 0x00ffffff
 #define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE_pm_fast_power_down_precharge_SHIFT 0
-#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE_pm_fast_power_down_precharge_DEFAULT 0
+#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE_pm_fast_power_down_precharge_DEFAULT 0x00000000
 
 /***************************************************************************
  *PM_LED_CTRL - LED set control register
@@ -345,7 +364,7 @@
 /* AON_CTRL :: PM_LED_AUTO_ON_ENABLES :: led_status [31:00] */
 #define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES_led_status_MASK       0xffffffff
 #define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES_led_status_SHIFT      0
-#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES_led_status_DEFAULT    0
+#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES_led_status_DEFAULT    0x00000000
 
 /***************************************************************************
  *HLCD_CTRL - HW LED Clock Driver Control
@@ -361,7 +380,7 @@
 /* AON_CTRL :: HLCD_CTRL :: hlcd_enable [00:00] */
 #define BCHP_AON_CTRL_HLCD_CTRL_hlcd_enable_MASK                   0x00000001
 #define BCHP_AON_CTRL_HLCD_CTRL_hlcd_enable_SHIFT                  0
-#define BCHP_AON_CTRL_HLCD_CTRL_hlcd_enable_DEFAULT                0
+#define BCHP_AON_CTRL_HLCD_CTRL_hlcd_enable_DEFAULT                0x00000000
 
 /***************************************************************************
  *SECOND_FRACTION_COUNTER - Second Fraction Counter Initial value
@@ -373,7 +392,7 @@
 /* AON_CTRL :: SECOND_FRACTION_COUNTER :: second_fraction_counter_init [24:00] */
 #define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER_second_fraction_counter_init_MASK 0x01ffffff
 #define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER_second_fraction_counter_init_SHIFT 0
-#define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER_second_fraction_counter_init_DEFAULT 0
+#define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER_second_fraction_counter_init_DEFAULT 0x00000000
 
 /***************************************************************************
  *TIME_COUNTER - Hour/Minute Counter Initial value
@@ -385,32 +404,32 @@
 /* AON_CTRL :: TIME_COUNTER :: hour_display_mode [19:19] */
 #define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_MASK          0x00080000
 #define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_SHIFT         19
-#define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_DEFAULT       0
+#define BCHP_AON_CTRL_TIME_COUNTER_hour_display_mode_DEFAULT       0x00000000
 
 /* AON_CTRL :: TIME_COUNTER :: mode_12h_24h_init [18:18] */
 #define BCHP_AON_CTRL_TIME_COUNTER_mode_12h_24h_init_MASK          0x00040000
 #define BCHP_AON_CTRL_TIME_COUNTER_mode_12h_24h_init_SHIFT         18
-#define BCHP_AON_CTRL_TIME_COUNTER_mode_12h_24h_init_DEFAULT       0
+#define BCHP_AON_CTRL_TIME_COUNTER_mode_12h_24h_init_DEFAULT       0x00000000
 
 /* AON_CTRL :: TIME_COUNTER :: am_pm_counter_init [17:17] */
 #define BCHP_AON_CTRL_TIME_COUNTER_am_pm_counter_init_MASK         0x00020000
 #define BCHP_AON_CTRL_TIME_COUNTER_am_pm_counter_init_SHIFT        17
-#define BCHP_AON_CTRL_TIME_COUNTER_am_pm_counter_init_DEFAULT      0
+#define BCHP_AON_CTRL_TIME_COUNTER_am_pm_counter_init_DEFAULT      0x00000000
 
 /* AON_CTRL :: TIME_COUNTER :: hour_counter_init [16:12] */
 #define BCHP_AON_CTRL_TIME_COUNTER_hour_counter_init_MASK          0x0001f000
 #define BCHP_AON_CTRL_TIME_COUNTER_hour_counter_init_SHIFT         12
-#define BCHP_AON_CTRL_TIME_COUNTER_hour_counter_init_DEFAULT       0
+#define BCHP_AON_CTRL_TIME_COUNTER_hour_counter_init_DEFAULT       0x00000000
 
 /* AON_CTRL :: TIME_COUNTER :: minute_counter_init [11:06] */
 #define BCHP_AON_CTRL_TIME_COUNTER_minute_counter_init_MASK        0x00000fc0
 #define BCHP_AON_CTRL_TIME_COUNTER_minute_counter_init_SHIFT       6
-#define BCHP_AON_CTRL_TIME_COUNTER_minute_counter_init_DEFAULT     0
+#define BCHP_AON_CTRL_TIME_COUNTER_minute_counter_init_DEFAULT     0x00000000
 
 /* AON_CTRL :: TIME_COUNTER :: second_counter_init [05:00] */
 #define BCHP_AON_CTRL_TIME_COUNTER_second_counter_init_MASK        0x0000003f
 #define BCHP_AON_CTRL_TIME_COUNTER_second_counter_init_SHIFT       0
-#define BCHP_AON_CTRL_TIME_COUNTER_second_counter_init_DEFAULT     0
+#define BCHP_AON_CTRL_TIME_COUNTER_second_counter_init_DEFAULT     0x00000000
 
 /***************************************************************************
  *LED_DIGIT_CODE_0 - Digit Code for digit 0, 1, 2, 3
@@ -418,22 +437,22 @@
 /* AON_CTRL :: LED_DIGIT_CODE_0 :: digit_code_3 [31:24] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_3_MASK           0xff000000
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_3_SHIFT          24
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_3_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_3_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_0 :: digit_code_2 [23:16] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_2_MASK           0x00ff0000
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_2_SHIFT          16
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_2_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_2_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_0 :: digit_code_1 [15:08] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_1_MASK           0x0000ff00
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_1_SHIFT          8
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_1_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_1_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_0 :: digit_code_0 [07:00] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_0_MASK           0x000000ff
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_0_SHIFT          0
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_0_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_0_digit_code_0_DEFAULT        0x00000000
 
 /***************************************************************************
  *LED_DIGIT_CODE_1 - Digit Code for digit 4, 5, 6, 7
@@ -441,22 +460,22 @@
 /* AON_CTRL :: LED_DIGIT_CODE_1 :: digit_code_7 [31:24] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_7_MASK           0xff000000
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_7_SHIFT          24
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_7_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_7_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_1 :: digit_code_6 [23:16] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_6_MASK           0x00ff0000
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_6_SHIFT          16
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_6_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_6_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_1 :: digit_code_5 [15:08] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_5_MASK           0x0000ff00
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_5_SHIFT          8
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_5_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_5_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_1 :: digit_code_4 [07:00] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_4_MASK           0x000000ff
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_4_SHIFT          0
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_4_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_1_digit_code_4_DEFAULT        0x00000000
 
 /***************************************************************************
  *LED_DIGIT_CODE_2 - Digit Code for digit 8, 9
@@ -468,12 +487,12 @@
 /* AON_CTRL :: LED_DIGIT_CODE_2 :: digit_code_9 [15:08] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_9_MASK           0x0000ff00
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_9_SHIFT          8
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_9_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_9_DEFAULT        0x00000000
 
 /* AON_CTRL :: LED_DIGIT_CODE_2 :: digit_code_8 [07:00] */
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_8_MASK           0x000000ff
 #define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_8_SHIFT          0
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_8_DEFAULT        0
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_2_digit_code_8_DEFAULT        0x00000000
 
 /***************************************************************************
  *LED_DIGIT_ADDR_OFFSET - Hour MSD/LSD and minute MSD/LSD address offset
@@ -481,22 +500,22 @@
 /* AON_CTRL :: LED_DIGIT_ADDR_OFFSET :: hour_msd_addr_offset [31:24] */
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_msd_addr_offset_MASK 0xff000000
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_msd_addr_offset_SHIFT 24
-#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_msd_addr_offset_DEFAULT 32
+#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_msd_addr_offset_DEFAULT 0x00000020
 
 /* AON_CTRL :: LED_DIGIT_ADDR_OFFSET :: hour_lsd_addr_offset [23:16] */
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_lsd_addr_offset_MASK 0x00ff0000
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_lsd_addr_offset_SHIFT 16
-#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_lsd_addr_offset_DEFAULT 36
+#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_hour_lsd_addr_offset_DEFAULT 0x00000024
 
 /* AON_CTRL :: LED_DIGIT_ADDR_OFFSET :: minute_msd_addr_offset [15:08] */
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_msd_addr_offset_MASK 0x0000ff00
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_msd_addr_offset_SHIFT 8
-#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_msd_addr_offset_DEFAULT 24
+#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_msd_addr_offset_DEFAULT 0x00000018
 
 /* AON_CTRL :: LED_DIGIT_ADDR_OFFSET :: minute_lsd_addr_offset [07:00] */
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_lsd_addr_offset_MASK 0x000000ff
 #define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_lsd_addr_offset_SHIFT 0
-#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_lsd_addr_offset_DEFAULT 28
+#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET_minute_lsd_addr_offset_DEFAULT 0x0000001c
 
 /***************************************************************************
  *LED_STATUS_CTRL - LED status control
@@ -519,22 +538,22 @@
 /* AON_CTRL :: LED_STATUS_CTRL :: status_update_enable [24:24] */
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_MASK    0x01000000
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_SHIFT   24
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_DEFAULT 0
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_update_enable_DEFAULT 0x00000000
 
 /* AON_CTRL :: LED_STATUS_CTRL :: status_mask [23:12] */
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_MASK             0x00fff000
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_SHIFT            12
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_DEFAULT          0
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_mask_DEFAULT          0x00000000
 
 /* AON_CTRL :: LED_STATUS_CTRL :: status_bit_offset [11:08] */
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_MASK       0x00000f00
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_SHIFT      8
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_DEFAULT    0
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_bit_offset_DEFAULT    0x00000000
 
 /* AON_CTRL :: LED_STATUS_CTRL :: status_addr_offset [07:00] */
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_addr_offset_MASK      0x000000ff
 #define BCHP_AON_CTRL_LED_STATUS_CTRL_status_addr_offset_SHIFT     0
-#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_addr_offset_DEFAULT   0
+#define BCHP_AON_CTRL_LED_STATUS_CTRL_status_addr_offset_DEFAULT   0x00000000
 
 /***************************************************************************
  *GENERAL_CTRL_0 - General control register 0
@@ -542,162 +561,162 @@
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_31 [31:31] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_31_MASK         0x80000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_31_SHIFT        31
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_31_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_31_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_30 [30:30] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_30_MASK         0x40000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_30_SHIFT        30
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_30_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_30_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_29 [29:29] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_29_MASK         0x20000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_29_SHIFT        29
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_29_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_29_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_28 [28:28] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_28_MASK         0x10000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_28_SHIFT        28
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_28_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_28_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_27 [27:27] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_27_MASK         0x08000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_27_SHIFT        27
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_27_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_27_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_26 [26:26] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_26_MASK         0x04000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_26_SHIFT        26
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_26_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_26_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_25 [25:25] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_25_MASK         0x02000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_25_SHIFT        25
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_25_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_25_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_24 [24:24] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_24_MASK         0x01000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_24_SHIFT        24
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_24_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_24_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_23 [23:23] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_23_MASK         0x00800000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_23_SHIFT        23
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_23_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_23_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_22 [22:22] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_22_MASK         0x00400000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_22_SHIFT        22
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_22_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_22_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_21 [21:21] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_21_MASK         0x00200000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_21_SHIFT        21
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_21_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_21_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_20 [20:20] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_20_MASK         0x00100000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_20_SHIFT        20
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_20_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_20_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_19 [19:19] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_19_MASK         0x00080000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_19_SHIFT        19
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_19_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_19_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_18 [18:18] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_18_MASK         0x00040000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_18_SHIFT        18
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_18_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_18_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_17 [17:17] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_17_MASK         0x00020000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_17_SHIFT        17
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_17_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_17_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_16 [16:16] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_16_MASK         0x00010000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_16_SHIFT        16
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_16_DEFAULT      1
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_16_DEFAULT      0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_15 [15:15] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_15_MASK         0x00008000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_15_SHIFT        15
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_15_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_15_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_14 [14:14] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_14_MASK         0x00004000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_14_SHIFT        14
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_14_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_14_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_13 [13:13] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_13_MASK         0x00002000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_13_SHIFT        13
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_13_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_13_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_12 [12:12] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_12_MASK         0x00001000
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_12_SHIFT        12
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_12_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_12_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_11 [11:11] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_11_MASK         0x00000800
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_11_SHIFT        11
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_11_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_11_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_10 [10:10] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_10_MASK         0x00000400
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_10_SHIFT        10
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_10_DEFAULT      0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_10_DEFAULT      0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_9 [09:09] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_9_MASK          0x00000200
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_9_SHIFT         9
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_9_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_9_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_8 [08:08] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_8_MASK          0x00000100
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_8_SHIFT         8
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_8_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_8_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_7 [07:07] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_7_MASK          0x00000080
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_7_SHIFT         7
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_7_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_7_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_6 [06:06] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_6_MASK          0x00000040
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_6_SHIFT         6
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_6_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_6_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_5 [05:05] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_5_MASK          0x00000020
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_5_SHIFT         5
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_5_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_5_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_4 [04:04] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_4_MASK          0x00000010
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_4_SHIFT         4
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_4_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_4_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_3 [03:03] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_3_MASK          0x00000008
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_3_SHIFT         3
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_3_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_3_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_2 [02:02] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_2_MASK          0x00000004
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_2_SHIFT         2
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_2_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_2_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_1 [01:01] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_1_MASK          0x00000002
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_1_SHIFT         1
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_1_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_1_DEFAULT       0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_0 :: general_ctrl0_0 [00:00] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_0_MASK          0x00000001
 #define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_0_SHIFT         0
-#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_0_DEFAULT       0
+#define BCHP_AON_CTRL_GENERAL_CTRL_0_general_ctrl0_0_DEFAULT       0x00000000
 
 /***************************************************************************
  *GENERAL_STATUS_0 - General status register 0
@@ -744,162 +763,162 @@
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_31 [31:31] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_31_MASK 0x80000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_31_SHIFT 31
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_31_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_31_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_30 [30:30] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_30_MASK 0x40000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_30_SHIFT 30
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_30_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_30_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_29 [29:29] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_29_MASK 0x20000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_29_SHIFT 29
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_29_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_29_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_28 [28:28] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_28_MASK 0x10000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_28_SHIFT 28
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_28_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_28_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_27 [27:27] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_27_MASK 0x08000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_27_SHIFT 27
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_27_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_27_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_26 [26:26] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_26_MASK 0x04000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_26_SHIFT 26
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_26_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_26_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_25 [25:25] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_25_MASK 0x02000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_25_SHIFT 25
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_25_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_25_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_24 [24:24] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_24_MASK 0x01000000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_24_SHIFT 24
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_24_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_24_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_23 [23:23] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_23_MASK 0x00800000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_23_SHIFT 23
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_23_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_23_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_22 [22:22] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_22_MASK 0x00400000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_22_SHIFT 22
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_22_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_22_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_21 [21:21] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_21_MASK 0x00200000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_21_SHIFT 21
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_21_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_21_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_20 [20:20] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_20_MASK 0x00100000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_20_SHIFT 20
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_20_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_20_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_19 [19:19] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_19_MASK 0x00080000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_19_SHIFT 19
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_19_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_19_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_18 [18:18] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_MASK 0x00040000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_SHIFT 18
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_17 [17:17] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_MASK 0x00020000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_SHIFT 17
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_16 [16:16] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_MASK 0x00010000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_SHIFT 16
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_DEFAULT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_DEFAULT 0x00000001
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_15 [15:15] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_MASK 0x00008000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_SHIFT 15
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_14 [14:14] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_MASK 0x00004000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_SHIFT 14
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_13 [13:13] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_13_MASK 0x00002000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_13_SHIFT 13
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_13_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_13_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_12 [12:12] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_12_MASK 0x00001000
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_12_SHIFT 12
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_12_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_12_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_11 [11:11] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_MASK 0x00000800
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_SHIFT 11
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_10 [10:10] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_MASK 0x00000400
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_SHIFT 10
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_9 [09:09] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_MASK 0x00000200
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_SHIFT 9
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_8 [08:08] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_MASK 0x00000100
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_SHIFT 8
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_7 [07:07] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_MASK 0x00000080
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_SHIFT 7
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_6 [06:06] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_MASK 0x00000040
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_SHIFT 6
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_5 [05:05] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_MASK 0x00000020
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_SHIFT 5
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_4 [04:04] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_MASK 0x00000010
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_SHIFT 4
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_3 [03:03] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_MASK 0x00000008
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_SHIFT 3
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_2 [02:02] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_MASK 0x00000004
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_SHIFT 2
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_1 [01:01] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_MASK 0x00000002
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_SHIFT 1
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_0 [00:00] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_0_MASK 0x00000001
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_0_SHIFT 0
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_0_DEFAULT 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_0_DEFAULT 0x00000000
 
 /***************************************************************************
  *SPARE_CTRL_0 - Spare control bits reserved for future use
@@ -907,162 +926,162 @@
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_31 [31:31] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_31_MASK              0x80000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_31_SHIFT             31
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_31_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_31_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_30 [30:30] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_30_MASK              0x40000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_30_SHIFT             30
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_30_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_30_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_29 [29:29] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_29_MASK              0x20000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_29_SHIFT             29
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_29_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_29_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_28 [28:28] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_28_MASK              0x10000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_28_SHIFT             28
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_28_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_28_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_27 [27:27] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_27_MASK              0x08000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_27_SHIFT             27
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_27_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_27_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_26 [26:26] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_26_MASK              0x04000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_26_SHIFT             26
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_26_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_26_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_25 [25:25] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_25_MASK              0x02000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_25_SHIFT             25
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_25_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_25_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_24 [24:24] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_24_MASK              0x01000000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_24_SHIFT             24
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_24_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_24_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_23 [23:23] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_23_MASK              0x00800000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_23_SHIFT             23
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_23_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_23_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_22 [22:22] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_22_MASK              0x00400000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_22_SHIFT             22
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_22_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_22_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_21 [21:21] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_21_MASK              0x00200000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_21_SHIFT             21
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_21_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_21_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_20 [20:20] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_20_MASK              0x00100000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_20_SHIFT             20
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_20_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_20_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_19 [19:19] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_19_MASK              0x00080000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_19_SHIFT             19
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_19_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_19_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_18 [18:18] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_18_MASK              0x00040000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_18_SHIFT             18
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_18_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_18_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_17 [17:17] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_17_MASK              0x00020000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_17_SHIFT             17
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_17_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_17_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_16 [16:16] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_16_MASK              0x00010000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_16_SHIFT             16
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_16_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_16_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_15 [15:15] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_15_MASK              0x00008000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_15_SHIFT             15
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_15_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_15_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_14 [14:14] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_14_MASK              0x00004000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_14_SHIFT             14
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_14_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_14_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_13 [13:13] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_13_MASK              0x00002000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_13_SHIFT             13
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_13_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_13_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_12 [12:12] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_12_MASK              0x00001000
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_12_SHIFT             12
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_12_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_12_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_11 [11:11] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_11_MASK              0x00000800
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_11_SHIFT             11
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_11_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_11_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_10 [10:10] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_10_MASK              0x00000400
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_10_SHIFT             10
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_10_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_10_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_09 [09:09] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_09_MASK              0x00000200
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_09_SHIFT             9
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_09_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_09_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_08 [08:08] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_08_MASK              0x00000100
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_08_SHIFT             8
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_08_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_08_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_07 [07:07] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_07_MASK              0x00000080
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_07_SHIFT             7
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_07_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_07_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_06 [06:06] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_06_MASK              0x00000040
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_06_SHIFT             6
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_06_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_06_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_05 [05:05] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_05_MASK              0x00000020
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_05_SHIFT             5
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_05_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_05_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_04 [04:04] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_04_MASK              0x00000010
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_04_SHIFT             4
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_04_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_04_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_03 [03:03] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_03_MASK              0x00000008
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_03_SHIFT             3
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_03_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_03_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_02 [02:02] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_02_MASK              0x00000004
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_02_SHIFT             2
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_02_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_02_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_01 [01:01] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_01_MASK              0x00000002
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_01_SHIFT             1
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_01_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_01_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_0 :: spare_ctrl_00 [00:00] */
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_00_MASK              0x00000001
 #define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_00_SHIFT             0
-#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_00_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_0_spare_ctrl_00_DEFAULT           0x00000000
 
 /***************************************************************************
  *SPARE_CTRL_1 - Spare control bits reserved for future use
@@ -1070,162 +1089,162 @@
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_31 [31:31] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_31_MASK              0x80000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_31_SHIFT             31
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_31_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_31_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_30 [30:30] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_30_MASK              0x40000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_30_SHIFT             30
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_30_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_30_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_29 [29:29] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_29_MASK              0x20000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_29_SHIFT             29
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_29_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_29_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_28 [28:28] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_28_MASK              0x10000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_28_SHIFT             28
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_28_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_28_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_27 [27:27] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_27_MASK              0x08000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_27_SHIFT             27
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_27_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_27_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_26 [26:26] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_26_MASK              0x04000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_26_SHIFT             26
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_26_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_26_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_25 [25:25] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_25_MASK              0x02000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_25_SHIFT             25
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_25_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_25_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_24 [24:24] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_24_MASK              0x01000000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_24_SHIFT             24
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_24_DEFAULT           1
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_24_DEFAULT           0x00000001
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_23 [23:23] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_23_MASK              0x00800000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_23_SHIFT             23
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_23_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_23_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_22 [22:22] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_22_MASK              0x00400000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_22_SHIFT             22
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_22_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_22_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_21 [21:21] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_21_MASK              0x00200000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_21_SHIFT             21
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_21_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_21_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_20 [20:20] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_20_MASK              0x00100000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_20_SHIFT             20
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_20_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_20_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_19 [19:19] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_19_MASK              0x00080000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_19_SHIFT             19
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_19_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_19_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_18 [18:18] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_18_MASK              0x00040000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_18_SHIFT             18
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_18_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_18_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_17 [17:17] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_17_MASK              0x00020000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_17_SHIFT             17
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_17_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_17_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_16 [16:16] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_16_MASK              0x00010000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_16_SHIFT             16
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_16_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_16_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_15 [15:15] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_15_MASK              0x00008000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_15_SHIFT             15
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_15_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_15_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_14 [14:14] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_14_MASK              0x00004000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_14_SHIFT             14
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_14_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_14_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_13 [13:13] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_13_MASK              0x00002000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_13_SHIFT             13
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_13_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_13_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_12 [12:12] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_12_MASK              0x00001000
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_12_SHIFT             12
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_12_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_12_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_11 [11:11] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_11_MASK              0x00000800
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_11_SHIFT             11
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_11_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_11_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_10 [10:10] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_10_MASK              0x00000400
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_10_SHIFT             10
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_10_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_10_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_09 [09:09] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_09_MASK              0x00000200
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_09_SHIFT             9
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_09_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_09_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_08 [08:08] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_08_MASK              0x00000100
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_08_SHIFT             8
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_08_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_08_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_07 [07:07] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_07_MASK              0x00000080
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_07_SHIFT             7
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_07_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_07_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_06 [06:06] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_06_MASK              0x00000040
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_06_SHIFT             6
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_06_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_06_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_05 [05:05] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_05_MASK              0x00000020
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_05_SHIFT             5
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_05_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_05_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_04 [04:04] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_04_MASK              0x00000010
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_04_SHIFT             4
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_04_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_04_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_03 [03:03] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_03_MASK              0x00000008
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_03_SHIFT             3
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_03_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_03_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_02 [02:02] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_02_MASK              0x00000004
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_02_SHIFT             2
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_02_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_02_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_01 [01:01] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_01_MASK              0x00000002
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_01_SHIFT             1
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_01_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_01_DEFAULT           0x00000000
 
 /* AON_CTRL :: SPARE_CTRL_1 :: spare_ctrl_00 [00:00] */
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_00_MASK              0x00000001
 #define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_00_SHIFT             0
-#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_00_DEFAULT           0
+#define BCHP_AON_CTRL_SPARE_CTRL_1_spare_ctrl_00_DEFAULT           0x00000000
 
 /***************************************************************************
  *UNCLEARED_SCRATCH - Scratch register
@@ -1233,109 +1252,119 @@
 /* AON_CTRL :: UNCLEARED_SCRATCH :: uncleared_scratch [31:00] */
 #define BCHP_AON_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_MASK     0xffffffff
 #define BCHP_AON_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_SHIFT    0
-#define BCHP_AON_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_DEFAULT  0
+#define BCHP_AON_CTRL_UNCLEARED_SCRATCH_uncleared_scratch_DEFAULT  0x00000000
 
 /***************************************************************************
  *RESET_HISTORY - Reset History Register For AON
  ***************************************************************************/
-/* AON_CTRL :: RESET_HISTORY :: reserved0 [31:19] */
-#define BCHP_AON_CTRL_RESET_HISTORY_reserved0_MASK                 0xfff80000
-#define BCHP_AON_CTRL_RESET_HISTORY_reserved0_SHIFT                19
+/* AON_CTRL :: RESET_HISTORY :: reserved0 [31:21] */
+#define BCHP_AON_CTRL_RESET_HISTORY_reserved0_MASK                 0xffe00000
+#define BCHP_AON_CTRL_RESET_HISTORY_reserved0_SHIFT                21
 
-/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_1 [18:18] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_MASK    0x00040000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_SHIFT   18
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_DEFAULT 0
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_1 [20:20] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_MASK    0x00100000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_SHIFT   20
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_1_DEFAULT 0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_0 [17:17] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_MASK    0x00020000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_SHIFT   17
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_DEFAULT 0
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_level_reset_0 [19:19] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_MASK    0x00080000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_SHIFT   19
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_level_reset_0_DEFAULT 0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_1 [16:16] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_MASK     0x00010000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_SHIFT    16
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_DEFAULT  0
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_1 [18:18] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_MASK     0x00040000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_SHIFT    18
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_1_DEFAULT  0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_0 [15:15] */
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_MASK     0x00008000
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_SHIFT    15
-#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_DEFAULT  0
+/* AON_CTRL :: RESET_HISTORY :: aux_chip_edge_reset_0 [17:17] */
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_MASK     0x00020000
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_SHIFT    17
+#define BCHP_AON_CTRL_RESET_HISTORY_aux_chip_edge_reset_0_DEFAULT  0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: cpu_ejtag_reset [14:14] */
-#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_MASK           0x00004000
-#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_SHIFT          14
-#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_DEFAULT        0
+/* AON_CTRL :: RESET_HISTORY :: scpu_ejtag_reset [16:16] */
+#define BCHP_AON_CTRL_RESET_HISTORY_scpu_ejtag_reset_MASK          0x00010000
+#define BCHP_AON_CTRL_RESET_HISTORY_scpu_ejtag_reset_SHIFT         16
+#define BCHP_AON_CTRL_RESET_HISTORY_scpu_ejtag_reset_DEFAULT       0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: overtemp_reset [13:13] */
-#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_MASK            0x00002000
-#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_SHIFT           13
-#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_DEFAULT         0
+/* AON_CTRL :: RESET_HISTORY :: cpu_ejtag_reset [15:15] */
+#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_MASK           0x00008000
+#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_SHIFT          15
+#define BCHP_AON_CTRL_RESET_HISTORY_cpu_ejtag_reset_DEFAULT        0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: overvoltage_reset [12:12] */
-#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_reset_MASK         0x00001000
-#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_reset_SHIFT        12
-#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_reset_DEFAULT      0
+/* AON_CTRL :: RESET_HISTORY :: overtemp_reset [14:14] */
+#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_MASK            0x00004000
+#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_SHIFT           14
+#define BCHP_AON_CTRL_RESET_HISTORY_overtemp_reset_DEFAULT         0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: undervoltage_reset [11:11] */
-#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_reset_MASK        0x00000800
-#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_reset_SHIFT       11
-#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_reset_DEFAULT     0
+/* AON_CTRL :: RESET_HISTORY :: overvoltage_1_reset [13:13] */
+#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_1_reset_MASK       0x00002000
+#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_1_reset_SHIFT      13
+#define BCHP_AON_CTRL_RESET_HISTORY_overvoltage_1_reset_DEFAULT    0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: security_dl_sw_reset [10:10] */
-#define BCHP_AON_CTRL_RESET_HISTORY_security_dl_sw_reset_MASK      0x00000400
-#define BCHP_AON_CTRL_RESET_HISTORY_security_dl_sw_reset_SHIFT     10
-#define BCHP_AON_CTRL_RESET_HISTORY_security_dl_sw_reset_DEFAULT   0
+/* AON_CTRL :: RESET_HISTORY :: undervoltage_1_reset [12:12] */
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_1_reset_MASK      0x00001000
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_1_reset_SHIFT     12
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_1_reset_DEFAULT   0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: security_master_reset [09:09] */
-#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_MASK     0x00000200
-#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_SHIFT    9
-#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_DEFAULT  0
+/* AON_CTRL :: RESET_HISTORY :: undervoltage_0_reset [11:11] */
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_0_reset_MASK      0x00000800
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_0_reset_SHIFT     11
+#define BCHP_AON_CTRL_RESET_HISTORY_undervoltage_0_reset_DEFAULT   0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: software_master_reset [08:08] */
-#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_MASK     0x00000100
-#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_SHIFT    8
-#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_DEFAULT  0
+/* AON_CTRL :: RESET_HISTORY :: security_master_reset [10:10] */
+#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_MASK     0x00000400
+#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_SHIFT    10
+#define BCHP_AON_CTRL_RESET_HISTORY_security_master_reset_DEFAULT  0x00000000
 
-/* AON_CTRL :: RESET_HISTORY :: pcie_hot_boot_reset [07:07] */
-#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_reset_MASK       0x00000080
-#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_reset_SHIFT      7
-#define BCHP_AON_CTRL_RESET_HISTORY_pcie_hot_boot_reset_DEFAULT    0
+/* AON_CTRL :: RESET_HISTORY :: software_master_reset [09:09] */
+#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_MASK     0x00000200
+#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_SHIFT    9
+#define BCHP_AON_CTRL_RESET_HISTORY_software_master_reset_DEFAULT  0x00000000
+
+/* AON_CTRL :: RESET_HISTORY :: pcie_1_hot_boot_reset [08:08] */
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_1_hot_boot_reset_MASK     0x00000100
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_1_hot_boot_reset_SHIFT    8
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_1_hot_boot_reset_DEFAULT  0x00000000
+
+/* AON_CTRL :: RESET_HISTORY :: pcie_0_hot_boot_reset [07:07] */
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_0_hot_boot_reset_MASK     0x00000080
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_0_hot_boot_reset_SHIFT    7
+#define BCHP_AON_CTRL_RESET_HISTORY_pcie_0_hot_boot_reset_DEFAULT  0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: watchdog_timer_reset [06:06] */
 #define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_MASK      0x00000040
 #define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_SHIFT     6
-#define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_DEFAULT   0
+#define BCHP_AON_CTRL_RESET_HISTORY_watchdog_timer_reset_DEFAULT   0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: smartcard_insert_reset [05:05] */
 #define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_MASK    0x00000020
 #define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_SHIFT   5
-#define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_DEFAULT 0
+#define BCHP_AON_CTRL_RESET_HISTORY_smartcard_insert_reset_DEFAULT 0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: s3_wakeup_reset [04:04] */
 #define BCHP_AON_CTRL_RESET_HISTORY_s3_wakeup_reset_MASK           0x00000010
 #define BCHP_AON_CTRL_RESET_HISTORY_s3_wakeup_reset_SHIFT          4
-#define BCHP_AON_CTRL_RESET_HISTORY_s3_wakeup_reset_DEFAULT        0
+#define BCHP_AON_CTRL_RESET_HISTORY_s3_wakeup_reset_DEFAULT        0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: front_panel_4sec_reset [03:03] */
 #define BCHP_AON_CTRL_RESET_HISTORY_front_panel_4sec_reset_MASK    0x00000008
 #define BCHP_AON_CTRL_RESET_HISTORY_front_panel_4sec_reset_SHIFT   3
-#define BCHP_AON_CTRL_RESET_HISTORY_front_panel_4sec_reset_DEFAULT 0
+#define BCHP_AON_CTRL_RESET_HISTORY_front_panel_4sec_reset_DEFAULT 0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: tap_in_system_reset [02:02] */
 #define BCHP_AON_CTRL_RESET_HISTORY_tap_in_system_reset_MASK       0x00000004
 #define BCHP_AON_CTRL_RESET_HISTORY_tap_in_system_reset_SHIFT      2
-#define BCHP_AON_CTRL_RESET_HISTORY_tap_in_system_reset_DEFAULT    0
+#define BCHP_AON_CTRL_RESET_HISTORY_tap_in_system_reset_DEFAULT    0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: main_chip_reset_input [01:01] */
 #define BCHP_AON_CTRL_RESET_HISTORY_main_chip_reset_input_MASK     0x00000002
 #define BCHP_AON_CTRL_RESET_HISTORY_main_chip_reset_input_SHIFT    1
-#define BCHP_AON_CTRL_RESET_HISTORY_main_chip_reset_input_DEFAULT  0
+#define BCHP_AON_CTRL_RESET_HISTORY_main_chip_reset_input_DEFAULT  0x00000000
 
 /* AON_CTRL :: RESET_HISTORY :: power_on_reset [00:00] */
 #define BCHP_AON_CTRL_RESET_HISTORY_power_on_reset_MASK            0x00000001
 #define BCHP_AON_CTRL_RESET_HISTORY_power_on_reset_SHIFT           0
-#define BCHP_AON_CTRL_RESET_HISTORY_power_on_reset_DEFAULT         1
+#define BCHP_AON_CTRL_RESET_HISTORY_power_on_reset_DEFAULT         0x00000001
 
 /***************************************************************************
  *NMI_CTRL - Control register for NMI
@@ -1343,7 +1372,7 @@
 /* AON_CTRL :: NMI_CTRL :: nmi_config_lock [31:31] */
 #define BCHP_AON_CTRL_NMI_CTRL_nmi_config_lock_MASK                0x80000000
 #define BCHP_AON_CTRL_NMI_CTRL_nmi_config_lock_SHIFT               31
-#define BCHP_AON_CTRL_NMI_CTRL_nmi_config_lock_DEFAULT             0
+#define BCHP_AON_CTRL_NMI_CTRL_nmi_config_lock_DEFAULT             0x00000000
 
 /* AON_CTRL :: NMI_CTRL :: reserved0 [30:03] */
 #define BCHP_AON_CTRL_NMI_CTRL_reserved0_MASK                      0x7ffffff8
@@ -1356,12 +1385,12 @@
 /* AON_CTRL :: NMI_CTRL :: config_nmi_polarity [01:01] */
 #define BCHP_AON_CTRL_NMI_CTRL_config_nmi_polarity_MASK            0x00000002
 #define BCHP_AON_CTRL_NMI_CTRL_config_nmi_polarity_SHIFT           1
-#define BCHP_AON_CTRL_NMI_CTRL_config_nmi_polarity_DEFAULT         0
+#define BCHP_AON_CTRL_NMI_CTRL_config_nmi_polarity_DEFAULT         0x00000000
 
 /* AON_CTRL :: NMI_CTRL :: disable_pad_nmi [00:00] */
 #define BCHP_AON_CTRL_NMI_CTRL_disable_pad_nmi_MASK                0x00000001
 #define BCHP_AON_CTRL_NMI_CTRL_disable_pad_nmi_SHIFT               0
-#define BCHP_AON_CTRL_NMI_CTRL_disable_pad_nmi_DEFAULT             1
+#define BCHP_AON_CTRL_NMI_CTRL_disable_pad_nmi_DEFAULT             0x00000001
 
 /***************************************************************************
  *ANA_XTAL_CONTROL - Ana xtal low cur 40g m7fc gisb control
@@ -1373,22 +1402,22 @@
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_test_select_gisb_control [06:06] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_MASK 0x00000040
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_SHIFT 6
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_DEFAULT 0
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_DEFAULT 0x00000000
 
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_select_current_gisb_control [05:05] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_MASK 0x00000020
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_SHIFT 5
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_DEFAULT 0
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_DEFAULT 0x00000000
 
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_cml_sel_pd [04:03] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_MASK         0x00000018
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_SHIFT        3
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_DEFAULT      0
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_DEFAULT      0x00000000
 
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_d2cbias_gisb_control [02:00] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_d2cbias_gisb_control_MASK 0x00000007
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_d2cbias_gisb_control_SHIFT 0
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_d2cbias_gisb_control_DEFAULT 4
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_d2cbias_gisb_control_DEFAULT 0x00000004
 
 /***************************************************************************
  *SUB_TEST_MODE_CTRL - Test_mode control register
@@ -1400,7 +1429,7 @@
 /* AON_CTRL :: SUB_TEST_MODE_CTRL :: use_sub_test_mode_reg_src [00:00] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL_use_sub_test_mode_reg_src_MASK 0x00000001
 #define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL_use_sub_test_mode_reg_src_SHIFT 0
-#define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL_use_sub_test_mode_reg_src_DEFAULT 0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL_use_sub_test_mode_reg_src_DEFAULT 0x00000000
 
 /***************************************************************************
  *SUB_TEST_MODE - Register source for sub_test_mode
@@ -1412,37 +1441,37 @@
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_spare_1 [07:07] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_MASK     0x00000080
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_SHIFT    7
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_DEFAULT  0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_1_DEFAULT  0x00000000
 
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_spare_0 [06:06] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_0_MASK     0x00000040
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_0_SHIFT    6
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_0_DEFAULT  0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spare_0_DEFAULT  0x00000000
 
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_fast_tspi [05:05] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_fast_tspi_MASK   0x00000020
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_fast_tspi_SHIFT  5
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_fast_tspi_DEFAULT 0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_fast_tspi_DEFAULT 0x00000000
 
-/* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_hold_mips_in_reset [04:04] */
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_mips_in_reset_MASK 0x00000010
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_mips_in_reset_SHIFT 4
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_mips_in_reset_DEFAULT 0
+/* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_hold_cpu_in_reset [04:04] */
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_cpu_in_reset_MASK 0x00000010
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_cpu_in_reset_SHIFT 4
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_hold_cpu_in_reset_DEFAULT 0x00000000
 
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_spi_slave_enable [03:03] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spi_slave_enable_MASK 0x00000008
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spi_slave_enable_SHIFT 3
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spi_slave_enable_DEFAULT 0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_spi_slave_enable_DEFAULT 0x00000000
 
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_extend_reset [02:02] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_extend_reset_MASK 0x00000004
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_extend_reset_SHIFT 2
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_extend_reset_DEFAULT 0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_extend_reset_DEFAULT 0x00000000
 
 /* AON_CTRL :: SUB_TEST_MODE :: sub_test_mode_bsp_debug [01:00] */
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_bsp_debug_MASK   0x00000003
 #define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_bsp_debug_SHIFT  0
-#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_bsp_debug_DEFAULT 0
+#define BCHP_AON_CTRL_SUB_TEST_MODE_sub_test_mode_bsp_debug_DEFAULT 0x00000000
 
 /***************************************************************************
  *LATCHED_TEST_MODE - Final latched testmode value
@@ -1468,42 +1497,42 @@
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_7 [07:07] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_7_MASK               0x00000080
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_7_SHIFT              7
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_7_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_7_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_6 [06:06] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_6_MASK               0x00000040
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_6_SHIFT              6
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_6_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_6_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_5 [05:05] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_5_MASK               0x00000020
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_5_SHIFT              5
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_5_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_5_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_4 [04:04] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_4_MASK               0x00000010
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_4_SHIFT              4
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_4_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_4_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_3 [03:03] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_3_MASK               0x00000008
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_3_SHIFT              3
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_3_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_3_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_2 [02:02] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_2_MASK               0x00000004
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_2_SHIFT              2
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_2_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_2_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_1 [01:01] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_1_MASK               0x00000002
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_1_SHIFT              1
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_1_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_1_DEFAULT            0x00000000
 
 /* AON_CTRL :: PM_INITIATE :: pm_initiate_0 [00:00] */
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_0_MASK               0x00000001
 #define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_0_SHIFT              0
-#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_0_DEFAULT            0
+#define BCHP_AON_CTRL_PM_INITIATE_pm_initiate_0_DEFAULT            0x00000000
 
 /***************************************************************************
  *HOST_MISC_CMDS - Power up restore
@@ -1515,42 +1544,42 @@
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_7 [07:07] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_7_MASK         0x00000080
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_7_SHIFT        7
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_7_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_7_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_6 [06:06] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_6_MASK         0x00000040
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_6_SHIFT        6
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_6_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_6_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_5 [05:05] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_5_MASK         0x00000020
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_5_SHIFT        5
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_5_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_5_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_4 [04:04] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_4_MASK         0x00000010
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_4_SHIFT        4
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_4_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_4_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_3 [03:03] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_3_MASK         0x00000008
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_3_SHIFT        3
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_3_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_3_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: host_misc_cmds_2 [02:02] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_2_MASK         0x00000004
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_2_SHIFT        2
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_2_DEFAULT      0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_host_misc_cmds_2_DEFAULT      0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: dram_scram_key_reuse_req [01:01] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_dram_scram_key_reuse_req_MASK 0x00000002
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_dram_scram_key_reuse_req_SHIFT 1
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_dram_scram_key_reuse_req_DEFAULT 0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_dram_scram_key_reuse_req_DEFAULT 0x00000000
 
 /* AON_CTRL :: HOST_MISC_CMDS :: pm_restore [00:00] */
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_pm_restore_MASK               0x00000001
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_pm_restore_SHIFT              0
-#define BCHP_AON_CTRL_HOST_MISC_CMDS_pm_restore_DEFAULT            0
+#define BCHP_AON_CTRL_HOST_MISC_CMDS_pm_restore_DEFAULT            0x00000000
 
 /***************************************************************************
  *SYSTEM_DATA_RAM%i - System Data RAM Address 0..127

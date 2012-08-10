@@ -450,6 +450,20 @@ void __cpuinit bmips_ebase_setup(void)
 	ebase = new_ebase;
 }
 
+/*
+ * start any secondary cpu cores.
+ * cores will wait until boot command from start_secondary.
+ */
+void __cpuinit bmips_start_cpu_cores(void)
+{
+	/*
+	 * vector relocation has to be done before calling here
+	 */
+#if defined(CONFIG_BCM7435)
+	write_c0_brcm_action(ACTION_BOOT_THREAD(2));
+#endif
+}
+
 asmlinkage void __weak plat_wired_tlb_setup(void)
 {
 	/*

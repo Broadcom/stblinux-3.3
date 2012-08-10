@@ -499,6 +499,9 @@ _failed:
 	dma_unmap_single(NULL, pa_dst, outbuflen, DMA_BIDIRECTIONAL);
 
 #endif
+	/* Start other cpu cores */
+	bmips_start_cpu_cores();
+
 	return retval;
 }
 

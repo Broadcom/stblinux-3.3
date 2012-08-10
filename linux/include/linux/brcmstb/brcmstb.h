@@ -305,9 +305,9 @@
 #include <linux/brcmstb/7429a0/bchp_hif_top_ctrl.h>
 #include <linux/brcmstb/7429a0/bchp_irq0.h>
 #include <linux/brcmstb/7429a0/bchp_irq1.h>
+#include <linux/brcmstb/7429a0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429a0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7429a0/bchp_memc_ddr_0.h>
-#include <linux/brcmstb/7429a0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7429a0/bchp_nand.h>
 #include <linux/brcmstb/7429a0/bchp_sata_top_ctrl.h>
@@ -345,9 +345,9 @@
 #include <linux/brcmstb/7429b0/bchp_hif_top_ctrl.h>
 #include <linux/brcmstb/7429b0/bchp_irq0.h>
 #include <linux/brcmstb/7429b0/bchp_irq1.h>
+#include <linux/brcmstb/7429b0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429b0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7429b0/bchp_memc_ddr_0.h>
-#include <linux/brcmstb/7429b0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7429b0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7429b0/bchp_nand.h>
 #include <linux/brcmstb/7429b0/bchp_sata_top_ctrl.h>
@@ -390,10 +390,13 @@
 #include <linux/brcmstb/7435a0/bchp_hif_top_ctrl.h>
 #include <linux/brcmstb/7435a0/bchp_irq0.h>
 #include <linux/brcmstb/7435a0/bchp_irq1.h>
+#include <linux/brcmstb/7435a0/bchp_mem_dma_0.h>
+#include <linux/brcmstb/7435a0/bchp_memc_arb_1.h>
 #include <linux/brcmstb/7435a0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7435a0/bchp_memc_ddr23_shim_addr_cntl_1.h>
 #include <linux/brcmstb/7435a0/bchp_memc_ddr_0.h>
 #include <linux/brcmstb/7435a0/bchp_memc_ddr_1.h>
+#include <linux/brcmstb/7435a0/bchp_memc_misc_1.h>
 #include <linux/brcmstb/7435a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7435a0/bchp_nand.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_dma.h>
@@ -444,10 +447,13 @@
 #include <linux/brcmstb/7435b0/bchp_hif_top_ctrl.h>
 #include <linux/brcmstb/7435b0/bchp_irq0.h>
 #include <linux/brcmstb/7435b0/bchp_irq1.h>
+#include <linux/brcmstb/7435b0/bchp_mem_dma_0.h>
+#include <linux/brcmstb/7435b0/bchp_memc_arb_1.h>
 #include <linux/brcmstb/7435b0/bchp_memc_ddr23_shim_addr_cntl_0.h>
 #include <linux/brcmstb/7435b0/bchp_memc_ddr23_shim_addr_cntl_1.h>
 #include <linux/brcmstb/7435b0/bchp_memc_ddr_0.h>
 #include <linux/brcmstb/7435b0/bchp_memc_ddr_1.h>
+#include <linux/brcmstb/7435b0/bchp_memc_misc_1.h>
 #include <linux/brcmstb/7435b0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7435b0/bchp_nand.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_dma.h>
@@ -478,44 +484,52 @@
 #include <linux/brcmstb/7445a0/bchp_bspi_raf.h>
 #include <linux/brcmstb/7445a0/bchp_clkgen.h>
 #include <linux/brcmstb/7445a0/bchp_common.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_control_regs_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_control_regs_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_word_lane_0_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_word_lane_0_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_word_lane_1_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr40_phy_word_lane_1_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_0.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_2.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_0.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_2.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_0.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_2.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_0.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_2.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_0.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_1.h>
+#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_2.h>
 #include <linux/brcmstb/7445a0/bchp_ebi.h>
-#include <linux/brcmstb/7445a0/bchp_edu.h>
 #include <linux/brcmstb/7445a0/bchp_gio.h>
 #include <linux/brcmstb/7445a0/bchp_gio_aon.h>
 #include <linux/brcmstb/7445a0/bchp_hif_cpu_intr1.h>
-#include <linux/brcmstb/7445a0/bchp_hif_cpu_tp1_intr1.h>
 #include <linux/brcmstb/7445a0/bchp_hif_intr2.h>
 #include <linux/brcmstb/7445a0/bchp_hif_mspi.h>
-#include <linux/brcmstb/7445a0/bchp_hif_rgr1.h>
 #include <linux/brcmstb/7445a0/bchp_hif_spi_intr2.h>
 #include <linux/brcmstb/7445a0/bchp_hif_top_ctrl.h>
 #include <linux/brcmstb/7445a0/bchp_irq0.h>
 #include <linux/brcmstb/7445a0/bchp_irq1.h>
-#include <linux/brcmstb/7445a0/bchp_mem_dma_0.h>
 #include <linux/brcmstb/7445a0/bchp_memc_arb_1.h>
-#include <linux/brcmstb/7445a0/bchp_memc_ddr23_shim_addr_cntl_0.h>
-#include <linux/brcmstb/7445a0/bchp_memc_ddr23_shim_addr_cntl_1.h>
 #include <linux/brcmstb/7445a0/bchp_memc_ddr_0.h>
 #include <linux/brcmstb/7445a0/bchp_memc_ddr_1.h>
+#include <linux/brcmstb/7445a0/bchp_memc_ddr_2.h>
 #include <linux/brcmstb/7445a0/bchp_memc_misc_1.h>
 #include <linux/brcmstb/7445a0/bchp_moca_hostmisc.h>
 #include <linux/brcmstb/7445a0/bchp_nand.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_dma.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_ext_cfg.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_intr2.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_misc.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_misc_perst.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_rc_cfg_pcie.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_rc_cfg_type1.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_rc_cfg_vendor.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_dma.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_ext_cfg.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_intr2.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_misc.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_misc_perst.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_pcie.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_type1.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_vendor.h>
+#include <linux/brcmstb/7445a0/bchp_pcie_0_rgr1.h>
 #include <linux/brcmstb/7445a0/bchp_sata_top_ctrl.h>
 #include <linux/brcmstb/7445a0/bchp_sdio_0_cfg.h>
+#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_0.h>
+#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_1.h>
+#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_2.h>
 #include <linux/brcmstb/7445a0/bchp_sun_top_ctrl.h>
 #include <linux/brcmstb/7445a0/bchp_timer.h>
 #include <linux/brcmstb/7445a0/bchp_uarta.h>
@@ -557,6 +571,38 @@
 #include <linux/brcmstb/7552b0/bchp_usb_ctrl.h>
 #include <linux/brcmstb/7552b0/bchp_wktmr.h>
 #include <linux/brcmstb/7552b0/brcmirq.h>
+
+#elif defined(CONFIG_BCM7563A0)
+#include <linux/brcmstb/7563a0/bchp_aon_ctrl.h>
+#include <linux/brcmstb/7563a0/bchp_aon_pin_ctrl.h>
+#include <linux/brcmstb/7563a0/bchp_aon_pm_l2.h>
+#include <linux/brcmstb/7563a0/bchp_bspi.h>
+#include <linux/brcmstb/7563a0/bchp_bspi_raf.h>
+#include <linux/brcmstb/7563a0/bchp_clkgen.h>
+#include <linux/brcmstb/7563a0/bchp_common.h>
+#include <linux/brcmstb/7563a0/bchp_ddr40_phy_control_regs_0.h>
+#include <linux/brcmstb/7563a0/bchp_ddr40_phy_word_lane_0_0.h>
+#include <linux/brcmstb/7563a0/bchp_ebi.h>
+#include <linux/brcmstb/7563a0/bchp_hif_cpu_intr1.h>
+#include <linux/brcmstb/7563a0/bchp_hif_intr2.h>
+#include <linux/brcmstb/7563a0/bchp_hif_mspi.h>
+#include <linux/brcmstb/7563a0/bchp_hif_spi_intr2.h>
+#include <linux/brcmstb/7563a0/bchp_hif_top_ctrl.h>
+#include <linux/brcmstb/7563a0/bchp_irq0.h>
+#include <linux/brcmstb/7563a0/bchp_irq1.h>
+#include <linux/brcmstb/7563a0/bchp_mem_dma_0.h>
+#include <linux/brcmstb/7563a0/bchp_memc_ddr_0.h>
+#include <linux/brcmstb/7563a0/bchp_misb_bridge.h>
+#include <linux/brcmstb/7563a0/bchp_nand.h>
+#include <linux/brcmstb/7563a0/bchp_sdio_0_cfg.h>
+#include <linux/brcmstb/7563a0/bchp_sun_top_ctrl.h>
+#include <linux/brcmstb/7563a0/bchp_timer.h>
+#include <linux/brcmstb/7563a0/bchp_uarta.h>
+#include <linux/brcmstb/7563a0/bchp_uartb.h>
+#include <linux/brcmstb/7563a0/bchp_uartc.h>
+#include <linux/brcmstb/7563a0/bchp_usb_ctrl.h>
+#include <linux/brcmstb/7563a0/bchp_wktmr.h>
+#include <linux/brcmstb/7563a0/brcmirq.h>
 
 #elif defined(CONFIG_BCM7584A0)
 #include <linux/brcmstb/7584a0/bchp_aon_ctrl.h>
@@ -620,8 +666,6 @@
 
 #define UPGTMR_FREQ		27000000
 
-#if !defined(__ASSEMBLY__)
-
 /***********************************************************************
  * Register access macros - sample usage:
  *
@@ -633,6 +677,8 @@
  ***********************************************************************/
 
 #define BPHYSADDR(x)	((x) | BCHP_PHYSICAL_OFFSET)
+
+#if !defined(__ASSEMBLY__)
 
 #define DEV_RD(x) (*((volatile unsigned long *)(x)))
 #define DEV_WR(x, y) do { *((volatile unsigned long *)(x)) = (y); } while (0)
@@ -837,6 +883,8 @@ void __init bchip_early_setup(void);
 void brcm_machine_restart(char *command);
 void brcm_machine_halt(void);
 char *__devinit brcmstb_pcibios_setup(char *str);
+
+void __cpuinit bmips_start_cpu_cores(void);
 
 void brcm_early_pcie_setup(void);
 void brcm_setup_pcie_bridge(void);

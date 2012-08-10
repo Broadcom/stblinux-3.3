@@ -651,7 +651,7 @@ static int __brcm_pm_memc1_powerup(void)
 }
 #endif
 
-#if defined(CONFIG_BCM7425)
+#if defined(CONFIG_BCM7425) || defined(CONFIG_BCM7435)
 static int __brcm_pm_memc1_initialized(void)
 {
 	return BDEV_RD_F(MEMC_DDR_1_DRAM_INIT_STATUS, INIT_DONE);
@@ -716,8 +716,10 @@ static void __brcm_pm_memc1_suspend(int mode)
 	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_MEMORY_STANDBY_ENABLE,
 		DDR1_MEMORY_STANDBY_ENABLE, 1);
 
+#if defined(BCHP_CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT)
 	BDEV_WR_F_RB(CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT,
 		MEMSYS_PLL_PWRDN_POWER_MANAGEMENT, 1);
+#endif
 
 	if (mode) {
 		DBG(KERN_DEBUG "%s reset\n", __func__);
@@ -751,8 +753,10 @@ static void __brcm_pm_memc1_resume(int mode)
 
 	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_MEMORY_STANDBY_ENABLE,
 		DDR1_MEMORY_STANDBY_ENABLE, 0);
+#if defined(BCHP_CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT)
 	BDEV_WR_F_RB(CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT,
 		MEMSYS_PLL_PWRDN_POWER_MANAGEMENT, 0);
+#endif
 
 	/* power up the pads */
 	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,

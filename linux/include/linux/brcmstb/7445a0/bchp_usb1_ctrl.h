@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,21 +21,18 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Tue Feb 22 17:28:07 2011
- *                 MD5 Checksum         13b50036766a17118468ab754c6bd032
+ * Date:           Generated on         Fri Jun 29 03:07:30 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008008
+ *                 Perl Interpreter     5.008005
  *                 Operating System     linux
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_usb1_ctrl.h $
- * 
- * Hydra_Software_Devel/1   2/23/11 1:44p yuxiaz
- * SW7425-112: Added rdb files for 7425 B0.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -45,21 +42,31 @@
 /***************************************************************************
  *USB1_CTRL - USB Control Registers
  ***************************************************************************/
-#define BCHP_USB1_CTRL_SETUP                     0x00490200 /* Setup Register */
-#define BCHP_USB1_CTRL_PLL_CTL                   0x00490204 /* PLL Control Register */
-#define BCHP_USB1_CTRL_FLADJ_VALUE               0x00490208 /* Frame Adjust Value */
-#define BCHP_USB1_CTRL_EBRIDGE                   0x0049020c /* Control Register for EHCI Bridge */
-#define BCHP_USB1_CTRL_OBRIDGE                   0x00490210 /* Control Register for OHCI Bridge */
-#define BCHP_USB1_CTRL_MDIO                      0x00490214 /* MDIO Interface Programming Register */
-#define BCHP_USB1_CTRL_MDIO2                     0x00490218 /* MDIO Interface Read Register */
-#define BCHP_USB1_CTRL_TEST_PORT_CTL             0x0049021c /* Test Port Control Register */
-#define BCHP_USB1_CTRL_USB_SIMCTL                0x00490220 /* Simulation Register */
-#define BCHP_USB1_CTRL_USB_TESTCTL               0x00490224 /* Throutput Test Control */
-#define BCHP_USB1_CTRL_USB_TESTMON               0x00490228 /* Throughput Test Monitor */
-#define BCHP_USB1_CTRL_UTMI_CTL_1                0x0049022c /* UTMI Control Register */
-#define BCHP_USB1_CTRL_UTMI_CTL_2                0x00490230 /* UTMI Control 2 Register */
-#define BCHP_USB1_CTRL_SPARE1                    0x00490234 /* Spare1 Register for future use */
-#define BCHP_USB1_CTRL_SPARE2                    0x00490238 /* Spare2 Register for future use */
+#define BCHP_USB1_CTRL_SETUP                     0x00480200 /* Setup Register */
+#define BCHP_USB1_CTRL_PLL_CTL                   0x00480204 /* PLL Control Register */
+#define BCHP_USB1_CTRL_FLADJ_VALUE               0x00480208 /* Frame Adjust Value */
+#define BCHP_USB1_CTRL_EBRIDGE                   0x0048020c /* Control Register for EHCI Bridge */
+#define BCHP_USB1_CTRL_OBRIDGE                   0x00480210 /* Control Register for OHCI Bridge */
+#define BCHP_USB1_CTRL_MDIO                      0x00480214 /* MDIO Interface Programming Register */
+#define BCHP_USB1_CTRL_MDIO2                     0x00480218 /* MDIO Interface Read Register */
+#define BCHP_USB1_CTRL_TEST_PORT_CTL             0x0048021c /* Test Port Control Register */
+#define BCHP_USB1_CTRL_USB_SIMCTL                0x00480220 /* Simulation Register */
+#define BCHP_USB1_CTRL_USB_TESTCTL               0x00480224 /* Throutput Test Control */
+#define BCHP_USB1_CTRL_USB_TESTMON               0x00480228 /* Throughput Test Monitor */
+#define BCHP_USB1_CTRL_UTMI_CTL_1                0x0048022c /* UTMI Control Register */
+#define BCHP_USB1_CTRL_UTMI_CTL_2                0x00480230 /* UTMI Control 2 Register */
+#define BCHP_USB1_CTRL_USB_PM                    0x00480234 /* Power Management Register */
+#define BCHP_USB1_CTRL_OHCI_ADDR_EXT             0x00480238 /* OHCI ADDRESS Extension */
+#define BCHP_USB1_CTRL_SPARE1                    0x0048023c /* Spare1 Register for future use */
+#define BCHP_USB1_CTRL_PLL_LDO_CTL               0x00480240 /* 28NM USBPHY LDO Control */
+#define BCHP_USB1_CTRL_PLL_LDO_PLLBIAS           0x00480244 /* 28NM USBPHY PLLBIAS Control */
+#define BCHP_USB1_CTRL_PLL_AFE_BG_CNTL           0x00480248 /* 28NM USBPHY AFE Bandgap Control */
+#define BCHP_USB1_CTRL_PLL_NDIV_FRAC             0x0048024c /* PLL Feedback Divider Control Register */
+#define BCHP_USB1_CTRL_SPARE2                    0x00480250 /* Spare2 Register for future use */
+#define BCHP_USB1_CTRL_USB30_CTL1                0x00480260 /* USB30 CONTROL Register 1 */
+#define BCHP_USB1_CTRL_USB30_CTL2                0x00480264 /* USB30 CONTROL Register 2 */
+#define BCHP_USB1_CTRL_USB30_CTL3                0x00480268 /* USB30 CONTROL Register 3 */
+#define BCHP_USB1_CTRL_USB30_CTL4                0x0048026c /* USB30 CONTROL Register 4 */
 
 #endif /* #ifndef BCHP_USB1_CTRL_H__ */
 

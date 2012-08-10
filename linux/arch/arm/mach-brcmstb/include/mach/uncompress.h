@@ -11,8 +11,9 @@
 
 #include <linux/serial_reg.h>
 #include <linux/types.h>
+#include <linux/brcmstb/brcmstb.h>
 
-#define SERIAL_BASE	((void __iomem *)0xe0406b00)
+#define SERIAL_BASE	((void __iomem *)BPHYSADDR(BCHP_UARTA_REG_START))
 
 /*
  * This does not append a newline

@@ -274,9 +274,9 @@ config BCM7435A0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
 	select BRCM_HAS_1GB_MEMC1
-	#select BRCM_HAS_AON
-	#select BRCM_PWR_HANDSHAKE_V1
-	#select BRCM_HAS_DIGITAL_DDR_PHY
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7435B0
 	bool "7435 Bx"
@@ -309,9 +309,9 @@ config BCM7435B0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
 	select BRCM_HAS_1GB_MEMC1
-	#select BRCM_HAS_AON
-	#select BRCM_PWR_HANDSHAKE_V1
-	#select BRCM_HAS_DIGITAL_DDR_PHY
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7445A0
 	bool "7445 Ax"
@@ -333,6 +333,7 @@ config BCM7445A0
 	#select BRCM_HAS_EDU
 	select BRCM_HAS_FLASH_DMA
 	#select BRCM_HAS_BSPI_V4
+	#select BRCM_MSPI_64B_WORDS
 	#select BRCM_HAS_SDIO_V1
 	#select BRCM_HAS_EMMC
 	#select BRCM_HAS_SATA3
@@ -364,6 +365,31 @@ config BCM7552B0
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
+config BCM7563A0
+	bool "7563 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7563
+	select BRCM_HAS_BMIPS4380
+	select BRCM_HAS_XKS01
+	select BRCM_HAS_XI
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_USB_CAPS
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V3
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_MSPI_64B_WORDS
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_EMMC
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V0
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
 config BCM7584A0
 	bool "7584 Ax"
 	depends on MIPS
@@ -383,6 +409,7 @@ config BCM7584A0
 	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
+	select BRCM_MSPI_64B_WORDS
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_EMMC
@@ -1053,6 +1080,10 @@ config BRCM_BSPI_MAJOR_VERS
 	default "4" if BRCM_HAS_BSPI_V4
 	default "3" if BRCM_HAS_BSPI_V3
 	default "2" if BRCM_HAS_BSPI_V2
+
+# MSPI can transfer either 64b or 8b per slot
+config BRCM_MSPI_64B_WORDS
+	bool
 
 config BRCM_HAS_WKTMR
 	bool

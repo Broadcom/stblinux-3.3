@@ -82,11 +82,11 @@ NESTED(bmips_reset_nmi_vec, PT_SIZE, sp)
 	.align	4
 
 #ifdef CONFIG_SMP
-	/* if the NMI bit is clear, assume this is a CPU1 reset instead */
+	/* if the NMI bit is clear, assume this is a soft reset */
 	li	k1, (1 << 19)
 	mfc0	k0, CP0_STATUS
 	and	k0, k1
-	beqz	k0, bmips_smp_entry
+	beqz	k0, soft_reset
 
 #if defined(CONFIG_CPU_BMIPS5000)
 	/* if we're not on core 0, this must be the SMP boot signal */
@@ -118,11 +118,46 @@ NESTED(bmips_reset_nmi_vec, PT_SIZE, sp)
 	eret
 
 /***********************************************************************
- * CPU1 reset vector (used for the initial boot only)
+ * CPU1 reset vector (used for the initial and warm boot only)
  * This is still part of bmips_reset_nmi_vec().
  ***********************************************************************/
 
 #ifdef CONFIG_SMP
+
+soft_reset:
+
+#if defined(CONFIG_CPU_BMIPS5000) && defined(CONFIG_BCM7435)
+	/* if running on TP 1, jump  to  bmips_smp_entry */
+	mfc0	k0, $22
+	li	k1, (1 << 24)
+	and	k1, k0
+	bnez	k1, bmips_smp_entry
+	nop
+
+	/*
+	 * running on TP0, can not be core 0 (the boot core).
+	 * Check for soft reset.  Indicates a warm boot
+	 */
+	mfc0	k0, $12
+	li	k1, (1 << 20)
+	and	k0, k1
+	beqz	k0, bmips_smp_entry
+
+	/*
+	 * Warm boot.
+	 * Cache init is only done on TP0
+	 */
+	la	k0, bmips_5xxx_init
+	jalr	k0
+	nop
+
+	/* wait for nmi interrupt from start_secondary */
+1:
+	wait
+	b	1b
+	nop
+#endif
+
 
 bmips_smp_entry:
 

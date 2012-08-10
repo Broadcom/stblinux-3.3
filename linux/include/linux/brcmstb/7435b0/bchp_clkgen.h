@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat May  5 03:10:04 2012
+ * Date:           Generated on         Fri Jul 20 15:43:16 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -1425,7 +1425,7 @@
 /* CLKGEN :: PLL_HIF_PLL_GAIN :: LOOP_GAIN_PROPORTIONAL_IN_PHASE [09:06] */
 #define BCHP_CLKGEN_PLL_HIF_PLL_GAIN_LOOP_GAIN_PROPORTIONAL_IN_PHASE_MASK 0x000003c0
 #define BCHP_CLKGEN_PLL_HIF_PLL_GAIN_LOOP_GAIN_PROPORTIONAL_IN_PHASE_SHIFT 6
-#define BCHP_CLKGEN_PLL_HIF_PLL_GAIN_LOOP_GAIN_PROPORTIONAL_IN_PHASE_DEFAULT 0x00000008
+#define BCHP_CLKGEN_PLL_HIF_PLL_GAIN_LOOP_GAIN_PROPORTIONAL_IN_PHASE_DEFAULT 0x0000000b
 
 /* CLKGEN :: PLL_HIF_PLL_GAIN :: LOOP_GAIN_IN_FREQ [05:03] */
 #define BCHP_CLKGEN_PLL_HIF_PLL_GAIN_LOOP_GAIN_IN_FREQ_MASK        0x00000038

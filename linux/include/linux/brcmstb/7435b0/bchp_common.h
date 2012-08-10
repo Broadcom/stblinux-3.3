@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat May  5 03:09:47 2012
+ * Date:           Generated on         Fri Jul 20 15:43:02 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -38,6 +38,25 @@
 
 #ifndef BCHP_COMMON_H__
 #define BCHP_COMMON_H__
+
+/**
+ * m = memory, c = core, r = register, f = field, d = data.
+ */
+#if !defined(GET_FIELD) && !defined(SET_FIELD)
+#define BRCM_MASK(c,r,f)    c##_##r##_##f##_MASK
+#define BRCM_SHIFT(c,r,f)   c##_##r##_##f##_SHIFT
+
+#define GET_FIELD(m,c,r,f) \
+((((m) & BRCM_MASK(c,r,f)) >> BRCM_SHIFT(c,r,f)))
+
+#define SET_FIELD(m,c,r,f,d) \
+((m) = (((m) & ~BRCM_MASK(c,r,f)) | ((((d)) << BRCM_SHIFT(c,r,f)) & BRCM_MASK(c,r,f))))
+
+#define SET_TYPE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##d)
+#define SET_NAME_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##r##_##f##_##d)
+#define SET_VALUE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,d)
+
+#endif /* GET & SET */
 
 /***************************************************************************
  *BCM7435_B0
@@ -2628,7 +2647,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -2647,7 +2666,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -2666,7 +2685,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI
@@ -2949,7 +2968,7 @@
  *EOP_ID_256 - EOP_ID
  ***************************************************************************/
 /* RDC :: EOP_ID_256 :: eop_id [255:00] */
-#define BCHP_RDC_EOP_ID_256_eop_id_MASK                            0x00000000000000000000000000000000000000000000000000000000ffffffff
+#define BCHP_RDC_EOP_ID_256_eop_id_MASK                            0x0000000000000000000000000000000000000000000000000000000000000000
 #define BCHP_RDC_EOP_ID_256_eop_id_SHIFT                           0
 #define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_0                    0
 #define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_1                    1
@@ -3307,7 +3326,7 @@
 #define BCHP_VICE2_REGSET_MISC_DCCM_INTERFACE_VICE2HOST_OFFSET     4
 #define BCHP_VICE2_REGSET_MISC_DCCM_INTERFACE_BVN2VICE_OFFSET      8
 #define BCHP_VICE2_REGSET_MISC_DCCM_INTERFACE_MBOX_0_START         16
-#define BCHP_VICE2_REGSET_MISC_DCCM_INTERFACE_MBOX_1_START         40
+#define BCHP_VICE2_REGSET_MISC_DCCM_INTERFACE_MBOX_1_START         44
 
 /* VICE2_REGSET_MISC :: DCCM :: REVISION [15:00] */
 #define BCHP_VICE2_REGSET_MISC_DCCM_REVISION_MASK                  0x0000ffff
@@ -3434,6 +3453,29 @@
 #define BCHP_VICE2_REGSET_MISC_DWORD_05_BARDATA_INFO_BOTRIGHTBARVALUE_SHIFT 0
 
 /***************************************************************************
+ *DWORD_06_FNRT_INFO - fast non real time Information
+ ***************************************************************************/
+/* VICE2_REGSET_MISC :: DWORD_06_FNRT_INFO :: reserved0 [31:18] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_reserved0_MASK   0xfffc0000
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_reserved0_SHIFT  18
+
+/* VICE2_REGSET_MISC :: DWORD_06_FNRT_INFO :: ENDOFCHUNK [17:17] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_ENDOFCHUNK_MASK  0x00020000
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_ENDOFCHUNK_SHIFT 17
+
+/* VICE2_REGSET_MISC :: DWORD_06_FNRT_INFO :: PRECHARGEPICTURE [16:16] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_PRECHARGEPICTURE_MASK 0x00010000
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_PRECHARGEPICTURE_SHIFT 16
+
+/* VICE2_REGSET_MISC :: DWORD_06_FNRT_INFO :: reserved1 [15:10] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_reserved1_MASK   0x0000fc00
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_reserved1_SHIFT  10
+
+/* VICE2_REGSET_MISC :: DWORD_06_FNRT_INFO :: CHUNKID [09:00] */
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_CHUNKID_MASK     0x000003ff
+#define BCHP_VICE2_REGSET_MISC_DWORD_06_FNRT_INFO_CHUNKID_SHIFT    0
+
+/***************************************************************************
  *MBOX - MBOX registers interface address offset.
  ***************************************************************************/
 /* VICE2_REGSET_MISC :: MBOX :: INTERFACE [31:16] */
@@ -3445,12 +3487,13 @@
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_03_ORIGINAL_PTS_OFFSET 12
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_04_STG_PICTURE_ID_OFFSET 16
 #define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_05_BARDATA_INFO_OFFSET 20
-#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_SIZE                 6
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_DWORD_06_FNRT_INFO_OFFSET 24
+#define BCHP_VICE2_REGSET_MISC_MBOX_INTERFACE_SIZE                 7
 
 /* VICE2_REGSET_MISC :: MBOX :: MAJORREVISION [15:08] */
 #define BCHP_VICE2_REGSET_MISC_MBOX_MAJORREVISION_MASK             0x0000ff00
 #define BCHP_VICE2_REGSET_MISC_MBOX_MAJORREVISION_SHIFT            8
-#define BCHP_VICE2_REGSET_MISC_MBOX_MAJORREVISION_ID               1
+#define BCHP_VICE2_REGSET_MISC_MBOX_MAJORREVISION_ID               2
 
 /* VICE2_REGSET_MISC :: MBOX :: MINORREVISION [07:00] */
 #define BCHP_VICE2_REGSET_MISC_MBOX_MINORREVISION_MASK             0x000000ff

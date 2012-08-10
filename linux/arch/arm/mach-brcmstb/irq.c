@@ -8,11 +8,15 @@
 #include <linux/irq.h>
 #include <linux/bitops.h>
 
+#include <linux/brcmstb/brcmstb.h>
+
 #include <asm/exception.h>
 
 #include <mach/irqs.h>
+#include <mach/map.h>
 
-static const void __iomem *base = (void *)0xee41a400;
+static const void __iomem *base =
+	(void __iomem *)PHYS_TO_IO(BCHP_HIF_CPU_INTR1_REG_START);
 
 #define L1_IRQS			96
 
@@ -67,12 +71,10 @@ asmlinkage void __exception_irq_entry brcmstb_handle_irq(struct pt_regs *regs)
 	}
 }
 
-#define BPHYSADDR(x)		((x) + 0xe0000000)
-
 static struct resource irq_resource = {
 	.name	= "HIF_L1",
-	.start	= BPHYSADDR(0x0041a400),
-	.end	= BPHYSADDR(0x0041a42f),
+	.start	= BPHYSADDR(BCHP_HIF_CPU_INTR1_REG_START),
+	.end	= BPHYSADDR(BCHP_HIF_CPU_INTR1_REG_END + 0x03),
 };
 
 void __init brcmstb_init_irq(void)
