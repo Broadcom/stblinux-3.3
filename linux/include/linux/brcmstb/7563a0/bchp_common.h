@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Jun 16 03:07:30 2012
+ * Date:           Generated on         Tue Aug  7 03:07:11 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -38,6 +38,25 @@
 
 #ifndef BCHP_COMMON_H__
 #define BCHP_COMMON_H__
+
+/**
+ * m = memory, c = core, r = register, f = field, d = data.
+ */
+#if !defined(GET_FIELD) && !defined(SET_FIELD)
+#define BRCM_MASK(c,r,f)    c##_##r##_##f##_MASK
+#define BRCM_SHIFT(c,r,f)   c##_##r##_##f##_SHIFT
+
+#define GET_FIELD(m,c,r,f) \
+((((m) & BRCM_MASK(c,r,f)) >> BRCM_SHIFT(c,r,f)))
+
+#define SET_FIELD(m,c,r,f,d) \
+((m) = (((m) & ~BRCM_MASK(c,r,f)) | ((((d)) << BRCM_SHIFT(c,r,f)) & BRCM_MASK(c,r,f))))
+
+#define SET_TYPE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##d)
+#define SET_NAME_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##r##_##f##_##d)
+#define SET_VALUE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,d)
+
+#endif /* GET & SET */
 
 /***************************************************************************
  *BCM7563_A0
@@ -185,7 +204,7 @@
 #define BCHP_S_MEMC_0_REG_START                            0x003ba000
 #define BCHP_S_MEMC_0_REG_END                              0x003ba220
 #define BCHP_SUN_GISB_ARB_REG_START                        0x00400000
-#define BCHP_SUN_GISB_ARB_REG_END                          0x004000d8
+#define BCHP_SUN_GISB_ARB_REG_END                          0x00400178
 #define BCHP_SUN_GR_REG_START                              0x00400400
 #define BCHP_SUN_GR_REG_END                                0x0040040c
 #define BCHP_SSP_RG_REG_START                              0x00400600
@@ -204,8 +223,6 @@
 #define BCHP_BSCA_REG_END                                  0x00406254
 #define BCHP_BSCB_REG_START                                0x00406280
 #define BCHP_BSCB_REG_END                                  0x004062d4
-#define BCHP_BSCC_REG_START                                0x00406300
-#define BCHP_BSCC_REG_END                                  0x00406354
 #define BCHP_PWM_REG_START                                 0x00406400
 #define BCHP_PWM_REG_END                                   0x00406424
 #define BCHP_GIO_REG_START                                 0x00406500
@@ -250,8 +267,6 @@
 #define BCHP_KBD1_REG_END                                  0x004088fc
 #define BCHP_KBD2_REG_START                                0x00408900
 #define BCHP_KBD2_REG_END                                  0x0040893c
-#define BCHP_KBD3_REG_START                                0x00408940
-#define BCHP_KBD3_REG_END                                  0x0040897c
 #define BCHP_BSCD_REG_START                                0x00408980
 #define BCHP_BSCD_REG_END                                  0x004089d4
 #define BCHP_MSPI_REG_START                                0x00408a00
@@ -269,7 +284,7 @@
 #define BCHP_WKTMR_REG_START                               0x00408e80
 #define BCHP_WKTMR_REG_END                                 0x00408e90
 #define BCHP_SYS_GISB_ARB_SEC_REG_START                    0x0040e000
-#define BCHP_SYS_GISB_ARB_SEC_REG_END                      0x0040e0b4
+#define BCHP_SYS_GISB_ARB_SEC_REG_END                      0x0040e154
 #define BCHP_SYS_TOP_CTRL_SEC_REG_START                    0x0040e700
 #define BCHP_SYS_TOP_CTRL_SEC_REG_END                      0x0040e704
 #define BCHP_AON_CTRL_SECURE_REG_START                     0x0040e800
@@ -321,7 +336,7 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_START        0x00414800
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00414800
 #define BCHP_CLKGEN_REG_START                              0x00420000
-#define BCHP_CLKGEN_REG_END                                0x004203e0
+#define BCHP_CLKGEN_REG_END                                0x0042044c
 #define BCHP_VCXO_RM_REG_START                             0x00422800
 #define BCHP_VCXO_RM_REG_END                               0x0042282c
 #define BCHP_CLKGEN_GR_REG_START                           0x00423000
@@ -413,9 +428,9 @@
 #define BCHP_SCL_1_REG_START                               0x00620800
 #define BCHP_SCL_1_REG_END                                 0x00620bfc
 #define BCHP_VNET_F_REG_START                              0x00622000
-#define BCHP_VNET_F_REG_END                                0x0062209c
+#define BCHP_VNET_F_REG_END                                0x006221fc
 #define BCHP_VNET_B_REG_START                              0x00622200
-#define BCHP_VNET_B_REG_END                                0x006222ac
+#define BCHP_VNET_B_REG_END                                0x006223fc
 #define BCHP_MMISC_REG_START                               0x00622800
 #define BCHP_MMISC_REG_END                                 0x00622820
 #define BCHP_LBOX_0_REG_START                              0x00625000
@@ -439,7 +454,7 @@
 #define BCHP_TNT_CMP_0_V0_REG_START                        0x00643000
 #define BCHP_TNT_CMP_0_V0_REG_END                          0x006430a4
 #define BCHP_MASK_0_REG_START                              0x00643400
-#define BCHP_MASK_0_REG_END                                0x0064341c
+#define BCHP_MASK_0_REG_END                                0x00643420
 #define BCHP_PEP_CMP_0_V0_REG_START                        0x00644000
 #define BCHP_PEP_CMP_0_V0_REG_END                          0x00645484
 #define BCHP_BVNB_INTR2_REG_START                          0x00646000
@@ -453,7 +468,7 @@
 #define BCHP_HSCL_0_REG_START                              0x00660400
 #define BCHP_HSCL_0_REG_END                                0x006607fc
 #define BCHP_MDI_TOP_0_REG_START                           0x00662000
-#define BCHP_MDI_TOP_0_REG_END                             0x00662044
+#define BCHP_MDI_TOP_0_REG_END                             0x006620fc
 #define BCHP_MDI_PPB_0_REG_START                           0x00662800
 #define BCHP_MDI_PPB_0_REG_END                             0x00662bfc
 #define BCHP_MDI_FCN_0_REG_START                           0x00662c00
@@ -701,15 +716,15 @@
 #define BCHP_T2_BICM_CORE_REG_START                        0x00e00400
 #define BCHP_T2_BICM_CORE_REG_END                          0x00e0068c
 #define BCHP_T2_GLB_REG_START                              0x00e10000
-#define BCHP_T2_GLB_REG_END                                0x00e1009c
+#define BCHP_T2_GLB_REG_END                                0x00e100b4
 #define BCHP_T2_FE_REG_START                               0x00e10200
 #define BCHP_T2_FE_REG_END                                 0x00e10298
 #define BCHP_T2_OFDM_REG_START                             0x00e10400
-#define BCHP_T2_OFDM_REG_END                               0x00e10750
+#define BCHP_T2_OFDM_REG_END                               0x00e107b4
 #define BCHP_T2_FEC_REG_START                              0x00e10800
-#define BCHP_T2_FEC_REG_END                                0x00e108f8
+#define BCHP_T2_FEC_REG_END                                0x00e108d8
 #define BCHP_T2_OI_REG_START                               0x00e10a00
-#define BCHP_T2_OI_REG_END                                 0x00e10b1c
+#define BCHP_T2_OI_REG_END                                 0x00e10b38
 #define BCHP_T2_INTR_REG_START                             0x00e10c00
 #define BCHP_T2_INTR_REG_END                               0x00e10c2c
 #define BCHP_T2_INTR_OI_REG_START                          0x00e10e00
@@ -725,7 +740,7 @@
 #define BCHP_UFE_GR_BRIDGE_REG_START                       0x00e20700
 #define BCHP_UFE_GR_BRIDGE_REG_END                         0x00e2070c
 #define BCHP_UFE_MISC2_REG_START                           0x00e20780
-#define BCHP_UFE_MISC2_REG_END                             0x00e207dc
+#define BCHP_UFE_MISC2_REG_END                             0x00e207ec
 #define BCHP_UFE_REG_START                                 0x00e20800
 #define BCHP_UFE_REG_END                                   0x00e20868
 #define BCHP_UFE_SAW_REG_START                             0x00e20900
@@ -1373,7 +1388,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
@@ -1392,7 +1407,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
@@ -1411,7 +1426,7 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
 
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI
@@ -1691,6 +1706,269 @@
  *RDC
  ***************************************************************************/
 /***************************************************************************
+ *EOP_ID_256 - EOP_ID
+ ***************************************************************************/
+/* RDC :: EOP_ID_256 :: eop_id [255:00] */
+#define BCHP_RDC_EOP_ID_256_eop_id_MASK                            0x0000000000000000000000000000000000000000000000000000000000000000
+#define BCHP_RDC_EOP_ID_256_eop_id_SHIFT                           0
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_0                    0
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_1                    1
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_2                    2
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_3                    3
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_4                    4
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_5                    5
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_6                    6
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_7                    7
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_0                    8
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_1                    9
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_2                    10
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_3                    11
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_4                    12
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_5                    13
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_6                    14
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_mvp_7                    15
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_0                    16
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_1                    17
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_2                    18
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_3                    19
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_4                    20
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_5                    21
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_6                    22
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_dnr_7                    23
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_0                   24
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_1                   25
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_2                   26
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_3                   27
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_4                   28
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_5                   29
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_lbox_6                   30
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_pfa_0                    31
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_0                   32
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_1                   33
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_2                   34
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_3                   35
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_4                   36
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_5                   37
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_6                   38
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_null_7                   39
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_nvp_0                    40
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_s3dh_0                   41
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_v0_be                    42
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_0               43
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_1               44
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_2               45
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_3               46
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_4               47
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_0                    48
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_1                    49
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_2                    50
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_3                    51
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_4                    52
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_5                    53
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_6                    54
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_7                    55
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_8                    56
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_9                    57
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_10                   58
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_fch_11                   59
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_5               60
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_6               61
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_7               62
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_reserved_8               63
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_0                           64
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_1                           65
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_2                           66
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_3                           67
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_4                           68
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_5                           69
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_6                           70
+#define BCHP_RDC_EOP_ID_256_eop_id_mfd_7                           71
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_0                           72
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_1                           73
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_2                           74
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_3                           75
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_4                           76
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_5                           77
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_6                           78
+#define BCHP_RDC_EOP_ID_256_eop_id_vfd_7                           79
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_0                           80
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_1                           81
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_2                           82
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_3                           83
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_4                           84
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_5                           85
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_6                           86
+#define BCHP_RDC_EOP_ID_256_eop_id_cap_7                           87
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_0                           88
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_1                           89
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_2                           90
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_3                           91
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_4                           92
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_5                           93
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_6                           94
+#define BCHP_RDC_EOP_ID_256_eop_id_gfd_7                           95
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_0                           96
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_1                           97
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_2                           98
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_3                           99
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_4                           100
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_5                           101
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_6                           102
+#define BCHP_RDC_EOP_ID_256_eop_id_scl_7                           103
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_0                          104
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_1                          105
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_2                          106
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_3                          107
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_4                          108
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_5                          109
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_6                          110
+#define BCHP_RDC_EOP_ID_256_eop_id_hscl_7                          111
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_0                           112
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_1                           113
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_2                           114
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_3                           115
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_4                           116
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_5                           117
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_6                           118
+#define BCHP_RDC_EOP_ID_256_eop_id_mvp_7                           119
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_0                           120
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_1                           121
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_2                           122
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_3                           123
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_4                           124
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_5                           125
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_6                           126
+#define BCHP_RDC_EOP_ID_256_eop_id_dnr_7                           127
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_0                           128
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_1                           129
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_2                           130
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_3                           131
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_4                           132
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_5                           133
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_6                           134
+#define BCHP_RDC_EOP_ID_256_eop_id_cmp_7                           135
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_0                        136
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_1                        137
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_2                        138
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_3                        139
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_4                        140
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_5                        141
+#define BCHP_RDC_EOP_ID_256_eop_id_hd_dvi_6                        142
+#define BCHP_RDC_EOP_ID_256_eop_id_tpg_0                           143
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_0                           144
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_1                           145
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_2                           146
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_3                           147
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_4                           148
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_5                           149
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_6                           150
+#define BCHP_RDC_EOP_ID_256_eop_id_vec_7                           151
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_0                          152
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_1                          153
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_2                          154
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_3                          155
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_4                          156
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_5                          157
+#define BCHP_RDC_EOP_ID_256_eop_id_lbox_6                          158
+#define BCHP_RDC_EOP_ID_256_eop_id_pfa_0                           159
+#define BCHP_RDC_EOP_ID_256_eop_id_crc_0                           160
+#define BCHP_RDC_EOP_ID_256_eop_id_crc_1                           161
+#define BCHP_RDC_EOP_ID_256_eop_id_crc_2                           162
+#define BCHP_RDC_EOP_ID_256_eop_id_crc_3                           163
+#define BCHP_RDC_EOP_ID_256_eop_id_hist_0                          164
+#define BCHP_RDC_EOP_ID_256_eop_id_hist_1                          165
+#define BCHP_RDC_EOP_ID_256_eop_id_psm_0                           166
+#define BCHP_RDC_EOP_ID_256_eop_id_plm_0                           167
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_0                    168
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_1                    169
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_2                    170
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_3                    171
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_4                    172
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_5                    173
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_6                    174
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cap_7                    175
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_crc_0                    176
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_crc_1                    177
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_crc_2                    178
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_crc_3                    179
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_hist_0                   180
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_hist_1                   181
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_psm_0                    182
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_plm_0                    183
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_0_v0                 184
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_1_v0                 185
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_2_v0                 186
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_3_v0                 187
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_4_v0                 188
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_5_v0                 189
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_6_v0                 190
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_7_v0                 191
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_0_v1                 192
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_1_v1                 193
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_2_v1                 194
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_3_v1                 195
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_4_v1                 196
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_5_v1                 197
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_6_v1                 198
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_cmp_7_v1                 199
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_0                   200
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_1                   201
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_2                   202
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_3                   203
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_4                   204
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_5                   205
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_6                   206
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_null_7                   207
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_b3dc_0                   208
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_frc_0                    209
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_0               210
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_1               211
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_2               212
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_3               213
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_4               214
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_5               215
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_0               216
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_1               217
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_2               218
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_3               219
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_4               220
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_5               221
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_6               222
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_7               223
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_8               224
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_9               225
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_10              226
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_loopback_11              227
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_6               228
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_7               229
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_8               230
+#define BCHP_RDC_EOP_ID_256_eop_id_vnet_b_reserved_9               231
+#define BCHP_RDC_EOP_ID_256_eop_id_nvp_0                           232
+#define BCHP_RDC_EOP_ID_256_eop_id_s3dh_0                          233
+#define BCHP_RDC_EOP_ID_256_eop_id_v0_be                           234
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_0                      235
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_1                      236
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_2                      237
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_3                      238
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_4                      239
+#define BCHP_RDC_EOP_ID_256_eop_id_b3dc_0                          240
+#define BCHP_RDC_EOP_ID_256_eop_id_frc_0                           241
+#define BCHP_RDC_EOP_ID_256_eop_id_pdpf_0                          242
+#define BCHP_RDC_EOP_ID_256_eop_id_pdpb_0                          243
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_5                      244
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_6                      245
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_7                      246
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_8                      247
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_9                      248
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_10                     249
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_11                     250
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_12                     251
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_13                     252
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_14                     253
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_15                     254
+#define BCHP_RDC_EOP_ID_256_eop_id_reserved_16                     255
+
+/***************************************************************************
  *RUL - RUL Command.
  ***************************************************************************/
 /* RDC :: RUL :: opcode [31:24] */
@@ -1720,6 +1998,7 @@
 #define BCHP_RDC_RUL_opcode_COND_SKIP                              21
 #define BCHP_RDC_RUL_opcode_SKIP                                   22
 #define BCHP_RDC_RUL_opcode_EXIT                                   23
+#define BCHP_RDC_RUL_opcode_WAIT_EOP                               24
 #define BCHP_RDC_RUL_opcode_PLACEHOLDER                            255
 
 /* RDC :: RUL :: reserved0 [23:23] */
@@ -1755,6 +2034,15 @@
 /* RDC :: RUL :: reg_args :: count [11:00] */
 #define BCHP_RDC_RUL_reg_args_count_MASK                           0x00000fff
 #define BCHP_RDC_RUL_reg_args_count_SHIFT                          0
+
+/* union - case eop_args [22:00] */
+/* RDC :: RUL :: eop_args :: reserved0 [22:08] */
+#define BCHP_RDC_RUL_eop_args_reserved0_MASK                       0x007fff00
+#define BCHP_RDC_RUL_eop_args_reserved0_SHIFT                      8
+
+/* RDC :: RUL :: eop_args :: eop [07:00] */
+#define BCHP_RDC_RUL_eop_args_eop_MASK                             0x000000ff
+#define BCHP_RDC_RUL_eop_args_eop_SHIFT                            0
 
 /***************************************************************************
  *XPT_PB

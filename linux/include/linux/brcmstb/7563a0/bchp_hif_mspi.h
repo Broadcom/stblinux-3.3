@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Jun 16 03:07:40 2012
+ * Date:           Generated on         Tue Aug  7 03:07:17 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -160,21 +160,10 @@
 #define BCHP_HIF_MSPI_SPCR0_MSB_StartTransDelay_SHIFT              8
 #define BCHP_HIF_MSPI_SPCR0_MSB_StartTransDelay_DEFAULT            0x00000000
 
-/* union - case data_reg_8 [07:02] */
-/* HIF_MSPI :: SPCR0_MSB :: data_reg_8 :: reserved0 [07:06] */
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_8_reserved0_MASK          0x000000c0
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_8_reserved0_SHIFT         6
-
-/* HIF_MSPI :: SPCR0_MSB :: data_reg_8 :: BITS [05:02] */
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_8_BITS_MASK               0x0000003c
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_8_BITS_SHIFT              2
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_8_BITS_DEFAULT            0x00000000
-
-/* union - case data_reg_32 [07:02] */
-/* HIF_MSPI :: SPCR0_MSB :: data_reg_32 :: BITS [07:02] */
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_32_BITS_MASK              0x000000fc
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_32_BITS_SHIFT             2
-#define BCHP_HIF_MSPI_SPCR0_MSB_data_reg_32_BITS_DEFAULT           0x00000000
+/* HIF_MSPI :: SPCR0_MSB :: BitS [07:02] */
+#define BCHP_HIF_MSPI_SPCR0_MSB_BitS_MASK                          0x000000fc
+#define BCHP_HIF_MSPI_SPCR0_MSB_BitS_SHIFT                         2
+#define BCHP_HIF_MSPI_SPCR0_MSB_BitS_DEFAULT                       0x00000000
 
 /* HIF_MSPI :: SPCR0_MSB :: CPOL [01:01] */
 #define BCHP_HIF_MSPI_SPCR0_MSB_CPOL_MASK                          0x00000002

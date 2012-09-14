@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Jun 16 03:07:40 2012
+ * Date:           Generated on         Tue Aug  7 03:07:18 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -858,40 +858,36 @@
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_SHIFT 8
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_DEFAULT 0x00000000
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_7 [07:07] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_MASK 0x00000080
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_SHIFT 7
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_7_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_6 [06:06] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_MASK 0x00000040
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_SHIFT 6
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_6_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_5 [05:05] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_MASK 0x00000020
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_SHIFT 5
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_DEFAULT 0x00000000
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sc1_pad_0_drive_sel [07:05] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_MASK 0x000000e0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_SHIFT 5
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DEFAULT 0x00000003
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_2MA 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_4MA 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_6MA 2
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_8MA 3
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_10MA 4
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_12MA 5
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_14MA 6
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_0_drive_sel_DRIVE_16MA 7
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_4 [04:04] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_MASK 0x00000010
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_SHIFT 4
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_DEFAULT 0x00000000
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_3 [03:03] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_MASK 0x00000008
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_SHIFT 3
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_2 [02:02] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_MASK 0x00000004
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_SHIFT 2
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_1 [01:01] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_MASK 0x00000002
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_SHIFT 1
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_DEFAULT 0x00000000
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sc1_pad_1_drive_sel [03:01] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_MASK 0x0000000e
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_SHIFT 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DEFAULT 0x00000003
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_2MA 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_4MA 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_6MA 2
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_8MA 3
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_10MA 4
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_12MA 5
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_14MA 6
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_pad_1_drive_sel_DRIVE_16MA 7
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: mtsif_hys_en [00:00] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_mtsif_hys_en_MASK     0x00000001
@@ -1370,7 +1366,7 @@
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_test_select_gisb_control [06:06] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_MASK 0x00000040
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_SHIFT 6
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_DEFAULT 0x00000000
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_DEFAULT 0x00000001
 
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_select_current_gisb_control [05:05] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_MASK 0x00000020
@@ -1380,7 +1376,7 @@
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_cml_sel_pd [04:03] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_MASK         0x00000018
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_SHIFT        3
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_DEFAULT      0x00000000
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_DEFAULT      0x00000002
 
 /* AON_CTRL :: ANA_XTAL_CONTROL :: osc_d2cbias_gisb_control [02:00] */
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_d2cbias_gisb_control_MASK 0x00000007

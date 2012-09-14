@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Jun 16 03:07:40 2012
+ * Date:           Generated on         Tue Aug  7 03:07:18 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -214,25 +214,25 @@
 /***************************************************************************
  *OTP_OPTION_TEST_0 - OTP option test register
  ***************************************************************************/
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_3 [31:31] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_3_MASK 0x80000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_3_SHIFT 31
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_3_DEFAULT 0x00000000
-
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_2 [30:30] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_2_MASK 0x40000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_2_SHIFT 30
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_2 [31:31] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_2_MASK 0x80000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_2_SHIFT 31
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_2_DEFAULT 0x00000000
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_1 [29:29] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_1_MASK 0x20000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_1_SHIFT 29
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_1 [30:30] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_1_MASK 0x40000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_1_SHIFT 30
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_1_DEFAULT 0x00000000
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_0 [28:28] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_0_MASK 0x10000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_0_SHIFT 28
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_spare_0 [29:29] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_0_MASK 0x20000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_0_SHIFT 29
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_spare_0_DEFAULT 0x00000000
+
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_dvbt_disable [28:28] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_dvbt_disable_MASK 0x10000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_dvbt_disable_SHIFT 28
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_dvbt_disable_DEFAULT 0x00000000
 
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_usb_disable [27:27] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_usb_disable_MASK 0x08000000
@@ -254,10 +254,10 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_avc_disable_SHIFT 24
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_avc_disable_DEFAULT 0x00000000
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_pvtmon_disable [23:23] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_pvtmon_disable_MASK 0x00800000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_pvtmon_disable_SHIFT 23
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_pvtmon_disable_DEFAULT 0x00000000
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_rsvd_pvtmon_disable [23:23] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_pvtmon_disable_MASK 0x00800000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_pvtmon_disable_SHIFT 23
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_pvtmon_disable_DEFAULT 0x00000000
 
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_tuner0_disable [22:22] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_tuner0_disable_MASK 0x00400000
@@ -299,10 +299,10 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_dvbt2_disable_SHIFT 15
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_dvbt2_disable_DEFAULT 0x00000000
 
-/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_adjust_voltage [14:10] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_adjust_voltage_MASK 0x00007c00
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_adjust_voltage_SHIFT 10
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_adjust_voltage_DEFAULT 0x00000000
+/* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_rsvd_adjust_voltage [14:10] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_adjust_voltage_MASK 0x00007c00
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_adjust_voltage_SHIFT 10
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_rsvd_adjust_voltage_DEFAULT 0x00000000
 
 /* SUN_TOP_CTRL :: OTP_OPTION_TEST_0 :: otp_option_avs_disable [09:09] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_TEST_0_otp_option_avs_disable_MASK 0x00000200
@@ -500,21 +500,21 @@
 /***************************************************************************
  *OTP_OPTION_STATUS_0 - OTP option status register
  ***************************************************************************/
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_3 [31:31] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_3_MASK 0x80000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_3_SHIFT 31
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_2 [31:31] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_2_MASK 0x80000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_2_SHIFT 31
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_2 [30:30] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_2_MASK 0x40000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_2_SHIFT 30
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_1 [30:30] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_1_MASK 0x40000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_1_SHIFT 30
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_1 [29:29] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_1_MASK 0x20000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_1_SHIFT 29
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_0 [29:29] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_0_MASK 0x20000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_0_SHIFT 29
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_spare_0 [28:28] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_0_MASK 0x10000000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_spare_0_SHIFT 28
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_dvbt_disable [28:28] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_dvbt_disable_MASK 0x10000000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_dvbt_disable_SHIFT 28
 
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_usb_disable [27:27] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_usb_disable_MASK 0x08000000
@@ -532,9 +532,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_avc_disable_MASK 0x01000000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_avc_disable_SHIFT 24
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_pvtmon_disable [23:23] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_pvtmon_disable_MASK 0x00800000
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_pvtmon_disable_SHIFT 23
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_rsvd_pvtmon_disable [23:23] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_rsvd_pvtmon_disable_MASK 0x00800000
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_rsvd_pvtmon_disable_SHIFT 23
 
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_tuner0_disable [22:22] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_tuner0_disable_MASK 0x00400000
@@ -568,9 +568,9 @@
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_dvbt2_disable_MASK 0x00008000
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_dvbt2_disable_SHIFT 15
 
-/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_adjust_voltage [14:10] */
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_adjust_voltage_MASK 0x00007c00
-#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_adjust_voltage_SHIFT 10
+/* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_rsvd_adjust_voltage [14:10] */
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_rsvd_adjust_voltage_MASK 0x00007c00
+#define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_rsvd_adjust_voltage_SHIFT 10
 
 /* SUN_TOP_CTRL :: OTP_OPTION_STATUS_0 :: otp_option_avs_disable [09:09] */
 #define BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_avs_disable_MASK 0x00000200
@@ -1425,9 +1425,9 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_GPIO_41           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_NAND_REB          1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_TP_OUT_28         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_TP_OUT_22         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_TP_IN_28          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_TP_OUT_22         4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_TP_OUT_28         4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_41_PM_GPIO_41        5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_1 :: gpio_32 [27:24] */
@@ -1436,9 +1436,9 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_GPIO_32           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_NAND_DATA7        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_TP_OUT_27         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_TP_OUT_21         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_TP_IN_27          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_TP_OUT_21         4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_TP_OUT_27         4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_32_PM_GPIO_32        5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_1 :: gpio_31 [23:20] */
@@ -1447,9 +1447,9 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_GPIO_31           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_NAND_DATA6        1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_TP_OUT_26         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_TP_OUT_20         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_TP_IN_26          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_TP_OUT_20         4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_TP_OUT_26         4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_1_gpio_31_PM_GPIO_31        5
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_1 :: gpio_30 [19:16] */
@@ -1560,10 +1560,10 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_GPIO_44           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_NAND_CLE          1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_OUT_31         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_OUT_26         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_IN_31          3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_IN_19          4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_OUT_26         5
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_TP_OUT_31         5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_44_PM_GPIO_44        6
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_2 :: gpio_43 [07:04] */
@@ -1572,10 +1572,10 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_GPIO_43           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_NAND_ALE          1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_OUT_30         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_OUT_25         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_IN_30          3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_IN_18          4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_OUT_25         5
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_TP_OUT_30         5
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_43_PM_GPIO_43        6
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_2 :: gpio_42 [03:00] */
@@ -1584,9 +1584,9 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_DEFAULT           0x00000001
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_GPIO_42           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_NAND_WEB          1
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_TP_OUT_29         2
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_TP_OUT_23         2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_TP_IN_29          3
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_TP_OUT_23         4
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_TP_OUT_29         4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_2_gpio_42_PM_GPIO_42        5
 
 /***************************************************************************
@@ -1641,7 +1641,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_USB0_PWRFLT_1     2
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_TP_OUT_15         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_TP_OUT_31         4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_PM_GPIO_86        5
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_TP_IN_31          5
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_86_PM_GPIO_86        6
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_3 :: gpio_85 [11:08] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_MASK              0x00000f00
@@ -1653,7 +1654,8 @@
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_TP_OUT_14         3
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_USB0_PWRFLT_2     4
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_TP_OUT_30         5
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_PM_GPIO_85        6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_TP_IN_30          6
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_85_PM_GPIO_85        7
 
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_3 :: gpio_84 [07:04] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_3_gpio_84_MASK              0x000000f0
@@ -3968,8 +3970,8 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_GENET0  0
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_CPU     1
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_UFE_TOP 2
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_T2_RCVR 3
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_T2_BICM 4
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_T2_BICM 3
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_T2_RCVR 4
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SYS     16
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_CLK     17
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_AON     18

@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Sat Jun 16 03:07:39 2012
+ * Date:           Generated on         Tue Aug  7 03:07:16 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -109,8 +109,8 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_ENET_ACTIVITY 3
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_IR_OUT        4
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_VEC_HSYNC     5
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_TP_OUT_23     6
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_TP_OUT_01     7
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_TP_OUT_01     6
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_01_TP_OUT_23     7
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_0 :: aon_gpio_00 [15:12] */
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_MASK          0x0000f000
@@ -120,8 +120,8 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_AUD_SPDIF     1
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_CLK_OBSRV1    2
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_PWM1          3
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_TP_OUT_16     4
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_TP_OUT_00     5
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_TP_OUT_00     4
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_gpio_00_TP_OUT_16     5
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_0 :: aon_hdmi_htplg [11:08] */
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_0_aon_hdmi_htplg_MASK       0x00000f00
@@ -172,9 +172,9 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_I2S_CLK0_OUT  3
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_LED_OUT       4
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_SDIO0_PWR0    5
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_TP_OUT_20     6
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_TP_OUT_04     6
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_MTSIF0_CLK    7
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_TP_OUT_04     8
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_TP_OUT_20     8
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_12_PM_AON_GPIO_12 9
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_1 :: aon_gpio_11 [23:20] */
@@ -187,8 +187,8 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_RMX0_VALID    3
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_AON_CLK_27    4
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_SPI_M_SCK     5
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_TP_OUT_22     6
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_TP_OUT_03     7
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_TP_OUT_03     6
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_11_TP_OUT_22     7
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_1 :: aon_gpio_10 [19:16] */
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_MASK          0x000f0000
@@ -200,8 +200,8 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_RMX0_SYNC     3
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_UART_RTS2     4
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_SPI_M_SS0B    5
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_TP_OUT_21     6
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_TP_OUT_02     7
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_TP_OUT_02     6
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_10_TP_OUT_21     7
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_1 :: aon_gpio_09 [15:12] */
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_1_aon_gpio_09_MASK          0x0000f000
@@ -318,9 +318,10 @@
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_SC1_IO        3
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_SPI_M_SS1B    4
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_SDIO0_DAT3    5
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_MTSIF_ATS_INC 6
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_TP_IN_13      7
-#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_PM_AON_GPIO_18 8
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_EEE_BYP_CLK_25 6
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_MTSIF_ATS_INC 7
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_TP_IN_13      8
+#define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_18_PM_AON_GPIO_18 9
 
 /* AON_PIN_CTRL :: PIN_MUX_CTRL_2 :: aon_gpio_17 [15:12] */
 #define BCHP_AON_PIN_CTRL_PIN_MUX_CTRL_2_aon_gpio_17_MASK          0x0000f000
