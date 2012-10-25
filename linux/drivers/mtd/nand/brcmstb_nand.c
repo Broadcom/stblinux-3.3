@@ -61,6 +61,7 @@ module_param(wp_on, int, 0444);
 #define CONTROLLER_VER		(10 * CONFIG_BRCMNAND_MAJOR_VERS + \
 		CONFIG_BRCMNAND_MINOR_VERS)
 
+#define CMD_NULL		0x00
 #define CMD_PAGE_READ		0x01
 #define CMD_SPARE_AREA_READ	0x02
 #define CMD_STATUS_READ		0x03
@@ -229,11 +230,7 @@ struct brcmstb_nand_controller {
 	u32			nand_cs_nand_xor;
 	u32			corr_stat_threshold;
 	u32			hif_intr2;
-	/* per CS */
-	u32			acc_control;
-	u32			config;
-	u32			timing_1;
-	u32			timing_2;
+	u32			flash_dma_mode;
 };
 
 static struct brcmstb_nand_controller ctrl;
@@ -249,6 +246,11 @@ struct brcmstb_nand_cfg {
 	unsigned int		ful_adr_bytes;
 	unsigned int		sector_size_1k;
 	unsigned int		ecc_level;
+	/* use for low-power standby/resume only */
+	u32			acc_control;
+	u32			config;
+	u32			timing_1;
+	u32			timing_2;
 };
 
 struct brcmstb_nand_host {
@@ -1593,14 +1595,46 @@ static int brcmstb_nand_suspend(struct device *dev)
 		ctrl.hif_intr2 = HIF_ENABLED_IRQ(NAND_CTLRDY);
 #ifdef CONFIG_BRCM_HAS_FLASH_DMA
 		ctrl.hif_intr2 |= HIF_ENABLED_IRQ(FLASH_DMA_DONE);
+		ctrl.flash_dma_mode = BDEV_RD(BCHP_FLASH_DMA_MODE);
 #endif
 
-		ctrl.acc_control = BDEV_RD(REG_ACC_CONTROL(host->cs));
-		ctrl.config = BDEV_RD(REG_CONFIG(host->cs));
-		ctrl.timing_1 = BDEV_RD(REG_TIMING_1(host->cs));
-		ctrl.timing_2 = BDEV_RD(REG_TIMING_2(host->cs));
+		host->hwcfg.acc_control = BDEV_RD(REG_ACC_CONTROL(host->cs));
+		host->hwcfg.config = BDEV_RD(REG_CONFIG(host->cs));
+		host->hwcfg.timing_1 = BDEV_RD(REG_TIMING_1(host->cs));
+		host->hwcfg.timing_2 = BDEV_RD(REG_TIMING_2(host->cs));
 	}
 	return 0;
+}
+
+/*
+ * Some chips with first-revision v6.x NAND controllers (7429A0, 7435A0) must
+ * be configured via AUTO_DEVICE_ID_CONFIG + CMD_DEVICE_ID_READ before they can
+ * function properly
+ */
+static void __maybe_unused brcmstb_nand_auto_id_config_workaround(struct
+		brcmstb_nand_host *host)
+{
+	dev_info(&host->pdev->dev, "AUTO_DEVICE_ID_CONFIG workaround\n");
+	/* 1. Set NAND_CMD_EXT_ADDRESS to use CSx, x!=0 */
+	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS, host->cs << 16);
+	BDEV_WR_RB(BCHP_NAND_CMD_ADDRESS, 0);
+	/* 2. Write NAND_CMD_START = null to issue null command */
+	BDEV_WR(BCHP_NAND_CMD_START, CMD_NULL << BCHP_NAND_CMD_START_OPCODE_SHIFT);
+	/* 3. Poll NAND_INTFC_STATUS to make sure controller is idle */
+	while (!BDEV_RD_F(NAND_INTFC_STATUS, CTLR_READY))
+		msleep(1);
+	/* 4. Set NAND_CS_NAND_SELECT to enable auto configuration */
+	BDEV_WR_F(NAND_CS_NAND_SELECT, AUTO_DEVICE_ID_CONFIG, 1);
+	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS, host->cs << 16);
+	BDEV_WR_RB(BCHP_NAND_CMD_ADDRESS, 0);
+	/* 5. Write NAND_CMD_START = device ID read */
+	BDEV_WR(BCHP_NAND_CMD_START, CMD_DEVICE_ID_READ << BCHP_NAND_CMD_START_OPCODE_SHIFT);
+	/* 6. Poll NAND_INTFC_STATUS to make sure controller goes back to idle. */
+	while (!BDEV_RD_F(NAND_INTFC_STATUS, CTLR_READY))
+		msleep(1);
+	/* 7. NAND_CONFIG_CSx register gets updated with initalized value. */
+	/* 8. Disable AUTO_DEVICE_ID_CONFIG */
+	BDEV_WR_F(NAND_CS_NAND_SELECT, AUTO_DEVICE_ID_CONFIG, 0);
 }
 
 static int brcmstb_nand_resume(struct device *dev)
@@ -1608,6 +1642,11 @@ static int brcmstb_nand_resume(struct device *dev)
 	if (brcm_pm_deep_sleep()) {
 		struct brcmstb_nand_host *host = dev_get_drvdata(dev);
 		struct mtd_info *mtd = &host->mtd;
+		struct nand_chip *chip = mtd->priv;
+
+#if defined(CONFIG_BCM7429A0) || defined(CONFIG_BCM7435A0)
+		brcmstb_nand_auto_id_config_workaround(host);
+#endif
 
 		dev_dbg(dev, "Restore state after S3 suspend\n");
 #ifdef CONFIG_BRCM_HAS_EDU
@@ -1618,15 +1657,21 @@ static int brcmstb_nand_resume(struct device *dev)
 		BDEV_WR(BCHP_EDU_DONE, 0);
 		BDEV_WR(BCHP_EDU_DONE, 0);
 #endif
+
+#ifdef CONFIG_BRCM_HAS_FLASH_DMA
+		BDEV_WR_RB(BCHP_FLASH_DMA_MODE, ctrl.flash_dma_mode);
+		BDEV_WR_RB(BCHP_FLASH_DMA_ERROR_STATUS, 0);
+#endif
+
 		BDEV_WR_RB(BCHP_NAND_CS_NAND_SELECT, ctrl.nand_cs_nand_select);
 		BDEV_WR_RB(BCHP_NAND_CS_NAND_XOR, ctrl.nand_cs_nand_xor);
 		BDEV_WR_RB(BCHP_NAND_CORR_STAT_THRESHOLD,
 			ctrl.corr_stat_threshold);
 
-		BDEV_WR_RB(REG_ACC_CONTROL(host->cs), ctrl.acc_control);
-		BDEV_WR_RB(REG_CONFIG(host->cs), ctrl.config);
-		BDEV_WR_RB(REG_TIMING_1(host->cs), ctrl.timing_1);
-		BDEV_WR_RB(REG_TIMING_2(host->cs), ctrl.timing_2);
+		BDEV_WR_RB(REG_ACC_CONTROL(host->cs), host->hwcfg.acc_control);
+		BDEV_WR_RB(REG_CONFIG(host->cs), host->hwcfg.config);
+		BDEV_WR_RB(REG_TIMING_1(host->cs), host->hwcfg.timing_1);
+		BDEV_WR_RB(REG_TIMING_2(host->cs), host->hwcfg.timing_2);
 
 		HIF_ACK_IRQ(NAND_CTLRDY);
 		if (ctrl.hif_intr2) {
@@ -1636,7 +1681,8 @@ static int brcmstb_nand_resume(struct device *dev)
 #endif
 		}
 
-		nand_scan_ident(mtd, 1, NULL);
+		/* Reset the chip, required by some chips after power-up */
+		chip->cmdfunc(mtd, NAND_CMD_RESET, -1, -1);
 	}
 	return 0;
 }

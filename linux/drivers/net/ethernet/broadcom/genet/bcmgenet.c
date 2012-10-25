@@ -536,8 +536,6 @@ static int bcmgenet_open(struct net_device *dev)
 
 	bcmgenet_clock_enable(pDevCtrl);
 
-	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 0;
-
 	/* disable ethernet MAC while updating its registers */
 	pDevCtrl->umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
 
@@ -570,10 +568,8 @@ static int bcmgenet_open(struct net_device *dev)
 	pDevCtrl->txDma->tdma_ctrl &= ~dma_ctrl;
 	pDevCtrl->rxDma->rdma_ctrl &= ~dma_ctrl;
 	pDevCtrl->umac->tx_flush = 1;
-	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 1;
 	udelay(10);
 	pDevCtrl->umac->tx_flush = 0;
-	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 0;
 
 	/* reset dma, start from beginning of the ring. */
 	init_edma(pDevCtrl);
@@ -642,32 +638,43 @@ static int bcmgenet_close(struct net_device *dev)
 
 	TRACE(("%s: bcmgenet_close\n", dev->name));
 
-	napi_disable(&pDevCtrl->napi);
+	/* Disable MAC receive */
+	pDevCtrl->umac->cmd &= ~CMD_RX_EN;
+
 	netif_tx_stop_all_queues(dev);
-	/* Stop Tx DMA */
+
+	/* Disable TDMA to stop add more frames in TX DMA */
 	pDevCtrl->txDma->tdma_ctrl &= ~DMA_EN;
-	while (timeout < 5000) {
-		if (pDevCtrl->txDma->tdma_status & DMA_EN)
+	/* Check TDMA status register to confirm TDMA is disabled */
+	while (!(pDevCtrl->txDma->tdma_status & DMA_DISABLED)) {
+		if (timeout++ == 5000) {
+			netdev_warn(pDevCtrl->dev,
+				"Timed out while disabling TX DMA\n");
 			break;
+		}
 		udelay(1);
-		timeout++;
 	}
-	if (timeout == 5000)
-		printk(KERN_ERR "Timed out while shutting down Tx DMA\n");
 
-	/* Disable Rx DMA*/
+	/* SWLINUX-2252: Workaround for rx flush issue causes rbuf overflow */
+	/* Wait 10ms for packet drain in both tx and rx dma */
+	usleep_range(10000, 20000);
+
+	/* Disable RDMA */
 	pDevCtrl->rxDma->rdma_ctrl &= ~DMA_EN;
-	timeout = 0;
-	while (timeout < 5000) {
-		if (pDevCtrl->rxDma->rdma_status & DMA_EN)
+	/* Check RDMA status register to confirm RDMA is disabled */
+	while (!(pDevCtrl->rxDma->rdma_status & DMA_DISABLED)) {
+		if (timeout++ == 5000) {
+			netdev_warn(pDevCtrl->dev,
+				"Timed out while disabling RX DMA\n");
 			break;
+		}
 		udelay(1);
-		timeout++;
 	}
-	if (timeout == 5000)
-		printk(KERN_ERR "Timed out while shutting down Rx DMA\n");
 
-	pDevCtrl->umac->cmd &= ~(CMD_RX_EN | CMD_TX_EN);
+	/* Disable MAC transmit. TX DMA disabled have to done before this */
+	pDevCtrl->umac->cmd &= ~CMD_TX_EN;
+
+	napi_disable(&pDevCtrl->napi);
 
 	/* tx reclaim */
 	bcmgenet_xmit(NULL, dev);
@@ -3596,7 +3603,6 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	mii_init(dev);
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
-	netif_carrier_off(pDevCtrl->dev);
 
 	if (pDevCtrl->extPhy) {
 		/* No Link status IRQ */
@@ -3614,6 +3620,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	if (err != 0)
 		goto err2;
 
+	netif_carrier_off(pDevCtrl->dev);
 	pDevCtrl->next_dev = eth_root_dev;
 	eth_root_dev = dev;
 	bcmgenet_clock_disable(pDevCtrl);

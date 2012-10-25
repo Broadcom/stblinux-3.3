@@ -208,6 +208,10 @@ int brcm_pm_memc1_suspend(void)
 {
 	CHECK_MEMC1_INIT();
 
+	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_1_REG_START,
+		memc1_config.client_info, 0);
+	brcm_pm_memc1_ddr_params(0);
+	brcm_pm_memc1_arb_params(0);
 	__brcm_pm_memc1_suspend(0);
 	/* Stop the clocks */
 	brcm_pm_memc1_clock_stop();
@@ -222,6 +226,10 @@ int brcm_pm_memc1_resume(void)
 	/* Restart the clocks */
 	brcm_pm_memc1_clock_start();
 	__brcm_pm_memc1_resume(0);
+	brcm_pm_memc1_ddr_params(1);
+	brcm_pm_memc1_arb_params(1);
+	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_1_REG_START,
+		memc1_config.client_info, 1);
 	brcm_pm_memc1_sspd_control(0);
 
 	return 0;
@@ -727,7 +735,8 @@ static void __brcm_pm_memc1_suspend(int mode)
 		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_CORE, 1);
 		BDEV_WR_F_RB(MEMC_DDR_1_DRAM_INIT_CNTRL, DDR3_INIT_MODE, 1);
 		mdelay(1);
-	}
+	} else
+		DBG(KERN_DEBUG "%s suspended\n", __func__);
 
 	memc1_config.valid = 1;
 }

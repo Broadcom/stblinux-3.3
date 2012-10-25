@@ -266,6 +266,7 @@
 #include <linux/brcmstb/7425b0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_misc.h>
+#include <linux/brcmstb/7425b0/bchp_pcie_misc_hard.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_misc_perst.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_rc_cfg_pcie.h>
 #include <linux/brcmstb/7425b0/bchp_pcie_rc_cfg_type1.h>
@@ -403,6 +404,7 @@
 #include <linux/brcmstb/7435a0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_misc.h>
+#include <linux/brcmstb/7435a0/bchp_pcie_misc_hard.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_misc_perst.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_rc_cfg_pcie.h>
 #include <linux/brcmstb/7435a0/bchp_pcie_rc_cfg_type1.h>
@@ -460,6 +462,7 @@
 #include <linux/brcmstb/7435b0/bchp_pcie_ext_cfg.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_intr2.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_misc.h>
+#include <linux/brcmstb/7435b0/bchp_pcie_misc_hard.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_misc_perst.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_rc_cfg_pcie.h>
 #include <linux/brcmstb/7435b0/bchp_pcie_rc_cfg_type1.h>

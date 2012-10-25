@@ -27,6 +27,7 @@
 #include <linux/io.h>
 #include <linux/clk.h>
 #include <linux/printk.h>
+#include <linux/syscore_ops.h>
 #include <linux/brcmstb/brcmstb.h>
 
 /* NOTE: all PHYSICAL addresses */
@@ -98,6 +99,7 @@ struct brcm_pci_bus {
 	int			memory_hole;
 	unsigned long		idx_reg;
 	unsigned long		data_reg;
+	struct clk		*clk;
 };
 
 static struct brcm_pci_bus brcm_buses[] = {
@@ -195,10 +197,14 @@ void brcm_setup_pcie_bridge(void)
 		;
 
 	if (!PCIE_LINK_UP()) {
-		struct clk *clk = clk_get(NULL, "pcie");
+		struct clk *clk;
+
 		brcm_pcie_enabled = 0;
-		if (clk)
+		clk = brcm_buses[BRCM_BUSNO_PCIE].clk;
+		if (clk) {
 			clk_disable(clk);
+			clk_put(clk);
+		}
 		pr_info("PCIe link down\n");
 		return;
 	}
@@ -232,6 +238,39 @@ void brcm_setup_pcie_bridge(void)
 		DATA_ENDIAN);
 }
 
+#if defined(CONFIG_PM)
+/*
+ * syscore device to handle PCIe bus suspend and resume
+ */
+static inline void pcie_enable(int enable)
+{
+	struct clk *clk;
+
+	if (!brcm_pcie_enabled)
+		return;
+
+	clk = brcm_buses[BRCM_BUSNO_PCIE].clk;
+	if (clk)
+		enable ? clk_enable(clk) : clk_disable(clk);
+}
+
+static int pcie_suspend(void)
+{
+	pcie_enable(0);
+	return 0;
+}
+
+static void pcie_resume(void)
+{
+	pcie_enable(1);
+}
+
+static struct syscore_ops pcie_pm_ops = {
+	.suspend        = pcie_suspend,
+	.resume         = pcie_resume,
+};
+#endif
+
 /***********************************************************************
  * PCI controller registration
  ***********************************************************************/
@@ -239,6 +278,7 @@ void brcm_setup_pcie_bridge(void)
 static int __init brcmstb_pci_init(void)
 {
 	if (brcm_pcie_enabled) {
+		brcm_buses[BRCM_BUSNO_PCIE].clk = clk_get(NULL, "pcie");
 		brcm_setup_pcie_bridge();
 		brcm_buses[BRCM_BUSNO_PCIE].idx_reg =
 			BVIRTADDR(BCHP_PCIE_EXT_CFG_PCIE_EXT_CFG_INDEX);
@@ -246,6 +286,9 @@ static int __init brcmstb_pci_init(void)
 			BVIRTADDR(BCHP_PCIE_EXT_CFG_PCIE_EXT_CFG_DATA);
 
 		register_pci_controller(&brcmstb_pcie_controller);
+#if defined(CONFIG_PM)
+		register_syscore_ops(&pcie_pm_ops);
+#endif
 	}
 	return 0;
 }

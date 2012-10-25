@@ -34,7 +34,7 @@
 #define DBG(...)	do { } while (0)
 #endif
 
-#define CALCULATE_MEM_HASH		(0)
+#define CALCULATE_MEM_HASH		(1)
 #define WARM_BOOT_MAGIC_WORD		(0x5AFEB007)
 #define CFE_PARAMETER_BLOCK		(0)
 #define AUTHENTICATION_REGION_SIZE	(16*1024*1024)

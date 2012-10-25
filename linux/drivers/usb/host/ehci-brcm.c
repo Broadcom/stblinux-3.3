@@ -66,6 +66,7 @@ static int ehci_brcm_reset(struct usb_hcd *hcd)
 	ret = ehci_init(hcd);
 	if (ret)
 		return ret;
+	ehci_reset(ehci);
 	ehci_port_power(ehci, 1);
 
 	return ret;
@@ -134,76 +135,97 @@ static int ehci_brcm_hub_control(
 }
 
 #ifdef CONFIG_PM
-static int ehci_brcm_suspend(struct usb_hcd *hcd)
+static int ehci_brcm_suspend(struct device *dev)
 {
-	int ret;
+	struct usb_hcd		*hcd = dev_get_drvdata(dev);
+	struct ehci_hcd		*ehci = hcd_to_ehci(hcd);
+	unsigned long		flags;
 
-	ret = ehci_bus_suspend(hcd);
-	ehci_prepare_ports_for_controller_suspend(hcd_to_ehci(hcd), false);
-	brcm_usb_suspend(hcd);
-
-	return ret;
-}
-
-static int ehci_brcm_resume(struct usb_hcd *hcd)
-{
-	int ret = 0;
-
-	brcm_usb_resume(hcd);
-
-	if (brcm_pm_deep_sleep()) {
-		struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
-
-		usb_root_hub_lost_power(hcd->self.root_hub);
-
-		/*
-		 * SWLINUX-1705: Avoid OUT packet underflows during high memory
-		 *   bus usage
-		 * port_status[0x0f] = Broadcom-proprietary USB_EHCI_INSNREG00
-		 * @ 0x90
-		 */
-		ehci_writel(ehci, 0x00800040, &ehci->regs->port_status[0x10]);
-		ehci_writel(ehci, 0x00000001, &ehci->regs->port_status[0x12]);
-
-		(void)ehci_halt(ehci);
-		(void)ehci_reset(ehci);
-
-		ehci_writel(ehci, ehci->command, &ehci->regs->command);
-		ehci_writel(ehci, FLAG_CF, &ehci->regs->configured_flag);
-		/* unblock posted writes */
-		ehci_readl(ehci, &ehci->regs->command);
-
-		ehci_writel(ehci, 0, &ehci->regs->intr_enable);
-
-		/* re-init operational registers */
-		ehci_writel(ehci, 0, &ehci->regs->segment);
-		ehci_writel(ehci, ehci->periodic_dma, &ehci->regs->frame_list);
-		ehci_writel(ehci, (u32) ehci->async->qh_dma,
-			&ehci->regs->async_next);
-
-		/* restore CMD_RUN, framelist size, and irq threshold */
-		ehci_writel(ehci, ehci->command, &ehci->regs->command);
-
-		/* Some controller/firmware combinations need a delay during
-		 * which they set up the port statuses.  See Bugzilla #8190. */
-		/* SWLINUX-1929 need extra delay here */
+	if (time_before(jiffies, ehci->next_statechange))
 		msleep(10);
 
-		ehci->next_statechange = jiffies + msecs_to_jiffies(5);
-		hcd->state = HC_STATE_RUNNING;
+	/* Root hub was already suspended. Disable irq emission and
+	 * mark HW unaccessible.  The PM and USB cores make sure that
+	 * the root hub is either suspended or stopped.
+	 */
+	ehci_prepare_ports_for_controller_suspend(ehci, device_may_wakeup(dev));
+	spin_lock_irqsave(&ehci->lock, flags);
+	ehci_writel(ehci, 0, &ehci->regs->intr_enable);
+	(void)ehci_readl(ehci, &ehci->regs->intr_enable);
+	brcm_usb_suspend(hcd);
+	spin_unlock_irqrestore(&ehci->lock, flags);
 
-		/* Now we can safely re-enable irqs */
-		ehci_writel(ehci, INTR_MASK, &ehci->regs->intr_enable);
+	return 0;
+}
 
-		/* here we "know" root ports should always stay powered */
-		ehci_port_power(ehci, 1);
+static int ehci_brcm_resume(struct device *dev)
+{
+	struct usb_hcd *hcd = dev_get_drvdata(dev);
+	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
 
+	brcm_usb_resume(hcd);
+	if (time_before(jiffies, ehci->next_statechange))
+		msleep(100);
+
+	/* If CF is still set, we maintained PCI Vaux power.
+	 * Just undo the effect of ehci_pci_suspend().
+	 */
+	if (ehci_readl(ehci, &ehci->regs->configured_flag) == FLAG_CF) {
+		int mask = INTR_MASK;
+
+		ehci_prepare_ports_for_controller_resume(ehci);
+		if (!hcd->self.root_hub->do_remote_wakeup)
+			mask &= ~STS_PCD;
+		ehci_writel(ehci, mask, &ehci->regs->intr_enable);
+		ehci_readl(ehci, &ehci->regs->intr_enable);
 		return 0;
 	}
-	ehci_prepare_ports_for_controller_resume(hcd_to_ehci(hcd));
-	ret = ehci_bus_resume(hcd);
-	return ret;
+
+	dev_info(dev, "lost power, restarting\n");
+	usb_root_hub_lost_power(hcd->self.root_hub);
+
+	/*
+	 * SWLINUX-1705: Avoid OUT packet underflows during high memory
+	 *   bus usage
+	 * port_status[0x0f] = Broadcom-proprietary USB_EHCI_INSNREG00
+	 * @ 0x90
+	 */
+	ehci_writel(ehci, 0x00800040, &ehci->regs->port_status[0x10]);
+	ehci_writel(ehci, 0x00000001, &ehci->regs->port_status[0x12]);
+
+	/* Else reset, to cope with power loss or flush-to-storage
+	 * style "resume" having let BIOS kick in during reboot.
+	 */
+	(void) ehci_halt(ehci);
+	(void) ehci_reset(ehci);
+
+	/* emptying the schedule aborts any urbs */
+	spin_lock_irq(&ehci->lock);
+	if (ehci->reclaim)
+		end_unlink_async(ehci);
+	ehci_work(ehci);
+	spin_unlock_irq(&ehci->lock);
+
+	ehci_writel(ehci, ehci->command, &ehci->regs->command);
+	ehci_writel(ehci, FLAG_CF, &ehci->regs->configured_flag);
+	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
+
+	/* here we "know" root ports should always stay powered */
+	ehci_port_power(ehci, 1);
+
+	ehci->rh_state = EHCI_RH_SUSPENDED;
+	return 0;
 }
+
+static const struct dev_pm_ops brcm_ehci_pmops = {
+	.suspend	= ehci_brcm_suspend,
+	.resume		= ehci_brcm_resume,
+};
+
+#define BRCM_EHCI_PMOPS (&brcm_ehci_pmops)
+
+#else
+#define BRCM_EHCI_PMOPS NULL
 #endif
 
 
@@ -247,8 +269,8 @@ static const struct hc_driver ehci_brcm_hc_driver = {
 	.hub_status_data =	ehci_hub_status_data,
 	.hub_control =		ehci_brcm_hub_control,
 #ifdef	CONFIG_PM
-	.bus_suspend =		ehci_brcm_suspend,
-	.bus_resume =		ehci_brcm_resume,
+	.bus_suspend =		ehci_bus_suspend,
+	.bus_resume =		ehci_bus_resume,
 #endif
 	.relinquish_port =	ehci_relinquish_port,
 	.port_handed_over =	ehci_port_handed_over,
@@ -273,7 +295,8 @@ static struct platform_driver ehci_hcd_brcm_driver = {
 	.shutdown = usb_hcd_platform_shutdown,
 	.driver = {
 		.name = "ehci-brcm",
-		.bus = &platform_bus_type
+		.bus = &platform_bus_type,
+		.pm = BRCM_EHCI_PMOPS,
 	}
 };
 

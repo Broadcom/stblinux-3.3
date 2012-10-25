@@ -87,6 +87,22 @@ void mii_write(struct net_device *dev, int phy_id, int location, int val)
 			HZ/100);
 	mutex_unlock(&pDevCtrl->mdio_mutex);
 }
+
+/* mii register read/modify/write helper function */
+int mii_set_clr_bits(struct net_device *dev, int location,
+		     int set_mask, int clr_mask)
+{
+	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+	int phy_id = pDevCtrl->phyAddr;
+	int v;
+
+	v = mii_read(dev, phy_id, location);
+	v &= ~clr_mask;
+	v |= set_mask;
+	mii_write(dev, phy_id, location, v);
+	return v;
+}
+
 /* probe for an external PHY via MDIO; return PHY address */
 int mii_probe(struct net_device *dev, void *p)
 {
@@ -133,7 +149,6 @@ void mii_setup(struct net_device *dev)
 	TRACE(("%s: %s\n", __func__, netif_carrier_ok(pDevCtrl->dev) ?
 				"netif_carrier_on" : "netif_carrier_off"));
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA) {
-		netif_carrier_on(pDevCtrl->dev);
 		return;
 	}
 	cur_link = mii_link_ok(&pDevCtrl->mii);
@@ -193,6 +208,25 @@ void mii_setup(struct net_device *dev)
 	}
 }
 
+static void ephy_workaround(struct net_device *dev)
+{
+	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+
+	/*
+	 * Workaround for SWLINUX-2281: explicitly reset IDDQ_CLKBIAS
+	 * in the Shadow 2 regset, due to power sequencing issues.
+	 */
+	/* set shadow mode 2 */
+	mii_set_clr_bits(dev, 0x1f, 0x0004, 0x0004);
+	/* set iddq_clkbias */
+	mii_write(dev, pDevCtrl->phyAddr, 0x14, 0x0F00);
+	udelay(10);
+	/* reset iddq_clkbias */
+	mii_write(dev, pDevCtrl->phyAddr, 0x14, 0x0C00);
+	/* reset shadow mode 2 */
+	mii_set_clr_bits(dev, 0x1f, 0x0004, 0);
+}
+
 int mii_init(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
@@ -219,6 +253,7 @@ int mii_init(struct net_device *dev)
 		/* enable 64 clock MDIO */
 		mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
 		mii_read(dev, pDevCtrl->phyAddr, 0x1d);
+		ephy_workaround(dev);
 		printk(KERN_INFO "Config internal EPHY through MDIO\n");
 		break;
 	case BRCM_PHY_TYPE_EXT_MII:

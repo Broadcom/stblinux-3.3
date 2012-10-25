@@ -62,34 +62,52 @@ static void ohci_brcm_shutdown(struct usb_hcd *hcd)
 }
 
 #ifdef CONFIG_PM
-static int ohci_brcm_suspend(struct usb_hcd *hcd)
+static int ohci_brcm_suspend(struct device *dev)
 {
+	struct usb_hcd *hcd = dev_get_drvdata(dev);
 	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+	unsigned long	flags;
+	int		rc = 0;
 
-	if (time_before(jiffies, ohci->next_statechange))
-		msleep(5);
-	ohci->next_statechange = jiffies;
+	/* Root hub was already suspended. Disable irq emission and
+	 * mark HW unaccessible, bail out if RH has been resumed. Use
+	 * the spinlock to properly synchronize with possible pending
+	 * RH suspend or resume activity.
+	 */
+	spin_lock_irqsave(&ohci->lock, flags);
+	if (ohci->rh_state != OHCI_RH_SUSPENDED) {
+		rc = -EINVAL;
+		goto bail;
+	}
+	ohci_writel(ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
+	(void)ohci_readl(ohci, &ohci->regs->intrdisable);
 
-	ohci_to_hcd(ohci)->state = HC_STATE_SUSPENDED;
-	ohci_bus_suspend(hcd);
 	brcm_usb_suspend(hcd);
-	return 0;
+ bail:
+	spin_unlock_irqrestore(&ohci->lock, flags);
+
+	return rc;
 }
 
-static int ohci_brcm_resume(struct usb_hcd *hcd)
+static int ohci_brcm_resume(struct device *dev)
 {
-	struct ohci_hcd	*ohci = hcd_to_ohci(hcd);
+	struct usb_hcd *hcd = dev_get_drvdata(dev);
 
 	brcm_usb_resume(hcd);
-	if (time_before(jiffies, ohci->next_statechange))
-		msleep(5);
-	ohci->next_statechange = jiffies;
-
+	ohci_usb_reset(hcd_to_ohci(hcd));
 	ohci_finish_controller_resume(hcd);
-	ohci_bus_resume(hcd);
 	return 0;
 }
 
+static const struct dev_pm_ops brcm_ohci_pmops = {
+	.suspend	= ohci_brcm_suspend,
+	.resume		= ohci_brcm_resume,
+};
+
+#define BRCM_OHCI_PMOPS (&brcm_ohci_pmops)
+
+#else
+#define BRCM_OHCI_PMOPS NULL
 #endif
 
 static const struct hc_driver ohci_brcm_hc_driver = {
@@ -129,8 +147,8 @@ static const struct hc_driver ohci_brcm_hc_driver = {
 	.hub_status_data =	ohci_hub_status_data,
 	.hub_control =		ohci_hub_control,
 #ifdef	CONFIG_PM
-	.bus_suspend =		ohci_brcm_suspend,
-	.bus_resume =		ohci_brcm_resume,
+	.bus_suspend =		ohci_bus_suspend,
+	.bus_resume =		ohci_bus_resume,
 #endif
 	.start_port_reset =	ohci_start_port_reset,
 };
@@ -155,6 +173,7 @@ static struct platform_driver ohci_hcd_brcm_driver = {
 	.driver		= {
 		.name	= "ohci-brcm",
 		.owner	= THIS_MODULE,
+		.pm = BRCM_OHCI_PMOPS,
 	},
 };
 

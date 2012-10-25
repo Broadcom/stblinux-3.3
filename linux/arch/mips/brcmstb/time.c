@@ -104,6 +104,17 @@ static __init unsigned long brcm_mips_freq(void)
 	return read_c0_count() * SAMPLE_PERIOD;
 }
 
+void read_persistent_clock(struct timespec *ts)
+{
+	struct wktmr_time now;
+
+	wktmr_read(&now);
+
+	ts->tv_sec = now.sec;
+	ts->tv_nsec = now.pre * (1000000000/WKTMR_FREQ);
+}
+
+
 #else /* CONFIG_BRCM_HAS_WKTMR */
 
 /*
