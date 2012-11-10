@@ -17,6 +17,7 @@
 
 #include <linux/init.h>
 #include <linux/clocksource.h>
+#include <linux/printk.h>
 #include <linux/spinlock.h>
 
 #include <asm/time.h>
@@ -153,7 +154,7 @@ void __init plat_time_init(void)
 {
 	unsigned int khz;
 
-	printk(KERN_DEBUG "Measuring MIPS counter frequency...\n");
+	pr_info("Measuring MIPS counter frequency...\n");
 	mips_hpt_frequency = brcm_mips_freq();
 	khz = mips_hpt_frequency / 1000;
 #ifdef CONFIG_CPU_BMIPS5000
@@ -162,9 +163,8 @@ void __init plat_time_init(void)
 	brcm_cpu_khz = mips_hpt_frequency * 2 / 1000;
 #endif
 
-	printk(KERN_INFO "Detected MIPS clock frequency: %lu MHz "
-		"(%u.%03u MHz counter)\n", brcm_cpu_khz / 1000,
-		khz / 1000, khz % 1000);
+	pr_info("Detected MIPS clock frequency: %lu MHz (%u.%03u MHz counter)\n",
+		brcm_cpu_khz / 1000, khz / 1000, khz % 1000);
 
 #ifdef CONFIG_CSRC_WKTMR
 	init_wktmr_clocksource();

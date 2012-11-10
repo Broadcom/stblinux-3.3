@@ -212,6 +212,7 @@ static void __init __maybe_unused cfe_read_configuration(void)
 	FETCH("ETH0_HWADDR", parse_eth0_hwaddr, brcm_primary_macaddr);
 	FETCH("ETH0_MDIO_MODE", parse_eth0_mdio_mode, &brcm_eth0_no_mdio);
 	FETCH("ETH0_PHY", parse_string, brcm_eth0_phy);
+	FETCH("ETH0_PHYADDR", parse_string, brcm_eth0_phyaddr);
 	FETCH("ETH0_SPEED", parse_ulong, &brcm_eth0_speed);
 
 	FETCH("DRAM0_SIZE", parse_ulong, &brcm_dram0_size_mb);

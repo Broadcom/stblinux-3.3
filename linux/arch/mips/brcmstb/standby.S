@@ -210,6 +210,22 @@
 
 #endif
 
+/*
+ * enable power down of MEMSYS PLL
+ * 7436 and 7425 only
+ */
+#if defined(CONFIG_BCM7346)
+	li	t0, REG(BCHP_CLKGEN_MEMSYS_32_INST_POWER_MANAGEMENT)
+	li	t1, BCHP_CLKGEN_MEMSYS_32_INST_POWER_MANAGEMENT_MEMSYS_PLL_PWRDN_POWER_MANAGEMENT_MASK
+	sw	t1, 0(t0)
+#endif
+
+#if defined(CONFIG_BCM7425)
+	li	t0, REG(BCHP_CLKGEN_MEMSYS_0_32_POWER_MANAGEMENT)
+	li	t1, BCHP_CLKGEN_MEMSYS_0_32_POWER_MANAGEMENT_MEMSYS_PLL_PWRDN_POWER_MANAGEMENT_MASK
+	sw	t1, 0(t0)
+#endif
+
 # power down request
 2:
 	/* delay if requested by the user: 4 * 30s */

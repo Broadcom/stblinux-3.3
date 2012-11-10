@@ -1869,7 +1869,8 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	defined(CONFIG_BCM7231) || \
 	defined(CONFIG_BCM7552) || \
 	defined(CONFIG_BCM7344) || \
-	defined(CONFIG_BCM7358)
+	defined(CONFIG_BCM7358) || \
+	defined(CONFIG_BCM7360)
 static __maybe_unused int mem_power_down = 1;
 
 #undef PLL_CH_ENA
@@ -3353,7 +3354,9 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 };
 #endif
 
-#if defined(CONFIG_BCM7552) || defined(CONFIG_BCM7358)
+#if	defined(CONFIG_BCM7552) || \
+	defined(CONFIG_BCM7358) || \
+	defined(CONFIG_BCM7360)
 static void bcm7552_pm_usb_disable(u32 flags)
 {
 	PRINT_PM_CALLBACK;

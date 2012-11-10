@@ -95,6 +95,11 @@ unsigned long brcm_moca_rf_band = MOCA_BAND_HIGHRF;
 		 BCHP_AON_PIN_CTRL_PIN_MUX_PAD_CTRL_##reg##_##field##_SHIFT)); \
 	} while (0)
 
+
+#define SDIO_CFG_REG(x, y)	(BCHP_SDIO_##x##_CFG_REG_START + \
+				 (BCHP_SDIO_0_CFG_##y - \
+				  BCHP_SDIO_0_CFG_REG_START))
+
 void board_pinmux_setup(void)
 {
 #if !defined(CONFIG_BRCM_IKOS)
@@ -277,7 +282,8 @@ void board_pinmux_setup(void)
 	PINMUX(18, vo_656_7, 1);	/* SDIO_CMD */
 	PINMUX(18, vo_656_6, 2);	/* SDIO_WPROT */
 
-#elif defined(CONFIG_BCM7358) || defined(CONFIG_BCM7552)
+#elif defined(CONFIG_BCM7358) || defined(CONFIG_BCM7552) || \
+	defined(CONFIG_BCM7360)
 
 	PINMUX(11, gpio_89, 1);		/* UARTB TX */
 	PINMUX(11, gpio_90, 1);		/* UARTB RX */
@@ -310,7 +316,7 @@ void board_pinmux_setup(void)
 #elif defined(CONFIG_BCM7425)
 
 	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
-	if ((BDEV_RD(BCHP_SDIO_0_CFG_SCRATCH) & 0x01) == 0) {
+	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
 		PINMUX(14, gpio_072, 2);
 		PINMUX(14, gpio_073, 2);
 		PINMUX(14, gpio_074, 2);
@@ -368,6 +374,44 @@ void board_pinmux_setup(void)
 	PINMUX(18, sgpio_00, 1);        /* MoCA I2C */
 	PINMUX(19, sgpio_01, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCC_REG_START);
+	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
+	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
+		PINMUX(14, gpio_072, 2);
+		PINMUX(14, gpio_073, 2);
+		PINMUX(14, gpio_074, 2);
+		PINMUX(14, gpio_075, 2);
+		PINMUX(15, gpio_076, 2);
+		PINMUX(15, gpio_077, 2);
+		PINMUX(15, gpio_078, 2);
+		PINMUX(15, gpio_079, 2);
+		PINMUX(15, gpio_080, 2);
+		PINMUX(15, gpio_081, 2);
+
+		/* enable internal pullups */
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_072_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_073_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_074_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_075_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_076_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_077_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_078_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_079_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_080_pad_ctrl, 2);
+		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_10,
+			     gpio_081_pad_ctrl, 2);
+
+		/* SDIO0_VOLT signal */
+		AON_PINMUX(2, gpio_100, 5);
+	}
 
 #elif defined(CONFIG_BCM7429)
 
@@ -384,7 +428,7 @@ void board_pinmux_setup(void)
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCD_REG_START);
 
 	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
-	if ((BDEV_RD(BCHP_SDIO_0_CFG_SCRATCH) & 0x01) == 0) {
+	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
 		/*
 		 * 7241 uses GPIO_092 for UART_TX0 instead of SDIO0_VCTL so
 		 * leave it alone. We don't need SDIO0_VCTL because the board
@@ -437,6 +481,11 @@ void board_pinmux_setup(void)
 		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9,
 			gpio_131_pad_ctrl, 2);
 	}
+	/* Bootloader indicates the availability of SDIO_1 in SCRATCH reg */
+	if ((BDEV_RD(SDIO_CFG_REG(1, SCRATCH)) & 0x01) == 0)
+		/* default SDIO1 to eMMC */
+		BDEV_SET(BCHP_HIF_TOP_CTRL_EMMC_PIN_CTRL, 0x00000001);
+
 
 #endif /* chip type */
 #endif /* !defined(CONFIG_BRCM_IKOS) */

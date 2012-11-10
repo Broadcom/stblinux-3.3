@@ -52,6 +52,7 @@ unsigned long brcm_min_auth_region_size = 0x1000;
 unsigned char brcm_eth0_phy[CFE_STRING_SIZE];
 unsigned long brcm_eth0_speed;
 unsigned long brcm_eth0_no_mdio;
+unsigned char brcm_eth0_phyaddr[CFE_STRING_SIZE];
 
 u8 brcm_primary_macaddr[IFHWADDRLEN] = { 0x00, 0x00, 0xde, 0xad, 0xbe, 0xef };
 
@@ -310,6 +311,13 @@ static void bchip_usb_init_one(int id, uintptr_t base)
 #if defined(CONFIG_BRCM_HAS_1GB_MEMC1)
 	/* enable access to SCB1 */
 	BDEV_SET(USB_REG(base, SETUP), BIT(14));
+
+#if defined(CONFIG_BCM7425B0) || defined(CONFIG_BCM7435A0) || \
+	defined(CONFIG_BCM7435B0)
+	/* SWLINUX-2259 - Work around a USB DMA to memc1 arbitration bug */
+	BDEV_SET(USB_REG(base, SETUP), BIT(13));
+#endif
+
 #endif
 
 #if defined(BCHP_USB_CTRL_GENERIC_CTL_1_PLL_SUSPEND_EN_MASK)

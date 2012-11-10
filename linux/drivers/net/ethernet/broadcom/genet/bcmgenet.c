@@ -536,6 +536,10 @@ static int bcmgenet_open(struct net_device *dev)
 
 	bcmgenet_clock_enable(pDevCtrl);
 
+	/* take MAC out of reset */
+	GENET_RBUF_FLUSH_CTRL(pDevCtrl) &= ~BIT(1);
+	udelay(10);
+
 	/* disable ethernet MAC while updating its registers */
 	pDevCtrl->umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
 

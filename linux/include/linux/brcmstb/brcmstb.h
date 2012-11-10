@@ -756,6 +756,7 @@ extern char brcm_cfe_boardname[CFE_STRING_SIZE];
 extern unsigned char brcm_eth0_phy[CFE_STRING_SIZE];
 extern unsigned long brcm_eth0_speed;
 extern unsigned long brcm_eth0_no_mdio;
+extern unsigned char brcm_eth0_phyaddr[CFE_STRING_SIZE];
 extern u8 brcm_primary_macaddr[IFHWADDRLEN];
 
 extern unsigned long brcm_moca_i2c_base;

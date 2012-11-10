@@ -46,7 +46,8 @@ int mii_read(struct net_device *dev, int phy_id, int location)
 		case MII_BMCR:
 			return pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ?
 				BMCR_FULLDPLX | BMCR_SPEED100 :
-				BMCR_FULLDPLX | BMCR_SPEED1000;
+				BMCR_FULLDPLX | ((pDevCtrl->phySpeed == 1000) ?
+					BMCR_SPEED1000 : BMCR_SPEED100);
 		case MII_BMSR:
 			return BMSR_LSTATUS;
 		default:
@@ -141,7 +142,7 @@ int mii_probe(struct net_device *dev, void *p)
 void mii_setup(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
-	struct ethtool_cmd ecmd ;
+	struct ethtool_cmd ecmd;
 	volatile struct uniMacRegs *umac = pDevCtrl->umac;
 	int cur_link;
 	int prev_link;
@@ -156,8 +157,11 @@ void mii_setup(struct net_device *dev)
 	if (cur_link && !prev_link) {
 		mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
 		/*
-		 * program UMAC and RGMII block accordingly, if the PHY is
-		 * not capable of in-band signaling.
+		 * program UMAC and RGMII block based on established link
+		 * speed, pause, and duplex.
+		 * the speed set in umac->cmd tell RGMII block which clock
+		 * 25MHz(100Mbps)/125MHz(1Gbps) to use for transmit.
+		 * receive clock is provided by PHY.
 		 */
 		GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~OOB_DISABLE;
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_LINK;
@@ -231,7 +235,7 @@ int mii_init(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	volatile struct uniMacRegs *umac;
-	u32 id_mode_dis = pDevCtrl->phySpeed == SPEED_100 ? BIT(16) : 0;
+	u32 id_mode_dis = 0;
 
 	umac = pDevCtrl->umac;
 	pDevCtrl->mii.phy_id = pDevCtrl->phyAddr;
@@ -273,18 +277,28 @@ int mii_init(struct net_device *dev)
 		/* fall through */
 	case BRCM_PHY_TYPE_EXT_RGMII:
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN | id_mode_dis;
+		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
+		/*
+		 * setup mii based on configure speed and RGMII txclk is set in
+		 * umac->cmd, mii_setup() after link established.
+		 */
 		if (pDevCtrl->phySpeed == SPEED_1000) {
 			pDevCtrl->mii.supports_gmii = 1;
-			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
 		} else if (pDevCtrl->phySpeed == SPEED_100) {
 			pDevCtrl->mii.supports_gmii = 0;
-			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_EPHY;
+			/* disable 1000BASE-T full, half-duplex capability */
+			mii_set_clr_bits(dev, MII_CTRL1000, 0,
+				(ADVERTISE_1000FULL|ADVERTISE_1000HALF));
+			/* restart autoneg */
+			mii_set_clr_bits(dev, MII_BMCR, BMCR_ANRESTART,
+				BMCR_ANRESTART);
 		}
 		printk(KERN_INFO "Config GPHY through MDIO\n");
 		break;
 	case BRCM_PHY_TYPE_MOCA:
 		printk(KERN_INFO "Config MoCA...\n");
-		umac->cmd = umac->cmd  | (UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
+		/* setup speed in umac->cmd for RGMII txclk set to 125MHz */
+		umac->cmd = umac->cmd | (UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
 		pDevCtrl->mii.force_media = 1;
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_INT_GPHY |
 			LED_ACT_SOURCE_MAC;

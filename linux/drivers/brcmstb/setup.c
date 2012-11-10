@@ -245,6 +245,16 @@ static void __init brcm_add_usb_host(int type, int id, uintptr_t base)
 	pdev->dev.dma_mask = (u64 *)&usb_dmamask;
 	pdev->dev.coherent_dma_mask = 0xffffffff;
 
+#if defined(CONFIG_BCM7425B0) || defined(CONFIG_BCM7435A0) || \
+	defined(CONFIG_BCM7435B0)
+	/* SWLINUX-2259: Prevent OHCI from doing DMA to memc1 */
+	if (type == CAP_TYPE_OHCI) {
+		static const u64 lowmem_dma_mask = DMA_BIT_MASK(31);
+		pdev->dev.dma_mask = (u64 *)&lowmem_dma_mask;
+		pdev->dev.coherent_dma_mask = (u32)lowmem_dma_mask;
+	}
+#endif
+
 	platform_device_add(pdev);
 }
 
@@ -347,6 +357,17 @@ static void __init brcm_override_genet_settings(
 	/* note: this completely bypasses probing for a "live" PHY chip */
 	if (brcm_eth0_no_mdio)
 		pd->phy_id = BRCM_PHY_ID_NONE;
+	else if (pd->phy_type != BRCM_PHY_TYPE_INT) {
+		if (strcmp(brcm_eth0_phyaddr, "probe") == 0)
+			pd->phy_id = BRCM_PHY_ID_AUTO;
+		else {
+			if (kstrtoint(brcm_eth0_phyaddr, 10, &pd->phy_id) ||
+			    pd->phy_id < 0 || pd->phy_id > 31) {
+				pr_warn("Invalid ETH0_PHYADDR, ignoring\n");
+				pd->phy_id = 1;
+			}
+		}
+	}
 }
 
 static void __init brcm_register_genet(int id, struct bcmemac_platform_data *pd)

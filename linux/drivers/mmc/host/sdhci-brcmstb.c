@@ -53,13 +53,19 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 		return -ENOMEM;
 	cfg_base = iomem->start;
 	if (BDEV_RD(SDIO_CFG_REG(cfg_base, SCRATCH)) & 0x01) {
-		printk(KERN_INFO "SDIO_%d: disabled by bootloader\n", pdev->id);
+		dev_info(&pdev->dev, "Disabled by bootloader\n");
 		return -ENODEV;
 	}
-	printk(KERN_INFO "SDIO_%d: enabling controller\n", pdev->id);
-
+	dev_info(&pdev->dev, "Enabling controller\n");
 	BDEV_UNSET(SDIO_CFG_REG(cfg_base, SDIO_EMMC_CTRL1), 0xf000);
 	BDEV_UNSET(SDIO_CFG_REG(cfg_base, SDIO_EMMC_CTRL2), 0x00ff);
+
+	/*
+	 * This is broken on all chips and defaults to enabled on
+	 * some chips so disable it.
+	 */
+	SDIO_CFG_UNSET(cfg_base, SDIO_EMMC_CTRL1, SCB_SEQ_EN);
+
 #ifdef CONFIG_CPU_LITTLE_ENDIAN
 	/* FRAME_NHW | BUFFER_ABO */
 	BDEV_SET(SDIO_CFG_REG(cfg_base, SDIO_EMMC_CTRL1), 0x3000);
@@ -76,12 +82,6 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 	SDIO_CFG_SET(cfg_base, CAP_REG0, HIGH_SPEED_SUPPORT);
 	SDIO_CFG_SET(cfg_base, CAP_REG1, CAP_REG_OVERRIDE);
 #elif defined(CONFIG_BCM7425)
-	/* 7425B0 and 7425B1 */
-	if (BRCM_CHIP_REV() < 0x12) {
-		printk(KERN_INFO "SDIO_%d: disabled, unsupported chip "
-		       "revision\n", pdev->id);
-		return -ENODEV;
-	}
 	/*
 	 * HW7425-1352: Disable TUNING because it's broken.
 	 * Use manual input clock delay to work around 7425B2 timing issues.
@@ -104,6 +104,20 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 #endif
 	return 0;
 }
+
+static int sdhci_brcmstb_supported(void)
+{
+	/* Chips with broken SDIO - 7429A0, 7435A0, 7425B0 and 7425B1 */
+	if ((BRCM_CHIP_ID() == 0x7425) &&
+	    ((BRCM_CHIP_REV() == 0x10) || (BRCM_CHIP_REV() == 0x11)))
+		return 0;
+	if ((BRCM_CHIP_ID() == 0x7429) && (BRCM_CHIP_REV() == 0x00))
+		return 0;
+	if ((BRCM_CHIP_ID() == 0x7435) && (BRCM_CHIP_REV() == 0x00))
+		return 0;
+	return 1;
+}
+
 
 static u32 sdhci_brcmstb_readl(struct sdhci_host *host, int reg)
 {
@@ -152,6 +166,10 @@ static struct sdhci_pltfm_data sdhci_brcmstb_pdata = {
 
 static int __devinit sdhci_brcmstb_probe(struct platform_device *pdev)
 {
+	if (!sdhci_brcmstb_supported()) {
+		dev_info(&pdev->dev, "Disabled, unsupported chip revision\n");
+		return -ENODEV;
+	}
 	if (sdhci_brcmstb_config(pdev) != 0)
 		return -ENODEV;
 	return sdhci_pltfm_register(pdev, &sdhci_brcmstb_pdata);
