@@ -662,6 +662,25 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$linux{"CONFIG_XFS_RT"} = "y";
 			$linux{"CONFIG_XFS_DEBUG"} = "n";
 			$vendor{"CONFIG_USER_XFS_XFSPROGS"} = "y";
+		} elsif($mod eq "perf") {
+
+			# perf - performance counters and function tracer
+
+			$linux{"CONFIG_HAVE_PERF_EVENTS"} = "y";
+			$linux{"CONFIG_PERF_EVENTS"} = "y";
+			$linux{"CONFIG_HW_PERF_EVENTS"} = "y";
+			$linux{"CONFIG_DEBUG_PERF_USE_VMALLOC"} = "n";
+			$linux{"CONFIG_NET_DROP_MONITOR"} = "n";
+			$linux{"CONFIG_EVENT_POWER_TRACING_DEPRECATED"} = "y";
+			$linux{"CONFIG_FUNCTION_GRAPH_TRACER"} = "y";
+			$linux{"CONFIG_DYNAMIC_FTRACE"} = "y";
+			$linux{"CONFIG_FUNCTION_PROFILER"} = "n";
+			$linux{"CONFIG_FTRACE_STARTUP_TEST"} = "n";
+			$linux{"CONFIG_RING_BUFFER_BENCHMARK"} = "n";
+			$linux{"CONFIG_FUNCTION_TRACER"} = "y";
+
+
+			$vendor{"CONFIG_USER_PERF"} = "y";
 		} else {
 			print "\n";
 			print "ERROR: Unrecognized suffix '$mod' in '$tgt'\n";

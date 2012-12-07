@@ -1,0 +1,41 @@
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Generated files
+#
+*.os
+*.oS
+*.a
+*.i
+*.o
+*.depend
+.*.dep
+cscope.*
+*/.deps/
+Makefile
+libelf.so*
+stamp-h1
+config.status
+config.log
+config.h
+po/Makefile.in
+po/POTFILES
+
+#
+# Debugging files
+#
+.gdb_history
+.gdbinit
+core
+
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+/*.diff

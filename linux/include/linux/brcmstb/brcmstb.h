@@ -781,10 +781,11 @@ struct bcmemac_platform_data {
 
 #define BRCM_PHY_TYPE_INT	1
 #define BRCM_PHY_TYPE_EXT_MII	2
-#define BRCM_PHY_TYPE_EXT_RGMII	3
-#define BRCM_PHY_TYPE_EXT_RGMII_IBS	4
-#define BRCM_PHY_TYPE_EXT_RGMII_NO_ID	5
-#define BRCM_PHY_TYPE_MOCA	6
+#define BRCM_PHY_TYPE_EXT_RVMII	3
+#define BRCM_PHY_TYPE_EXT_RGMII	4
+#define BRCM_PHY_TYPE_EXT_RGMII_IBS	5
+#define BRCM_PHY_TYPE_EXT_RGMII_NO_ID	6
+#define BRCM_PHY_TYPE_MOCA	7
 
 #define BRCM_MAX_GENET		2
 extern struct bcmemac_platform_data genet_pdata[BRCM_MAX_GENET];

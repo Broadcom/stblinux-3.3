@@ -26,6 +26,8 @@
 #ifndef __UNIMAC_DEFS_H__
 #define __UNIMAC_DEFS_H__
 
+#include <linux/bitops.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,6 +41,8 @@ extern "C" {
 #define PORT_MODE_INT_GPHY		1
 #define PORT_MODE_EXT_EPHY		2
 #define PORT_MODE_EXT_GPHY		3
+#define PORT_MODE_EXT_RVMII_25		(4 | BIT(4))
+#define PORT_MODE_EXT_RVMII_50		4
 
 #define LED_ACT_SOURCE_MAC		(1 << 9)
 

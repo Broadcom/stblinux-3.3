@@ -100,6 +100,7 @@ bool 'Build libusb'		CONFIG_LIB_LIBUSB_FORCE
 # copy libraries from toolchain
 bool 'Install libstdc++'	CONFIG_LIB_LIBSTDCXX_FORCE
 bool 'Install libgcc_s'		CONFIG_LIB_LIBGCC_FORCE
+bool 'Install libssp'		CONFIG_LIB_LIBSSP_FORCE
 
 # copy uClibc utils
 bool 'Install ldd'			CONFIG_LIB_UCLIBC_LDD
@@ -873,6 +874,7 @@ comment "Debug tools"
 bool 'tpt'				CONFIG_USER_TIMEPEG_TPT
 bool 'Oprofile'				CONFIG_USER_PROFILE_OPROFILE
 bool 'LTTng'				CONFIG_USER_LTT_CONTROL
+bool 'perf'				CONFIG_USER_PERF
 
 endmenu
 
@@ -883,6 +885,13 @@ if [ "$CONFIG_USER_PROFILE_OPROFILE" = "y" ]; then
 	define_bool CONFIG_LIB_LIBIBERTY y
 	define_bool CONFIG_LIB_LIBSTDCXX y
 	define_bool CONFIG_LIB_BINUTILS_OBJDUMP y
+fi
+
+if [ "$CONFIG_USER_PERF" = "y" ]; then
+	define_bool CONFIG_LIB_UARGP y
+	define_bool CONFIG_LIB_GETTEXT y
+	define_bool CONFIG_LIB_LIBELF y
+	define_bool CONFIG_LIB_LIBSSP y
 fi
 
 #############################################################################

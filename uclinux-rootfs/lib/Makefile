@@ -72,6 +72,11 @@ dir_$(CONFIG_LIB_BINUTILS_OBJDUMP) += binutils
 
 dir_$(CONFIG_LIB_SNAPGEAR)       += libsnapgear libconfigdd
 
+dir_$(CONFIG_LIB_UARGP)          += libuargp
+dir_$(CONFIG_LIB_GETTEXT)        += gettext
+dir_$(CONFIG_LIB_LIBELF)         += elfutils
+
+
 ifneq ($(INITRD_SUBDIR),) 
 ifneq ($(shell echo $(filter lib%,$(INITRD_SUBDIR))|sed -e 's/lib[\/]/lib/'),lib)
 dir_y:=$(patsubst lib/%,%,$(filter lib/%,$(INITRD_SUBDIR)))
@@ -116,6 +121,13 @@ ifeq ($(findstring y,$(CONFIG_LIB_LIBGCC_FORCE)$(CONFIG_LIB_LIBGCC)),y)
 	cp -af $(GCCLIB)/libgcc_s.so $(GCCLIB)/libgcc_s.so*[0-9] \
 		$(ROMFSDIR)/lib/
 	$(STRIP) $(ROMFSDIR)/lib/libgcc_s.so.1
+endif
+ifeq ($(findstring y,$(CONFIG_LIB_LIBSSP_FORCE)$(CONFIG_LIB_LIBSSP)),y)
+	# Copy libssp.so to romfs dir for "-fstack-protector-all" gcc arg)
+	-$(RM) -f $(ROMFSDIR)/lib/libssp.so*
+	cp -af $(GCCLIB)/libssp.so $(GCCLIB)/libssp.so*[0-9] \
+		$(ROMFSDIR)/lib/
+	$(STRIP) $(ROMFSDIR)/lib/libssp.so.0.0.0
 endif
 ifeq ($(findstring y,$(CONFIG_LIB_LIBUTIL_FORCE)$(CONFIG_LIB_LIBUTIL)),y)
 	-$(RM) -f $(ROMFSDIR)/lib/libutil.so*

@@ -325,6 +325,7 @@ dir_$(CONFIG_USER_ZEBRA_RIPD_RIPD)          += zebra
 dir_$(CONFIG_USER_ZEBRA_ZEBRA_ZEBRA)        += zebra
 dir_$(CONFIG_USER_LTT_TRACEDAEMON)          += LTTDaemon
 dir_$(CONFIG_USER_ETHCTL)                   += ethctl
+dir_$(CONFIG_USER_PERF)                     += $(ROOTDIR)/$(LINUXDIR)/tools/perf
 
 # dir_y += games
 

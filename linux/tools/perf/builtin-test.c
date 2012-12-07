@@ -967,6 +967,50 @@ static int test__parse_events(void)
 	return ret;
 }
 
+#if !defined(CPU_ALLOC)
+/*
+ * Fallback to using the older static CPU_* macros if the newer
+ * style dynamic CPU_* macros are not defined. This allows the code to
+ * compile on older systems or with uClibc.
+ */
+#define CPU_FREE(set) free(set)
+static int sched__get_first_possible_cpu(pid_t pid, cpu_set_t **maskp,
+					 size_t *sizep)
+{
+	cpu_set_t *mask;
+	int i, cpu = -1;
+
+	mask = malloc(sizeof(cpu_set_t));
+	if (mask == NULL) {
+		perror("malloc");
+		return -1;
+	}
+	CPU_ZERO(mask);
+	if (sched_getaffinity(pid, sizeof(cpu_set_t), mask) == -1) {
+		free(mask);
+		perror("sched_getaffinity");
+			return -1;
+	}
+
+	for (i = 0; i < CPU_SETSIZE; i++) {
+		if (CPU_ISSET(i, mask)) {
+			if (cpu == -1) {
+				cpu = i;
+				*maskp = mask;
+				*sizep = sizeof(cpu_set_t);
+			} else
+				CPU_CLR(i, mask);
+		}
+	}
+
+	if (cpu == -1)
+		free(mask);
+
+	return cpu;
+}
+
+#else
+
 static int sched__get_first_possible_cpu(pid_t pid, cpu_set_t **maskp,
 					 size_t *sizep)
 {
@@ -1004,6 +1048,8 @@ realloc:
 
 	return cpu;
 }
+
+#endif
 
 static int test__PERF_RECORD(void)
 {

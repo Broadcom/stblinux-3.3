@@ -1,0 +1,30 @@
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Generated files
+#
+*.a
+*.i
+*.o
+*.depend
+cscope.*
+libuargp.so*
+
+#
+# Debugging files
+#
+.gdb_history
+.gdbinit
+core
+
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+/*.diff

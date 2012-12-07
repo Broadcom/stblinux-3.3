@@ -346,6 +346,8 @@ static void __init brcm_override_genet_settings(
 		pd->phy_type = BRCM_PHY_TYPE_INT;
 	else if (strcmp(brcm_eth0_phy, "MII") == 0)
 		pd->phy_type = BRCM_PHY_TYPE_EXT_MII;
+	else if (strcmp(brcm_eth0_phy, "RVMII") == 0)
+		pd->phy_type = BRCM_PHY_TYPE_EXT_RVMII;
 	else if (strcmp(brcm_eth0_phy, "RGMII") == 0)
 		pd->phy_type = BRCM_PHY_TYPE_EXT_RGMII;
 	else if (strcmp(brcm_eth0_phy, "RGMII_NO_ID") == 0)

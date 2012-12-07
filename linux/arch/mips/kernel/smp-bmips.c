@@ -160,7 +160,7 @@ static void bmips_boot_secondary(int cpu, struct task_struct *idle)
 	else {
 #if defined(CONFIG_CPU_BMIPS4350) || defined(CONFIG_CPU_BMIPS4380)
 		set_c0_brcm_cmt_ctrl(0x01);
-#elif defined(CONFIG_CPU_BMIPS5000)
+#elif defined(CONFIG_BCM7435A0)
 		if (cpu & 0x01)
 			write_c0_brcm_action(ACTION_BOOT_THREAD(cpu));
 		else {
@@ -172,6 +172,8 @@ static void bmips_boot_secondary(int cpu, struct task_struct *idle)
 			udelay(10);
 			bmips_write_zscm_reg(0x210, 0x00);
 		}
+#elif defined(CONFIG_CPU_BMIPS5000)
+		write_c0_brcm_action(ACTION_BOOT_THREAD(cpu));
 #endif
 		cpumask_set_cpu(cpu, &bmips_booted_mask);
 	}

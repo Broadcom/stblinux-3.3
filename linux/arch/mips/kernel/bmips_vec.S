@@ -151,11 +151,16 @@ soft_reset:
 	jalr	k0
 	nop
 
+#if !defined(CONFIG_BCM7435A0)
+	b	bmips_smp_entry
+	nop
+#else
 	/* wait for nmi interrupt from start_secondary */
 1:
 	wait
 	b	1b
 	nop
+#endif
 #endif
 
 

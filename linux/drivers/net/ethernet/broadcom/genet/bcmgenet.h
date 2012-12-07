@@ -20,11 +20,20 @@
 #ifndef __BCMGENET_H__
 #define __BCMGENET_H__
 
+#define CARDNAME				"bcmgenet"
+#define VERSION     "2.0"
+#define VER_STR     "v" VERSION " " __DATE__ " " __TIME__
+
+#define pr_fmt(fmt)				CARDNAME ": " fmt
+
 #include <linux/skbuff.h>
 #include <linux/netdevice.h>
 #include <linux/spinlock.h>
 #include <linux/clk.h>
+#include <linux/mii.h>
+
 #include "bcmgenet_map.h"
+
 /* total number of Buffer Descriptors, same for Rx/Tx */
 #define TOTAL_DESC				256
 /* which ring is descriptor based */

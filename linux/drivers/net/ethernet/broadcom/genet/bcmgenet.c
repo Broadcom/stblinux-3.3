@@ -21,9 +21,9 @@
 
 */
 
-#define CARDNAME    "bcmgenet"
-#define VERSION     "2.0"
-#define VER_STR     "v" VERSION " " __DATE__ " " __TIME__
+#include "bcmgenet.h"
+#include "bcmmii.h"
+#include "if_net.h"
 
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -51,9 +51,6 @@
 
 #include <linux/brcmstb/brcmstb.h>
 #include <linux/brcmstb/brcmapi.h>
-#include "bcmmii.h"
-#include "bcmgenet.h"
-#include "if_net.h"
 
 #ifdef CONFIG_NET_SCH_MULTIQ
 
@@ -3580,6 +3577,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	pDevCtrl->phyType = cfg->phy_type;
 	pDevCtrl->phySpeed = cfg->phy_speed;
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
+	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RVMII ||
 	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII ||
 	    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RGMII_NO_ID)
 		pDevCtrl->extPhy = 1;
@@ -3608,6 +3606,10 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
 
+	err = register_netdev(dev);
+	if (err != 0)
+		goto err2;
+
 	if (pDevCtrl->extPhy) {
 		/* No Link status IRQ */
 		INIT_WORK(&pDevCtrl->bcmgenet_link_work,
@@ -3619,10 +3621,6 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		/* check link status */
 		mii_setup(dev);
 	}
-	/*dev->features |= NETIF_F_SG | NETIF_F_IP_CSUM;*/
-	err = register_netdev(dev);
-	if (err != 0)
-		goto err2;
 
 	netif_carrier_off(pDevCtrl->dev);
 	pDevCtrl->next_dev = eth_root_dev;

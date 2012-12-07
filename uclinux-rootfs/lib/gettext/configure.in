@@ -1,0 +1,265 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_PREREQ(2.52)
+AC_INIT
+AC_CONFIG_SRCDIR(src/msgfmt.c)
+AM_INIT_AUTOMAKE(gettext, 0.11.5)
+RELEASE_DATE=2002-08-06      dnl in "date +%Y-%m-%d" format
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_YACC
+gt_PROG_LEX
+
+gt_GCJ
+if test -n "$HAVE_GCJ"; then
+  BUILDJAVAEXE=yes
+else
+  BUILDJAVAEXE=no
+fi
+AC_SUBST(BUILDJAVAEXE)
+
+gt_JAVACOMP
+AC_CHECK_PROG(JAR, jar, jar)
+if test -n "$HAVE_JAVACOMP" && test -n "$JAR"; then
+  BUILDJAVA=yes
+else
+  BUILDJAVA=no
+fi
+AC_SUBST(BUILDJAVA)
+
+gt_JAVAEXEC
+if test -n "$HAVE_JAVAEXEC" && test $BUILDJAVA = yes; then
+  TESTJAVA=yes
+else
+  TESTJAVA=no
+fi
+AC_SUBST(TESTJAVA)
+
+dnl Check for host type.
+AC_CANONICAL_HOST
+
+dnl Checks for UNIX variants that set DEFS,
+AC_ISC_POSIX
+
+dnl Checks for compiler output filename suffixes.
+AC_OBJEXT
+AC_EXEEXT
+
+dnl Check for build configuration.
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+
+AC_DEFINE(_GNU_SOURCE, 1, [Make sure we see all GNU extensions.])
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(limits.h malloc.h string.h unistd.h values.h)
+gt_STDBOOL_H
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+bh_C_SIGNED
+AC_C_BACKSLASH_A
+jm_AC_TYPE_UNSIGNED_LONG_LONG
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_CHECK_TYPES(ptrdiff_t)
+jm_AC_TYPE_UINTMAX_T
+gt_TYPE_SSIZE_T
+AC_TYPE_PID_T
+
+dnl Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([getcwd mblen memcpy posix_spawn putc_unlocked raise select \
+strerror strtoul uname utime utimes])
+AC_REPLACE_FUNCS([memset stpcpy strcspn \
+strcasecmp strncasecmp strpbrk strstr vasprintf])
+AM_FUNC_GETLINE
+if test $am_cv_func_working_getline != yes; then
+  AC_CHECK_FUNCS(getdelim)
+fi
+gt_FUNC_FNMATCH
+jm_PREREQ_MBSWIDTH
+gt_PREREQ_BACKUPFILE
+AC_FUNC_VFORK
+gt_UNION_WAIT
+gt_TMPDIR
+gt_FUNC_MKDTEMP
+gt_SIGNALBLOCKING
+gt_SIGINFO
+gt_FUNC_SETENV
+gt_FUNC_ERROR_AT_LINE
+gt_SETLOCALE
+
+gt_PREREQ_HOSTNAME
+
+dnl These are the only lines required to internationalize the package.
+dnl (OK, not quite, the AC_OUTPUT has also some parts.)
+AM_GNU_GETTEXT(use-libtool, need-ngettext)
+
+dnl Put some default definitions into config.h.
+AH_TOP([
+/* Default value for alignment of strings in .mo file.  */
+#define DEFAULT_OUTPUT_ALIGNMENT 1
+
+#ifndef PARAMS
+# if __STDC__ || defined __GNUC__ || defined __SUNPRO_C || defined __cplusplus || __PROTOTYPES
+#  define PARAMS(args) args
+# else
+#  define PARAMS(args) ()
+# endif
+#endif
+])
+AH_BOTTOM([
+/* We don't test for the basename function but still want to use the
+   version in the libc when compiling for a system using glibc.  Likewise
+   for stpncpy.  */
+#ifdef __GNU_LIBRARY__
+# define HAVE_BASENAME	1
+# define HAVE_STPNCPY	1
+#endif
+
+/* A file name cannot consist of any character possible.  INVALID_PATH_CHAR
+   contains the characters not allowed.  */
+#ifndef MSDOS
+# define	INVALID_PATH_CHAR "\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37 \177/"
+#else
+/* Something like this for MSDOG.  */
+# define	INVALID_PATH_CHAR "\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37 \177\\:."
+#endif
+
+/* This is the page width for the message_print function.  It should
+   not be set to more than 79 characters (Emacs users will appreciate
+   it).  It is used to wrap the msgid and msgstr strings, and also to
+   wrap the file position (#:) comments.  */
+#define PAGE_WIDTH 79
+
+/* Extra OS/2 (emx+gcc) defines.  */
+#ifdef __EMX__
+# include "intl/os2compat.h"
+#endif
+])
+
+dnl Check for the expat XML parser.
+dnl On operating systems where binary distribution vendors are likely to
+dnl ship both gettext and expat, we use dynamic loading to avoid a hard
+dnl dependency from gettext to expat.
+case "$host_os" in
+  linux*)
+    AC_DEFINE([DYNLOAD_LIBEXPAT], 1,
+      [Define to 1 if libexpat shall be dynamically loaded via dlopen().])
+    LIBEXPAT="-ldl"
+    LTLIBEXPAT="-ldl"
+    AC_SUBST(LIBEXPAT)
+    AC_SUBST(LTLIBEXPAT)
+    ;;
+  *)
+    AC_LIB_HAVE_LINKFLAGS([expat], [],
+      [#include <expat.h>], [XML_ExpatVersion();])
+    ;;
+esac
+
+dnl Check for Emacs and where to install .elc files.
+AM_PATH_LISPDIR
+
+aclocaldir='${datadir}/aclocal'
+AC_SUBST(aclocaldir)
+
+dnl Check for tools needed for formatting the documentation.
+ac_aux_dir_abs=`cd $ac_aux_dir && pwd`
+AC_PATH_PROG(DVIPS, dvips, $ac_aux_dir_abs/missing dvips)
+AC_PATH_PROG(TEXI2PDF, texi2pdf, $ac_aux_dir_abs/missing texi2pdf)
+AC_PATH_PROG(PERL, perl, $ac_aux_dir_abs/missing perl)
+
+dnl Check for tools needed for formatting man pages.
+CROSS_COMPILING=$cross_compiling
+AC_SUBST(CROSS_COMPILING)
+
+dnl Checks for optional programs for the tests/lang-* tests.
+AC_CHECK_PROGS(CXX, $CCC c++ g++ gpp gcc CC cxx cc++ cl, :)
+if test "$CXX" != ":"; then
+  dnl Use a modified version of AC_PROG_CXX_WORKS that does not exit
+  dnl upon failure.
+  AC_MSG_CHECKING([whether the C++ compiler ($CXX $CXXFLAGS $LDFLAGS) works])
+  AC_LANG_PUSH(C++)
+  AC_ARG_VAR([CXX], [C++ compiler command])
+  AC_ARG_VAR([CXXFLAGS], [C++ compiler flags])
+  echo 'int main () { return 0; }' > conftest.$ac_ext
+  if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
+    ac_cv_prog_cxx_works=yes
+    if (./conftest; exit) 2>/dev/null; then
+      ac_cv_prog_cxx_cross=no
+    else
+      ac_cv_prog_cxx_cross=yes
+    fi
+  else
+    ac_cv_prog_cxx_works=no
+  fi
+  rm -fr conftest*
+  AC_LANG_POP(C++)
+  AC_MSG_RESULT($ac_cv_prog_cxx_works)
+  if test $ac_cv_prog_cxx_works = no; then
+    CXX=:
+  fi
+fi
+
+dnl Checks for tests/rpathcfg.
+AC_SUBST(GCC)
+AC_SUBST(LD)
+AC_SUBST(with_gnu_ld)
+
+dnl Generate the version information file in the intl/ directory.
+test -d intl || mkdir intl
+echo "GNU gettext library from $PACKAGE-$VERSION" > intl/VERSION
+cat > intl/ChangeLog.inst <<EOF
+$RELEASE_DATE  GNU  <bug-gnu-gettext@gnu.org>
+
+	* Version $VERSION released.
+
+EOF
+
+dnl These ought to go away some day.
+changequote(,)dnl
+LTLIBOBJS=`echo "$LIBOBJS" | sed 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
+changequote([, ])dnl
+AC_SUBST(LTLIBOBJS)
+changequote(,)dnl
+LTALLOCA=`echo "$ALLOCA" | sed 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
+changequote([, ])dnl
+AC_SUBST(LTALLOCA)
+
+AC_OUTPUT([Makefile \
+           lib/Makefile lib/javacomp.sh lib/javaexec.sh \
+           intl/Makefile intl-java/Makefile \
+           libuniname/Makefile \
+           src/Makefile src/user-email \
+           po/Makefile.in \
+           doc/Makefile man/Makefile man/x-to-1 \
+           tests/Makefile \
+           m4/Makefile \
+           projects/Makefile \
+           misc/Makefile misc/gettextize misc/autopoint], [
+  dnl Fix unesthetic build commands generated by automake.
+  for m in lib/Makefile src/Makefile tests/Makefile; do
+    sed -e "s,\`test -f \\\$< || echo '\\\$(srcdir)/'\`\\\$<,\\\$<," < $m > $m.tmp
+    mv $m.tmp $m
+  done
+  dnl Fix an automake-1.5 bug.
+  for m in Makefile doc/Makefile; do
+    sed -e 's,^#distdir:,distdir:,' < $m > $m.tmp
+    mv $m.tmp $m
+  done
+  dnl Fix an automake-1.5 bug: all info files are erased by "make".
+  for m in doc/Makefile; do
+    sed -e '/cd \$(srcdir) && rm -f /d' < $m > $m.tmp
+    mv $m.tmp $m
+  done
+  dnl Fix permissions of misc/gettextize and misc/autopoint.
+  chmod a+x misc/gettextize misc/autopoint
+])

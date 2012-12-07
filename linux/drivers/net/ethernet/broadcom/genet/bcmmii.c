@@ -22,17 +22,19 @@
  *Revision:	09/25/2008, L.Sun created.
 */
 
+#include "bcmgenet.h"
+#include "bcmgenet_map.h"
+#include "bcmmii.h"
+
 #include <linux/types.h>
 #include <linux/delay.h>
 #include <linux/wait.h>
 #include <linux/mii.h>
 #include <linux/ethtool.h>
 #include <linux/bitops.h>
+#include <linux/netdevice.h>
+#include <linux/platform_device.h>
 #include <linux/brcmstb/brcmstb.h>
-
-#include "bcmgenet_map.h"
-#include "bcmgenet.h"
-#include "bcmmii.h"
 
 /* read a value from the MII */
 int mii_read(struct net_device *dev, int phy_id, int location)
@@ -44,10 +46,9 @@ int mii_read(struct net_device *dev, int phy_id, int location)
 	if (phy_id == BRCM_PHY_ID_NONE) {
 		switch (location) {
 		case MII_BMCR:
-			return pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ?
-				BMCR_FULLDPLX | BMCR_SPEED100 :
-				BMCR_FULLDPLX | ((pDevCtrl->phySpeed == 1000) ?
-					BMCR_SPEED1000 : BMCR_SPEED100);
+			return (pDevCtrl->phySpeed == SPEED_1000) ?
+				BMCR_FULLDPLX | BMCR_SPEED1000 :
+				BMCR_FULLDPLX | BMCR_SPEED100;
 		case MII_BMSR:
 			return BMSR_LSTATUS;
 		default:
@@ -111,7 +112,8 @@ int mii_probe(struct net_device *dev, void *p)
 	int i;
 	struct bcmemac_platform_data *cfg = p;
 
-	if (cfg->phy_type != BRCM_PHY_TYPE_EXT_MII) {
+	if (cfg->phy_type != BRCM_PHY_TYPE_EXT_MII &&
+	    cfg->phy_type != BRCM_PHY_TYPE_EXT_RVMII) {
 		/*
 		 * Enable RGMII to interface external PHY, disable
 		 * internal 10/100 MII.
@@ -144,14 +146,12 @@ void mii_setup(struct net_device *dev)
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd;
 	volatile struct uniMacRegs *umac = pDevCtrl->umac;
-	int cur_link;
-	int prev_link;
+	int cur_link, prev_link;
+	unsigned int val, cmd_bits;
 
-	TRACE(("%s: %s\n", __func__, netif_carrier_ok(pDevCtrl->dev) ?
-				"netif_carrier_on" : "netif_carrier_off"));
-	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA) {
+	if (pDevCtrl->phyType == BRCM_PHY_TYPE_MOCA)
 		return;
-	}
+
 	cur_link = mii_link_ok(&pDevCtrl->mii);
 	prev_link = netif_carrier_ok(pDevCtrl->dev);
 	if (cur_link && !prev_link) {
@@ -165,50 +165,49 @@ void mii_setup(struct net_device *dev)
 		 */
 		GENET_RGMII_OOB_CTRL(pDevCtrl) &= ~OOB_DISABLE;
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_LINK;
-		if (ecmd.duplex == DUPLEX_FULL)
-			umac->cmd &= ~CMD_HD_EN;
-		else
-			umac->cmd |= CMD_HD_EN;
+
 		/* speed */
-		umac->cmd = umac->cmd &
-				~(CMD_SPEED_MASK << CMD_SPEED_SHIFT);
-		if (ecmd.speed == SPEED_10)
-			umac->cmd |=
-				(UMAC_SPEED_10 << CMD_SPEED_SHIFT);
+		if (ecmd.speed == SPEED_1000)
+			cmd_bits = UMAC_SPEED_1000;
 		else if (ecmd.speed == SPEED_100)
-			umac->cmd |=
-				(UMAC_SPEED_100 << CMD_SPEED_SHIFT);
-		else if (ecmd.speed == SPEED_1000)
-			umac->cmd |=
-				(UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
+			cmd_bits = UMAC_SPEED_100;
+		else
+			cmd_bits = UMAC_SPEED_10;
+		cmd_bits <<= CMD_SPEED_SHIFT;
+
+		/* duplex */
+		if (ecmd.duplex != DUPLEX_FULL)
+			cmd_bits |= CMD_HD_EN;
 
 		/* pause capability */
 		if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT ||
-		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII) {
-			unsigned int val;
+		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
+		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RVMII) {
 			val = mii_read(dev, pDevCtrl->phyAddr, MII_LPA);
 			if (!(val & LPA_PAUSE_CAP)) {
-				umac->cmd |= CMD_RX_PAUSE_IGNORE;
-				umac->cmd |= CMD_TX_PAUSE_IGNORE;
+				cmd_bits |= CMD_RX_PAUSE_IGNORE;
+				cmd_bits |= CMD_TX_PAUSE_IGNORE;
 			}
 		} else if (pDevCtrl->extPhy) { /* RGMII only */
-			unsigned int val;
 			val = mii_read(dev,
 				pDevCtrl->phyAddr, MII_BRCM_AUX_STAT_SUM);
 			if (!(val & MII_BRCM_AUX_GPHY_RX_PAUSE))
-				umac->cmd |= CMD_RX_PAUSE_IGNORE;
+				cmd_bits |= CMD_RX_PAUSE_IGNORE;
 			if (!(val & MII_BRCM_AUX_GPHY_TX_PAUSE))
-				umac->cmd |= CMD_TX_PAUSE_IGNORE;
+				cmd_bits |= CMD_TX_PAUSE_IGNORE;
 		}
+
+		umac->cmd &= ~((CMD_SPEED_MASK << CMD_SPEED_SHIFT) |
+			       CMD_HD_EN |
+			       CMD_RX_PAUSE_IGNORE | CMD_TX_PAUSE_IGNORE);
+		umac->cmd |= cmd_bits;
+
 		netif_carrier_on(pDevCtrl->dev);
-		printk(KERN_INFO "%s: Link up, %d Mbps %s Duplex\n",
-			pDevCtrl->dev->name,
-			ecmd.speed,
-			ecmd.duplex == DUPLEX_FULL ? "Full" : "Half");
+		netdev_info(dev, "link up, %d Mbps, %s duplex\n", ecmd.speed,
+			ecmd.duplex == DUPLEX_FULL ? "full" : "half");
 	} else if (!cur_link && prev_link) {
 		netif_carrier_off(pDevCtrl->dev);
-		printk(KERN_INFO "%s: Link down\n", pDevCtrl->dev->name);
-		return;
+		netdev_info(dev, "link down\n");
 	}
 }
 
@@ -236,6 +235,7 @@ int mii_init(struct net_device *dev)
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	volatile struct uniMacRegs *umac;
 	u32 id_mode_dis = 0;
+	char *phy_name;
 
 	umac = pDevCtrl->umac;
 	pDevCtrl->mii.phy_id = pDevCtrl->phyAddr;
@@ -244,11 +244,12 @@ int mii_init(struct net_device *dev)
 	pDevCtrl->mii.dev = dev;
 	pDevCtrl->mii.mdio_read = mii_read;
 	pDevCtrl->mii.mdio_write = mii_write;
+	pDevCtrl->mii.supports_gmii = 0;
 
 	switch (pDevCtrl->phyType) {
 
 	case BRCM_PHY_TYPE_INT:
-		pDevCtrl->mii.supports_gmii = 0;
+		phy_name = "internal PHY";
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_INT_EPHY;
 		/* enable APD */
 		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
@@ -258,12 +259,17 @@ int mii_init(struct net_device *dev)
 		mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
 		mii_read(dev, pDevCtrl->phyAddr, 0x1d);
 		ephy_workaround(dev);
-		printk(KERN_INFO "Config internal EPHY through MDIO\n");
 		break;
 	case BRCM_PHY_TYPE_EXT_MII:
-		pDevCtrl->mii.supports_gmii = 0;
+		phy_name = "external MII";
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_EPHY;
-		printk(KERN_INFO "Config EPHY through MDIO\n");
+		break;
+	case BRCM_PHY_TYPE_EXT_RVMII:
+		phy_name = "external RvMII";
+		if (pDevCtrl->phySpeed == SPEED_100)
+			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_RVMII_25;
+		else
+			pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_RVMII_50;
 		break;
 	case BRCM_PHY_TYPE_EXT_RGMII_NO_ID:
 		/*
@@ -276,6 +282,7 @@ int mii_init(struct net_device *dev)
 		id_mode_dis = BIT(16);
 		/* fall through */
 	case BRCM_PHY_TYPE_EXT_RGMII:
+		phy_name = "external RGMII";
 		GENET_RGMII_OOB_CTRL(pDevCtrl) |= RGMII_MODE_EN | id_mode_dis;
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_EXT_GPHY;
 		/*
@@ -285,7 +292,6 @@ int mii_init(struct net_device *dev)
 		if (pDevCtrl->phySpeed == SPEED_1000) {
 			pDevCtrl->mii.supports_gmii = 1;
 		} else if (pDevCtrl->phySpeed == SPEED_100) {
-			pDevCtrl->mii.supports_gmii = 0;
 			/* disable 1000BASE-T full, half-duplex capability */
 			mii_set_clr_bits(dev, MII_CTRL1000, 0,
 				(ADVERTISE_1000FULL|ADVERTISE_1000HALF));
@@ -293,10 +299,9 @@ int mii_init(struct net_device *dev)
 			mii_set_clr_bits(dev, MII_BMCR, BMCR_ANRESTART,
 				BMCR_ANRESTART);
 		}
-		printk(KERN_INFO "Config GPHY through MDIO\n");
 		break;
 	case BRCM_PHY_TYPE_MOCA:
-		printk(KERN_INFO "Config MoCA...\n");
+		phy_name = "MoCA";
 		/* setup speed in umac->cmd for RGMII txclk set to 125MHz */
 		umac->cmd = umac->cmd | (UMAC_SPEED_1000 << CMD_SPEED_SHIFT);
 		pDevCtrl->mii.force_media = 1;
@@ -304,9 +309,12 @@ int mii_init(struct net_device *dev)
 			LED_ACT_SOURCE_MAC;
 		break;
 	default:
-		printk(KERN_ERR "unknown phy_type : %d\n", pDevCtrl->phyType);
-		break;
+		pr_err("unknown phy_type: %d\n", pDevCtrl->phyType);
+		return -1;
 	}
+
+	pr_info("configuring instance #%d for %s\n", pDevCtrl->pdev->id,
+		phy_name);
 
 	return 0;
 }
