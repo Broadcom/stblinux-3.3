@@ -72,8 +72,7 @@ namecheck(char *name, int length)
  * entries.  a non-zero return value means the directory is bogus
  * and should be blasted.
  */
-/* ARGSUSED */
-int
+static int
 process_shortform_dir(
 	xfs_mount_t	*mp,
 	xfs_ino_t	ino,
@@ -495,23 +494,19 @@ process_shortform_dir(
 }
 
 /*
- * freespace map for directory leaf blocks (1 bit per byte)
- * 1 == used, 0 == free
+ * Allocate a freespace map for directory or attr leaf blocks (1 bit per byte)
+ * 1 == used, 0 == free.
  */
-size_t ts_dir_freemap_size = sizeof(da_freemap_t) * DA_BMAP_SIZE;
-
-void
-init_da_freemap(da_freemap_t *dir_freemap)
+da_freemap_t *
+alloc_da_freemap(struct xfs_mount *mp)
 {
-	memset(dir_freemap, 0, sizeof(da_freemap_t) * DA_BMAP_SIZE);
+	return calloc(1, mp->m_sb.sb_blocksize / NBBY);
 }
 
 /*
- * sets directory freemap, returns 1 if there is a conflict
- * returns 0 if everything's good.  the range [start, stop) is set.
- * right now, we just use the static array since only one directory
- * block will be processed at once even though the interface allows
- * you to pass in arbitrary da_freemap_t array's.
+ * Set the he range [start, stop) in the directory freemap.
+ *
+ * Returns 1 if there is a conflict or 0 if everything's good.
  *
  * Within a char, the lowest bit of the char represents the byte with
  * the smallest address
@@ -553,7 +548,7 @@ set_da_freemap(xfs_mount_t *mp, da_freemap_t *map, int start, int stop)
  * returns 0 if holemap is consistent with reality (as expressed by
  * the da_freemap_t).  returns 1 if there's a conflict.
  */
-int
+static int
 verify_da_freemap(xfs_mount_t *mp, da_freemap_t *map, da_hole_map_t *holes,
 			xfs_ino_t ino, xfs_dablk_t da_bno)
 {
@@ -591,7 +586,7 @@ verify_da_freemap(xfs_mount_t *mp, da_freemap_t *map, da_hole_map_t *holes,
 	return(0);
 }
 
-void
+static void
 process_da_freemap(xfs_mount_t *mp, da_freemap_t *map, da_hole_map_t *holes)
 {
 	int i, j, in_hole, start, length, smallest, num_holes;
@@ -678,8 +673,7 @@ process_da_freemap(xfs_mount_t *mp, da_freemap_t *map, da_hole_map_t *holes)
 /*
  * returns 1 if the hole info doesn't match, 0 if it does
  */
-/* ARGSUSED */
-int
+static int
 compare_da_freemaps(xfs_mount_t *mp, da_hole_map_t *holemap,
 			da_hole_map_t *block_hmap, int entries,
 			xfs_ino_t ino, xfs_dablk_t da_bno)
@@ -727,28 +721,6 @@ _("- derived hole (base %d, size %d) in block %d, dir inode %" PRIu64 " not foun
 
 	return(res);
 }
-
-#if 0
-void
-test(xfs_mount_t *mp)
-{
-	int i = 0;
-	da_hole_map_t	holemap;
-
-	init_da_freemap(dir_freemap);
-	memset(&holemap, 0, sizeof(da_hole_map_t));
-
-	set_da_freemap(mp, dir_freemap, 0, 50);
-	set_da_freemap(mp, dir_freemap, 100, 126);
-	set_da_freemap(mp, dir_freemap, 126, 129);
-	set_da_freemap(mp, dir_freemap, 130, 131);
-	set_da_freemap(mp, dir_freemap, 150, 160);
-	process_da_freemap(mp, dir_freemap, &holemap);
-
-	return;
-}
-#endif
-
 
 /*
  * walk tree from root to the left-most leaf block reading in
@@ -879,7 +851,7 @@ error_out:
  * buffers (e.g. if we do, it's a mistake).  if error == 1, we're
  * in an error-handling case so unreleased buffers may exist.
  */
-void
+static void
 release_da_cursor_int(xfs_mount_t	*mp,
 			da_bt_cursor_t	*cursor,
 			int		prev_level,
@@ -919,91 +891,6 @@ err_release_da_cursor(xfs_mount_t	*mp,
 			int		prev_level)
 {
 	release_da_cursor_int(mp, cursor, prev_level, 1);
-}
-
-/*
- * like traverse_int_dablock only it does far less checking
- * and doesn't maintain the cursor.  Just gets you to the
- * leftmost block in the directory.  returns the fsbno
- * of that block if successful, NULLDFSBNO if not.
- */
-xfs_dfsbno_t
-get_first_dblock_fsbno(xfs_mount_t	*mp,
-			xfs_ino_t	ino,
-			xfs_dinode_t	*dino)
-{
-	xfs_dablk_t		bno;
-	int			i;
-	xfs_da_intnode_t	*node;
-	xfs_dfsbno_t		fsbno;
-	xfs_buf_t		*bp;
-
-	/*
-	 * traverse down left-side of tree until we hit the
-	 * left-most leaf block setting up the btree cursor along
-	 * the way.
-	 */
-	bno = 0;
-	i = -1;
-	node = NULL;
-
-	fsbno = get_bmapi(mp, dino, ino, bno, XFS_DATA_FORK);
-
-	if (fsbno == NULLDFSBNO)  {
-		do_warn(_("bmap of block #%u of inode %" PRIu64 " failed\n"),
-			bno, ino);
-		return(fsbno);
-	}
-
-	if (be64_to_cpu(dino->di_size) <= XFS_LBSIZE(mp))
-		return(fsbno);
-
-	do {
-		/*
-		 * walk down left side of btree, release buffers as you
-		 * go.  if the root block is a leaf (single-level btree),
-		 * just return it.
-		 *
-		 */
-
-		bp = libxfs_readbuf(mp->m_dev, XFS_FSB_TO_DADDR(mp, fsbno),
-				XFS_FSB_TO_BB(mp, 1), 0);
-		if (!bp) {
-			do_warn(
-	_("can't read block %u (fsbno %" PRIu64 ") for directory inode %" PRIu64 "\n"),
-				bno, fsbno, ino);
-			return(NULLDFSBNO);
-		}
-
-		node = (xfs_da_intnode_t *)XFS_BUF_PTR(bp);
-
-		if (XFS_DA_NODE_MAGIC !=
-		    be16_to_cpu(node->hdr.info.magic))  {
-			do_warn(
-	_("bad dir/attr magic number in inode %" PRIu64 ", file bno = %u, fsbno = %" PRIu64 "\n"),
-				ino, bno, fsbno);
-			libxfs_putbuf(bp);
-			return(NULLDFSBNO);
-		}
-
-		if (i == -1)
-			i = be16_to_cpu(node->hdr.level);
-		bno = be32_to_cpu(node->btree[0].before);
-
-		libxfs_putbuf(bp);
-
-		fsbno = get_bmapi(mp, dino, ino, bno, XFS_DATA_FORK);
-
-		if (fsbno == NULLDFSBNO)  {
-			do_warn(_("bmap of block #%u of inode %" PRIu64 " failed\n"),
-				bno, ino);
-			return(NULLDFSBNO);
-		}
-
-		i--;
-	} while(i > 0);
-
-	return(fsbno);
 }
 
 /*
@@ -1366,8 +1253,6 @@ verify_da_path(xfs_mount_t	*mp,
 	return(0);
 }
 
-size_t ts_dirbuf_size = 64*1024;
-
 /*
  * called by both node dir and leaf dir processing routines
  * validates all contents *but* the sibling pointers (forw/back)
@@ -1401,8 +1286,7 @@ size_t ts_dirbuf_size = 64*1024;
  * bad entry name index pointers), we lose the directory.  We could
  * try harder to fix this but it'll do for now.
  */
-/* ARGSUSED */
-int
+static int
 process_leaf_dir_block(
 	xfs_mount_t		*mp,
 	xfs_dir_leafblock_t	*leaf,
@@ -1441,7 +1325,7 @@ process_leaf_dir_block(
 	char				fname[MAXNAMELEN + 1];
 	da_hole_map_t			holemap;
 	da_hole_map_t			bholemap;
-	unsigned char			*dir_freemap = ts_dir_freemap();
+	da_freemap_t			*dir_freemap;
 
 #ifdef XR_DIR_TRACE
 	fprintf(stderr, "\tprocess_leaf_dir_block - ino %" PRIu64 "\n", ino);
@@ -1450,7 +1334,7 @@ process_leaf_dir_block(
 	/*
 	 * clear static dir block freespace bitmap
 	 */
-	init_da_freemap(dir_freemap);
+	dir_freemap = alloc_da_freemap(mp);
 
 	*buf_dirty = 0;
 	first_used = mp->m_sb.sb_blocksize;
@@ -1462,7 +1346,8 @@ process_leaf_dir_block(
 		do_warn(
 _("directory block header conflicts with used space in directory inode %" PRIu64 "\n"),
 			ino);
-		return(1);
+		res = 1;
+		goto out;
 	}
 
 	/*
@@ -1778,8 +1663,8 @@ _("entry references free inode %" PRIu64 " in directory %" PRIu64 ", would clear
 			do_warn(
 _("bad size, entry #%d in dir inode %" PRIu64 ", block %u -- entry overflows block\n"),
 				i, ino, da_bno);
-
-			return(1);
+			res = 1;
+			goto out;
 		}
 
 		start = (__psint_t)&leaf->entries[i] - (__psint_t)leaf;;
@@ -1789,7 +1674,8 @@ _("bad size, entry #%d in dir inode %" PRIu64 ", block %u -- entry overflows blo
 			do_warn(
 _("dir entry slot %d in block %u conflicts with used space in dir inode %" PRIu64 "\n"),
 				i, da_bno, ino);
-			return(1);
+			res = 1;
+			goto out;
 		}
 
 		/*
@@ -2183,7 +2069,7 @@ _("- existing hole info for block %d, dir inode %" PRIu64 " (base, size) - \n"),
 			_("- compacting block %u in dir inode %" PRIu64 "\n"),
 					da_bno, ino);
 
-			new_leaf = (xfs_dir_leafblock_t *) ts_dirbuf();
+			new_leaf = malloc(mp->m_sb.sb_blocksize);
 
 			/*
 			 * copy leaf block header
@@ -2223,6 +2109,7 @@ _("- existing hole info for block %d, dir inode %" PRIu64 " (base, size) - \n"),
 					do_warn(
 	_("not enough space in block %u of dir inode %" PRIu64 " for all entries\n"),
 						da_bno, ino);
+					free(new_leaf);
 					break;
 				}
 
@@ -2284,6 +2171,7 @@ _("- existing hole info for block %d, dir inode %" PRIu64 " (base, size) - \n"),
 			 * final step, copy block back
 			 */
 			memmove(leaf, new_leaf, mp->m_sb.sb_blocksize);
+			free(new_leaf);
 
 			*buf_dirty = 1;
 		} else  {
@@ -2302,16 +2190,19 @@ _("- existing hole info for block %d, dir inode %" PRIu64 " (base, size) - \n"),
 		junk_zerolen_dir_leaf_entries(mp, leaf, ino, buf_dirty);
 	}
 #endif
+
+out:
+	free(dir_freemap);
 #ifdef XR_DIR_TRACE
 	fprintf(stderr, "process_leaf_dir_block returns %d\n", res);
 #endif
-	return((res > 0) ? 1 : 0);
+	return res > 0 ? 1 : 0;
 }
 
 /*
  * returns 0 if the directory is ok, 1 if it has to be junked.
  */
-int
+static int
 process_leaf_dir_level(xfs_mount_t	*mp,
 			da_bt_cursor_t	*da_cursor,
 			int		ino_discovery,
@@ -2489,8 +2380,7 @@ error_out:
  *
  * returns 0 if things are ok, 1 if bad (directory needs to be junked)
  */
-/* ARGSUSED */
-int
+static int
 process_node_dir(
 	xfs_mount_t	*mp,
 	xfs_ino_t	ino,
@@ -2588,8 +2478,7 @@ _("setting directory inode (%" PRIu64 ") size to %" PRIu64 " bytes, was %" PRId6
  *
  * returns 0 if things are ok, 1 if bad (directory needs to be junked)
  */
-/* ARGSUSED */
-int
+static int
 process_leaf_dir(
 	xfs_mount_t	*mp,
 	xfs_ino_t	ino,

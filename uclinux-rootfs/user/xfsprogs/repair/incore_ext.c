@@ -26,20 +26,6 @@
 #include "err_protos.h"
 #include "avl64.h"
 #include "threads.h"
-#define ALLOC_NUM_EXTS		100
-
-/*
- * paranoia -- account for any weird padding, 64/32-bit alignment, etc.
- */
-typedef struct extent_alloc_rec  {
-	struct list_head	list;
-	extent_tree_node_t	extents[ALLOC_NUM_EXTS];
-} extent_alloc_rec_t;
-
-typedef struct rt_extent_alloc_rec  {
-	struct list_head	list;
-	rt_extent_tree_node_t	extents[ALLOC_NUM_EXTS];
-} rt_extent_alloc_rec_t;
 
 /*
  * note:  there are 4 sets of incore things handled here:
@@ -57,21 +43,9 @@ typedef struct rt_extent_alloc_rec  {
  * phase 5.  The uncertain inode list goes away at the end of
  * phase 3.  The inode tree and bno/bnct trees go away after phase 5.
  */
-typedef struct ext_flist_s  {
-	extent_tree_node_t	*list;
-	int			cnt;
-} ext_flist_t;
-
-static ext_flist_t ext_flist;
-
-typedef struct rt_ext_flist_s  {
-	rt_extent_tree_node_t	*list;
-	int			cnt;
-} rt_ext_flist_t;
-
-static rt_ext_flist_t rt_ext_flist;
 
 static avl64tree_desc_t	*rt_ext_tree_ptr;	/* dup extent tree for rt */
+static pthread_mutex_t	rt_ext_tree_lock;
 
 static struct btree_root **dup_extent_trees;	/* per ag dup extent trees */
 static pthread_mutex_t *dup_extent_tree_locks;
@@ -87,19 +61,6 @@ static avltree_desc_t	**extent_bcnt_ptrs;	/*
 						 * one per ag for free extents
 						 * sorted by size
 						 */
-
-/*
- * list of allocated "blocks" for easy freeing later
- */
-static struct list_head	ba_list;
-static struct list_head	rt_ba_list;
-
-/*
- * locks.
- */
-static pthread_mutex_t	ext_flist_lock;
-static pthread_mutex_t	rt_ext_tree_lock;
-static pthread_mutex_t	rt_ext_flist_lock;
 
 /*
  * duplicate extent tree functions
@@ -167,60 +128,26 @@ static extent_tree_node_t *
 mk_extent_tree_nodes(xfs_agblock_t new_startblock,
 	xfs_extlen_t new_blockcount, extent_state_t new_state)
 {
-	int i;
 	extent_tree_node_t *new;
-	extent_alloc_rec_t *rec;
 
-	pthread_mutex_lock(&ext_flist_lock);
-	if (ext_flist.cnt == 0)  {
-		ASSERT(ext_flist.list == NULL);
+	new = malloc(sizeof(*new));
+	if (!new)
+		do_error(_("couldn't allocate new extent descriptor.\n"));
 
-		if ((rec = malloc(sizeof(extent_alloc_rec_t))) == NULL)
-			do_error(
-			_("couldn't allocate new extent descriptors.\n"));
-
-		list_add(&rec->list, &ba_list);
-
-		new = &rec->extents[0];
-
-		for (i = 0; i < ALLOC_NUM_EXTS; i++)  {
-			new->avl_node.avl_nextino = (avlnode_t *)
-							ext_flist.list;
-			ext_flist.list = new;
-			ext_flist.cnt++;
-			new++;
-		}
-	}
-
-	ASSERT(ext_flist.list != NULL);
-
-	new = ext_flist.list;
-	ext_flist.list = (extent_tree_node_t *) new->avl_node.avl_nextino;
-	ext_flist.cnt--;
 	new->avl_node.avl_nextino = NULL;
-	pthread_mutex_unlock(&ext_flist_lock);
-
-	/* initialize node */
-
 	new->ex_startblock = new_startblock;
 	new->ex_blockcount = new_blockcount;
 	new->ex_state = new_state;
 	new->next = NULL;
 	new->last = NULL;
 
-	return(new);
+	return new;
 }
 
 void
 release_extent_tree_node(extent_tree_node_t *node)
 {
-	pthread_mutex_lock(&ext_flist_lock);
-	node->avl_node.avl_nextino = (avlnode_t *) ext_flist.list;
-	ext_flist.list = node;
-	ext_flist.cnt++;
-	pthread_mutex_unlock(&ext_flist_lock);
-
-	return;
+	free(node);
 }
 
 /*
@@ -459,8 +386,6 @@ findfirst_bcnt_extent(xfs_agnumber_t agno)
 extent_tree_node_t *
 findbiggest_bcnt_extent(xfs_agnumber_t agno)
 {
-	extern avlnode_t *avl_lastino(avlnode_t *root);
-
 	ASSERT(extent_bcnt_ptrs != NULL);
 	ASSERT(extent_bcnt_ptrs[agno] != NULL);
 
@@ -630,57 +555,24 @@ static rt_extent_tree_node_t *
 mk_rt_extent_tree_nodes(xfs_drtbno_t new_startblock,
 	xfs_extlen_t new_blockcount, extent_state_t new_state)
 {
-	int i;
 	rt_extent_tree_node_t *new;
-	rt_extent_alloc_rec_t *rec;
 
-	pthread_mutex_lock(&rt_ext_flist_lock);
-	if (rt_ext_flist.cnt == 0)  {
-		ASSERT(rt_ext_flist.list == NULL);
+	new = malloc(sizeof(*new));
+	if (!new)
+		do_error(_("couldn't allocate new extent descriptor.\n"));
 
-		if ((rec = malloc(sizeof(rt_extent_alloc_rec_t))) == NULL)
-			do_error(
-			_("couldn't allocate new extent descriptors.\n"));
-
-		list_add(&rec->list, &rt_ba_list);
-
-		new = &rec->extents[0];
-
-		for (i = 0; i < ALLOC_NUM_EXTS; i++)  {
-			new->avl_node.avl_nextino = (avlnode_t *)
-							rt_ext_flist.list;
-			rt_ext_flist.list = new;
-			rt_ext_flist.cnt++;
-			new++;
-		}
-	}
-
-	ASSERT(rt_ext_flist.list != NULL);
-
-	new = rt_ext_flist.list;
-	rt_ext_flist.list = (rt_extent_tree_node_t *) new->avl_node.avl_nextino;
-	rt_ext_flist.cnt--;
 	new->avl_node.avl_nextino = NULL;
-	pthread_mutex_unlock(&rt_ext_flist_lock);
-
-	/* initialize node */
-
 	new->rt_startblock = new_startblock;
 	new->rt_blockcount = new_blockcount;
 	new->rt_state = new_state;
-
-	return(new);
+	return new;
 }
 
 #if 0
 void
 release_rt_extent_tree_node(rt_extent_tree_node_t *node)
 {
-	node->avl_node.avl_nextino = (avlnode_t *) rt_ext_flist.list;
-	rt_ext_flist.list = node;
-	rt_ext_flist.cnt++;
-
-	return;
+	free(node);
 }
 
 void
@@ -719,18 +611,9 @@ release_rt_extent_tree()
 void
 free_rt_dup_extent_tree(xfs_mount_t *mp)
 {
-	rt_extent_alloc_rec_t *cur, *tmp;
-
 	ASSERT(mp->m_sb.sb_rblocks != 0);
-
-	list_for_each_entry_safe(cur, tmp, &rt_ba_list, list)
-		free(cur);
-
 	free(rt_ext_tree_ptr);
-
 	rt_ext_tree_ptr = NULL;
-
-	return;
 }
 
 /*
@@ -862,11 +745,7 @@ incore_ext_init(xfs_mount_t *mp)
 	int i;
 	xfs_agnumber_t agcount = mp->m_sb.sb_agcount;
 
-	list_head_init(&ba_list);
-	list_head_init(&rt_ba_list);
-	pthread_mutex_init(&ext_flist_lock, NULL);
 	pthread_mutex_init(&rt_ext_tree_lock, NULL);
-	pthread_mutex_init(&rt_ext_flist_lock, NULL);
 
 	dup_extent_trees = calloc(agcount, sizeof(struct btree_root *));
 	if (!dup_extent_trees)
@@ -908,11 +787,6 @@ incore_ext_init(xfs_mount_t *mp)
 		do_error(_("couldn't malloc dup rt extent tree descriptor\n"));
 
 	avl64_init_tree(rt_ext_tree_ptr, &avl64_extent_tree_ops);
-
-	ext_flist.cnt = 0;
-	ext_flist.list = NULL;
-
-	return;
 }
 
 /*
@@ -921,11 +795,7 @@ incore_ext_init(xfs_mount_t *mp)
 void
 incore_ext_teardown(xfs_mount_t *mp)
 {
-	extent_alloc_rec_t *cur, *tmp;
 	xfs_agnumber_t i;
-
-	list_for_each_entry_safe(cur, tmp, &ba_list, list)
-		free(cur);
 
 	for (i = 0; i < mp->m_sb.sb_agcount; i++)  {
 		btree_destroy(dup_extent_trees[i]);

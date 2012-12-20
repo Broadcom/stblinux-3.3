@@ -40,7 +40,7 @@
  * free in which case they'd never be cleared so the fields wouldn't
  * be cleared by process_dinode().
  */
-void
+static void
 quotino_check(xfs_mount_t *mp)
 {
 	ino_tree_node_t *irec;
@@ -81,7 +81,7 @@ quotino_check(xfs_mount_t *mp)
 	}
 }
 
-void
+static void
 quota_sb_check(xfs_mount_t *mp)
 {
 	/*
@@ -196,8 +196,6 @@ phase4(xfs_mount_t *mp)
 	int			ag_hdr_len = 4 * mp->m_sb.sb_sectsize;
 	int			ag_hdr_block;
 	int			bstate;
-	int			count_bcnt_extents(xfs_agnumber_t agno);
-	int			count_bno_extents(xfs_agnumber_t agno);
 
 	ag_hdr_block = howmany(ag_hdr_len, mp->m_sb.sb_blocksize);
 

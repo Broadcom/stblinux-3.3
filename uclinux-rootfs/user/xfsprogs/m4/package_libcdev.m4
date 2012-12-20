@@ -121,6 +121,17 @@ AC_DEFUN([AC_HAVE_FALLOCATE],
 # Check if we have the fiemap ioctl (Linux)
 #
 AC_DEFUN([AC_HAVE_FIEMAP],
-  [ AC_CHECK_HEADERS([linux/fiemap.h], [ have_fiemap=yes ], [ have_fiemap=no ])
+  [ AC_MSG_CHECKING([for fiemap])
+    AC_TRY_LINK([
+#define _GNU_SOURCE
+#define _FILE_OFFSET_BITS 64
+#include <linux/fs.h>
+#include <linux/fiemap.h>
+    ], [
+         struct fiemap *fiemap;
+         ioctl(0, FS_IOC_FIEMAP, (unsigned long)fiemap);
+    ], have_fiemap=yes
+       AC_MSG_RESULT(yes),
+       AC_MSG_RESULT(no))
     AC_SUBST(have_fiemap)
   ])

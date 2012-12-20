@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write the Free Software Foundation,
  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Broadcom modified 2012/03/21
+ *
  */
 
 #define ustat __kernel_ustat
@@ -21,7 +24,6 @@
 #include <mntent.h>
 #include <sys/stat.h>
 #undef ustat
-#include <sys/ustat.h>
 #include <sys/mount.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
@@ -50,7 +52,6 @@ int
 platform_check_ismounted(char *name, char *block, struct stat64 *s, int verbose)
 {
 	/* Pad ust; pre-2.6.28 linux copies out too much in 32bit compat mode */
-	struct ustat	ust[2];
 	struct stat64	st;
 
 	if (!s) {
@@ -61,7 +62,7 @@ platform_check_ismounted(char *name, char *block, struct stat64 *s, int verbose)
 		s = &st;
 	}
 
-	if (ustat(s->st_rdev, ust) >= 0) {
+	if (0 /* ustat(s->st_rdev, ust) >= 0 */) {
 		if (verbose)
 			fprintf(stderr,
 				_("%s: %s contains a mounted filesystem\n"),

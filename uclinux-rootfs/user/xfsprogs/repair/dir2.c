@@ -43,9 +43,10 @@ typedef struct dir2_bad {
 	xfs_ino_t	ino;
 	struct dir2_bad	*next;
 } dir2_bad_t;
-dir2_bad_t *dir2_bad_list;
 
-void
+static dir2_bad_t *dir2_bad_list;
+
+static void
 dir2_add_badlist(
 	xfs_ino_t	ino)
 {
@@ -78,7 +79,7 @@ dir2_is_badino(
  * Multibuffer handling.
  * V2 directory blocks can be noncontiguous, needing multiple buffers.
  */
-xfs_dabuf_t *
+static xfs_dabuf_t *
 da_read_buf(
 	xfs_mount_t	*mp,
 	int		nex,
@@ -186,7 +187,7 @@ da_buf_done(
 	free(dabuf);
 }
 
-int
+static int
 da_bwrite(
 	xfs_mount_t	*mp,
 	xfs_dabuf_t	*dabuf)
@@ -226,7 +227,7 @@ da_bwrite(
 	return error;
 }
 
-void
+static void
 da_brelse(
 	xfs_dabuf_t	*dabuf)
 {
@@ -262,7 +263,7 @@ da_brelse(
  * left-most leaf block if successful (bno).  returns 1 if successful,
  * 0 if unsuccessful.
  */
-int
+static int
 traverse_int_dir2block(xfs_mount_t	*mp,
 		dir2_bt_cursor_t	*da_cursor,
 		xfs_dablk_t		*rbno)
@@ -392,7 +393,7 @@ error_out:
  * buffers (e.g. if we do, it's a mistake).  if error == 1, we're
  * in an error-handling case so unreleased buffers may exist.
  */
-void
+static void
 release_dir2_cursor_int(xfs_mount_t		*mp,
 			dir2_bt_cursor_t	*cursor,
 			int			prev_level,
@@ -418,7 +419,7 @@ release_dir2_cursor_int(xfs_mount_t		*mp,
 	return;
 }
 
-void
+static void
 release_dir2_cursor(xfs_mount_t		*mp,
 		dir2_bt_cursor_t	*cursor,
 		int			prev_level)
@@ -426,7 +427,7 @@ release_dir2_cursor(xfs_mount_t		*mp,
 	release_dir2_cursor_int(mp, cursor, prev_level, 0);
 }
 
-void
+static void
 err_release_dir2_cursor(xfs_mount_t		*mp,
 			dir2_bt_cursor_t	*cursor,
 			int			prev_level)
@@ -442,7 +443,7 @@ err_release_dir2_cursor(xfs_mount_t		*mp,
  * technically a block boundary.  This routine should be used then
  * instead of verify_dir2_path().
  */
-int
+static int
 verify_final_dir2_path(xfs_mount_t	*mp,
 		dir2_bt_cursor_t	*cursor,
 		const int		p_level)
@@ -589,7 +590,7 @@ _("would correct bad hashval in non-leaf dir block\n"
  * since they have to be set so we can get a buffer for the
  * block.
  */
-int
+static int
 verify_dir2_path(xfs_mount_t	*mp,
 	dir2_bt_cursor_t	*cursor,
 	const int		p_level)

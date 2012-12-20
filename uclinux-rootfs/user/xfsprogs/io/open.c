@@ -163,16 +163,8 @@ openfile(
 		}
 	}
 
-	if (!geom)
+	if (!geom || !platform_test_xfs_fd(fd))
 		return fd;
-
-	if (!platform_test_xfs_fd(fd)) {
-		fprintf(stderr, _("%s: specified file "
-			"[\"%s\"] is not on an XFS filesystem\n"),
-			progname, path);
-		close(fd);
-		return -1;
-	}
 
 	if (xfsctl(path, fd, XFS_IOC_FSGEOMETRY, geom) < 0) {
 		perror("XFS_IOC_FSGEOMETRY");
@@ -248,7 +240,6 @@ open_help(void)
 "\n"
 " Opens a file for subsequent use by all of the other xfs_io commands.\n"
 " With no arguments, open uses the stat command to show the current file.\n"
-" -F -- foreign filesystem file, disallow XFS-specific commands\n"
 " -a -- open with the O_APPEND flag (append-only mode)\n"
 " -d -- open with O_DIRECT (non-buffered IO, note alignment constraints)\n"
 " -f -- open with O_CREAT (create the file if it doesn't exist)\n"
@@ -285,7 +276,7 @@ open_f(
 	while ((c = getopt(argc, argv, "FRacdfm:nrstx")) != EOF) {
 		switch (c) {
 		case 'F':
-			flags |= IO_FOREIGN;
+			/* Ignored / deprecated now, handled automatically */
 			break;
 		case 'a':
 			flags |= IO_APPEND;
@@ -328,10 +319,12 @@ open_f(
 	if (optind != argc - 1)
 		return command_usage(&open_cmd);
 
-	fd = openfile(argv[optind], flags & IO_FOREIGN ?
-					NULL : &geometry, flags, mode);
+	fd = openfile(argv[optind], &geometry, flags, mode);
 	if (fd < 0)
 		return 0;
+
+	if (!platform_test_xfs_fd(fd))
+		flags |= IO_FOREIGN;
 
 	addfile(argv[optind], fd, &geometry, flags);
 	return 0;

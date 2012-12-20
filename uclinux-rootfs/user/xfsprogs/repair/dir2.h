@@ -59,30 +59,6 @@ typedef struct dir2_bt_cursor  {
 	struct blkmap		*blkmap;
 } dir2_bt_cursor_t;
 
-
-/* ROUTINES */
-
-void
-err_release_dir2_cursor(
-	xfs_mount_t		*mp,
-	dir2_bt_cursor_t	*cursor,
-	int			prev_level);
-
-xfs_dabuf_t *
-da_read_buf(
-	xfs_mount_t	*mp,
-	int		nex,
-	struct bmap_ext	*bmp);
-
-int
-da_bwrite(
-	xfs_mount_t	*mp,
-	xfs_dabuf_t	*bp);
-
-void
-da_brelse(
-	xfs_dabuf_t	*bp);
-
 int
 process_dir2(
 	xfs_mount_t	*mp,
@@ -98,10 +74,6 @@ void
 process_sf_dir2_fixi8(
 	xfs_dir2_sf_t		*sfp,
 	xfs_dir2_sf_entry_t	**next_sfep);
-
-void
-dir2_add_badlist(
-	xfs_ino_t	ino);
 
 int
 dir2_is_badino(

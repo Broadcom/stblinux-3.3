@@ -925,7 +925,6 @@ static int brcmstb_nand_read(struct mtd_info *mtd,
 	BDEV_WR_RB(BCHP_NAND_ECC_CORR_ADDR, 0);
 #if CONTROLLER_VER >= 60
 	BDEV_WR_RB(BCHP_NAND_UNCORR_ERROR_COUNT, 0);
-	BDEV_WR_RB(BCHP_NAND_CORR_ERROR_COUNT, 0);
 #endif
 
 	/* Don't use FLASH_DMA if buffer is not 32-byte aligned */
@@ -1384,7 +1383,7 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 	WR_ACC_CONTROL(host->cs, PARTIAL_PAGE_EN, 0);
 	WR_ACC_CONTROL(host->cs, PAGE_HIT_EN, 1);
 #if CONTROLLER_VER >= 60
-	WR_ACC_CONTROL(host->cs, PREFETCH_EN, 1);
+	WR_ACC_CONTROL(host->cs, PREFETCH_EN, 0);
 #endif
 	mb();
 

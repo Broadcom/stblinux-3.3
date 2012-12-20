@@ -15,6 +15,7 @@
 #include <linux/kernel.h>
 #include <linux/gfp.h>
 #include <linux/module.h>
+#include <linux/pm.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
 #include <linux/device.h>
@@ -22,6 +23,8 @@
 #include <linux/libata.h>
 #include <linux/ahci_platform.h>
 #include "ahci.h"
+
+static void ahci_host_stop(struct ata_host *host);
 
 enum ahci_type {
 	AHCI,		/* standard platform ahci */
@@ -45,6 +48,15 @@ static struct platform_device_id ahci_devtype[] = {
 };
 MODULE_DEVICE_TABLE(platform, ahci_devtype);
 
+static struct ata_port_operations ahci_platform_ops = {
+	.inherits	= &ahci_ops,
+	.host_stop	= ahci_host_stop,
+};
+
+static struct ata_port_operations ahci_platform_retry_srst_ops = {
+	.inherits	= &ahci_pmp_retry_srst_ops,
+	.host_stop	= ahci_host_stop,
+};
 
 static const struct ata_port_info ahci_port_info[] = {
 	/* by features */
@@ -52,20 +64,20 @@ static const struct ata_port_info ahci_port_info[] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
 		.udma_mask	= ATA_UDMA6,
-		.port_ops	= &ahci_ops,
+		.port_ops	= &ahci_platform_ops,
 	},
 	[IMX53_AHCI] = {
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
 		.udma_mask	= ATA_UDMA6,
-		.port_ops	= &ahci_pmp_retry_srst_ops,
+		.port_ops	= &ahci_platform_retry_srst_ops,
 	},
 	[STRICT_AHCI] = {
 		AHCI_HFLAGS	(AHCI_HFLAG_DELAY_ENGINE),
 		.flags		= AHCI_FLAG_COMMON,
 		.pio_mask	= ATA_PIO4,
 		.udma_mask	= ATA_UDMA6,
-		.port_ops	= &ahci_ops,
+		.port_ops	= &ahci_platform_ops,
 	},
 };
 
@@ -73,7 +85,7 @@ static struct scsi_host_template ahci_platform_sht = {
 	AHCI_SHT("ahci_platform"),
 };
 
-static int __init ahci_probe(struct platform_device *pdev)
+static int __devinit ahci_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct ahci_platform_data *pdata = dev_get_platdata(dev);
@@ -199,18 +211,13 @@ err0:
 	return rc;
 }
 
-static int __devexit ahci_remove(struct platform_device *pdev)
+static void ahci_host_stop(struct ata_host *host)
 {
-	struct device *dev = &pdev->dev;
+	struct device *dev = host->dev;
 	struct ahci_platform_data *pdata = dev_get_platdata(dev);
-	struct ata_host *host = dev_get_drvdata(dev);
-
-	ata_host_detach(host);
 
 	if (pdata && pdata->exit)
 		pdata->exit(dev);
-
-	return 0;
 }
 
 #ifdef CONFIG_PM
@@ -271,12 +278,9 @@ static int ahci_resume(struct device *dev)
 
 	return 0;
 }
-
-static struct dev_pm_ops ahci_pm_ops = {
-	.suspend		= &ahci_suspend,
-	.resume			= &ahci_resume,
-};
 #endif
+
+static SIMPLE_DEV_PM_OPS(ahci_pm_ops, ahci_suspend, ahci_resume);
 
 static const struct of_device_id ahci_of_match[] = {
 	{ .compatible = "calxeda,hb-ahci", },
@@ -285,29 +289,17 @@ static const struct of_device_id ahci_of_match[] = {
 MODULE_DEVICE_TABLE(of, ahci_of_match);
 
 static struct platform_driver ahci_driver = {
-	.remove = __devexit_p(ahci_remove),
+	.probe = ahci_probe,
+	.remove = ata_platform_remove_one,
 	.driver = {
 		.name = "ahci",
 		.owner = THIS_MODULE,
 		.of_match_table = ahci_of_match,
-#ifdef CONFIG_PM
 		.pm = &ahci_pm_ops,
-#endif
 	},
 	.id_table	= ahci_devtype,
 };
-
-static int __init ahci_init(void)
-{
-	return platform_driver_probe(&ahci_driver, ahci_probe);
-}
-module_init(ahci_init);
-
-static void __exit ahci_exit(void)
-{
-	platform_driver_unregister(&ahci_driver);
-}
-module_exit(ahci_exit);
+module_platform_driver(ahci_driver);
 
 MODULE_DESCRIPTION("AHCI SATA platform driver");
 MODULE_AUTHOR("Anton Vorontsov <avorontsov@ru.mvista.com>");

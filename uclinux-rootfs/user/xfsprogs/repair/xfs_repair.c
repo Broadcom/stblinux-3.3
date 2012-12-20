@@ -32,14 +32,6 @@
 
 #define	rounddown(x, y)	(((x)/(y))*(y))
 
-extern void	phase1(xfs_mount_t *);
-extern void	phase2(xfs_mount_t *, int);
-extern void	phase3(xfs_mount_t *);
-extern void	phase4(xfs_mount_t *);
-extern void	phase5(xfs_mount_t *);
-extern void	phase6(xfs_mount_t *);
-extern void	phase7(xfs_mount_t *);
-
 #define		XR_MAX_SECT_SIZE	(64 * 1024)
 
 /*
@@ -49,8 +41,7 @@ extern void	phase7(xfs_mount_t *);
 /*
  * -o: user-supplied override options
  */
-
-char *o_opts[] = {
+static char *o_opts[] = {
 #define ASSUME_XFS	0
 	"assume_xfs",
 #define PRE_65_BETA	1
@@ -71,8 +62,7 @@ char *o_opts[] = {
 /*
  * -c: conversion options
  */
-
-char *c_opts[] = {
+static char *c_opts[] = {
 #define CONVERT_LAZY_COUNT	0
 	"lazycount",
 	NULL
@@ -183,7 +173,7 @@ unknown(char opt, char *s)
 /*
  * sets only the global argument flags and variables
  */
-void
+static void
 process_args(int argc, char **argv)
 {
 	char *p;
@@ -398,7 +388,7 @@ do_log(char const *msg, ...)
 	va_end(args);
 }
 
-void
+static void
 calc_mkfs(xfs_mount_t *mp)
 {
 	xfs_agblock_t	fino_bno;
@@ -417,12 +407,16 @@ calc_mkfs(xfs_mount_t *mp)
 	fino_bno = inobt_root + XFS_MIN_FREELIST_RAW(1, 1, mp) + 1;
 
 	/*
-	 * If we only have a single allocation group the log is also allocated
-	 * in the first allocation group and we need to add the number of
-	 * blocks used by the log to the above calculation.
-	 * All this of course doesn't apply if we have an external log.
+	 * If the log is allocated in the first allocation group we need to
+	 * add the number of blocks used by the log to the above calculation.
+	 *
+	 * This can happens with filesystems that only have a single
+	 * allocation group, or very odd geometries created by old mkfs
+	 * versions on very small filesystems.
 	 */
-	if (mp->m_sb.sb_agcount == 1 && mp->m_sb.sb_logstart) {
+	if (mp->m_sb.sb_logstart &&
+	    XFS_FSB_TO_AGNO(mp, mp->m_sb.sb_logstart) == 0) {
+
 		/*
 		 * XXX(hch): verify that sb_logstart makes sense?
 		 */

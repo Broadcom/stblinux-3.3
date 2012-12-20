@@ -22,7 +22,7 @@
 #include "protos.h"
 #include "err_protos.h"
 
-void
+static void
 no_sb(void)
 {
 	do_warn(_("Sorry, could not find valid secondary superblock\n"));

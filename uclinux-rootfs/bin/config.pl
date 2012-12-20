@@ -408,7 +408,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$vendor{"CONFIG_USER_MOCA_GEN1"} = "y";
 		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_11_PLUS"})) {
 			$vendor{"CONFIG_USER_MOCA_GEN2"} = "y";
-		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20"})) {
+		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN21"})) {
 			$vendor{"CONFIG_USER_MOCA_GEN3"} = "y";
 		}
 	}

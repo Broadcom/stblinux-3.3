@@ -6,8 +6,11 @@ MY_LDFLAGS = -L$(ROOTDIR)/lib/elfutils/libelf \
 	-lelf -lintl
 COMMON_MAKEARGS = ARCH=mips CROSS_COMPILE=mipsel-linux- \
 	EXTRA_CFLAGS="$(MY_CFLAGS)" LDFLAGS="$(MY_LDFLAGS)"
+OPTION_MAKEARGS = NO_DWARF=1 WERROR=0 NO_LIBPYTHON=1
+
 all :
-	make -f Makefile $(COMMON_MAKEARGS) NO_DWARF=1 WERROR=0
+	make -f Makefile prefix=$(ROOTDIR)/romfs $(COMMON_MAKEARGS) \
+	$(OPTION_MAKEARGS)
 
 all-% install-% clean-% distclean-%:
 	$(MAKE) -f Makefile $@
@@ -19,4 +22,5 @@ distclean: clean
 	-make -f Makefile $(COMMON_MAKEARGS) distclean
 
 romfs:
-	make -f Makefile prefix=$(ROOTDIR)/romfs $(COMMON_MAKEARGS) install
+	$(STRIP) perf
+	$(ROMFSINST) perf /bin/perf

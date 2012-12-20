@@ -2,8 +2,23 @@
 
 set -e
 
+function tftp_err()
+{
+	if [ "$quiet" = "0" ]; then
+		echo "$1"
+		exit 1
+	fi
+}
+
 function tftp_fetch()
 {
+	if [ "$1" = "-q" ]; then
+		quiet=1
+		shift
+	else
+		quiet=0
+	fi
+
 	if [ ! -z "$local_dir" ]; then
 		if [ -e $local_dir/$2 ]; then
 			cp $local_dir/$2 $3
@@ -12,13 +27,13 @@ function tftp_fetch()
 			cp $local_dir/${2##*/} $3
 			return 0
 		else
-			echo "ERROR: can't find ${2##*/} in $local_dir"
-			exit 1
+			tftp_err "ERROR: can't find ${2##*/} in $local_dir"
+			return 1
 		fi
 	fi
         echo "Fetching via tftp: $1:$2"
         if ! tftp -g $1 -r $2 -l $3; then
-            echo "tftp failed.  Aborting."
+            tftp_err "ERROR: tftp failed.  Aborting."
 	    return 1
         fi
 	return 0
@@ -150,7 +165,7 @@ function handle_opt_1()
 {
 	mtd=/dev/mtd${kernel_part}
 
-	tftp_fetch $tftphost $tftppath/vmlinuz-$plat /tmp/vmlinuz || exit 1
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat /tmp/vmlinuz
 	flash_erase $mtd 0 0
 	if [ "$flash_type" = "nand" ]; then
 		nandwrite -p $mtd /tmp/vmlinuz
@@ -178,14 +193,15 @@ function handle_opt_2()
 
 	rem_img=ubifs-$(($flash_erasesize / 1024))k-$(($flash_writesize))-${plat}.img
 
-	if tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img; then
+	if tftp_fetch -q $tftphost $tftppath/$rem_img /tmp/rootfs.img; then
 		flash_erase $mtd 0 0
 		ubiformat $mtd --yes --flash-image=/tmp/rootfs.img
 	else
 		echo ""
+		echo "ubifs image was not built; falling back to nfsroot..."
+		echo ""
 		rem_img=nfsroot-${plat}.tar.bz2
-		tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.tar.bz2 \
-			|| exit 1
+		tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.tar.bz2
 		flash_erase $mtd 0 0
 		ubiformat $mtd --yes
 		ubiattach -m $rootfs_part -d 0
@@ -228,7 +244,7 @@ function handle_opt_3()
 
 	rem_img=jffs2-$(($flash_erasesize / 1024))k-${plat}.img
 
-	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img
 	flash_erase -j $mtd 0 0
 	dd if=/tmp/rootfs.img of=$mtd
 	echo ""
@@ -253,7 +269,7 @@ function handle_opt_4()
 
 	rem_img=squashfs-${plat}.img
 
-	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img || exit 1
+	tftp_fetch $tftphost $tftppath/$rem_img /tmp/rootfs.img
 	flash_erase $mtd 0 0
 	if [ "$flash_type" = "nand" ]; then
 		imgsize=$(du -k /tmp/rootfs.img | sed 's/[ \t].*//')
@@ -382,8 +398,7 @@ function handle_opt_7()
 	dev=/dev/${thumbdrive}
 
 	mount ${dev} /mnt/hd
-	tftp_fetch $tftphost $tftppath/vmlinuz-$plat \
-		/mnt/hd/vmlinuz-$plat || exit 1
+	tftp_fetch $tftphost $tftppath/vmlinuz-$plat /mnt/hd/vmlinuz-$plat
 	write_rootfs -dos
 	umount ${dev}
 

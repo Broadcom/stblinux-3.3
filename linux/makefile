@@ -10,8 +10,23 @@ export ARCH		:= arm
 endif
 endif
 
+# don't override the build target name if an external module source
+# directory was specified
+EXT_MODULE_BUILD	:= n
+
+ifdef KBUILD_EXTMOD
+EXT_MODULE_BUILD	:= y
+endif
+
+ifdef M
+EXT_MODULE_BUILD	:= y
+endif
+
 .PHONY: default
 default::
+ifeq ($(EXT_MODULE_BUILD),y)
+	$(MAKE) -f Makefile
+else
 ifeq ($(ARCH),mips)
 	$(MAKE) -f Makefile vmlinux
 	gzip < vmlinux > vmlinuz
@@ -21,6 +36,7 @@ ifeq ($(ARCH),arm)
 	cp arch/arm/boot/zImage vmlinuz
 else
 	$(MAKE) -f Makefile
+endif
 endif
 endif
 

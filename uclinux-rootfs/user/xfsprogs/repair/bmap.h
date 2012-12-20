@@ -53,6 +53,9 @@ typedef	struct blkmap {
 #define BLKMAP_NEXTS_MAX	INT_MAX
 #endif
 
+extern pthread_key_t dblkmap_key;
+extern pthread_key_t ablkmap_key;
+
 blkmap_t	*blkmap_alloc(xfs_extnum_t nex, int whichfork);
 void		blkmap_free(blkmap_t *blkmap);
 

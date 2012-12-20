@@ -30,6 +30,14 @@
 #define MOCA_BAND_HIGHRF	0
 #define MOCA_BAND_MIDRF		1
 #define MOCA_BAND_WANRF		2
+#define MOCA_BAND_EXT_D		3
+#define MOCA_BAND_D_LOW		4
+#define MOCA_BAND_D_HIGH	5
+#define MOCA_BAND_E		6
+#define MOCA_BAND_F		7
+#define MOCA_BAND_G		8
+
+#define MOCA_BOOT_FLAGS_BONDED	(1 << 0)
 
 #define MOCA_IOC_MAGIC		'M'
 
@@ -44,6 +52,10 @@
 #define MOCA_IOCTL_CHECK_FOR_DATA	_IOR(MOCA_IOC_MAGIC, 5, int)
 #define MOCA_IOCTL_WOL		_IOW(MOCA_IOC_MAGIC, 6, int)
 #define MOCA_IOCTL_GET_DRV_INFO	_IOR(MOCA_IOC_MAGIC, 0, struct moca_kdrv_info)
+#define MOCA_IOCTL_SET_CPU_RATE	_IOR(MOCA_IOC_MAGIC, 7, unsigned int)
+#define MOCA_IOCTL_SET_PHY_RATE	_IOR(MOCA_IOC_MAGIC, 8, unsigned int)
+
+#define MOCA_DEVICE_ID_UNREGISTERED  (-1)
 
 /* this must match MoCAOS_IFNAMSIZE */
 #define MOCA_IFNAMSIZ		16
@@ -68,7 +80,7 @@ struct moca_kdrv_info_v2 {
 	__u32			macaddr_lo;
 
 	__u32			phy_freq;
-	__u32			cpu_freq;
+	__u32			device_id;
 };
 
 /* this must match MoCAOS_DrvInfo */
@@ -104,7 +116,7 @@ struct moca_xfer {
 
 struct moca_start {
 	struct moca_xfer	x;
-	__u32			continuous_power_tx_mode;
+	__u32			boot_flags;
 };
 
 #ifdef __KERNEL__
@@ -145,11 +157,17 @@ struct moca_platform_data {
 };
 
 enum {
-	HWREV_MOCA_11 = 0x1100,
-	HWREV_MOCA_11_LITE = 0x1101,
-	HWREV_MOCA_11_PLUS = 0x1102,
-	HWREV_MOCA_20 = 0x2000
+	HWREV_MOCA_11		= 0x1100,
+	HWREV_MOCA_11_LITE	= 0x1101,
+	HWREV_MOCA_11_PLUS	= 0x1102,
+	HWREV_MOCA_20_GEN21	= 0x2001,
+	HWREV_MOCA_20_GEN22	= 0x2002,
+	HWREV_MOCA_20_GEN23	= 0x2003,
 };
+
+#define MOCA_PROTVER_11		0x1100
+#define MOCA_PROTVER_20		0x2000
+#define MOCA_PROTVER_MASK	0xff00
 
 #endif /* __KERNEL__ */
 

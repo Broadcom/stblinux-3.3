@@ -1,3 +1,44 @@
+xfsprogs-3.1.8 (20 March 2012)
+	- Fix xfs_repair segfault on a corrupted filesystem by validating the
+	  acl count before reading it.
+	- Avoid xfs_repair deadlocks on prefetched buffers.
+	- Fix various incorrect printf formats, thanks to Jakub Bogusz for
+	  reporting.
+	- Polish translation update, thanks to Jakub Bogusz.
+	- Refuse mkfs.xfs on misaligned devices when using 4k sectors, unless
+	  the -f option is specified, and then force 512b sector size,
+	  thanks to Carlos Maiolino.
+	- Avoid a possible loop on the unlinked inode list in phase 3 of
+	  xfs_repair, thanks to Stefan Pfetzing for reporting.
+	- Allocate inode and free extent records individually in xfs_repair.
+	- Fix a possible deadlock btree nodes in xfs_repair by using recursive
+	  locking, thanks to Arkadiusz Miśkiewicz for reporting and testing.
+	- Fix possible xfs_repair deadlocks in inode prefetching, thanks to
+	  Arkadiusz Miśkiewicz for reporting and testing.
+	- Make xfs_repair handle filesystems with the log in ag 0, thanks to
+	  Sindre Skogen for reporting.
+	- Deprecate the -F foreign flag to xfs_io.
+	- Add debian linux-libc-dev build dependancy.
+	- Add an extended fiemap configure check.
+	- Various cleanups in xfs_repair.
+	- Update xfs_check man page to recommend xfs_repair over xfs_check,
+	  thanks to Arkadiusz Miśkiewicz.
+	- Update the on-disk extent count as part of inode repair when moving
+	  inodes to lost+found to avoid to avoid tripping over a check in
+	  xfs_iformat, thanks to Arkadiusz Miśkiewicz for reporting and
+	  testing.
+	- Check for size parsing errors in xfs_quota, thanks to James Lawrie
+	  for reporting.
+	- Fix fiemap loop continuation in xfs_io.
+	- Make mkfs.xfs properly handle physical sector size.
+	- Fix /proc/mounts parsing in xfs_fsr.
+	- Fix xfs_repair when ag_stride options with attributes and dirv1 code,
+	  thanks to Tom Crane for reporting and testing.
+	- Fix message formats in process_dinode_int.
+	- Fix xfs_repair handling of link counts when the on-disk count
+	  overflows 8 bits.
+	- Fix messages from set_nlinks in xfs_repair.
+
 xfsprogs-3.1.7 (17 November 2011)
 	- Pull in fix for debian/control
 	- Polish translation update, thanks to Jakub Bogusz

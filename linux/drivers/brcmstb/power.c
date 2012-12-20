@@ -56,6 +56,7 @@ struct clk {
 	void		*cb_arg;
 	void		(*disable)(u32 flags);
 	void		(*enable)(u32 flags);
+	int		(*set_rate)(unsigned long rate);
 	u32		flags;
 	struct list_head list;
 };
@@ -97,6 +98,8 @@ static void brcm_pm_usb_disable(u32 flags);
 static void brcm_pm_usb_enable(u32 flags);
 static void brcm_pm_set_ddr_timeout(int);
 static void brcm_pm_initialize(void);
+static int  brcm_pm_moca_cpu_set_rate(unsigned long rate);
+static int  brcm_pm_moca_phy_set_rate(unsigned long rate);
 
 static int brcm_pm_ddr_timeout;
 static unsigned long brcm_pm_standby_flags;
@@ -111,6 +114,8 @@ enum {
 	BRCM_CLK_NETWORK,	/* PLLs/clocks common to all GENETs */
 	BRCM_CLK_GENET_WOL,
 	BRCM_CLK_MOCA_WOL,
+	BRCM_CLK_MOCA_PHY,
+	BRCM_CLK_MOCA_CPU,
 };
 
 static struct clk brcm_clk_table[] = {
@@ -156,6 +161,14 @@ static struct clk brcm_clk_table[] = {
 		.name		= "moca-wol",
 		.disable	= &brcm_pm_moca_disable_wol,
 		.enable		= &brcm_pm_moca_enable_wol,
+	},
+	[BRCM_CLK_MOCA_CPU] = {
+		.name		= "moca-cpu",
+		.set_rate	= &brcm_pm_moca_cpu_set_rate,
+	},
+	[BRCM_CLK_MOCA_PHY] = {
+		.name		= "moca-phy",
+		.set_rate	= &brcm_pm_moca_phy_set_rate,
 	},
 };
 
@@ -423,7 +436,8 @@ static int __clk_enable(struct clk *clk, u32 flags)
 			__clk_enable(clk->parent, clk->flags | flags);
 		printk(KERN_DEBUG "%s: %s [%d]\n",
 			__func__, clk->name, clk->refcnt);
-		clk->enable(clk->flags | flags);
+		if (clk->enable)
+			clk->enable(clk->flags | flags);
 	}
 	return 0;
 }
@@ -433,7 +447,8 @@ static void __clk_disable(struct clk *clk, u32 flags)
 	if (--(clk->refcnt) == 0 && brcm_pm_enabled) {
 		printk(KERN_DEBUG "%s: %s [%d]\n",
 			__func__, clk->name, clk->refcnt);
-		clk->disable(clk->flags | flags);
+		if (clk->disable)
+			clk->disable(clk->flags | flags);
 		if (clk->parent)
 			__clk_disable(clk->parent, clk->flags | flags);
 	}
@@ -495,6 +510,22 @@ struct clk *clk_get_parent(struct clk *clk)
 }
 EXPORT_SYMBOL(clk_get_parent);
 
+int clk_set_rate(struct clk *clk, unsigned long rate)
+{
+	unsigned long flags;
+	int ret;
+	spinlock_t *lock = &brcm_pm_clk_lock;
+
+	if (clk && !IS_ERR(clk) && clk->set_rate) {
+		spin_lock_irqsave(lock, flags);
+		ret = clk->set_rate(rate);
+		spin_unlock_irqrestore(lock, flags);
+		return ret;
+	}
+	return -EINVAL;
+}
+EXPORT_SYMBOL(clk_set_rate);
+
 int brcm_pm_register_cb(char *name, int (*fn)(int, void *), void *arg)
 {
 	struct clk *clk = brcm_pm_clk_find(name);
@@ -548,7 +579,7 @@ struct brcm_wakeup_control {
 
 static struct brcm_wakeup_control bwc;
 
-int brcm_pm_wakeup_register(struct brcm_wakeup_ops *ops, void* ref, char* name)
+int brcm_pm_wakeup_register(struct brcm_wakeup_ops *ops, void *ref, char *name)
 {
 	struct brcm_wakeup_source *bws;
 	unsigned long flags;
@@ -592,7 +623,7 @@ static void brcm_pm_wakeup_cleanup(struct kref *kref)
 	kfree(bws);
 }
 
-int brcm_pm_wakeup_unregister(struct brcm_wakeup_ops *ops, void* ref)
+int brcm_pm_wakeup_unregister(struct brcm_wakeup_ops *ops, void *ref)
 {
 	struct brcm_wakeup_source *bws;
 	unsigned long flags;
@@ -688,6 +719,8 @@ static __maybe_unused void brcm_ddr_phy_initialize(void);
 struct brcm_chip_pm_block_ops {
 	void (*enable)(u32 flags);
 	void (*disable)(u32 flags);
+	int (*set_cpu_rate)(unsigned long rate);
+	int (*set_phy_rate)(unsigned long rate);
 };
 
 static u32 brcm_pm_flags;
@@ -2010,6 +2043,8 @@ static __maybe_unused void bcm40nm_pm_usb_enable_s3(void)
 #if defined(CONFIG_BCM7425) || defined(CONFIG_BCM7429) \
 	|| defined(CONFIG_BCM7346) || defined(CONFIG_BCM7435)
 
+#define BRCM_BASE_CLK		3600 /* base clock in MHz */
+
 /*
  * work around RDB name inconsistencies.
  */
@@ -2565,7 +2600,9 @@ static void bcm40nm_pm_moca_disable(u32 flags)
 		PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 0);
 		PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 1);
 		PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 2);
+#if !defined(CONFIG_BCM7435)
 		PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 3);
+#endif
 	}
 }
 
@@ -2577,7 +2614,9 @@ static void bcm40nm_pm_moca_enable(u32 flags)
 		PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 0);
 		PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 1);
 		PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 2);
+#if !defined(CONFIG_BCM7435)
 		PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 3);
+#endif
 	}
 
 	BDEV_WR_F_RB(CLKGEN_MOCA_TOP_INST_CLOCK_ENABLE,
@@ -2587,6 +2626,28 @@ static void bcm40nm_pm_moca_enable(u32 flags)
 
 #if defined(BCHP_CLKGEN_MOCA_TOP_INST_POWER_SWITCH_MEMORY)
 	SRAM_ON_2i(MOCA_TOP, MOCA);
+#endif
+}
+
+static int bcm40nm_pm_set_moca_cpu_rate(unsigned long rate)
+{
+#ifdef BCHP_CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_0
+	BDEV_WR_F(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_0,
+		MDIV_CH0, BRCM_BASE_CLK/(rate/1000000));
+	return 0;
+#else
+	return -EINVAL;
+#endif
+}
+
+static int bcm40nm_pm_set_moca_phy_rate(unsigned long rate)
+{
+#ifdef BCHP_CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_1
+	BDEV_WR_F(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_1,
+		MDIV_CH1, BRCM_BASE_CLK/(rate/1000000));
+	return 0;
+#else
+	return -ENOENT;
 #endif
 }
 
@@ -3151,12 +3212,6 @@ static void bcm7425_pm_network_disable(u32 flags)
 	if (ANY_WOL(flags))
 		return;
 
-	PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 0);
-	PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 1);
-	PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 2);
-#if !defined(CONFIG_BCM7435)		/* PLL also supplies clock for SPI */
-	PLL_DIS(CLKGEN_PLL_NETWORK_PLL);
-#endif
 
 	BDEV_WR_F_RB(CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_ENABLE,
 		GENET_SCB_CLOCK_ENABLE, 0);
@@ -3202,13 +3257,76 @@ static void bcm7425_pm_network_enable(u32 flags)
 
 	BDEV_WR_F_RB(CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_ENABLE,
 		GENET_SCB_CLOCK_ENABLE, 1);
+}
 
-#if !defined(CONFIG_BCM7435)		/* PLL also supplies clock for SPI */
-	PLL_ENA(CLKGEN_PLL_NETWORK_PLL);
+/*
+ * shared PLL usage.
+ *
+ * PLL  7429    7425    7435
+ * moca
+ *  0   moca    moca    moca
+ *  1   moca    moca    moca
+ *  2   moca    moca    moca
+ *  3   moca    moca    v3d
+ *  4   sdio    sdio    m2mc,sdio
+ *  5   usb0    spi     unused
+ *
+ * net
+ *  0   genet   genet   genet
+ *  1   genet   genet   genet
+ *  2   genet   genet   genet
+ *  3   spi     unused  spi
+ */
+
+static void bcm7425_pm_suspend(u32 flags)
+{
+	/*
+	 * Some PLLs are shared between blocks, so disable them last.
+	 * Do not disable network PLLs if we need WOL.
+	 */
+#if defined(CONFIG_BCM7435)
+	PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 3);
 #endif
+
+	PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 4);
+
+#if defined(BCHP_CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_5)
+	PLL_CH_DIS(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 5);
+#endif
+
+#if defined(BCHP_CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL_CH_3)
+	PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 3);
+#endif
+
+	if (ANY_WOL(flags) == 0) {
+		PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 0);
+		PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 1);
+		PLL_CH_DIS(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 2);
+		PLL_DIS(CLKGEN_PLL_NETWORK_PLL);
+	}
+}
+
+static void bcm7425_pm_resume(u32 flags)
+{
+	/*
+	 * some PLLs are shared between blocks, so enable them early
+	 */
+	PLL_ENA(CLKGEN_PLL_NETWORK_PLL);
 	PLL_CH_ENA(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 0);
 	PLL_CH_ENA(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 1);
 	PLL_CH_ENA(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 2);
+#if defined(BCHP_CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL_CH_3)
+	PLL_CH_ENA(CLKGEN_PLL_NETWORK_PLL_CHANNEL_CTRL, 3);
+#endif
+
+#if defined(CONFIG_BCM7435)
+	PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 3);
+#endif
+	PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 4);
+
+#if defined(BCHP_CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL_CH_5)
+	PLL_CH_ENA(CLKGEN_PLL_MOCA_PLL_CHANNEL_CTRL, 5);
+#endif
 }
 
 static void bcm7425_pm_late_suspend(void)
@@ -3283,7 +3401,10 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	DEF_BLOCK_PM_OP(moca, 40nm),
 	DEF_BLOCK_PM_OP(genet, 40nm),
 	DEF_BLOCK_PM_OP(genet1, 40nm),
+	DEF_SYSTEM_PM_OP(7425),
 	DEF_SYSTEM_LATE_PM_OP(7425),
+	.moca.set_cpu_rate	= bcm40nm_pm_set_moca_cpu_rate,
+	.moca.set_phy_rate	= bcm40nm_pm_set_moca_phy_rate,
 	.clk_get		= brcm_pm_clk_get,
 	.initialize		= bcm7425_initialize,
 };
@@ -3349,6 +3470,8 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	DEF_BLOCK_PM_OP(moca, 40nm),
 	DEF_BLOCK_PM_OP(genet, 40nm),
 	DEF_BLOCK_PM_OP(genet1, 40nm),
+	.moca.set_cpu_rate	= bcm40nm_pm_set_moca_cpu_rate,
+	.moca.set_phy_rate	= bcm40nm_pm_set_moca_phy_rate,
 	.clk_get		= brcm_pm_clk_get,
 	.initialize		= bcm7429_initialize,
 };
@@ -3615,6 +3738,22 @@ static void brcm_pm_moca_enable(u32 flags)
 {
 	if (chip_pm_ops.moca.enable)
 		chip_pm_ops.moca.enable(brcm_pm_flags | flags);
+}
+
+static int brcm_pm_moca_cpu_set_rate(unsigned long rate)
+{
+	if (chip_pm_ops.moca.set_cpu_rate)
+		return chip_pm_ops.moca.set_cpu_rate(rate);
+
+	return -ENOENT;
+}
+
+static int brcm_pm_moca_phy_set_rate(unsigned long rate)
+{
+	if (chip_pm_ops.moca.set_phy_rate)
+		return chip_pm_ops.moca.set_phy_rate(rate);
+
+	return -ENOENT;
 }
 
 static void brcm_pm_moca_disable_wol(u32 flags)
@@ -4210,7 +4349,7 @@ static int brcm_pm_valid(suspend_state_t state)
 #endif
 }
 
-static struct platform_suspend_ops brcm_pm_ops = {
+static const struct platform_suspend_ops brcm_pm_ops = {
 	.begin		= brcm_pm_begin,
 	.end		= brcm_pm_end,
 	.prepare	= brcm_pm_prepare,

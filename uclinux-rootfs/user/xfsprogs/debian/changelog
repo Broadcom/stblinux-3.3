@@ -1,3 +1,10 @@
+xfsprogs (3.1.8) unstable; urgency=low
+
+  * New upstream release
+  * Numerous xfs_repair fixes
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 19 Mar 2012 14:21:00 +1100
+
 xfsprogs (3.1.7) unstable; urgency=low
 
   * New upstream release

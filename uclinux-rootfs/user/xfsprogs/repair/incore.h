@@ -209,8 +209,11 @@ void		incore_ext_init(xfs_mount_t *);
  * the nodes.
  */
 void		incore_ext_teardown(xfs_mount_t *mp);
-
 void		incore_ino_init(xfs_mount_t *);
+
+int		count_bno_extents(xfs_agnumber_t);
+int		count_bno_extents_blocks(xfs_agnumber_t, uint *);
+int		count_bcnt_extents(xfs_agnumber_t);
 
 /*
  * inode definitions
@@ -265,11 +268,17 @@ typedef struct parent_list  {
 #endif
 } parent_list_t;
 
+union ino_nlink {
+	__uint8_t	*un8;
+	__uint16_t	*un16;
+	__uint32_t	*un32;
+};
+
 typedef struct ino_ex_data  {
 	__uint64_t		ino_reached;	/* bit == 1 if reached */
 	__uint64_t		ino_processed;	/* reference checked bit mask */
 	parent_list_t		*parents;
-	__uint8_t		*counted_nlinks;/* counted nlinks in P6 */
+	union ino_nlink		counted_nlinks;/* counted nlinks in P6 */
 } ino_ex_data_t;
 
 typedef struct ino_tree_node  {
@@ -278,25 +287,17 @@ typedef struct ino_tree_node  {
 	xfs_inofree_t		ir_free;	/* inode free bit mask */
 	__uint64_t		ino_confirmed;	/* confirmed bitmask */
 	__uint64_t		ino_isa_dir;	/* bit == 1 if a directory */
-	struct nlink_ops	*nlinkops;	/* pointer to current nlink ops */
-	__uint8_t		*disk_nlinks;	/* on-disk nlinks, set in P3 */
+	__uint8_t		nlink_size;
+	union ino_nlink		disk_nlinks;	/* on-disk nlinks, set in P3 */
 	union  {
 		ino_ex_data_t	*ex_data;	/* phases 6,7 */
 		parent_list_t	*plist;		/* phases 2-5 */
 	} ino_un;
 } ino_tree_node_t;
 
-typedef struct nlink_ops {
-	const int	nlink_size;
-	void		(*disk_nlink_set)(ino_tree_node_t *, int, __uint32_t);
-	__uint32_t	(*disk_nlink_get)(ino_tree_node_t *, int);
-	__uint32_t	(*counted_nlink_get)(ino_tree_node_t *, int);
-	__uint32_t	(*counted_nlink_inc)(ino_tree_node_t *, int);
-	__uint32_t	(*counted_nlink_dec)(ino_tree_node_t *, int);
-} nlink_ops_t;
+#define INOS_PER_IREC	(sizeof(__uint64_t) * NBBY)
+#define	IREC_MASK(i)	((__uint64_t)1 << (i))
 
-
-#define INOS_PER_IREC		(sizeof(__uint64_t) * NBBY)
 void		add_ino_ex_data(xfs_mount_t *mp);
 
 /*
@@ -378,92 +379,73 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
 		((ino_tree_node_t *) ((ino_node_ptr)->avl_node.avl_forw))
 
 /*
- * Bit manipulations for processed field
+ * Has an inode been processed for phase 6 (reference count checking)?
+ *
+ * add_inode_refchecked() is set on an inode when it gets traversed
+ * during the reference count phase (6).  It's set so that if the inode
+ * is a directory, it's traversed (and it's links counted) only once.
  */
-#define	XFS_INOPROC_MASK(i)	((__uint64_t)1 << (i))
-#define	XFS_INOPROC_MASKN(i,n)	((__uint64_t)((1 << (n)) - 1) << (i))
+static inline void add_inode_refchecked(struct ino_tree_node *irec, int offset)
+{
+	irec->ino_un.ex_data->ino_processed |= IREC_MASK(offset);
+}
 
-#define	XFS_INOPROC_IS_PROC(rp, i) \
-	(((rp)->ino_un.ex_data->ino_processed & XFS_INOPROC_MASK((i))) == 0LL \
-		? 0 : 1)
-#define	XFS_INOPROC_SET_PROC(rp, i) \
-	((rp)->ino_un.ex_data->ino_processed |= XFS_INOPROC_MASK((i)))
-/*
-#define	XFS_INOPROC_CLR_PROC(rp, i) \
-	((rp)->ino_un.ex_data->ino_processed &= ~XFS_INOPROC_MASK((i)))
-*/
-
-/*
- * same for ir_confirmed.
- */
-#define	XFS_INOCF_MASK(i)	((__uint64_t)1 << (i))
-#define	XFS_INOCF_MASKN(i,n)	((__uint64_t)((1 << (n)) - 1) << (i))
-
-#define	XFS_INOCF_IS_CF(rp, i) \
-		(((rp)->ino_confirmed & XFS_INOCF_MASK((i))) == 0LL \
-			? 0 : 1)
-#define	XFS_INOCF_SET_CF(rp, i) \
-			((rp)->ino_confirmed |= XFS_INOCF_MASK((i)))
-#define	XFS_INOCF_CLR_CF(rp, i) \
-			((rp)->ino_confirmed &= ~XFS_INOCF_MASK((i)))
+static inline int is_inode_refchecked(struct ino_tree_node *irec, int offset)
+{
+	return (irec->ino_un.ex_data->ino_processed & IREC_MASK(offset)) != 0;
+}
 
 /*
- * same for backptr->ino_reached
+ * set/test is inode known to be valid (although perhaps corrupt)
  */
-#define	XFS_INO_RCHD_MASK(i)	((__uint64_t)1 << (i))
+static inline void set_inode_confirmed(struct ino_tree_node *irec, int offset)
+{
+	irec->ino_confirmed |= IREC_MASK(offset);
+}
 
-#define	XFS_INO_RCHD_IS_RCHD(rp, i) \
-	(((rp)->ino_un.ex_data->ino_reached & XFS_INO_RCHD_MASK((i))) == 0LL \
-		? 0 : 1)
-#define	XFS_INO_RCHD_SET_RCHD(rp, i) \
-		((rp)->ino_un.ex_data->ino_reached |= XFS_INO_RCHD_MASK((i)))
-#define	XFS_INO_RCHD_CLR_RCHD(rp, i) \
-		((rp)->ino_un.ex_data->ino_reached &= ~XFS_INO_RCHD_MASK((i)))
+static inline int is_inode_confirmed(struct ino_tree_node *irec, int offset)
+{
+	return (irec->ino_confirmed & IREC_MASK(offset)) != 0;
+}
+
 /*
  * set/clear/test is inode a directory inode
  */
-#define	XFS_INO_ISADIR_MASK(i)	((__uint64_t)1 << (i))
+static inline void set_inode_isadir(struct ino_tree_node *irec, int offset)
+{
+	irec->ino_isa_dir |= IREC_MASK(offset);
+}
 
-#define inode_isadir(ino_rec, ino_offset) \
-	(((ino_rec)->ino_isa_dir & XFS_INO_ISADIR_MASK((ino_offset))) == 0LL \
-		? 0 : 1)
-#define set_inode_isadir(ino_rec, ino_offset) \
-		((ino_rec)->ino_isa_dir |= XFS_INO_ISADIR_MASK((ino_offset)))
-#define clear_inode_isadir(ino_rec, ino_offset) \
-		((ino_rec)->ino_isa_dir &= ~XFS_INO_ISADIR_MASK((ino_offset)))
+static inline void clear_inode_isadir(struct ino_tree_node *irec, int offset)
+{
+	irec->ino_isa_dir &= ~IREC_MASK(offset);
+}
 
-
-/*
- * set/clear/test is inode known to be valid (although perhaps corrupt)
- */
-#define clear_inode_confirmed(ino_rec, ino_offset) \
-			XFS_INOCF_CLR_CF((ino_rec), (ino_offset))
-
-#define set_inode_confirmed(ino_rec, ino_offset) \
-			XFS_INOCF_SET_CF((ino_rec), (ino_offset))
-
-#define is_inode_confirmed(ino_rec, ino_offset) \
-			XFS_INOCF_IS_CF(ino_rec, ino_offset)
+static inline int inode_isadir(struct ino_tree_node *irec, int offset)
+{
+	return (irec->ino_isa_dir & IREC_MASK(offset)) != 0;
+}
 
 /*
  * set/clear/test is inode free or used
  */
-#define set_inode_free(ino_rec, ino_offset) \
-	XFS_INOCF_SET_CF((ino_rec), (ino_offset)), \
-	XFS_INOBT_SET_FREE((ino_rec), (ino_offset))
+static inline void set_inode_free(struct ino_tree_node *irec, int offset)
+{
+	set_inode_confirmed(irec, offset);
+	irec->ir_free |= XFS_INOBT_MASK(offset);
 
-#define set_inode_used(ino_rec, ino_offset) \
-	XFS_INOCF_SET_CF((ino_rec), (ino_offset)), \
-	XFS_INOBT_CLR_FREE((ino_rec), (ino_offset))
+}
 
-#define XFS_INOBT_IS_FREE(ino_rec, ino_offset) \
-	(((ino_rec)->ir_free & XFS_INOBT_MASK(ino_offset)) != 0)
+static inline void set_inode_used(struct ino_tree_node *irec, int offset)
+{
+	set_inode_confirmed(irec, offset);
+	irec->ir_free &= ~XFS_INOBT_MASK(offset);
+}
 
-#define is_inode_used(ino_rec, ino_offset)	\
-	!XFS_INOBT_IS_FREE((ino_rec), (ino_offset))
-
-#define is_inode_free(ino_rec, ino_offset)	\
-	XFS_INOBT_IS_FREE((ino_rec), (ino_offset))
+static inline int is_inode_free(struct ino_tree_node *irec, int offset)
+{
+	return (irec->ir_free & XFS_INOBT_MASK(offset)) != 0;
+}
 
 /*
  * add_inode_reached() is set on inode I only if I has been reached
@@ -474,87 +456,24 @@ void			clear_uncertain_ino_cache(xfs_agnumber_t agno);
  * detected and drop_inode_ref() is called every time a link to
  * an inode that we've counted is removed.
  */
+void add_inode_ref(struct ino_tree_node *irec, int offset);
+void drop_inode_ref(struct ino_tree_node *irec, int offset);
+__uint32_t num_inode_references(struct ino_tree_node *irec, int offset);
 
-static inline int
-is_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
+void set_inode_disk_nlinks(struct ino_tree_node *irec, int offset, __uint32_t nlinks);
+__uint32_t get_inode_disk_nlinks(struct ino_tree_node *irec, int offset);
+
+static inline int is_inode_reached(struct ino_tree_node *irec, int offset)
 {
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-	return(XFS_INO_RCHD_IS_RCHD(ino_rec, ino_offset));
+	ASSERT(irec->ino_un.ex_data != NULL);
+	return (irec->ino_un.ex_data->ino_reached & IREC_MASK(offset)) != 0;
 }
 
-static inline void
-add_inode_reached(ino_tree_node_t *ino_rec, int ino_offset)
+static inline void add_inode_reached(struct ino_tree_node *irec, int offset)
 {
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-
-	(*ino_rec->nlinkops->counted_nlink_inc)(ino_rec, ino_offset);
-	XFS_INO_RCHD_SET_RCHD(ino_rec, ino_offset);
-
-	ASSERT(is_inode_reached(ino_rec, ino_offset));
+	add_inode_ref(irec, offset);
+	irec->ino_un.ex_data->ino_reached |= IREC_MASK(offset);
 }
-
-static inline void
-add_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-
-	(*ino_rec->nlinkops->counted_nlink_inc)(ino_rec, ino_offset);
-}
-
-static inline void
-drop_inode_ref(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-
-	if ((*ino_rec->nlinkops->counted_nlink_dec)(ino_rec, ino_offset) == 0)
-		XFS_INO_RCHD_CLR_RCHD(ino_rec, ino_offset);
-}
-
-static inline int
-is_inode_referenced(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-
-	return (*ino_rec->nlinkops->counted_nlink_get)(ino_rec, ino_offset) > 0;
-}
-
-static inline __uint32_t
-num_inode_references(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	ASSERT(ino_rec->ino_un.ex_data != NULL);
-
-	return (*ino_rec->nlinkops->counted_nlink_get)(ino_rec, ino_offset);
-}
-
-static inline void
-set_inode_disk_nlinks(ino_tree_node_t *ino_rec, int ino_offset, __uint32_t nlinks)
-{
-	(*ino_rec->nlinkops->disk_nlink_set)(ino_rec, ino_offset, nlinks);
-}
-
-static inline __uint32_t
-get_inode_disk_nlinks(ino_tree_node_t *ino_rec, int ino_offset)
-{
-	return (*ino_rec->nlinkops->disk_nlink_get)(ino_rec, ino_offset);
-}
-
-/*
- * has an inode been processed for phase 6 (reference count checking)?
- * add_inode_refchecked() is set on an inode when it gets traversed
- * during the reference count phase (6).  It's set so that if the inode
- * is a directory, it's traversed (and it's links counted) only once.
- */
-#ifndef XR_INO_REF_DEBUG
-#define add_inode_refchecked(ino, ino_rec, ino_offset) \
-		XFS_INOPROC_SET_PROC((ino_rec), (ino_offset))
-#define is_inode_refchecked(ino, ino_rec, ino_offset) \
-		(XFS_INOPROC_IS_PROC(ino_rec, ino_offset) != 0LL)
-#else
-void add_inode_refchecked(xfs_ino_t ino,
-			ino_tree_node_t *ino_rec, int ino_offset);
-int is_inode_refchecked(xfs_ino_t ino,
-			ino_tree_node_t *ino_rec, int ino_offset);
-#endif /* XR_INO_REF_DEBUG */
 
 /*
  * set/get inode number of parent -- works for directory inodes only

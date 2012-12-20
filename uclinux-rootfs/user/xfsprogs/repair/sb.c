@@ -32,7 +32,7 @@
  * copy the fields of a superblock that are present in primary and
  * secondaries -- preserve fields that are different in the primary.
  */
-void
+static void
 copy_sb(xfs_sb_t *source, xfs_sb_t *dest)
 {
 	xfs_ino_t	rootino;
@@ -169,7 +169,7 @@ find_secondary_sb(xfs_sb_t *rsb)
  * calculate what inode alignment field ought to be
  * based on internal superblock info
  */
-int
+static int
 calc_ino_align(xfs_sb_t *sb)
 {
 	xfs_extlen_t align;
@@ -516,8 +516,7 @@ get_sb(xfs_sb_t *sbp, xfs_off_t off, int size, xfs_agnumber_t agno)
 }
 
 /* returns element on list with highest reference count */
-
-fs_geo_list_t *
+static fs_geo_list_t *
 get_best_geo(fs_geo_list_t *list)
 {
 	int cnt = 0;
@@ -537,8 +536,7 @@ get_best_geo(fs_geo_list_t *list)
 }
 
 /* adds geometry info to linked list.  returns (sometimes new) head of list */
-
-fs_geo_list_t *
+static fs_geo_list_t *
 add_geo(fs_geo_list_t *list, fs_geometry_t *geo_p, int index)
 {
 	fs_geo_list_t	*current = list;
@@ -565,7 +563,7 @@ add_geo(fs_geo_list_t *list, fs_geometry_t *geo_p, int index)
 	return(current);
 }
 
-void
+static void
 free_geo(fs_geo_list_t *list)
 {
 	fs_geo_list_t	*next;

@@ -34,6 +34,12 @@ flag. The filesystem should normally be unmounted or read-only
 during the execution of
 .BR xfs_check .
 Otherwise, spurious problems are reported.
+.PP
+Note that using
+.B xfs_check
+is NOT recommended. Please use 
+.BR xfs_repair " " \-n
+instead, for better scalability and speed.
 .SH
 OPTIONS
 .TP

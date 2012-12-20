@@ -185,10 +185,6 @@ EXTERN xfs_extlen_t	sb_inoalignmt;
 EXTERN __uint32_t	sb_unit;
 EXTERN __uint32_t	sb_width;
 
-extern size_t 		ts_dirbuf_size;
-extern size_t 		ts_dir_freemap_size;
-extern size_t 		ts_attr_freemap_size;
-
 EXTERN pthread_mutex_t	*ag_locks;
 
 EXTERN int 		report_interval;

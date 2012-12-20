@@ -32,7 +32,7 @@ void
 usage(void)
 {
 	fprintf(stderr,
-		_("Usage: %s [-adFfmrRstx] [-p prog] [-c cmd]... file\n"),
+		_("Usage: %s [-adfmrRstx] [-p prog] [-c cmd]... file\n"),
 		progname);
 	exit(1);
 }
@@ -145,7 +145,7 @@ init(
 			flags |= IO_DIRECT;
 			break;
 		case 'F':
-			flags |= IO_FOREIGN;
+			/* Ignored / deprecated now, handled automatically */
 			break;
 		case 'f':
 			flags |= IO_CREAT;
@@ -188,9 +188,10 @@ init(
 	}
 
 	while (optind < argc) {
-		if ((c = openfile(argv[optind], flags & IO_FOREIGN ?
-					NULL : &geometry, flags, mode)) < 0)
+		if ((c = openfile(argv[optind], &geometry, flags, mode)) < 0)
 			exit(1);
+		if (!platform_test_xfs_fd(c))
+			flags |= IO_FOREIGN;
 		if (addfile(argv[optind], c, &geometry, flags) < 0)
 			exit(1);
 		optind++;

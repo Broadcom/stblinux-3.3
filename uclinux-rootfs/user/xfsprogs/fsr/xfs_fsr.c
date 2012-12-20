@@ -109,7 +109,6 @@ static void tmp_init(char *mnt);
 static char * tmp_next(char *mnt);
 static void tmp_close(char *mnt);
 int xfs_getgeom(int , xfs_fsop_geom_v1_t * );
-static int getmntany(FILE *, struct mntent *, struct mntent *, struct stat64 *);
 
 xfs_fsop_geom_v1_t fsgeom;	/* geometry of active mounted system */
 
@@ -178,18 +177,71 @@ aborter(int unused)
 	exit(1);
 }
 
+/*
+ * Check if the argument is either the device name or mountpoint of an XFS
+ * filesystem.  Note that we do not care about bind mounted regular files
+ * here - the code that handles defragmentation of invidual files takes care
+ * of that.
+ */
+static char *
+find_mountpoint(char *mtab, char *argname, struct stat64 *sb)
+{
+	struct mntent *t;
+	struct stat64 ms;
+	FILE *mtabp;
+	char *mntp = NULL;
+
+	mtabp = setmntent(mtab, "r");
+	if (!mtabp) {
+		fprintf(stderr, _("%s: cannot read %s\n"),
+			progname, mtab);
+		exit(1);
+	}
+
+	while ((t = getmntent(mtabp))) {
+		if (S_ISDIR(sb->st_mode)) {		/* mount point */
+			if (stat64(t->mnt_dir, &ms) < 0)
+				continue;
+			if (sb->st_ino != ms.st_ino)
+				continue;
+			if (sb->st_dev != ms.st_dev)
+				continue;
+			if (strcmp(t->mnt_type, MNTTYPE_XFS) != 0)
+				continue;
+		} else {				/* device */
+			struct stat64 sb2;
+
+			if (stat64(t->mnt_fsname, &ms) < 0)
+				continue;
+			if (sb->st_rdev != ms.st_rdev)
+				continue;
+			if (strcmp(t->mnt_type, MNTTYPE_XFS) != 0)
+				continue;
+
+			/*
+			 * Make sure the mountpoint given by mtab is accessible
+			 * before using it.
+			 */
+			if (stat64(t->mnt_dir, &sb2) < 0)
+				continue;
+		}
+
+		mntp = t->mnt_dir;
+		break;
+	}
+
+	endmntent(mtabp);
+	return mntp;
+}
+
 int
 main(int argc, char **argv)
 {
-	struct stat64 sb, sb2;
+	struct stat64 sb;
 	char *argname;
-	char *cp;
 	int c;
-	struct mntent mntpref;
-	register struct mntent *mntp;
-	struct mntent ment;
+	char *mntp;
 	char *mtab = NULL;
-	register FILE *mtabp;
 
 	setlinebuf(stdout);
 	progname = basename(argv[0]);
@@ -281,49 +333,26 @@ main(int argc, char **argv)
 	if (optind < argc) {
 		for (; optind < argc; optind++) {
 			argname = argv[optind];
-			mntp = NULL;
+
 			if (lstat64(argname, &sb) < 0) {
 				fprintf(stderr,
 					_("%s: could not stat: %s: %s\n"),
 					progname, argname, strerror(errno));
 				continue;
 			}
-			if (S_ISLNK(sb.st_mode) && stat64(argname, &sb2) == 0 &&
-			    (S_ISBLK(sb2.st_mode) || S_ISCHR(sb2.st_mode)))
-				sb = sb2;
-			if (S_ISBLK(sb.st_mode) || (S_ISDIR(sb.st_mode))) {
-				if ((mtabp = setmntent(mtab, "r")) == NULL) {
-					fprintf(stderr,
-						_("%s: cannot read %s\n"),
-						progname, mtab);
-					exit(1);
-				}
-				bzero(&mntpref, sizeof(mntpref));
-				if (S_ISDIR(sb.st_mode))
-					mntpref.mnt_dir = argname;
-				else
-					mntpref.mnt_fsname = argname;
 
-				if (getmntany(mtabp, &ment, &mntpref, &sb) &&
-				    strcmp(ment.mnt_type, MNTTYPE_XFS) == 0) {
-					mntp = &ment;
-					if (S_ISBLK(sb.st_mode)) {
-						cp = mntp->mnt_dir;
-						if (cp == NULL ||
-						    stat64(cp, &sb2) < 0) {
-							fprintf(stderr, _(
-						"%s: could not stat: %s: %s\n"),
-							progname, argname,
-							strerror(errno));
-							continue;
-						}
-						sb = sb2;
-						argname = cp;
-					}
-				}
+			if (S_ISLNK(sb.st_mode)) {
+				struct stat64 sb2;
+
+				if (stat64(argname, &sb2) == 0 &&
+				    (S_ISBLK(sb2.st_mode) ||
+				     S_ISCHR(sb2.st_mode)))
+				sb = sb2;
 			}
+
+			mntp = find_mountpoint(mtab, argname, &sb);
 			if (mntp != NULL) {
-				fsrfs(mntp->mnt_dir, 0, 100);
+				fsrfs(mntp, 0, 100);
 			} else if (S_ISCHR(sb.st_mode)) {
 				fprintf(stderr, _(
 					"%s: char special not supported: %s\n"),
@@ -1637,35 +1666,6 @@ fsrprintf(const char *fmt, ...)
 	va_end(ap);
 	return 0;
 }
-
-/*
- * emulate getmntany
- */
-static int
-getmntany(FILE *fp, struct mntent *mp, struct mntent *mpref, struct stat64 *s)
-{
-	struct mntent *t;
-	struct stat64 ms;
-
-	while ((t = getmntent(fp))) {
-		if (mpref->mnt_fsname) {	/* device */
-			if (stat64(t->mnt_fsname, &ms) < 0)
-				continue;
-			if (s->st_rdev != ms.st_rdev)
-				continue;
-		}
-		if (mpref->mnt_dir) {		/* mount point */
-			if (stat64(t->mnt_dir, &ms) < 0)
-				continue;
-			if (s->st_ino != ms.st_ino || s->st_dev != ms.st_dev)
-				continue;
-		}
-		*mp = *t;
-		break;
-	}
-	return (t != NULL);
-}
-
 
 /*
  * Initialize a directory for tmp file use.  This is used

@@ -495,6 +495,7 @@ void board_pinmux_setup(void)
 
 	/* SDIO pinmux + pullups */
 	AON_PINMUX(1, aon_gpio_08, 6);
+	AON_PINMUX(1, aon_gpio_12, 5);
 	AON_PINMUX(1, aon_gpio_13, 5);
 	AON_PINMUX(2, aon_gpio_14, 5);
 	AON_PINMUX(2, aon_gpio_15, 5);
@@ -505,6 +506,7 @@ void board_pinmux_setup(void)
 	AON_PINMUX(2, aon_gpio_20, 5);
 
 	AON_PADCTRL(0, aon_gpio_08_pad_ctrl, 2);
+	AON_PADCTRL(1, aon_gpio_12_pad_ctrl, 2);
 	AON_PADCTRL(1, aon_gpio_13_pad_ctrl, 2);
 	AON_PADCTRL(1, aon_gpio_14_pad_ctrl, 2);
 	AON_PADCTRL(1, aon_gpio_15_pad_ctrl, 2);
@@ -612,6 +614,9 @@ void board_pinmux_setup(void)
 
 	PINMUX(11, gpio_89, 1);		/* UARTB TX */
 	PINMUX(11, gpio_90, 1);		/* UARTB RX */
+
+	AON_PINMUX(1, aon_gpio_07, 4);	/* UARTC RX */
+	AON_PINMUX(1, aon_gpio_09, 4);	/* UARTC TX */
 
 	AON_PINMUX(0, aon_gpio_01, 1);	/* ENET link */
 	PINMUX(13, gpio_105, 1);	/* ENET activity */

@@ -4,7 +4,7 @@ xfs_io \- debug the I/O path of an XFS filesystem
 .SH SYNOPSIS
 .B xfs_io
 [
-.B \-adFfmrRstx
+.B \-adfmrRstx
 ] [
 .B \-c
 .I cmd
@@ -36,12 +36,6 @@ then the program exits.
 Set the program name for prompts and some error messages,
 the default value is
 .BR xfs_io .
-.TP
-.B \-F
-Allow
-.I file
-to reside in non-XFS (foreign) filesystems.
-This mode has a restricted set of commands.
 .TP
 .B \-f
 Create
@@ -89,7 +83,7 @@ command for more details on any command.
 Display a list of all open files and (optionally) switch to an alternate
 current open file.
 .TP
-.BI "open [[ \-FacdfrstR ] " path " ]"
+.BI "open [[ \-acdfrstR ] " path " ]"
 Closes the current file, and opens the file specified by
 .I path
 instead. Without any arguments, displays statistics about the current
@@ -99,10 +93,6 @@ command.
 .RS 1.0i
 .PD 0
 .TP 0.4i
-.B \-F
-allows non-XFS (foreign) files to be opened and
-operated on with a restricted command set.
-.TP
 .B \-a
 opens append-only (O_APPEND).
 .TP

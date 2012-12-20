@@ -226,6 +226,8 @@ typedef struct xfs_buf {
 	unsigned		b_bcount;
 	dev_t			b_dev;
 	pthread_mutex_t		b_lock;
+	pthread_t		b_holder;
+	unsigned int		b_recur;
 	void			*b_fsprivate;
 	void			*b_fsprivate2;
 	void			*b_fsprivate3;
@@ -279,27 +281,41 @@ enum xfs_buf_flags_t {	/* b_flags bits */
 extern struct cache	*libxfs_bcache;
 extern struct cache_operations	libxfs_bcache_operations;
 
+#define LIBXFS_GETBUF_TRYLOCK	(1 << 0)
+
 #ifdef XFS_BUF_TRACING
 
 #define libxfs_readbuf(dev, daddr, len, flags) \
-		libxfs_trace_readbuf(__FUNCTION__, __FILE__, __LINE__, (dev), (daddr), (len), (flags))
+	libxfs_trace_readbuf(__FUNCTION__, __FILE__, __LINE__, \
+			    (dev), (daddr), (len), (flags))
 #define libxfs_writebuf(buf, flags) \
-		libxfs_trace_writebuf(__FUNCTION__, __FILE__, __LINE__, (buf), (flags))
+	libxfs_trace_writebuf(__FUNCTION__, __FILE__, __LINE__, \
+			      (buf), (flags))
 #define libxfs_getbuf(dev, daddr, len) \
-		libxfs_trace_getbuf(__FUNCTION__, __FILE__, __LINE__, (dev), (daddr), (len))
+	libxfs_trace_getbuf(__FUNCTION__, __FILE__, __LINE__, \
+			    (dev), (daddr), (len))
+#define libxfs_getbuf_flags(dev, daddr, len, flags) \
+	libxfs_trace_getbuf(__FUNCTION__, __FILE__, __LINE__, \
+			    (dev), (daddr), (len), (flags))
 #define libxfs_putbuf(buf) \
-		libxfs_trace_putbuf(__FUNCTION__, __FILE__, __LINE__, (buf))
+	libxfs_trace_putbuf(__FUNCTION__, __FILE__, __LINE__, (buf))
 
-extern xfs_buf_t *libxfs_trace_readbuf(const char *, const char *, int, dev_t, xfs_daddr_t, int, int);
-extern int	libxfs_trace_writebuf(const char *, const char *, int, xfs_buf_t *, int);
+extern xfs_buf_t *libxfs_trace_readbuf(const char *, const char *, int,
+			dev_t, xfs_daddr_t, int, int);
+extern int	libxfs_trace_writebuf(const char *, const char *, int,
+			xfs_buf_t *, int);
 extern xfs_buf_t *libxfs_trace_getbuf(const char *, const char *, int, dev_t, xfs_daddr_t, int);
-extern void	libxfs_trace_putbuf (const char *, const char *, int, xfs_buf_t *);
+extern xfs_buf_t *libxfs_trace_getbuf_flags(const char *, const char *, int,
+			dev_t, xfs_daddr_t, int, unsigned int);
+extern void	libxfs_trace_putbuf (const char *, const char *, int,
+			xfs_buf_t *);
 
 #else
 
 extern xfs_buf_t *libxfs_readbuf(dev_t, xfs_daddr_t, int, int);
 extern int	libxfs_writebuf(xfs_buf_t *, int);
 extern xfs_buf_t *libxfs_getbuf(dev_t, xfs_daddr_t, int);
+extern xfs_buf_t *libxfs_getbuf_flags(dev_t, xfs_daddr_t, int, unsigned int);
 extern void	libxfs_putbuf (xfs_buf_t *);
 
 #endif
@@ -487,8 +503,6 @@ extern unsigned long	libxfs_physmem(void);	/* in kilobytes */
 #include <xfs/xfs_log.h>
 #include <xfs/xfs_log_priv.h>
 
-#define XFS_INOBT_CLR_FREE(rp,i)	((rp)->ir_free &= ~XFS_INOBT_MASK(i))
-#define XFS_INOBT_SET_FREE(rp,i)	((rp)->ir_free |= XFS_INOBT_MASK(i))
 #define XFS_INOBT_IS_FREE_DISK(rp,i)		\
 			((be64_to_cpu((rp)->ir_free) & XFS_INOBT_MASK(i)) != 0)
 

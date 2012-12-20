@@ -80,8 +80,7 @@ static int xfs_mac_valid(xfs_mac_label_t *lp);
  * in user attribute land without a conflict.
  * If value is non-zero, then a remote attribute is being passed in
  */
-
-int
+static int
 valuecheck(char *namevalue, char *value, int namelen, int valuelen)
 {
 	/* for proper alignment issues, get the structs and memmove the values */
@@ -146,7 +145,7 @@ valuecheck(char *namevalue, char *value, int namelen, int valuelen)
  * if you cannot modify the structures. repair is set to 1, if anything
  * was fixed.
  */
-int
+static int
 process_shortform_attr(
 	xfs_ino_t	ino,
 	xfs_dinode_t	*dip,
@@ -363,12 +362,6 @@ rmtval_get(xfs_mount_t *mp, xfs_ino_t ino, blkmap_t *blkmap,
 	return (clearit);
 }
 
-/*
- * freespace map for directory and attribute leaf blocks (1 bit per byte)
- * 1 == used, 0 == free
- */
-size_t ts_attr_freemap_size = sizeof(da_freemap_t) * DA_BMAP_SIZE;
-
 /* The block is read in. The magic number and forward / backward
  * links are checked by the caller process_leaf_attr.
  * If any problems occur the routine returns with non-zero. In
@@ -490,7 +483,7 @@ bad_free_out:
 	return -1;
 }
 
-int
+static int
 process_leaf_attr_block(
 	xfs_mount_t	*mp,
 	xfs_attr_leafblock_t *leaf,
@@ -503,7 +496,7 @@ process_leaf_attr_block(
 {
 	xfs_attr_leaf_entry_t *entry;
 	int  i, start, stop, clearit, usedbs, firstb, thissize;
-	da_freemap_t *attr_freemap = ts_attr_freemap();
+	da_freemap_t *attr_freemap;
 
 	clearit = usedbs = 0;
 	*repair = 0;
@@ -519,7 +512,7 @@ process_leaf_attr_block(
 		return (1);
 	}
 
-	init_da_freemap(attr_freemap);
+	attr_freemap = alloc_da_freemap(mp);
 	(void) set_da_freemap(mp, attr_freemap, 0, stop);
 
 	/* go thru each entry checking for problems */
@@ -636,6 +629,8 @@ process_leaf_attr_block(
 		* we can add it then.
 		*/
 	}
+
+	free(attr_freemap);
 	return (clearit);  /* and repair */
 }
 
@@ -643,7 +638,7 @@ process_leaf_attr_block(
 /*
  * returns 0 if the attribute fork is ok, 1 if it has to be junked.
  */
-int
+static int
 process_leaf_attr_level(xfs_mount_t	*mp,
 			da_bt_cursor_t	*da_cursor)
 {
@@ -775,7 +770,7 @@ error_out:
  * returns 0 if things are ok, 1 if bad
  * Note this code has been based off process_node_dir.
  */
-int
+static int
 process_node_attr(
 	xfs_mount_t	*mp,
 	xfs_ino_t	ino,
@@ -825,8 +820,7 @@ process_node_attr(
  * returns 0 if things are ok, 1 if bad (attributes needs to be junked)
  * repair is set, if anything was changed, but attributes can live thru it
  */
-
-int
+static int
 process_longform_attr(
 	xfs_mount_t	*mp,
 	xfs_ino_t	ino,
@@ -931,8 +925,8 @@ process_longform_attr(
 }
 
 
-static xfs_acl_t *
-xfs_acl_from_disk(xfs_acl_disk_t *dacl)
+static int
+xfs_acl_from_disk(struct xfs_acl **aclp, struct xfs_acl_disk *dacl)
 {
 	int			count;
 	xfs_acl_t		*acl;
@@ -940,10 +934,22 @@ xfs_acl_from_disk(xfs_acl_disk_t *dacl)
 	xfs_acl_entry_disk_t	*dace, *end;
 
 	count = be32_to_cpu(dacl->acl_cnt);
+	if (count > XFS_ACL_MAX_ENTRIES) {
+		do_warn(_("Too many ACL entries, count %d\n"), count);
+		*aclp = NULL;
+		return EINVAL;
+	}
+
+
 	end = &dacl->acl_entry[0] + count;
 	acl = malloc((int)((char *)end - (char *)dacl));
-	if (!acl)
-		return NULL;
+	if (!acl) {
+		do_warn(_("cannot malloc enough for ACL attribute\n"));
+		do_warn(_("SKIPPING this ACL\n"));
+		*aclp = NULL;
+		return ENOMEM;
+	}
+
 	acl->acl_cnt = count;
 	ace = &acl->acl_entry[0];
 	for (dace = &dacl->acl_entry[0]; dace < end; ace++, dace++) {
@@ -951,7 +957,9 @@ xfs_acl_from_disk(xfs_acl_disk_t *dacl)
 		ace->ae_id = be32_to_cpu(dace->ae_id);
 		ace->ae_perm = be16_to_cpu(dace->ae_perm);
 	}
-	return acl;
+
+	*aclp = acl;
+	return 0;
 }
 
 /*
@@ -1004,15 +1012,14 @@ xfs_acl_valid(xfs_acl_disk_t *daclp)
 	if (daclp == NULL)
 		goto acl_invalid;
 
-	aclp = xfs_acl_from_disk(daclp);
-	if (aclp == NULL) {
-		do_warn(_("cannot malloc enough for ACL attribute\n"));
-		do_warn(_("SKIPPING this ACL\n"));
+	switch (xfs_acl_from_disk(&aclp, daclp)) {
+	case ENOMEM:
 		return 0;
-	}
-
-	if (aclp->acl_cnt > XFS_ACL_MAX_ENTRIES)
+	case EINVAL:
 		goto acl_invalid;
+	default:
+		break;
+	}
 
 	for (i = 0; i < aclp->acl_cnt; i++) {
 		entry = &aclp->acl_entry[i];

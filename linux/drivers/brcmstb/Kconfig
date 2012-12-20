@@ -162,7 +162,7 @@ config BCM7425B0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA_20
+	select BRCM_HAS_MOCA_20_GEN21
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	select BRCM_HAS_NOR
@@ -194,7 +194,7 @@ config BCM7429A0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_USB_CAPS
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA_20
+	select BRCM_HAS_MOCA_20_GEN21
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	select BRCM_HAS_NOR
@@ -225,7 +225,7 @@ config BCM7429B0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_USB_CAPS
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA_20
+	select BRCM_HAS_MOCA_20_GEN21
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	select BRCM_HAS_NOR
@@ -258,7 +258,7 @@ config BCM7435A0
 	select BRCM_HAS_USB_CAPS
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA_20
+	select BRCM_HAS_MOCA_20_GEN21
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	select BRCM_HAS_NOR
@@ -293,7 +293,7 @@ config BCM7435B0
 	select BRCM_HAS_USB_CAPS
 	select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
-	select BRCM_HAS_MOCA_20
+	select BRCM_HAS_MOCA_20_GEN22
 	select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	select BRCM_HAS_NOR
@@ -324,7 +324,7 @@ config BCM7445A0
 	select BRCM_HAS_USB_CAPS
 	#select BRCM_HAS_PCIE
 	select BRCM_HAS_GENET_0
-	#select BRCM_HAS_MOCA_20
+	#select BRCM_HAS_MOCA_20_GEN23
 	#select BRCM_MOCA_ON_GENET_1
 	select BRCM_GENET_V3
 	#select BRCM_HAS_NOR
@@ -378,7 +378,7 @@ config BCM7563A0
 	select BRCM_UARTC_IS_16550
 	select BRCM_HAS_USB_CAPS
 	select BRCM_HAS_GENET_0
-	select BRCM_GENET_V3
+	select BRCM_GENET_V2
 	select BRCM_HAS_NAND_MAJOR_5
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
@@ -922,23 +922,31 @@ config BRCM_HAS_GENET_1
 config BRCM_HAS_MOCA
 	bool
 
-# Original MoCA 1.1
+# Original MoCA 1.1 (gen1 firmware)
 config BRCM_HAS_MOCA_11
 	bool
 	select BRCM_HAS_MOCA
 
-# Cost-reduced MoCA 1.1 with limited TX RAM
+# Cost-reduced MoCA 1.1 with limited TX RAM (gen1 firmware)
 config BRCM_HAS_MOCA_11_LITE
 	bool
 	select BRCM_HAS_MOCA
 
-# MoCA 1.1 with selected 2.0 features
+# MoCA 1.1 with selected 2.0 features (gen2 firmware)
 config BRCM_HAS_MOCA_11_PLUS
 	bool
 	select BRCM_HAS_MOCA
 
-# MoCA 2.0
-config BRCM_HAS_MOCA_20
+# MoCA 2.0 (gen3 firmware for 1.1, gen2x firmware for 2.0)
+config BRCM_HAS_MOCA_20_GEN21
+	bool
+	select BRCM_HAS_MOCA
+
+config BRCM_HAS_MOCA_20_GEN22
+	bool
+	select BRCM_HAS_MOCA
+
+config BRCM_HAS_MOCA_20_GEN23
 	bool
 	select BRCM_HAS_MOCA
 
@@ -947,7 +955,9 @@ config BRCM_MOCA_VERS
 	default 0x1100 if BRCM_HAS_MOCA_11
 	default 0x1101 if BRCM_HAS_MOCA_11_LITE
 	default 0x1102 if BRCM_HAS_MOCA_11_PLUS
-	default 0x2000 if BRCM_HAS_MOCA_20
+	default 0x2001 if BRCM_HAS_MOCA_20_GEN21
+	default 0x2002 if BRCM_HAS_MOCA_20_GEN22
+	default 0x2003 if BRCM_HAS_MOCA_20_GEN23
 
 # select for MoCA on GENET_0
 config BRCM_MOCA_ON_GENET_0

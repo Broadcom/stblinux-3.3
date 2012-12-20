@@ -30,9 +30,6 @@
 #include "progress.h"
 #include "threads.h"
 
-extern int verify_set_agheader(xfs_mount_t *mp, xfs_buf_t *sbuf, xfs_sb_t *sb,
-		xfs_agf_t *agf, xfs_agi_t *agi, xfs_agnumber_t i);
-
 static xfs_mount_t	*mp = NULL;
 
 /*
@@ -69,7 +66,7 @@ set_mp(xfs_mount_t *mpp)
 	mp = mpp;
 }
 
-void
+static void
 scan_sbtree(
 	xfs_agblock_t	root,
 	int		nlevels,
@@ -311,7 +308,7 @@ _("inode 0x%" PRIx64 " bmap block 0x%" PRIx64 " claimed, state is %d\n"),
 		case XR_E_BAD_STATE:
 		default:
 			do_warn(
-_("bad state %d, inode 0x%" PRIu64 " bmap block 0x%" PRIx64 "\n"),
+_("bad state %d, inode %" PRIu64 " bmap block 0x%" PRIx64 "\n"),
 				state, ino, bno);
 			break;
 		}
@@ -351,12 +348,12 @@ _("inode %" PRIu64 " bad # of bmap records (%u, min - %u, max - %u)\n"),
 		 * we'll bail out and presumably clear the inode.
 		 */
 		if (check_dups == 0)  {
-			err = process_bmbt_reclist(mp, rp, numrecs,
-					type, ino, tot, blkmapp,
-					&first_key, &last_key,
-					whichfork);
+			err = process_bmbt_reclist(mp, rp, &numrecs, type, ino,
+						   tot, blkmapp, &first_key,
+						   &last_key, whichfork);
 			if (err)
-				return(1);
+				return 1;
+
 			/*
 			 * check that key ordering is monotonically increasing.
 			 * if the last_key value in the cursor is set to
@@ -380,15 +377,16 @@ _("out-of-order bmap key (file offset) in inode %" PRIu64 ", %s fork, fsbno %" P
 			bm_cursor->level[level].first_key = first_key;
 			bm_cursor->level[level].last_key = last_key;
 
-			return(0);
-		} else
-			return(scan_bmbt_reclist(mp, rp, numrecs,
-						type, ino, tot, whichfork));
+			return 0;
+		} else {
+			return scan_bmbt_reclist(mp, rp, &numrecs, type, ino,
+						 tot, whichfork);
+		}
 	}
 	if (numrecs > mp->m_bmap_dmxr[1] || (isroot == 0 && numrecs <
 							mp->m_bmap_dmnr[1])) {
 		do_warn(
-_("inode 0x%" PRIu64 " bad # of bmap records (%u, min - %u, max - %u)\n"),
+_("inode %" PRIu64 " bad # of bmap records (%u, min - %u, max - %u)\n"),
 			ino, numrecs, mp->m_bmap_dmnr[1], mp->m_bmap_dmxr[1]);
 		return(1);
 	}

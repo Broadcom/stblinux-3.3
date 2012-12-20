@@ -226,13 +226,19 @@ extractb(
 	uint		sectorsize,
 	__uint64_t	*value)
 {
-	__uint64_t	v;
+	long long	v;
 	char		*s = string;
 
 	if (strncmp(string, prefix, length) == 0) {
 		s = string + length + 1;
-		v = (__uint64_t)cvtnum(blocksize, sectorsize, s);
-		*value = v >> 9;	/* syscalls use basic blocks */
+		v = cvtnum(blocksize, sectorsize, s);
+		if (v == -1LL) {
+			fprintf(stderr,
+				_("%s: Error: could not parse size %s.\n"),
+				progname, s);
+			return 0;
+		}
+		*value = (__uint64_t)v >> 9;	/* syscalls use basic blocks */
 		if (v > 0 && *value == 0)
 			fprintf(stderr, _("%s: Warning: `%s' in quota blocks is 0 (unlimited).\n"), progname, s);
 		return 1;

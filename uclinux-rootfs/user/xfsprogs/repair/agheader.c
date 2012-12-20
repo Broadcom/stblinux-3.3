@@ -22,7 +22,7 @@
 #include "protos.h"
 #include "err_protos.h"
 
-int
+static int
 verify_set_agf(xfs_mount_t *mp, xfs_agf_t *agf, xfs_agnumber_t i)
 {
 	xfs_drfsbno_t agblocks;
@@ -107,7 +107,7 @@ verify_set_agf(xfs_mount_t *mp, xfs_agf_t *agf, xfs_agnumber_t i)
 	return(retval);
 }
 
-int
+static int
 verify_set_agi(xfs_mount_t *mp, xfs_agi_t *agi, xfs_agnumber_t agno)
 {
 	xfs_drfsbno_t agblocks;
@@ -177,14 +177,13 @@ verify_set_agi(xfs_mount_t *mp, xfs_agi_t *agi, xfs_agnumber_t agno)
  *			filesystem mount-point superblock
  *
  * the verified fields include id and geometry.
-
+ *
  * the inprogress fields, version numbers, and counters
  * are allowed to differ as well as all fields after the
  * counters to cope with the pre-6.5 mkfs non-zeroed
  * secondary superblock sectors.
  */
-
-int
+static int
 compare_sb(xfs_mount_t *mp, xfs_sb_t *sb)
 {
 	fs_geometry_t fs_geo, sb_geo;
@@ -213,7 +212,7 @@ compare_sb(xfs_mount_t *mp, xfs_sb_t *sb)
  * Note: contrary to the name, this routine is called for all
  * superblocks, not just the secondary superblocks.
  */
-int
+static int
 secondary_sb_wack(xfs_mount_t *mp, xfs_buf_t *sbuf, xfs_sb_t *sb,
 	xfs_agnumber_t i)
 {

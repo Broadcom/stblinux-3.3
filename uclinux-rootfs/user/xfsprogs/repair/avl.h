@@ -134,6 +134,15 @@ avl_findranges(
 	avlnode_t	        **startp,
 	avlnode_t		**endp);
 
+avlnode_t *
+avl_firstino(
+	avlnode_t		*root);
+
+avlnode_t *
+avl_lastino(
+	avlnode_t		*root);
+
+
 #define AVL_PRECEED	0x1
 #define AVL_SUCCEED	0x2
 

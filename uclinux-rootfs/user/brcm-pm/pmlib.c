@@ -87,9 +87,12 @@ struct brcm_pm_priv
 #define SYS_CPU_DIV	"/sys/devices/platform/brcmstb/cpu_div"
 #define SYS_STANDBY	"/sys/power/state"
 #define HALT_PATH	"/sbin/halt"
+#define AHCI_DEV_NAME	"strict-ahci.0"
+#define SATA_SCSI_DEVICE "/sys/devices/platform/" AHCI_DEV_NAME "/ata*/host*/target*/*/scsi_device/*/device"
+#define SATA_DELETE_GLOB SATA_SCSI_DEVICE "/delete"
 #define SATA_RESCAN_GLOB "/sys/class/scsi_host/host*/scan"
-#define SATA_DEVICE_GLOB "/sys/class/scsi_device/*/device/block:*"
-#define SATA_DELETE_GLOB "/sys/class/scsi_device/*/device/delete"
+#define SATA_UNBIND_PATH "/sys/bus/platform/drivers/ahci/unbind"
+#define SATA_BIND_PATH	"/sys/bus/platform/drivers/ahci/bind"
 
 static int sysfs_get(char *path, unsigned int *out)
 {
@@ -542,18 +545,14 @@ static int sata_delete_devices(void)
 	return(ret);
 }
 
-static int sata_power_updown(int updown)
+static int sata_power_up()
 {
-	int i;
+	return sysfs_set_string(SATA_BIND_PATH, AHCI_DEV_NAME);
+}
 
-	/* give the OS some time to remove the device */
-	for(i = 0; i < 200; i++)
-	{
-		if(sysfs_set(SYS_SATA_STAT, updown) == 0)
-			return 0;
-		usleep(50000);
-	}
-	return -1;
+static int sata_power_down()
+{
+	return sysfs_set_string(SATA_UNBIND_PATH, AHCI_DEV_NAME);
 }
 
 int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
@@ -576,11 +575,14 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 	{
 		if(st->sata_status)
 		{
-			ret |= sata_power_updown(1);
+			ret |= sata_power_up();
 			ret |= sata_rescan_hosts();
 		} else {
+			/* Remove SCSI devices, triggering HDD spin-down */
 			ret |= sata_delete_devices();
-			ret |= sata_power_updown(0);
+			/* Small delay before yanking the device entirely */
+			usleep(100000);
+			ret |= sata_power_down();
 		}
 		ctx->last_state.sata_status = st->sata_status;
 	}

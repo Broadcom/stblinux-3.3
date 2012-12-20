@@ -78,7 +78,7 @@ static __uint64_t	*sb_icount_ag;		/* allocated inodes per ag */
 static __uint64_t	*sb_ifree_ag;		/* free inodes per ag */
 static __uint64_t	*sb_fdblocks_ag;	/* free data blocks per ag */
 
-int
+static int
 mk_incore_fstree(xfs_mount_t *mp, xfs_agnumber_t agno)
 {
 	int			in_extent;
@@ -165,8 +165,7 @@ mk_incore_fstree(xfs_mount_t *mp, xfs_agnumber_t agno)
 	return(num_extents);
 }
 
-/* ARGSUSED */
-xfs_agblock_t
+static xfs_agblock_t
 get_next_blockaddr(xfs_agnumber_t agno, int level, bt_status_t *curs)
 {
 	ASSERT(curs->free_btree_blocks < curs->btree_blocks +
@@ -185,8 +184,7 @@ get_next_blockaddr(xfs_agnumber_t agno, int level, bt_status_t *curs)
  * cursor pointer to the btree root.   called by init_freespace_cursor()
  * and init_ino_cursor()
  */
-/* ARGSUSED */
-void
+static void
 setup_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *curs)
 {
 	int			j;
@@ -301,7 +299,7 @@ setup_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *curs)
 #endif
 }
 
-void
+static void
 write_cursor(bt_status_t *curs)
 {
 	int i;
@@ -322,7 +320,7 @@ write_cursor(bt_status_t *curs)
 	}
 }
 
-void
+static void
 finish_cursor(bt_status_t *curs)
 {
 	ASSERT(curs->num_free_blocks == 0);
@@ -341,8 +339,7 @@ finish_cursor(bt_status_t *curs)
  * btree_curs is an in/out.  returns the number of
  * blocks that will show up in the AGFL.
  */
-
-int
+static int
 calculate_freespace_cursor(xfs_mount_t *mp, xfs_agnumber_t agno,
 			xfs_agblock_t *extents, bt_status_t *btree_curs)
 {
@@ -595,7 +592,7 @@ calculate_freespace_cursor(xfs_mount_t *mp, xfs_agnumber_t agno,
 	return(extra_blocks);
 }
 
-void
+static void
 prop_freespace_cursor(xfs_mount_t *mp, xfs_agnumber_t agno,
 		bt_status_t *btree_curs, xfs_agblock_t startblock,
 		xfs_extlen_t blockcount, int level, __uint32_t magic)
@@ -689,7 +686,7 @@ prop_freespace_cursor(xfs_mount_t *mp, xfs_agnumber_t agno,
  * of tree to build (bno or bcnt).  returns the number of free blocks
  * represented by the tree.
  */
-xfs_extlen_t
+static xfs_extlen_t
 build_freespace_tree(xfs_mount_t *mp, xfs_agnumber_t agno,
 		bt_status_t *btree_curs, __uint32_t magic)
 {
@@ -854,7 +851,7 @@ build_freespace_tree(xfs_mount_t *mp, xfs_agnumber_t agno,
  * may perturb things because inode tree building happens before
  * freespace tree building.
  */
-void
+static void
 init_ino_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *btree_curs,
 		__uint64_t *num_inos, __uint64_t *num_free_inos)
 {
@@ -942,7 +939,7 @@ init_ino_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *btree_curs,
 	return;
 }
 
-void
+static void
 prop_ino_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *btree_curs,
 	xfs_agino_t startino, int level)
 {
@@ -1027,7 +1024,7 @@ prop_ino_cursor(xfs_mount_t *mp, xfs_agnumber_t agno, bt_status_t *btree_curs,
 	*bt_ptr = cpu_to_be32(btree_curs->level[level-1].agbno);
 }
 
-void
+static void
 build_agi(xfs_mount_t *mp, xfs_agnumber_t agno,
 		bt_status_t *btree_curs, xfs_agino_t first_agino,
 		xfs_agino_t count, xfs_agino_t freecount)
@@ -1067,7 +1064,7 @@ build_agi(xfs_mount_t *mp, xfs_agnumber_t agno,
  * rebuilds an inode tree given a cursor.  We're lazy here and call
  * the routine that builds the agi
  */
-void
+static void
 build_ino_tree(xfs_mount_t *mp, xfs_agnumber_t agno,
 		bt_status_t *btree_curs)
 {
@@ -1197,7 +1194,7 @@ build_ino_tree(xfs_mount_t *mp, xfs_agnumber_t agno,
  * build both the agf and the agfl for an agno given both
  * btree cursors
  */
-void
+static void
 build_agf_agfl(xfs_mount_t	*mp,
 		xfs_agnumber_t	agno,
 		bt_status_t	*bno_bt,
@@ -1353,7 +1350,7 @@ build_agf_agfl(xfs_mount_t	*mp,
  * feature bits to the filesystem, and sync up the on-disk superblock
  * to match the incore superblock.
  */
-void
+static void
 sync_sb(xfs_mount_t *mp)
 {
 	xfs_buf_t	*bp;
@@ -1377,7 +1374,7 @@ sync_sb(xfs_mount_t *mp)
  * make sure the root and realtime inodes show up allocated
  * even if they've been freed.  they get reinitialized in phase6.
  */
-void
+static void
 keep_fsinos(xfs_mount_t *mp)
 {
 	ino_tree_node_t		*irec;
@@ -1407,11 +1404,6 @@ phase5_func(
 	xfs_extlen_t	freeblks2;
 #endif
 	xfs_agblock_t	num_extents;
-	extern int	count_bno_extents(xfs_agnumber_t);
-	extern int	count_bno_extents_blocks(xfs_agnumber_t, uint *);
-#ifdef XR_BLD_FREE_TRACE
-	extern int	count_bcnt_extents(xfs_agnumber_t);
-#endif
 
 	if (verbose)
 		do_log(_("        - agno = %d\n"), agno);

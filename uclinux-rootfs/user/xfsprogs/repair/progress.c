@@ -360,7 +360,7 @@ print_final_rpt(void)
 	return(sum);
 }
 
-void
+static void
 timediff(int phase)
 {
 	phase_times[phase].duration =
