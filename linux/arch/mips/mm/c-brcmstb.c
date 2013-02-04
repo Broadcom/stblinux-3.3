@@ -25,6 +25,7 @@
 #include <linux/seq_file.h>
 #include <linux/highmem.h>
 
+#include <asm/barrier.h>
 #include <asm/bcache.h>
 #include <asm/bootinfo.h>
 #include <asm/cache.h>
@@ -99,7 +100,14 @@ static void r4k_noop(void)
 
 static void r4k_instruction_hazard(void)
 {
-	instruction_hazard();
+	__sync();
+	__sync();
+	__asm__ __volatile__(
+	"	nop; nop; nop; nop; nop; nop; nop; nop\n"
+	"	nop; nop; nop; nop; nop; nop; nop; nop\n"
+	"	nop; nop; nop; nop; nop; nop; nop; nop\n"
+	"	nop; nop; nop; nop; nop; nop; nop; nop\n"
+	: : : "memory");
 }
 
 static void r4k_dma_cache_wback_inv(unsigned long addr, unsigned long size)

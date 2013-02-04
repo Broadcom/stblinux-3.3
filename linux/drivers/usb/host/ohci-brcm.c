@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 - 2010 Broadcom Corporation
+ * Copyright (C) 2009 - 2013 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -157,6 +157,10 @@ static const struct hc_driver ohci_brcm_hc_driver = {
 
 static int ohci_hcd_brcm_probe(struct platform_device *pdev)
 {
+	static const u64 usb_dmamask = DMA_BIT_MASK(32);
+	pdev->dev.dma_mask = (u64 *)&usb_dmamask;
+	pdev->dev.coherent_dma_mask = usb_dmamask;
+
 	return brcm_usb_probe(pdev, hcd_name, &ohci_brcm_hc_driver);
 }
 
@@ -165,6 +169,10 @@ static int ohci_hcd_brcm_remove(struct platform_device *pdev)
 	return brcm_usb_remove(pdev);
 }
 
+static const struct of_device_id usb_hcd_brcm_match[] = {
+	{ .compatible = "brcm,ohci-brcm" },
+	{},
+};
 
 static struct platform_driver ohci_hcd_brcm_driver = {
 	.probe		= ohci_hcd_brcm_probe,
@@ -174,6 +182,8 @@ static struct platform_driver ohci_hcd_brcm_driver = {
 		.name	= "ohci-brcm",
 		.owner	= THIS_MODULE,
 		.pm = BRCM_OHCI_PMOPS,
+		.bus = &platform_bus_type,
+		.of_match_table = of_match_ptr(usb_hcd_brcm_match),
 	},
 };
 

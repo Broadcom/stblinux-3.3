@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:34 2012
+ * Date:           Generated on         Wed Oct 17 03:11:33 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -61,12 +61,17 @@
 #define BCHP_USB_CTRL_PLL_LDO_CTL                0x00470240 /* 28NM USBPHY LDO Control */
 #define BCHP_USB_CTRL_PLL_LDO_PLLBIAS            0x00470244 /* 28NM USBPHY PLLBIAS Control */
 #define BCHP_USB_CTRL_PLL_AFE_BG_CNTL            0x00470248 /* 28NM USBPHY AFE Bandgap Control */
-#define BCHP_USB_CTRL_PLL_NDIV_FRAC              0x0047024c /* PLL Feedback Divider Control Register */
-#define BCHP_USB_CTRL_SPARE2                     0x00470250 /* Spare2 Register for future use */
+#define BCHP_USB_CTRL_AFE_USBIO_TST              0x0047024c /* 28NM USBPHY AFE Bandgap Control */
+#define BCHP_USB_CTRL_PLL_NDIV_FRAC              0x00470250 /* PLL Feedback Divider Control Register */
+#define BCHP_USB_CTRL_SPARE2                     0x00470254 /* Spare2 Register for future use */
+#define BCHP_USB_CTRL_SPARE3                     0x00470258 /* Spare1 Register for future use */
+#define BCHP_USB_CTRL_SPARE4                     0x0047025c /* Spare1 Register for future use */
 #define BCHP_USB_CTRL_USB30_CTL1                 0x00470260 /* USB30 CONTROL Register 1 */
 #define BCHP_USB_CTRL_USB30_CTL2                 0x00470264 /* USB30 CONTROL Register 2 */
 #define BCHP_USB_CTRL_USB30_CTL3                 0x00470268 /* USB30 CONTROL Register 3 */
 #define BCHP_USB_CTRL_USB30_CTL4                 0x0047026c /* USB30 CONTROL Register 4 */
+#define BCHP_USB_CTRL_SPARE5                     0x00470270 /* Spare1 Register for future use */
+#define BCHP_USB_CTRL_SPARE6                     0x00470274 /* Spare2 Register for future use */
 
 /***************************************************************************
  *SETUP - Setup Register
@@ -689,28 +694,33 @@
 /***************************************************************************
  *USB_PM - Power Management Register
  ***************************************************************************/
-/* USB_CTRL :: USB_PM :: USB_PM_SPARE [31:07] */
-#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_MASK                     0xffffff80
-#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_SHIFT                    7
+/* USB_CTRL :: USB_PM :: USB_PM_SPARE [31:05] */
+#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_MASK                     0xffffffe0
+#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_SHIFT                    5
 #define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_DEFAULT                  0x00000000
 
-/* USB_CTRL :: USB_PM :: S2_discon_intr_en [06:06] */
-#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_MASK                0x00000040
-#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_SHIFT               6
+/* USB_CTRL :: USB_PM :: xhc_pme_en [04:04] */
+#define BCHP_USB_CTRL_USB_PM_xhc_pme_en_MASK                       0x00000010
+#define BCHP_USB_CTRL_USB_PM_xhc_pme_en_SHIFT                      4
+#define BCHP_USB_CTRL_USB_PM_xhc_pme_en_DEFAULT                    0x00000000
+
+/* USB_CTRL :: USB_PM :: S2_discon_intr_en [03:03] */
+#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_MASK                0x00000008
+#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_SHIFT               3
 #define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_DEFAULT             0x00000000
 
-/* USB_CTRL :: USB_PM :: S0_discon_intr_en [05:05] */
-#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_MASK                0x00000020
-#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_SHIFT               5
+/* USB_CTRL :: USB_PM :: S0_discon_intr_en [02:02] */
+#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_MASK                0x00000004
+#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_SHIFT               2
 #define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_DEFAULT             0x00000000
 
-/* USB_CTRL :: USB_PM :: con_intr_en [04:04] */
-#define BCHP_USB_CTRL_USB_PM_con_intr_en_MASK                      0x00000010
-#define BCHP_USB_CTRL_USB_PM_con_intr_en_SHIFT                     4
+/* USB_CTRL :: USB_PM :: con_intr_en [01:01] */
+#define BCHP_USB_CTRL_USB_PM_con_intr_en_MASK                      0x00000002
+#define BCHP_USB_CTRL_USB_PM_con_intr_en_SHIFT                     1
 #define BCHP_USB_CTRL_USB_PM_con_intr_en_DEFAULT                   0x00000000
 
-/* USB_CTRL :: USB_PM :: rmtwkup_en [03:00] */
-#define BCHP_USB_CTRL_USB_PM_rmtwkup_en_MASK                       0x0000000f
+/* USB_CTRL :: USB_PM :: rmtwkup_en [00:00] */
+#define BCHP_USB_CTRL_USB_PM_rmtwkup_en_MASK                       0x00000001
 #define BCHP_USB_CTRL_USB_PM_rmtwkup_en_SHIFT                      0
 #define BCHP_USB_CTRL_USB_PM_rmtwkup_en_DEFAULT                    0x00000000
 
@@ -776,13 +786,13 @@
 /***************************************************************************
  *PLL_LDO_PLLBIAS - 28NM USBPHY PLLBIAS Control
  ***************************************************************************/
-/* USB_CTRL :: PLL_LDO_PLLBIAS :: PLLBIAS_SPARE [31:11] */
-#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_PLLBIAS_SPARE_MASK           0xfffff800
-#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_PLLBIAS_SPARE_SHIFT          11
+/* USB_CTRL :: PLL_LDO_PLLBIAS :: PLLBIAS_SPARE [31:18] */
+#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_PLLBIAS_SPARE_MASK           0xfffc0000
+#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_PLLBIAS_SPARE_SHIFT          18
 #define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_PLLBIAS_SPARE_DEFAULT        0x00000000
 
-/* USB_CTRL :: PLL_LDO_PLLBIAS :: AFE_PLLBIAS_TESTMODE [10:00] */
-#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_AFE_PLLBIAS_TESTMODE_MASK    0x000007ff
+/* USB_CTRL :: PLL_LDO_PLLBIAS :: AFE_PLLBIAS_TESTMODE [17:00] */
+#define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_AFE_PLLBIAS_TESTMODE_MASK    0x0003ffff
 #define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_AFE_PLLBIAS_TESTMODE_SHIFT   0
 #define BCHP_USB_CTRL_PLL_LDO_PLLBIAS_AFE_PLLBIAS_TESTMODE_DEFAULT 0x00000000
 
@@ -815,6 +825,24 @@
 #define BCHP_USB_CTRL_PLL_AFE_BG_CNTL_AFE_BG_VREF1P0_TRIM_DEFAULT  0x00000000
 
 /***************************************************************************
+ *AFE_USBIO_TST - 28NM USBPHY AFE Bandgap Control
+ ***************************************************************************/
+/* USB_CTRL :: AFE_USBIO_TST :: AFE_USBIO_TST_SPARE [31:16] */
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_SPARE_MASK       0xffff0000
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_SPARE_SHIFT      16
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_SPARE_DEFAULT    0x00000000
+
+/* USB_CTRL :: AFE_USBIO_TST :: AFE_USBIO_TST_P2 [15:08] */
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P2_MASK          0x0000ff00
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P2_SHIFT         8
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P2_DEFAULT       0x00000000
+
+/* USB_CTRL :: AFE_USBIO_TST :: AFE_USBIO_TST_P1 [07:00] */
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P1_MASK          0x000000ff
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P1_SHIFT         0
+#define BCHP_USB_CTRL_AFE_USBIO_TST_AFE_USBIO_TST_P1_DEFAULT       0x00000000
+
+/***************************************************************************
  *PLL_NDIV_FRAC - PLL Feedback Divider Control Register
  ***************************************************************************/
 /* USB_CTRL :: PLL_NDIV_FRAC :: PLL_NDIV_FRAC_SPARE2 [31:20] */
@@ -836,36 +864,258 @@
 #define BCHP_USB_CTRL_SPARE2_SPARE2_BITS_DEFAULT                   0x00000000
 
 /***************************************************************************
+ *SPARE3 - Spare1 Register for future use
+ ***************************************************************************/
+/* USB_CTRL :: SPARE3 :: SPARE3_BITS [31:00] */
+#define BCHP_USB_CTRL_SPARE3_SPARE3_BITS_MASK                      0xffffffff
+#define BCHP_USB_CTRL_SPARE3_SPARE3_BITS_SHIFT                     0
+#define BCHP_USB_CTRL_SPARE3_SPARE3_BITS_DEFAULT                   0x00000000
+
+/***************************************************************************
+ *SPARE4 - Spare1 Register for future use
+ ***************************************************************************/
+/* USB_CTRL :: SPARE4 :: SPARE4_BITS [31:00] */
+#define BCHP_USB_CTRL_SPARE4_SPARE4_BITS_MASK                      0xffffffff
+#define BCHP_USB_CTRL_SPARE4_SPARE4_BITS_SHIFT                     0
+#define BCHP_USB_CTRL_SPARE4_SPARE4_BITS_DEFAULT                   0x00000000
+
+/***************************************************************************
  *USB30_CTL1 - USB30 CONTROL Register 1
  ***************************************************************************/
-/* USB_CTRL :: USB30_CTL1 :: USB30_CTL1 [31:00] */
-#define BCHP_USB_CTRL_USB30_CTL1_USB30_CTL1_MASK                   0xffffffff
-#define BCHP_USB_CTRL_USB30_CTL1_USB30_CTL1_SHIFT                  0
-#define BCHP_USB_CTRL_USB30_CTL1_USB30_CTL1_DEFAULT                0x00000000
+/* USB_CTRL :: USB30_CTL1 :: usb3_oc_dis [31:31] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_oc_dis_MASK                  0x80000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_oc_dis_SHIFT                 31
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_oc_dis_DEFAULT               0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb3_ipp [30:30] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ipp_MASK                     0x40000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ipp_SHIFT                    30
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ipp_DEFAULT                  0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb3_ioc [29:29] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ioc_MASK                     0x20000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ioc_SHIFT                    29
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_ioc_DEFAULT                  0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb3_pwron_sel [28:27] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_sel_MASK               0x18000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_sel_SHIFT              27
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_sel_DEFAULT            0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb3_pwron_force [26:26] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_MASK             0x04000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_SHIFT            26
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_DEFAULT          0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb3_pwron_force_val [25:25] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_val_MASK         0x02000000
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_val_SHIFT        25
+#define BCHP_USB_CTRL_USB30_CTL1_usb3_pwron_force_val_DEFAULT      0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: usb30_ctl1_spare2 [24:19] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare2_MASK            0x01f80000
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare2_SHIFT           19
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare2_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: aux_resetb [18:18] */
+#define BCHP_USB_CTRL_USB30_CTL1_aux_resetb_MASK                   0x00040000
+#define BCHP_USB_CTRL_USB30_CTL1_aux_resetb_SHIFT                  18
+#define BCHP_USB_CTRL_USB30_CTL1_aux_resetb_DEFAULT                0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: xhc_soft_resetb [17:17] */
+#define BCHP_USB_CTRL_USB30_CTL1_xhc_soft_resetb_MASK              0x00020000
+#define BCHP_USB_CTRL_USB30_CTL1_xhc_soft_resetb_SHIFT             17
+#define BCHP_USB_CTRL_USB30_CTL1_xhc_soft_resetb_DEFAULT           0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_resetb [16:16] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_resetb_MASK                  0x00010000
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_resetb_SHIFT                 16
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_resetb_DEFAULT               0x00000001
+
+/* USB_CTRL :: USB30_CTL1 :: usb30_ctl1_spare1 [15:07] */
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare1_MASK            0x0000ff80
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare1_SHIFT           7
+#define BCHP_USB_CTRL_USB30_CTL1_usb30_ctl1_spare1_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_standalonemode [06:06] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_standalonemode_MASK          0x00000040
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_standalonemode_SHIFT         6
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_standalonemode_DEFAULT       0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_phy_iso [05:05] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_phy_iso_MASK                 0x00000020
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_phy_iso_SHIFT                5
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_phy_iso_DEFAULT              0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_pll_seq_start [04:04] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_seq_start_MASK           0x00000010
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_seq_start_SHIFT          4
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_seq_start_DEFAULT        0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_pll_refclk_sel [03:01] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_refclk_sel_MASK          0x0000000e
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_refclk_sel_SHIFT         1
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_refclk_sel_DEFAULT       0x00000000
+
+/* USB_CTRL :: USB30_CTL1 :: phy3_pll_auxclk_sel [00:00] */
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_auxclk_sel_MASK          0x00000001
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_auxclk_sel_SHIFT         0
+#define BCHP_USB_CTRL_USB30_CTL1_phy3_pll_auxclk_sel_DEFAULT       0x00000000
 
 /***************************************************************************
  *USB30_CTL2 - USB30 CONTROL Register 2
  ***************************************************************************/
-/* USB_CTRL :: USB30_CTL2 :: USB30_CTL2 [31:00] */
-#define BCHP_USB_CTRL_USB30_CTL2_USB30_CTL2_MASK                   0xffffffff
-#define BCHP_USB_CTRL_USB30_CTL2_USB30_CTL2_SHIFT                  0
-#define BCHP_USB_CTRL_USB30_CTL2_USB30_CTL2_DEFAULT                0x00000000
+/* USB_CTRL :: USB30_CTL2 :: usb30_ctl2_spare2 [31:30] */
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare2_MASK            0xc0000000
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare2_SHIFT           30
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare2_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL2 :: xhci_max_scb_size [29:24] */
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_max_scb_size_MASK            0x3f000000
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_max_scb_size_SHIFT           24
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_max_scb_size_DEFAULT         0x00000020
+
+/* USB_CTRL :: USB30_CTL2 :: xhci_wrfifo_thrshld [23:16] */
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_wrfifo_thrshld_MASK          0x00ff0000
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_wrfifo_thrshld_SHIFT         16
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_wrfifo_thrshld_DEFAULT       0x00000000
+
+/* USB_CTRL :: USB30_CTL2 :: xhci_rdfifo_thrshld [15:08] */
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_rdfifo_thrshld_MASK          0x0000ff00
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_rdfifo_thrshld_SHIFT         8
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_rdfifo_thrshld_DEFAULT       0x00000000
+
+/* USB_CTRL :: USB30_CTL2 :: usb30_ctl2_spare1 [07:03] */
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare1_MASK            0x000000f8
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare1_SHIFT           3
+#define BCHP_USB_CTRL_USB30_CTL2_usb30_ctl2_spare1_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL2 :: xhci_cntl_client_en [02:02] */
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_cntl_client_en_MASK          0x00000004
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_cntl_client_en_SHIFT         2
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_cntl_client_en_DEFAULT       0x00000001
+
+/* USB_CTRL :: USB30_CTL2 :: xhci_swap_mode [01:00] */
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_swap_mode_MASK               0x00000003
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_swap_mode_SHIFT              0
+#define BCHP_USB_CTRL_USB30_CTL2_xhci_swap_mode_DEFAULT            0x00000000
 
 /***************************************************************************
  *USB30_CTL3 - USB30 CONTROL Register 3
  ***************************************************************************/
-/* USB_CTRL :: USB30_CTL3 :: USB30_CTL3 [31:00] */
-#define BCHP_USB_CTRL_USB30_CTL3_USB30_CTL3_MASK                   0xffffffff
-#define BCHP_USB_CTRL_USB30_CTL3_USB30_CTL3_SHIFT                  0
-#define BCHP_USB_CTRL_USB30_CTL3_USB30_CTL3_DEFAULT                0x00000000
+/* USB_CTRL :: USB30_CTL3 :: usb30_ctl3_spare2 [31:30] */
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare2_MASK            0xc0000000
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare2_SHIFT           30
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare2_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txdeemph_en_p1 [29:29] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_p1_MASK     0x20000000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_p1_SHIFT    29
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_p1_DEFAULT  0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txdeemph_p1 [28:24] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_p1_MASK        0x1f000000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_p1_SHIFT       24
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_p1_DEFAULT     0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txmargin_p1 [23:20] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_p1_MASK        0x00f00000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_p1_SHIFT       20
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_p1_DEFAULT     0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_rxebufmode_p1 [19:19] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_p1_MASK           0x00080000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_p1_SHIFT          19
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_p1_DEFAULT        0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txmargin_en_p1 [18:18] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_p1_MASK     0x00040000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_p1_SHIFT    18
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_p1_DEFAULT  0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txswing_p1 [17:17] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_p1_MASK         0x00020000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_p1_SHIFT        17
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_p1_DEFAULT      0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_mode_p1 [16:16] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_p1_MASK                 0x00010000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_p1_SHIFT                16
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_p1_DEFAULT              0x00000001
+
+/* USB_CTRL :: USB30_CTL3 :: usb30_ctl3_spare1 [15:14] */
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare1_MASK            0x0000c000
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare1_SHIFT           14
+#define BCHP_USB_CTRL_USB30_CTL3_usb30_ctl3_spare1_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txdeemph_en [13:13] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_MASK        0x00002000
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_SHIFT       13
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_en_DEFAULT     0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txdeemph [12:08] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_MASK           0x00001f00
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_SHIFT          8
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txdeemph_DEFAULT        0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txmargin [07:04] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_MASK           0x000000f0
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_SHIFT          4
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_DEFAULT        0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_rxebufmode [03:03] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_MASK              0x00000008
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_SHIFT             3
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_rxebufmode_DEFAULT           0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txmargin_en [02:02] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_MASK        0x00000004
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_SHIFT       2
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txmargin_en_DEFAULT     0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_pipe_txswing [01:01] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_MASK            0x00000002
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_SHIFT           1
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_pipe_txswing_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL3 :: phy3_mode [00:00] */
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_MASK                    0x00000001
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_SHIFT                   0
+#define BCHP_USB_CTRL_USB30_CTL3_phy3_mode_DEFAULT                 0x00000001
 
 /***************************************************************************
  *USB30_CTL4 - USB30 CONTROL Register 4
  ***************************************************************************/
-/* USB_CTRL :: USB30_CTL4 :: USB30_CTL4 [31:00] */
-#define BCHP_USB_CTRL_USB30_CTL4_USB30_CTL4_MASK                   0xffffffff
-#define BCHP_USB_CTRL_USB30_CTL4_USB30_CTL4_SHIFT                  0
-#define BCHP_USB_CTRL_USB30_CTL4_USB30_CTL4_DEFAULT                0x00000000
+/* USB_CTRL :: USB30_CTL4 :: usb30_ctl4_spare1 [31:24] */
+#define BCHP_USB_CTRL_USB30_CTL4_usb30_ctl4_spare1_MASK            0xff000000
+#define BCHP_USB_CTRL_USB30_CTL4_usb30_ctl4_spare1_SHIFT           24
+#define BCHP_USB_CTRL_USB30_CTL4_usb30_ctl4_spare1_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB30_CTL4 :: phy3_tpout_sel [23:16] */
+#define BCHP_USB_CTRL_USB30_CTL4_phy3_tpout_sel_MASK               0x00ff0000
+#define BCHP_USB_CTRL_USB30_CTL4_phy3_tpout_sel_SHIFT              16
+#define BCHP_USB_CTRL_USB30_CTL4_phy3_tpout_sel_DEFAULT            0x00000000
+
+/* USB_CTRL :: USB30_CTL4 :: xhci_tpout_sel [15:00] */
+#define BCHP_USB_CTRL_USB30_CTL4_xhci_tpout_sel_MASK               0x0000ffff
+#define BCHP_USB_CTRL_USB30_CTL4_xhci_tpout_sel_SHIFT              0
+#define BCHP_USB_CTRL_USB30_CTL4_xhci_tpout_sel_DEFAULT            0x00000000
+
+/***************************************************************************
+ *SPARE5 - Spare1 Register for future use
+ ***************************************************************************/
+/* USB_CTRL :: SPARE5 :: SPARE5_BITS [31:00] */
+#define BCHP_USB_CTRL_SPARE5_SPARE5_BITS_MASK                      0xffffffff
+#define BCHP_USB_CTRL_SPARE5_SPARE5_BITS_SHIFT                     0
+#define BCHP_USB_CTRL_SPARE5_SPARE5_BITS_DEFAULT                   0x00000000
+
+/***************************************************************************
+ *SPARE6 - Spare2 Register for future use
+ ***************************************************************************/
+/* USB_CTRL :: SPARE6 :: SPARE6_BITS [31:00] */
+#define BCHP_USB_CTRL_SPARE6_SPARE6_BITS_MASK                      0xffffffff
+#define BCHP_USB_CTRL_SPARE6_SPARE6_BITS_SHIFT                     0
+#define BCHP_USB_CTRL_SPARE6_SPARE6_BITS_DEFAULT                   0x00000000
 
 #endif /* #ifndef BCHP_USB_CTRL_H__ */
 

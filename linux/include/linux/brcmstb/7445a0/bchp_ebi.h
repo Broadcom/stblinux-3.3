@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:30 2012
+ * Date:           Generated on         Wed Oct 17 03:11:30 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,38 +42,38 @@
 /***************************************************************************
  *EBI - EBI Registers
  ***************************************************************************/
-#define BCHP_EBI_CS_BASE_HI_0                    0x00410800 /* Upper 8-bit of EBI CS Base 0 Register */
-#define BCHP_EBI_CS_BASE_0                       0x00410804 /* Lower 32-bit of EBI CS Base 0 Register */
-#define BCHP_EBI_CS_CONFIG_0                     0x00410808 /* EBI CS Config 0 Register */
-#define BCHP_EBI_CS_BASE_HI_1                    0x0041080c /* Upper 8-bit of EBI CS Base 1 Register */
-#define BCHP_EBI_CS_BASE_1                       0x00410810 /* Lower 32-bit of EBI CS Base 1 Register */
-#define BCHP_EBI_CS_CONFIG_1                     0x00410814 /* EBI CS Config 1 Register */
-#define BCHP_EBI_CS_BASE_HI_2                    0x00410818 /* Upper 8-bit of EBI CS Base 2 Register */
-#define BCHP_EBI_CS_BASE_2                       0x0041081c /* Lower 32-bit of EBI CS Base 2 Register */
-#define BCHP_EBI_CS_CONFIG_2                     0x00410820 /* EBI CS Config 2 Register */
-#define BCHP_EBI_CS_BASE_HI_3                    0x00410824 /* Upper 8-bit of EBI CS Base 3 Register */
-#define BCHP_EBI_CS_BASE_3                       0x00410828 /* Lower 32-bit of EBI CS Base 3 Register */
-#define BCHP_EBI_CS_CONFIG_3                     0x0041082c /* EBI CS Config 3 Register */
-#define BCHP_EBI_CS_BASE_HI_4                    0x00410830 /* Upper 8-bit of EBI CS Base 4 Register */
-#define BCHP_EBI_CS_BASE_4                       0x00410834 /* Lower 32-bit of EBI CS Base 4 Register */
-#define BCHP_EBI_CS_CONFIG_4                     0x00410838 /* EBI CS Config 4 Register */
-#define BCHP_EBI_CS_BASE_HI_5                    0x0041083c /* Upper 8-bit of EBI CS Base 5 Register */
-#define BCHP_EBI_CS_BASE_5                       0x00410840 /* Lower 32-bit of EBI CS Base 5 Register */
-#define BCHP_EBI_CS_CONFIG_5                     0x00410844 /* EBI CS Config 5 Register */
-#define BCHP_EBI_CS_BASE_HI_6                    0x00410848 /* Upper 8-bit of EBI CS Base 6 Register */
-#define BCHP_EBI_CS_BASE_6                       0x0041084c /* Lower 32-bit of EBI CS Base 6 Register */
-#define BCHP_EBI_CS_CONFIG_6                     0x00410850 /* EBI CS Config 6 Register */
-#define BCHP_EBI_BURST_CFG_0                     0x00410860 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_1                     0x00410864 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_2                     0x00410868 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_3                     0x0041086c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_4                     0x00410870 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_5                     0x00410874 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_BURST_CFG_6                     0x00410878 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
-#define BCHP_EBI_ECR                             0x00410900 /* EBI Configuration Register */
-#define BCHP_EBI_CS_TRISTATE_CFG                 0x00410918 /* EBI CS Tristate Configuration Register */
-#define BCHP_EBI_CS_SPI_SELECT                   0x00410920 /* SPI CS Select */
-#define BCHP_EBI_ARRAY_ADDRESS                   0x004109f0 /* EBI Data Array Address */
+#define BCHP_EBI_CS_BASE_HI_0                    0x00440800 /* Upper 8-bit of EBI CS Base 0 Register */
+#define BCHP_EBI_CS_BASE_0                       0x00440804 /* Lower 32-bit of EBI CS Base 0 Register */
+#define BCHP_EBI_CS_CONFIG_0                     0x00440808 /* EBI CS Config 0 Register */
+#define BCHP_EBI_CS_BASE_HI_1                    0x0044080c /* Upper 8-bit of EBI CS Base 1 Register */
+#define BCHP_EBI_CS_BASE_1                       0x00440810 /* Lower 32-bit of EBI CS Base 1 Register */
+#define BCHP_EBI_CS_CONFIG_1                     0x00440814 /* EBI CS Config 1 Register */
+#define BCHP_EBI_CS_BASE_HI_2                    0x00440818 /* Upper 8-bit of EBI CS Base 2 Register */
+#define BCHP_EBI_CS_BASE_2                       0x0044081c /* Lower 32-bit of EBI CS Base 2 Register */
+#define BCHP_EBI_CS_CONFIG_2                     0x00440820 /* EBI CS Config 2 Register */
+#define BCHP_EBI_CS_BASE_HI_3                    0x00440824 /* Upper 8-bit of EBI CS Base 3 Register */
+#define BCHP_EBI_CS_BASE_3                       0x00440828 /* Lower 32-bit of EBI CS Base 3 Register */
+#define BCHP_EBI_CS_CONFIG_3                     0x0044082c /* EBI CS Config 3 Register */
+#define BCHP_EBI_CS_BASE_HI_4                    0x00440830 /* Upper 8-bit of EBI CS Base 4 Register */
+#define BCHP_EBI_CS_BASE_4                       0x00440834 /* Lower 32-bit of EBI CS Base 4 Register */
+#define BCHP_EBI_CS_CONFIG_4                     0x00440838 /* EBI CS Config 4 Register */
+#define BCHP_EBI_CS_BASE_HI_5                    0x0044083c /* Upper 8-bit of EBI CS Base 5 Register */
+#define BCHP_EBI_CS_BASE_5                       0x00440840 /* Lower 32-bit of EBI CS Base 5 Register */
+#define BCHP_EBI_CS_CONFIG_5                     0x00440844 /* EBI CS Config 5 Register */
+#define BCHP_EBI_CS_BASE_HI_6                    0x00440848 /* Upper 8-bit of EBI CS Base 6 Register */
+#define BCHP_EBI_CS_BASE_6                       0x0044084c /* Lower 32-bit of EBI CS Base 6 Register */
+#define BCHP_EBI_CS_CONFIG_6                     0x00440850 /* EBI CS Config 6 Register */
+#define BCHP_EBI_BURST_CFG_0                     0x00440860 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_1                     0x00440864 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_2                     0x00440868 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_3                     0x0044086c /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_4                     0x00440870 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_5                     0x00440874 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_BURST_CFG_6                     0x00440878 /* EBI Synchronous Intel StrataFlash Burst Configure Register */
+#define BCHP_EBI_ECR                             0x00440900 /* EBI Configuration Register */
+#define BCHP_EBI_CS_TRISTATE_CFG                 0x00440918 /* EBI CS Tristate Configuration Register */
+#define BCHP_EBI_CS_SPI_SELECT                   0x00440920 /* SPI CS Select */
+#define BCHP_EBI_ARRAY_ADDRESS                   0x004409f0 /* EBI Data Array Address */
 
 /***************************************************************************
  *CS_BASE_HI_0 - Upper 8-bit of EBI CS Base 0 Register
@@ -249,6 +249,7 @@
 /* EBI :: CS_BASE_1 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_1_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_1_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_1_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_1 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_1_reserved0_MASK                          0x00001ff0
@@ -408,6 +409,7 @@
 /* EBI :: CS_BASE_2 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_2_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_2_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_2_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_2 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_2_reserved0_MASK                          0x00001ff0
@@ -567,6 +569,7 @@
 /* EBI :: CS_BASE_3 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_3_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_3_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_3_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_3 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_3_reserved0_MASK                          0x00001ff0
@@ -726,6 +729,7 @@
 /* EBI :: CS_BASE_4 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_4_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_4_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_4_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_4 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_4_reserved0_MASK                          0x00001ff0
@@ -885,6 +889,7 @@
 /* EBI :: CS_BASE_5 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_5_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_5_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_5_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_5 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_5_reserved0_MASK                          0x00001ff0
@@ -1044,6 +1049,7 @@
 /* EBI :: CS_BASE_6 :: base_addr [31:13] */
 #define BCHP_EBI_CS_BASE_6_base_addr_MASK                          0xffffe000
 #define BCHP_EBI_CS_BASE_6_base_addr_SHIFT                         13
+#define BCHP_EBI_CS_BASE_6_base_addr_DEFAULT                       0x00000000
 
 /* EBI :: CS_BASE_6 :: reserved0 [12:04] */
 #define BCHP_EBI_CS_BASE_6_reserved0_MASK                          0x00001ff0
@@ -1981,7 +1987,7 @@
 /***************************************************************************
  *DATA_ARRAY%i - EBI Data Array Read/Write Access
  ***************************************************************************/
-#define BCHP_EBI_DATA_ARRAYi_ARRAY_BASE                            0x00410a00
+#define BCHP_EBI_DATA_ARRAYi_ARRAY_BASE                            0x00440a00
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_START                           0
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_END                             127
 #define BCHP_EBI_DATA_ARRAYi_ARRAY_ELEMENT_SIZE                    32

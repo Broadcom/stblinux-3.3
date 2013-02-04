@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,18 +42,18 @@
 /***************************************************************************
  *AON_PM_L2 - AON Power Management L2 Interrupt Controller Registers
  ***************************************************************************/
-#define BCHP_AON_PM_L2_CPU_STATUS                0x00408440 /* CPU interrupt Status Register */
-#define BCHP_AON_PM_L2_CPU_SET                   0x00408444 /* CPU interrupt Set Register */
-#define BCHP_AON_PM_L2_CPU_CLEAR                 0x00408448 /* CPU interrupt Clear Register */
-#define BCHP_AON_PM_L2_CPU_MASK_STATUS           0x0040844c /* CPU interrupt Mask Status Register */
-#define BCHP_AON_PM_L2_CPU_MASK_SET              0x00408450 /* CPU interrupt Mask Set Register */
-#define BCHP_AON_PM_L2_CPU_MASK_CLEAR            0x00408454 /* CPU interrupt Mask Clear Register */
-#define BCHP_AON_PM_L2_PCI_STATUS                0x00408458 /* PCI interrupt Status Register */
-#define BCHP_AON_PM_L2_PCI_SET                   0x0040845c /* PCI interrupt Set Register */
-#define BCHP_AON_PM_L2_PCI_CLEAR                 0x00408460 /* PCI interrupt Clear Register */
-#define BCHP_AON_PM_L2_PCI_MASK_STATUS           0x00408464 /* PCI interrupt Mask Status Register */
-#define BCHP_AON_PM_L2_PCI_MASK_SET              0x00408468 /* PCI interrupt Mask Set Register */
-#define BCHP_AON_PM_L2_PCI_MASK_CLEAR            0x0040846c /* PCI interrupt Mask Clear Register */
+#define BCHP_AON_PM_L2_CPU_STATUS                0x00410440 /* CPU interrupt Status Register */
+#define BCHP_AON_PM_L2_CPU_SET                   0x00410444 /* CPU interrupt Set Register */
+#define BCHP_AON_PM_L2_CPU_CLEAR                 0x00410448 /* CPU interrupt Clear Register */
+#define BCHP_AON_PM_L2_CPU_MASK_STATUS           0x0041044c /* CPU interrupt Mask Status Register */
+#define BCHP_AON_PM_L2_CPU_MASK_SET              0x00410450 /* CPU interrupt Mask Set Register */
+#define BCHP_AON_PM_L2_CPU_MASK_CLEAR            0x00410454 /* CPU interrupt Mask Clear Register */
+#define BCHP_AON_PM_L2_PCI_STATUS                0x00410458 /* PCI interrupt Status Register */
+#define BCHP_AON_PM_L2_PCI_SET                   0x0041045c /* PCI interrupt Set Register */
+#define BCHP_AON_PM_L2_PCI_CLEAR                 0x00410460 /* PCI interrupt Clear Register */
+#define BCHP_AON_PM_L2_PCI_MASK_STATUS           0x00410464 /* PCI interrupt Mask Status Register */
+#define BCHP_AON_PM_L2_PCI_MASK_SET              0x00410468 /* PCI interrupt Mask Set Register */
+#define BCHP_AON_PM_L2_PCI_MASK_CLEAR            0x0041046c /* PCI interrupt Mask Clear Register */
 
 /***************************************************************************
  *CPU_STATUS - CPU interrupt Status Register

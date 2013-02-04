@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,18 +42,18 @@
 /***************************************************************************
  *HIF_INTR2 - HIF Level 2 Interrupt Controller Registers
  ***************************************************************************/
-#define BCHP_HIF_INTR2_CPU_STATUS                0x00411000 /* CPU interrupt Status Register */
-#define BCHP_HIF_INTR2_CPU_SET                   0x00411004 /* CPU interrupt Set Register */
-#define BCHP_HIF_INTR2_CPU_CLEAR                 0x00411008 /* CPU interrupt Clear Register */
-#define BCHP_HIF_INTR2_CPU_MASK_STATUS           0x0041100c /* CPU interrupt Mask Status Register */
-#define BCHP_HIF_INTR2_CPU_MASK_SET              0x00411010 /* CPU interrupt Mask Set Register */
-#define BCHP_HIF_INTR2_CPU_MASK_CLEAR            0x00411014 /* CPU interrupt Mask Clear Register */
-#define BCHP_HIF_INTR2_PCI_STATUS                0x00411018 /* PCI interrupt Status Register */
-#define BCHP_HIF_INTR2_PCI_SET                   0x0041101c /* PCI interrupt Set Register */
-#define BCHP_HIF_INTR2_PCI_CLEAR                 0x00411020 /* PCI interrupt Clear Register */
-#define BCHP_HIF_INTR2_PCI_MASK_STATUS           0x00411024 /* PCI interrupt Mask Status Register */
-#define BCHP_HIF_INTR2_PCI_MASK_SET              0x00411028 /* PCI interrupt Mask Set Register */
-#define BCHP_HIF_INTR2_PCI_MASK_CLEAR            0x0041102c /* PCI interrupt Mask Clear Register */
+#define BCHP_HIF_INTR2_CPU_STATUS                0x00441000 /* CPU interrupt Status Register */
+#define BCHP_HIF_INTR2_CPU_SET                   0x00441004 /* CPU interrupt Set Register */
+#define BCHP_HIF_INTR2_CPU_CLEAR                 0x00441008 /* CPU interrupt Clear Register */
+#define BCHP_HIF_INTR2_CPU_MASK_STATUS           0x0044100c /* CPU interrupt Mask Status Register */
+#define BCHP_HIF_INTR2_CPU_MASK_SET              0x00441010 /* CPU interrupt Mask Set Register */
+#define BCHP_HIF_INTR2_CPU_MASK_CLEAR            0x00441014 /* CPU interrupt Mask Clear Register */
+#define BCHP_HIF_INTR2_PCI_STATUS                0x00441018 /* PCI interrupt Status Register */
+#define BCHP_HIF_INTR2_PCI_SET                   0x0044101c /* PCI interrupt Set Register */
+#define BCHP_HIF_INTR2_PCI_CLEAR                 0x00441020 /* PCI interrupt Clear Register */
+#define BCHP_HIF_INTR2_PCI_MASK_STATUS           0x00441024 /* PCI interrupt Mask Status Register */
+#define BCHP_HIF_INTR2_PCI_MASK_SET              0x00441028 /* PCI interrupt Mask Set Register */
+#define BCHP_HIF_INTR2_PCI_MASK_CLEAR            0x0044102c /* PCI interrupt Mask Clear Register */
 
 /***************************************************************************
  *CPU_STATUS - CPU interrupt Status Register

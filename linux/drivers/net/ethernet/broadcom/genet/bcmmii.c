@@ -37,7 +37,7 @@
 #include <linux/brcmstb/brcmstb.h>
 
 /* read a value from the MII */
-int mii_read(struct net_device *dev, int phy_id, int location)
+int bcmgenet_mii_read(struct net_device *dev, int phy_id, int location)
 {
 	int ret;
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
@@ -64,8 +64,8 @@ int mii_read(struct net_device *dev, int phy_id, int location)
 	umac->mdio_cmd |= MDIO_START_BUSY;
 	wait_event_timeout(pDevCtrl->wq, !(umac->mdio_cmd & MDIO_START_BUSY),
 			HZ/100);
-	mutex_unlock(&pDevCtrl->mdio_mutex);
 	ret = umac->mdio_cmd;
+	mutex_unlock(&pDevCtrl->mdio_mutex);
 	if (ret & MDIO_READ_FAIL) {
 		TRACE(("MDIO read failure\n"));
 		ret = 0;
@@ -74,7 +74,8 @@ int mii_read(struct net_device *dev, int phy_id, int location)
 }
 
 /* write a value to the MII */
-void mii_write(struct net_device *dev, int phy_id, int location, int val)
+void bcmgenet_mii_write(struct net_device *dev, int phy_id,
+			int location, int val)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	volatile struct uniMacRegs *umac = pDevCtrl->umac;
@@ -91,22 +92,22 @@ void mii_write(struct net_device *dev, int phy_id, int location, int val)
 }
 
 /* mii register read/modify/write helper function */
-int mii_set_clr_bits(struct net_device *dev, int location,
+static int bcmgenet_mii_set_clr_bits(struct net_device *dev, int location,
 		     int set_mask, int clr_mask)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	int phy_id = pDevCtrl->phyAddr;
 	int v;
 
-	v = mii_read(dev, phy_id, location);
+	v = bcmgenet_mii_read(dev, phy_id, location);
 	v &= ~clr_mask;
 	v |= set_mask;
-	mii_write(dev, phy_id, location, v);
+	bcmgenet_mii_write(dev, phy_id, location, v);
 	return v;
 }
 
 /* probe for an external PHY via MDIO; return PHY address */
-int mii_probe(struct net_device *dev, void *p)
+int bcmgenet_mii_probe(struct net_device *dev, void *p)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	int i;
@@ -126,7 +127,7 @@ int mii_probe(struct net_device *dev, void *p)
 			EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
 
 	for (i = 31; i >= 0; i--) {
-		if (mii_read(dev, i, MII_BMSR) != 0) {
+		if (bcmgenet_mii_read(dev, i, MII_BMSR) != 0) {
 			pDevCtrl->phyAddr = i;
 			if (i == 1)
 				continue;
@@ -141,7 +142,7 @@ int mii_probe(struct net_device *dev, void *p)
  * setup netdev link state when PHY link status change and
  * update UMAC and RGMII block when link up
  */
-void mii_setup(struct net_device *dev)
+void bcmgenet_mii_setup(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd;
@@ -183,13 +184,14 @@ void mii_setup(struct net_device *dev)
 		if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT ||
 		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_MII ||
 		    pDevCtrl->phyType == BRCM_PHY_TYPE_EXT_RVMII) {
-			val = mii_read(dev, pDevCtrl->phyAddr, MII_LPA);
+			val = bcmgenet_mii_read(
+				dev, pDevCtrl->phyAddr, MII_LPA);
 			if (!(val & LPA_PAUSE_CAP)) {
 				cmd_bits |= CMD_RX_PAUSE_IGNORE;
 				cmd_bits |= CMD_TX_PAUSE_IGNORE;
 			}
 		} else if (pDevCtrl->extPhy) { /* RGMII only */
-			val = mii_read(dev,
+			val = bcmgenet_mii_read(dev,
 				pDevCtrl->phyAddr, MII_BRCM_AUX_STAT_SUM);
 			if (!(val & MII_BRCM_AUX_GPHY_RX_PAUSE))
 				cmd_bits |= CMD_RX_PAUSE_IGNORE;
@@ -211,26 +213,48 @@ void mii_setup(struct net_device *dev)
 	}
 }
 
-static void ephy_workaround(struct net_device *dev)
+void bcmgenet_ephy_workaround(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+	int phy_id = pDevCtrl->phyAddr;
+
+	/* set shadow mode 2 */
+	bcmgenet_mii_set_clr_bits(dev, 0x1f, 0x0004, 0x0004);
 
 	/*
 	 * Workaround for SWLINUX-2281: explicitly reset IDDQ_CLKBIAS
 	 * in the Shadow 2 regset, due to power sequencing issues.
 	 */
-	/* set shadow mode 2 */
-	mii_set_clr_bits(dev, 0x1f, 0x0004, 0x0004);
 	/* set iddq_clkbias */
-	mii_write(dev, pDevCtrl->phyAddr, 0x14, 0x0F00);
+	bcmgenet_mii_write(dev, phy_id, 0x14, 0x0F00);
 	udelay(10);
 	/* reset iddq_clkbias */
-	mii_write(dev, pDevCtrl->phyAddr, 0x14, 0x0C00);
+	bcmgenet_mii_write(dev, phy_id, 0x14, 0x0C00);
+
+	/*
+	 * Workaround for SWLINUX-2056: fix timing issue between the ephy
+	 * digital and the ephy analog blocks.  This clock inversion will
+	 * inherently fix any setup and hold issue.
+	 */
+	bcmgenet_mii_write(dev, phy_id, 0x13, 0x7555);
+
 	/* reset shadow mode 2 */
-	mii_set_clr_bits(dev, 0x1f, 0x0004, 0);
+	bcmgenet_mii_set_clr_bits(dev, 0x1f, 0x0004, 0);
 }
 
-int mii_init(struct net_device *dev)
+void bcmgenet_mii_reset(struct net_device *dev)
+{
+	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
+
+	bcmgenet_mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, BMCR_RESET);
+	udelay(1);
+	/* enable 64 clock MDIO */
+	bcmgenet_mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
+	bcmgenet_mii_read(dev, pDevCtrl->phyAddr, 0x1d);
+	bcmgenet_ephy_workaround(dev);
+}
+
+int bcmgenet_mii_init(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	volatile struct uniMacRegs *umac;
@@ -242,8 +266,8 @@ int mii_init(struct net_device *dev)
 	pDevCtrl->mii.phy_id_mask = 0x1f;
 	pDevCtrl->mii.reg_num_mask = 0x1f;
 	pDevCtrl->mii.dev = dev;
-	pDevCtrl->mii.mdio_read = mii_read;
-	pDevCtrl->mii.mdio_write = mii_write;
+	pDevCtrl->mii.mdio_read = bcmgenet_mii_read;
+	pDevCtrl->mii.mdio_write = bcmgenet_mii_write;
 	pDevCtrl->mii.supports_gmii = 0;
 
 	switch (pDevCtrl->phyType) {
@@ -253,12 +277,7 @@ int mii_init(struct net_device *dev)
 		pDevCtrl->sys->sys_port_ctrl = PORT_MODE_INT_EPHY;
 		/* enable APD */
 		pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-		mii_write(dev, pDevCtrl->phyAddr, MII_BMCR, BMCR_RESET);
-		udelay(1);
-		/* enable 64 clock MDIO */
-		mii_write(dev, pDevCtrl->phyAddr, 0x1d, 0x1000);
-		mii_read(dev, pDevCtrl->phyAddr, 0x1d);
-		ephy_workaround(dev);
+		bcmgenet_mii_reset(dev);
 		break;
 	case BRCM_PHY_TYPE_EXT_MII:
 		phy_name = "external MII";
@@ -293,10 +312,10 @@ int mii_init(struct net_device *dev)
 			pDevCtrl->mii.supports_gmii = 1;
 		} else if (pDevCtrl->phySpeed == SPEED_100) {
 			/* disable 1000BASE-T full, half-duplex capability */
-			mii_set_clr_bits(dev, MII_CTRL1000, 0,
+			bcmgenet_mii_set_clr_bits(dev, MII_CTRL1000, 0,
 				(ADVERTISE_1000FULL|ADVERTISE_1000HALF));
 			/* restart autoneg */
-			mii_set_clr_bits(dev, MII_BMCR, BMCR_ANRESTART,
+			bcmgenet_mii_set_clr_bits(dev, MII_BMCR, BMCR_ANRESTART,
 				BMCR_ANRESTART);
 		}
 		break;

@@ -45,8 +45,10 @@
 Prototypes
 ****************************************************************************/
 
-extern void mii_setup(struct net_device *dev);
-extern int mii_init(struct net_device *dev);
-extern int mii_probe(struct net_device *dev, void * p);
+extern void bcmgenet_mii_setup(struct net_device *dev);
+extern int bcmgenet_mii_init(struct net_device *dev);
+extern int bcmgenet_mii_probe(struct net_device *dev, void *p);
+extern void bcmgenet_mii_reset(struct net_device *dev);
+extern void bcmgenet_ephy_workaround(struct net_device *dev);
 
 #endif /* _BCMMII_H_ */

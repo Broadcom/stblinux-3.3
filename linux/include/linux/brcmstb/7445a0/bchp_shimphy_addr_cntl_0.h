@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -84,29 +84,25 @@
 /* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: LAST_RD_STRETCH [29:29] */
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_RD_STRETCH_MASK       0x20000000
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_RD_STRETCH_SHIFT      29
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_RD_STRETCH_DEFAULT    0x00000001
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_RD_STRETCH_DEFAULT    0x00000000
 
-/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: reserved0 [28:22] */
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved0_MASK             0x1fc00000
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved0_SHIFT            22
+/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: reserved0 [28:24] */
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved0_MASK             0x1f000000
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved0_SHIFT            24
 
-/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: LAST_READ_LATENCY [21:16] */
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_READ_LATENCY_MASK     0x003f0000
+/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: LAST_READ_LATENCY [23:16] */
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_READ_LATENCY_MASK     0x00ff0000
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_READ_LATENCY_SHIFT    16
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_LAST_READ_LATENCY_DEFAULT  0x0000000b
 
-/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: reserved1 [15:14] */
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved1_MASK             0x0000c000
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved1_SHIFT            14
-
-/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: READ_LATENCY [13:08] */
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_READ_LATENCY_MASK          0x00003f00
+/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: READ_LATENCY [15:08] */
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_READ_LATENCY_MASK          0x0000ff00
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_READ_LATENCY_SHIFT         8
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_READ_LATENCY_DEFAULT       0x00000007
 
-/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: reserved2 [07:06] */
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved2_MASK             0x000000c0
-#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved2_SHIFT            6
+/* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: reserved1 [07:06] */
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved1_MASK             0x000000c0
+#define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_reserved1_SHIFT            6
 
 /* SHIMPHY_ADDR_CNTL_0 :: CONFIG :: WRITE_LATENCY [05:00] */
 #define BCHP_SHIMPHY_ADDR_CNTL_0_CONFIG_WRITE_LATENCY_MASK         0x0000003f

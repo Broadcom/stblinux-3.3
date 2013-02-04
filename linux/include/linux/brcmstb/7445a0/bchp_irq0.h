@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:33 2012
+ * Date:           Generated on         Wed Oct 17 03:11:33 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -52,20 +52,20 @@
 #define BCHP_IRQ0_IRQEN_reserved0_MASK                             0xf8000000
 #define BCHP_IRQ0_IRQEN_reserved0_SHIFT                            27
 
-/* IRQ0 :: IRQEN :: iica_irqen [26:26] */
-#define BCHP_IRQ0_IRQEN_iica_irqen_MASK                            0x04000000
-#define BCHP_IRQ0_IRQEN_iica_irqen_SHIFT                           26
-#define BCHP_IRQ0_IRQEN_iica_irqen_DEFAULT                         0x00000000
+/* IRQ0 :: IRQEN :: iice_irqen [26:26] */
+#define BCHP_IRQ0_IRQEN_iice_irqen_MASK                            0x04000000
+#define BCHP_IRQ0_IRQEN_iice_irqen_SHIFT                           26
+#define BCHP_IRQ0_IRQEN_iice_irqen_DEFAULT                         0x00000000
 
 /* IRQ0 :: IRQEN :: iicd_irqen [25:25] */
 #define BCHP_IRQ0_IRQEN_iicd_irqen_MASK                            0x02000000
 #define BCHP_IRQ0_IRQEN_iicd_irqen_SHIFT                           25
 #define BCHP_IRQ0_IRQEN_iicd_irqen_DEFAULT                         0x00000000
 
-/* IRQ0 :: IRQEN :: iicc_irqen [24:24] */
-#define BCHP_IRQ0_IRQEN_iicc_irqen_MASK                            0x01000000
-#define BCHP_IRQ0_IRQEN_iicc_irqen_SHIFT                           24
-#define BCHP_IRQ0_IRQEN_iicc_irqen_DEFAULT                         0x00000000
+/* IRQ0 :: IRQEN :: iica_irqen [24:24] */
+#define BCHP_IRQ0_IRQEN_iica_irqen_MASK                            0x01000000
+#define BCHP_IRQ0_IRQEN_iica_irqen_SHIFT                           24
+#define BCHP_IRQ0_IRQEN_iica_irqen_DEFAULT                         0x00000000
 
 /* IRQ0 :: IRQEN :: reserved1 [23:19] */
 #define BCHP_IRQ0_IRQEN_reserved1_MASK                             0x00f80000
@@ -134,20 +134,20 @@
 #define BCHP_IRQ0_IRQSTAT_reserved0_MASK                           0xf8000000
 #define BCHP_IRQ0_IRQSTAT_reserved0_SHIFT                          27
 
-/* IRQ0 :: IRQSTAT :: iicairq [26:26] */
-#define BCHP_IRQ0_IRQSTAT_iicairq_MASK                             0x04000000
-#define BCHP_IRQ0_IRQSTAT_iicairq_SHIFT                            26
-#define BCHP_IRQ0_IRQSTAT_iicairq_DEFAULT                          0x00000000
+/* IRQ0 :: IRQSTAT :: iiceirq [26:26] */
+#define BCHP_IRQ0_IRQSTAT_iiceirq_MASK                             0x04000000
+#define BCHP_IRQ0_IRQSTAT_iiceirq_SHIFT                            26
+#define BCHP_IRQ0_IRQSTAT_iiceirq_DEFAULT                          0x00000000
 
 /* IRQ0 :: IRQSTAT :: iicdirq [25:25] */
 #define BCHP_IRQ0_IRQSTAT_iicdirq_MASK                             0x02000000
 #define BCHP_IRQ0_IRQSTAT_iicdirq_SHIFT                            25
 #define BCHP_IRQ0_IRQSTAT_iicdirq_DEFAULT                          0x00000000
 
-/* IRQ0 :: IRQSTAT :: iiccirq [24:24] */
-#define BCHP_IRQ0_IRQSTAT_iiccirq_MASK                             0x01000000
-#define BCHP_IRQ0_IRQSTAT_iiccirq_SHIFT                            24
-#define BCHP_IRQ0_IRQSTAT_iiccirq_DEFAULT                          0x00000000
+/* IRQ0 :: IRQSTAT :: iicairq [24:24] */
+#define BCHP_IRQ0_IRQSTAT_iicairq_MASK                             0x01000000
+#define BCHP_IRQ0_IRQSTAT_iicairq_SHIFT                            24
+#define BCHP_IRQ0_IRQSTAT_iicairq_DEFAULT                          0x00000000
 
 /* IRQ0 :: IRQSTAT :: reserved1 [23:19] */
 #define BCHP_IRQ0_IRQSTAT_reserved1_MASK                           0x00f80000

@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:31 2012
+ * Date:           Generated on         Wed Oct 17 03:11:31 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,119 +42,119 @@
 /***************************************************************************
  *NAND - Nand Flash Control Registers
  ***************************************************************************/
-#define BCHP_NAND_REVISION                       0x00412800 /* NAND Revision */
-#define BCHP_NAND_CMD_START                      0x00412804 /* Nand Flash Command Start */
-#define BCHP_NAND_CMD_EXT_ADDRESS                0x00412808 /* Nand Flash Command Extended Address */
-#define BCHP_NAND_CMD_ADDRESS                    0x0041280c /* Nand Flash Command Address */
-#define BCHP_NAND_CMD_END_ADDRESS                0x00412810 /* Nand Flash Command End Address */
-#define BCHP_NAND_INTFC_STATUS                   0x00412814 /* Nand Flash Interface Status */
-#define BCHP_NAND_CS_NAND_SELECT                 0x00412818 /* Nand Flash EBI CS Select */
-#define BCHP_NAND_CS_NAND_XOR                    0x0041281c /* Nand Flash EBI CS Address XOR with 1FC0 Control */
-#define BCHP_NAND_LL_OP                          0x00412820 /* Nand Flash Low Level Operation */
-#define BCHP_NAND_MPLANE_BASE_EXT_ADDRESS        0x00412824 /* Nand Flash Multiplane base address */
-#define BCHP_NAND_MPLANE_BASE_ADDRESS            0x00412828 /* Nand Flash Multiplane base address */
-#define BCHP_NAND_ACC_CONTROL_CS0                0x00412850 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS0                     0x00412854 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS0                   0x00412858 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS0                   0x0041285c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS1                0x00412860 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS1                     0x00412864 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS1                   0x00412868 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS1                   0x0041286c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS2                0x00412870 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS2                     0x00412874 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS2                   0x00412878 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS2                   0x0041287c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS3                0x00412880 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS3                     0x00412884 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS3                   0x00412888 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS3                   0x0041288c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS4                0x00412890 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS4                     0x00412894 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS4                   0x00412898 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS4                   0x0041289c /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS5                0x004128a0 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS5                     0x004128a4 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS5                   0x004128a8 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS5                   0x004128ac /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_ACC_CONTROL_CS6                0x004128b0 /* Nand Flash Access Control */
-#define BCHP_NAND_CONFIG_CS6                     0x004128b4 /* Nand Flash Config */
-#define BCHP_NAND_TIMING_1_CS6                   0x004128b8 /* Nand Flash Timing Parameters 1 */
-#define BCHP_NAND_TIMING_2_CS6                   0x004128bc /* Nand Flash Timing Parameters 2 */
-#define BCHP_NAND_CORR_STAT_THRESHOLD            0x004128c0 /* Correctable Error Reporting Threshold */
-#define BCHP_NAND_CORR_STAT_THRESHOLD_EXT        0x004128c4 /* Correctable Error Reporting Threshold */
-#define BCHP_NAND_BLK_WR_PROTECT                 0x004128c8 /* Block Write Protect Enable and Size for EBI_CS0b */
-#define BCHP_NAND_MULTIPLANE_OPCODES_1           0x004128cc /* Nand Flash Multiplane Customerized Opcodes */
-#define BCHP_NAND_MULTIPLANE_OPCODES_2           0x004128d0 /* Nand Flash Multiplane Customerized Opcodes */
-#define BCHP_NAND_MULTIPLANE_CTRL                0x004128d4 /* Nand Flash Multiplane Control */
-#define BCHP_NAND_UNCORR_ERROR_COUNT             0x004128fc /* Read Uncorrectable Event Count */
-#define BCHP_NAND_CORR_ERROR_COUNT               0x00412900 /* Read Error Count */
-#define BCHP_NAND_READ_ERROR_COUNT               0x00412904 /* Read Error Count */
-#define BCHP_NAND_BLOCK_LOCK_STATUS              0x00412908 /* Nand Flash Block Lock Status */
-#define BCHP_NAND_ECC_CORR_EXT_ADDR              0x0041290c /* ECC Correctable Error Extended Address */
-#define BCHP_NAND_ECC_CORR_ADDR                  0x00412910 /* ECC Correctable Error Address */
-#define BCHP_NAND_ECC_UNC_EXT_ADDR               0x00412914 /* ECC Uncorrectable Error Extended Address */
-#define BCHP_NAND_ECC_UNC_ADDR                   0x00412918 /* ECC Uncorrectable Error Address */
-#define BCHP_NAND_FLASH_READ_EXT_ADDR            0x0041291c /* Flash Read Data Extended Address */
-#define BCHP_NAND_FLASH_READ_ADDR                0x00412920 /* Flash Read Data Address */
-#define BCHP_NAND_PROGRAM_PAGE_EXT_ADDR          0x00412924 /* Page Program Extended Address */
-#define BCHP_NAND_PROGRAM_PAGE_ADDR              0x00412928 /* Page Program Address */
-#define BCHP_NAND_COPY_BACK_EXT_ADDR             0x0041292c /* Copy Back Extended Address */
-#define BCHP_NAND_COPY_BACK_ADDR                 0x00412930 /* Copy Back Address */
-#define BCHP_NAND_BLOCK_ERASE_EXT_ADDR           0x00412934 /* Block Erase Extended Address */
-#define BCHP_NAND_BLOCK_ERASE_ADDR               0x00412938 /* Block Erase Address */
-#define BCHP_NAND_INV_READ_EXT_ADDR              0x0041293c /* Flash Invalid Data Extended Address */
-#define BCHP_NAND_INV_READ_ADDR                  0x00412940 /* Flash Invalid Data Address */
-#define BCHP_NAND_INIT_STATUS                    0x00412944 /* Initialization status */
-#define BCHP_NAND_ONFI_STATUS                    0x00412948 /* ONFI Status */
-#define BCHP_NAND_ONFI_DEBUG_DATA                0x0041294c /* ONFI Debug Data */
-#define BCHP_NAND_SEMAPHORE                      0x00412950 /* Semaphore */
-#define BCHP_NAND_FLASH_DEVICE_ID                0x00412994 /* Nand Flash Device ID */
-#define BCHP_NAND_FLASH_DEVICE_ID_EXT            0x00412998 /* Nand Flash Extended Device ID */
-#define BCHP_NAND_LL_RDDATA                      0x0041299c /* Nand Flash Low Level Read Data */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_0          0x00412a00 /* Nand Flash Spare Area Read Bytes 0-3 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_4          0x00412a04 /* Nand Flash Spare Area Read Bytes 4-7 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_8          0x00412a08 /* Nand Flash Spare Area Read Bytes 8-11 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_C          0x00412a0c /* Nand Flash Spare Area Read Bytes 12-15 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_10         0x00412a10 /* Nand Flash Spare Area Read Bytes 16-19 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_14         0x00412a14 /* Nand Flash Spare Area Read Bytes 20-23 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_18         0x00412a18 /* Nand Flash Spare Area Read Bytes 24-27 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_1C         0x00412a1c /* Nand Flash Spare Area Read Bytes 28-31 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_20         0x00412a20 /* Nand Flash Spare Area Read Bytes 32-35 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_24         0x00412a24 /* Nand Flash Spare Area Read Bytes 36-39 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_28         0x00412a28 /* Nand Flash Spare Area Read Bytes 40-43 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_2C         0x00412a2c /* Nand Flash Spare Area Read Bytes 44-47 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_30         0x00412a30 /* Nand Flash Spare Area Read Bytes 48-51 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_34         0x00412a34 /* Nand Flash Spare Area Read Bytes 52-55 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_38         0x00412a38 /* Nand Flash Spare Area Read Bytes 56-59 */
-#define BCHP_NAND_SPARE_AREA_READ_OFS_3C         0x00412a3c /* Nand Flash Spare Area Read Bytes 60-63 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_0         0x00412a80 /* Nand Flash Spare Area Write Bytes 0-3 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_4         0x00412a84 /* Nand Flash Spare Area Write Bytes 4-7 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_8         0x00412a88 /* Nand Flash Spare Area Write Bytes 8-11 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_C         0x00412a8c /* Nand Flash Spare Area Write Bytes 12-15 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_10        0x00412a90 /* Nand Flash Spare Area Write Bytes 16-19 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_14        0x00412a94 /* Nand Flash Spare Area Write Bytes 20-23 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_18        0x00412a98 /* Nand Flash Spare Area Write Bytes 24-27 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_1C        0x00412a9c /* Nand Flash Spare Area Write Bytes 28-31 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_20        0x00412aa0 /* Nand Flash Spare Area Write Bytes 32-35 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_24        0x00412aa4 /* Nand Flash Spare Area Write Bytes 36-39 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_28        0x00412aa8 /* Nand Flash Spare Area Write Bytes 40-43 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_2C        0x00412aac /* Nand Flash Spare Area Write Bytes 44-47 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_30        0x00412ab0 /* Nand Flash Spare Area Write Bytes 48-51 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_34        0x00412ab4 /* Nand Flash Spare Area Write Bytes 52-55 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_38        0x00412ab8 /* Nand Flash Spare Area Write Bytes 56-59 */
-#define BCHP_NAND_SPARE_AREA_WRITE_OFS_3C        0x00412abc /* Nand Flash Spare Area Write Bytes 60-63 */
-#define BCHP_NAND_DDR_TIMING                     0x00412ac0 /* Nand Flash DDR TIMING */
-#define BCHP_NAND_DDR_NCDL_CALIB_CTL             0x00412ac4 /* Nand Flash Calibration Control for Master DLL */
-#define BCHP_NAND_DDR_NCDL_CALIB_PERIOD          0x00412ac8 /* Nand Flash Calibration Period */
-#define BCHP_NAND_DDR_NCDL_CALIB_STAT            0x00412acc /* Nand Flash Calibration Status for Master DLL */
-#define BCHP_NAND_DDR_NCDL_MODE                  0x00412ad0 /* Nand Flash NCDL mode for Slave DLLs */
-#define BCHP_NAND_DDR_NCDL_OFFSET                0x00412ad4 /* Nand Flash NCDL offset for Slave DLLs */
-#define BCHP_NAND_DDR_PHY_CTL                    0x00412ad8 /* Nand Flash DDR PHY CONTROL */
-#define BCHP_NAND_DDR_PHY_BIST_CTL               0x00412adc /* Nand Flash DDR PHY BIST CONTROL */
-#define BCHP_NAND_DDR_PHY_BIST_STAT              0x00412ae0 /* Nand Flash DDR PHY BIST STATUS */
-#define BCHP_NAND_DDR_DIAG_STAT0                 0x00412ae4 /* Nand Flash DDR DIAG STATUS0 */
-#define BCHP_NAND_DDR_DIAG_STAT1                 0x00412ae8 /* Nand Flash DDR DIAG STATUS1 */
+#define BCHP_NAND_REVISION                       0x00442800 /* NAND Revision */
+#define BCHP_NAND_CMD_START                      0x00442804 /* Nand Flash Command Start */
+#define BCHP_NAND_CMD_EXT_ADDRESS                0x00442808 /* Nand Flash Command Extended Address */
+#define BCHP_NAND_CMD_ADDRESS                    0x0044280c /* Nand Flash Command Address */
+#define BCHP_NAND_CMD_END_ADDRESS                0x00442810 /* Nand Flash Command End Address */
+#define BCHP_NAND_INTFC_STATUS                   0x00442814 /* Nand Flash Interface Status */
+#define BCHP_NAND_CS_NAND_SELECT                 0x00442818 /* Nand Flash EBI CS Select */
+#define BCHP_NAND_CS_NAND_XOR                    0x0044281c /* Nand Flash EBI CS XOR masking on CPU address Control */
+#define BCHP_NAND_LL_OP                          0x00442820 /* Nand Flash Low Level Operation */
+#define BCHP_NAND_MPLANE_BASE_EXT_ADDRESS        0x00442824 /* Nand Flash Multiplane base address */
+#define BCHP_NAND_MPLANE_BASE_ADDRESS            0x00442828 /* Nand Flash Multiplane base address */
+#define BCHP_NAND_ACC_CONTROL_CS0                0x00442850 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS0                     0x00442854 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS0                   0x00442858 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS0                   0x0044285c /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS1                0x00442860 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS1                     0x00442864 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS1                   0x00442868 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS1                   0x0044286c /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS2                0x00442870 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS2                     0x00442874 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS2                   0x00442878 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS2                   0x0044287c /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS3                0x00442880 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS3                     0x00442884 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS3                   0x00442888 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS3                   0x0044288c /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS4                0x00442890 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS4                     0x00442894 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS4                   0x00442898 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS4                   0x0044289c /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS5                0x004428a0 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS5                     0x004428a4 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS5                   0x004428a8 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS5                   0x004428ac /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_ACC_CONTROL_CS6                0x004428b0 /* Nand Flash Access Control */
+#define BCHP_NAND_CONFIG_CS6                     0x004428b4 /* Nand Flash Config */
+#define BCHP_NAND_TIMING_1_CS6                   0x004428b8 /* Nand Flash Timing Parameters 1 */
+#define BCHP_NAND_TIMING_2_CS6                   0x004428bc /* Nand Flash Timing Parameters 2 */
+#define BCHP_NAND_CORR_STAT_THRESHOLD            0x004428c0 /* Correctable Error Reporting Threshold */
+#define BCHP_NAND_CORR_STAT_THRESHOLD_EXT        0x004428c4 /* Correctable Error Reporting Threshold */
+#define BCHP_NAND_BLK_WR_PROTECT                 0x004428c8 /* Block Write Protect Enable and Size for EBI_CS0b */
+#define BCHP_NAND_MULTIPLANE_OPCODES_1           0x004428cc /* Nand Flash Multiplane Customerized Opcodes */
+#define BCHP_NAND_MULTIPLANE_OPCODES_2           0x004428d0 /* Nand Flash Multiplane Customerized Opcodes */
+#define BCHP_NAND_MULTIPLANE_CTRL                0x004428d4 /* Nand Flash Multiplane Control */
+#define BCHP_NAND_UNCORR_ERROR_COUNT             0x004428fc /* Read Uncorrectable Event Count */
+#define BCHP_NAND_CORR_ERROR_COUNT               0x00442900 /* Read Error Count */
+#define BCHP_NAND_READ_ERROR_COUNT               0x00442904 /* Read Error Count */
+#define BCHP_NAND_BLOCK_LOCK_STATUS              0x00442908 /* Nand Flash Block Lock Status */
+#define BCHP_NAND_ECC_CORR_EXT_ADDR              0x0044290c /* ECC Correctable Error Extended Address */
+#define BCHP_NAND_ECC_CORR_ADDR                  0x00442910 /* ECC Correctable Error Address */
+#define BCHP_NAND_ECC_UNC_EXT_ADDR               0x00442914 /* ECC Uncorrectable Error Extended Address */
+#define BCHP_NAND_ECC_UNC_ADDR                   0x00442918 /* ECC Uncorrectable Error Address */
+#define BCHP_NAND_FLASH_READ_EXT_ADDR            0x0044291c /* Flash Read Data Extended Address */
+#define BCHP_NAND_FLASH_READ_ADDR                0x00442920 /* Flash Read Data Address */
+#define BCHP_NAND_PROGRAM_PAGE_EXT_ADDR          0x00442924 /* Page Program Extended Address */
+#define BCHP_NAND_PROGRAM_PAGE_ADDR              0x00442928 /* Page Program Address */
+#define BCHP_NAND_COPY_BACK_EXT_ADDR             0x0044292c /* Copy Back Extended Address */
+#define BCHP_NAND_COPY_BACK_ADDR                 0x00442930 /* Copy Back Address */
+#define BCHP_NAND_BLOCK_ERASE_EXT_ADDR           0x00442934 /* Block Erase Extended Address */
+#define BCHP_NAND_BLOCK_ERASE_ADDR               0x00442938 /* Block Erase Address */
+#define BCHP_NAND_INV_READ_EXT_ADDR              0x0044293c /* Flash Invalid Data Extended Address */
+#define BCHP_NAND_INV_READ_ADDR                  0x00442940 /* Flash Invalid Data Address */
+#define BCHP_NAND_INIT_STATUS                    0x00442944 /* Initialization status */
+#define BCHP_NAND_ONFI_STATUS                    0x00442948 /* ONFI Status */
+#define BCHP_NAND_ONFI_DEBUG_DATA                0x0044294c /* ONFI Debug Data */
+#define BCHP_NAND_SEMAPHORE                      0x00442950 /* Semaphore */
+#define BCHP_NAND_FLASH_DEVICE_ID                0x00442994 /* Nand Flash Device ID */
+#define BCHP_NAND_FLASH_DEVICE_ID_EXT            0x00442998 /* Nand Flash Extended Device ID */
+#define BCHP_NAND_LL_RDDATA                      0x0044299c /* Nand Flash Low Level Read Data */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_0          0x00442a00 /* Nand Flash Spare Area Read Bytes 0-3 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_4          0x00442a04 /* Nand Flash Spare Area Read Bytes 4-7 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_8          0x00442a08 /* Nand Flash Spare Area Read Bytes 8-11 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_C          0x00442a0c /* Nand Flash Spare Area Read Bytes 12-15 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_10         0x00442a10 /* Nand Flash Spare Area Read Bytes 16-19 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_14         0x00442a14 /* Nand Flash Spare Area Read Bytes 20-23 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_18         0x00442a18 /* Nand Flash Spare Area Read Bytes 24-27 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_1C         0x00442a1c /* Nand Flash Spare Area Read Bytes 28-31 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_20         0x00442a20 /* Nand Flash Spare Area Read Bytes 32-35 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_24         0x00442a24 /* Nand Flash Spare Area Read Bytes 36-39 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_28         0x00442a28 /* Nand Flash Spare Area Read Bytes 40-43 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_2C         0x00442a2c /* Nand Flash Spare Area Read Bytes 44-47 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_30         0x00442a30 /* Nand Flash Spare Area Read Bytes 48-51 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_34         0x00442a34 /* Nand Flash Spare Area Read Bytes 52-55 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_38         0x00442a38 /* Nand Flash Spare Area Read Bytes 56-59 */
+#define BCHP_NAND_SPARE_AREA_READ_OFS_3C         0x00442a3c /* Nand Flash Spare Area Read Bytes 60-63 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_0         0x00442a80 /* Nand Flash Spare Area Write Bytes 0-3 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_4         0x00442a84 /* Nand Flash Spare Area Write Bytes 4-7 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_8         0x00442a88 /* Nand Flash Spare Area Write Bytes 8-11 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_C         0x00442a8c /* Nand Flash Spare Area Write Bytes 12-15 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_10        0x00442a90 /* Nand Flash Spare Area Write Bytes 16-19 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_14        0x00442a94 /* Nand Flash Spare Area Write Bytes 20-23 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_18        0x00442a98 /* Nand Flash Spare Area Write Bytes 24-27 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_1C        0x00442a9c /* Nand Flash Spare Area Write Bytes 28-31 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_20        0x00442aa0 /* Nand Flash Spare Area Write Bytes 32-35 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_24        0x00442aa4 /* Nand Flash Spare Area Write Bytes 36-39 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_28        0x00442aa8 /* Nand Flash Spare Area Write Bytes 40-43 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_2C        0x00442aac /* Nand Flash Spare Area Write Bytes 44-47 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_30        0x00442ab0 /* Nand Flash Spare Area Write Bytes 48-51 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_34        0x00442ab4 /* Nand Flash Spare Area Write Bytes 52-55 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_38        0x00442ab8 /* Nand Flash Spare Area Write Bytes 56-59 */
+#define BCHP_NAND_SPARE_AREA_WRITE_OFS_3C        0x00442abc /* Nand Flash Spare Area Write Bytes 60-63 */
+#define BCHP_NAND_DDR_TIMING                     0x00442ac0 /* Nand Flash DDR TIMING */
+#define BCHP_NAND_DDR_NCDL_CALIB_CTL             0x00442ac4 /* Nand Flash Calibration Control for Master DLL */
+#define BCHP_NAND_DDR_NCDL_CALIB_PERIOD          0x00442ac8 /* Nand Flash Calibration Period */
+#define BCHP_NAND_DDR_NCDL_CALIB_STAT            0x00442acc /* Nand Flash Calibration Status for Master DLL */
+#define BCHP_NAND_DDR_NCDL_MODE                  0x00442ad0 /* Nand Flash NCDL mode for Slave DLLs */
+#define BCHP_NAND_DDR_NCDL_OFFSET                0x00442ad4 /* Nand Flash NCDL offset for Slave DLLs */
+#define BCHP_NAND_DDR_PHY_CTL                    0x00442ad8 /* Nand Flash DDR PHY CONTROL */
+#define BCHP_NAND_DDR_PHY_BIST_CTL               0x00442adc /* Nand Flash DDR PHY BIST CONTROL */
+#define BCHP_NAND_DDR_PHY_BIST_STAT              0x00442ae0 /* Nand Flash DDR PHY BIST STATUS */
+#define BCHP_NAND_DDR_DIAG_STAT0                 0x00442ae4 /* Nand Flash DDR DIAG STATUS0 */
+#define BCHP_NAND_DDR_DIAG_STAT1                 0x00442ae8 /* Nand Flash DDR DIAG STATUS1 */
 
 /***************************************************************************
  *REVISION - NAND Revision
@@ -209,7 +209,6 @@
 #define BCHP_NAND_CMD_START_OPCODE_PAGE_READ_MULTI                 17
 #define BCHP_NAND_CMD_START_OPCODE_STATUS_READ_MULTI               18
 #define BCHP_NAND_CMD_START_OPCODE_PROGRAM_PAGE_MULTI              19
-#define BCHP_NAND_CMD_START_OPCODE_PROGRAM_PAGE_MULTI_CACHE        20
 #define BCHP_NAND_CMD_START_OPCODE_BLOCK_ERASE_MULTI               21
 
 /***************************************************************************
@@ -386,55 +385,55 @@
 #define BCHP_NAND_CS_NAND_SELECT_EBI_CS_0_SEL_SHIFT                0
 
 /***************************************************************************
- *CS_NAND_XOR - Nand Flash EBI CS Address XOR with 1FC0 Control
+ *CS_NAND_XOR - Nand Flash EBI CS XOR masking on CPU address Control
  ***************************************************************************/
-/* NAND :: CS_NAND_XOR :: ONLY_BLOCK_0_1FC0_XOR [31:31] */
-#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_1FC0_XOR_MASK           0x80000000
-#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_1FC0_XOR_SHIFT          31
-#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_1FC0_XOR_DEFAULT        0x00000000
+/* NAND :: CS_NAND_XOR :: ONLY_BLOCK_0_XOR [31:31] */
+#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_XOR_MASK                0x80000000
+#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_XOR_SHIFT               31
+#define BCHP_NAND_CS_NAND_XOR_ONLY_BLOCK_0_XOR_DEFAULT             0x00000000
 
 /* NAND :: CS_NAND_XOR :: reserved0 [30:08] */
 #define BCHP_NAND_CS_NAND_XOR_reserved0_MASK                       0x7fffff00
 #define BCHP_NAND_CS_NAND_XOR_reserved0_SHIFT                      8
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_7_ADDR_1FC0_XOR [07:07] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_1FC0_XOR_MASK          0x00000080
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_1FC0_XOR_SHIFT         7
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_7_ADDR_XOR [07:07] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_XOR_MASK               0x00000080
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_XOR_SHIFT              7
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_7_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_6_ADDR_1FC0_XOR [06:06] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_1FC0_XOR_MASK          0x00000040
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_1FC0_XOR_SHIFT         6
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_6_ADDR_XOR [06:06] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_XOR_MASK               0x00000040
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_XOR_SHIFT              6
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_6_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_5_ADDR_1FC0_XOR [05:05] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_1FC0_XOR_MASK          0x00000020
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_1FC0_XOR_SHIFT         5
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_5_ADDR_XOR [05:05] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_XOR_MASK               0x00000020
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_XOR_SHIFT              5
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_5_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_4_ADDR_1FC0_XOR [04:04] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_1FC0_XOR_MASK          0x00000010
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_1FC0_XOR_SHIFT         4
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_4_ADDR_XOR [04:04] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_XOR_MASK               0x00000010
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_XOR_SHIFT              4
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_4_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_3_ADDR_1FC0_XOR [03:03] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_1FC0_XOR_MASK          0x00000008
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_1FC0_XOR_SHIFT         3
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_3_ADDR_XOR [03:03] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_XOR_MASK               0x00000008
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_XOR_SHIFT              3
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_3_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_2_ADDR_1FC0_XOR [02:02] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_1FC0_XOR_MASK          0x00000004
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_1FC0_XOR_SHIFT         2
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_2_ADDR_XOR [02:02] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_XOR_MASK               0x00000004
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_XOR_SHIFT              2
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_2_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_1_ADDR_1FC0_XOR [01:01] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_1FC0_XOR_MASK          0x00000002
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_1FC0_XOR_SHIFT         1
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_1FC0_XOR_DEFAULT       0x00000000
+/* NAND :: CS_NAND_XOR :: EBI_CS_1_ADDR_XOR [01:01] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_XOR_MASK               0x00000002
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_XOR_SHIFT              1
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_1_ADDR_XOR_DEFAULT            0x00000000
 
-/* NAND :: CS_NAND_XOR :: EBI_CS_0_ADDR_1FC0_XOR [00:00] */
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_0_ADDR_1FC0_XOR_MASK          0x00000001
-#define BCHP_NAND_CS_NAND_XOR_EBI_CS_0_ADDR_1FC0_XOR_SHIFT         0
+/* NAND :: CS_NAND_XOR :: EBI_CS_0_ADDR_XOR [00:00] */
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_0_ADDR_XOR_MASK               0x00000001
+#define BCHP_NAND_CS_NAND_XOR_EBI_CS_0_ADDR_XOR_SHIFT              0
 
 /***************************************************************************
  *LL_OP - Nand Flash Low Level Operation
@@ -545,19 +544,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS0_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS0_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS0 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS0_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS0_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS0_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS0 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS0_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS0_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS0 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS0_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS0_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS0_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS0 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS0_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS0_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS0 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS0_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS0_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS0 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS0_SECTOR_SIZE_1K_MASK              0x00000080
@@ -778,19 +776,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS1_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS1_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS1 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS1_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS1_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS1_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS1 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS1 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS1_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS1 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS1_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS1 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS1_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS1 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS1_SECTOR_SIZE_1K_MASK              0x00000080
@@ -1011,19 +1008,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS2_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS2_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS2 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS2_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS2_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS2_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS2 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS2 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS2_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS2_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS2_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS2 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS2_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS2 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS2_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS2 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS2_SECTOR_SIZE_1K_MASK              0x00000080
@@ -1244,19 +1240,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS3_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS3_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS3 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS3_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS3_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS3_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS3 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS3 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS3_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS3_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS3_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS3 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS3_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS3 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS3_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS3 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS3_SECTOR_SIZE_1K_MASK              0x00000080
@@ -1477,19 +1472,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS4_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS4_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS4 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS4_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS4_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS4_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS4 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS4_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS4_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS4 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS4_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS4_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS4_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS4 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS4_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS4_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS4 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS4_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS4_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS4 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS4_SECTOR_SIZE_1K_MASK              0x00000080
@@ -1710,19 +1704,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS5_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS5_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS5 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS5_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS5_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS5_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS5 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS5 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS5_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS5_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS5_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS5 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS5_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS5 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS5_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS5_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS5 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS5_SECTOR_SIZE_1K_MASK              0x00000080
@@ -1943,19 +1936,18 @@
 #define BCHP_NAND_ACC_CONTROL_CS6_CACHE_MODE_EN_SHIFT              22
 #define BCHP_NAND_ACC_CONTROL_CS6_CACHE_MODE_EN_DEFAULT            0x00000000
 
-/* NAND :: ACC_CONTROL_CS6 :: CACHE_MODE_LAST_PAGE [21:21] */
-#define BCHP_NAND_ACC_CONTROL_CS6_CACHE_MODE_LAST_PAGE_MASK        0x00200000
-#define BCHP_NAND_ACC_CONTROL_CS6_CACHE_MODE_LAST_PAGE_SHIFT       21
-#define BCHP_NAND_ACC_CONTROL_CS6_CACHE_MODE_LAST_PAGE_DEFAULT     0x00000000
+/* NAND :: ACC_CONTROL_CS6 :: reserved1 [21:21] */
+#define BCHP_NAND_ACC_CONTROL_CS6_reserved1_MASK                   0x00200000
+#define BCHP_NAND_ACC_CONTROL_CS6_reserved1_SHIFT                  21
 
 /* NAND :: ACC_CONTROL_CS6 :: ECC_LEVEL [20:16] */
 #define BCHP_NAND_ACC_CONTROL_CS6_ECC_LEVEL_MASK                   0x001f0000
 #define BCHP_NAND_ACC_CONTROL_CS6_ECC_LEVEL_SHIFT                  16
 #define BCHP_NAND_ACC_CONTROL_CS6_ECC_LEVEL_DEFAULT                0x0000000f
 
-/* NAND :: ACC_CONTROL_CS6 :: reserved1 [15:08] */
-#define BCHP_NAND_ACC_CONTROL_CS6_reserved1_MASK                   0x0000ff00
-#define BCHP_NAND_ACC_CONTROL_CS6_reserved1_SHIFT                  8
+/* NAND :: ACC_CONTROL_CS6 :: reserved2 [15:08] */
+#define BCHP_NAND_ACC_CONTROL_CS6_reserved2_MASK                   0x0000ff00
+#define BCHP_NAND_ACC_CONTROL_CS6_reserved2_SHIFT                  8
 
 /* NAND :: ACC_CONTROL_CS6 :: SECTOR_SIZE_1K [07:07] */
 #define BCHP_NAND_ACC_CONTROL_CS6_SECTOR_SIZE_1K_MASK              0x00000080
@@ -3367,7 +3359,7 @@
 /* NAND :: DDR_TIMING :: tCAD [23:20] */
 #define BCHP_NAND_DDR_TIMING_tCAD_MASK                             0x00f00000
 #define BCHP_NAND_DDR_TIMING_tCAD_SHIFT                            20
-#define BCHP_NAND_DDR_TIMING_tCAD_DEFAULT                          0x00000003
+#define BCHP_NAND_DDR_TIMING_tCAD_DEFAULT                          0x00000004
 
 /* NAND :: DDR_TIMING :: reserved1 [19:17] */
 #define BCHP_NAND_DDR_TIMING_reserved1_MASK                        0x000e0000
@@ -3386,7 +3378,7 @@
 /* NAND :: DDR_TIMING :: tWB [07:04] */
 #define BCHP_NAND_DDR_TIMING_tWB_MASK                              0x000000f0
 #define BCHP_NAND_DDR_TIMING_tWB_SHIFT                             4
-#define BCHP_NAND_DDR_TIMING_tWB_DEFAULT                           0x0000000e
+#define BCHP_NAND_DDR_TIMING_tWB_DEFAULT                           0x0000000f
 
 /* NAND :: DDR_TIMING :: tADL [03:00] */
 #define BCHP_NAND_DDR_TIMING_tADL_MASK                             0x0000000f
@@ -3584,7 +3576,7 @@
 /***************************************************************************
  *FLASH_CACHE%i - Flash Cache Buffer Read Access
  ***************************************************************************/
-#define BCHP_NAND_FLASH_CACHEi_ARRAY_BASE                          0x00412c00
+#define BCHP_NAND_FLASH_CACHEi_ARRAY_BASE                          0x00442c00
 #define BCHP_NAND_FLASH_CACHEi_ARRAY_START                         0
 #define BCHP_NAND_FLASH_CACHEi_ARRAY_END                           127
 #define BCHP_NAND_FLASH_CACHEi_ARRAY_ELEMENT_SIZE                  32

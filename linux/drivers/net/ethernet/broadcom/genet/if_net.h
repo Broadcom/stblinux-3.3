@@ -40,10 +40,10 @@ extern "C" {
 /*
  * ACPI pattern (or generic HFB ) data
  */
-union acpi_pattern{
+union acpi_pattern {
 	unsigned long value;
 	struct {
-#ifdef CONFIG_CPU_BIG_ENDIAN
+#ifdef __BIG_ENDIAN
 		unsigned long unused:12;
 		unsigned long mask:4;
 		unsigned long data:16;

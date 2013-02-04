@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:30 2012
+ * Date:           Generated on         Wed Oct 17 03:11:30 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,17 +42,17 @@
 /***************************************************************************
  *HIF_TOP_CTRL - HIF Top Control Registers
  ***************************************************************************/
-#define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL          0x00412000 /* External IRQ Active Level Control Register */
-#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x00412004 /* SPI test port select register */
-#define BCHP_HIF_TOP_CTRL_SCRATCH                0x00412008 /* HIF Scratch Register */
-#define BCHP_HIF_TOP_CTRL_PM_CTRL0               0x0041200c /* HIF Power Management Control0 Register */
-#define BCHP_HIF_TOP_CTRL_PM_CTRL1               0x00412010 /* HIF Power Management Control1 Register */
-#define BCHP_HIF_TOP_CTRL_PM_CTRL2               0x00412014 /* HIF Power Management Control Register:used to control SDIO_0 (CARD) */
-#define BCHP_HIF_TOP_CTRL_PM_CTRL3               0x00412018 /* HIF Power Management Control Register:used to control SDIO_1 (EMMC) */
-#define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x0041201c /* HIF Decoded Flash Type */
-#define BCHP_HIF_TOP_CTRL_CPU_MODE_CTRL          0x00412030 /* CPU MODE Control register (PUBLIC) */
-#define BCHP_HIF_TOP_CTRL_CPU_MODE_STATUS        0x00412034 /* CPU MODE Control status register (PUBLIC) */
-#define BCHP_HIF_TOP_CTRL_EMMC_PIN_CTRL          0x00412038 /* EMMC Pin Control register */
+#define BCHP_HIF_TOP_CTRL_EXT_IRQ_LEVEL          0x00442000 /* External IRQ Active Level Control Register */
+#define BCHP_HIF_TOP_CTRL_SPI_DBG_SEL            0x00442004 /* SPI test port select register */
+#define BCHP_HIF_TOP_CTRL_SCRATCH                0x00442008 /* HIF Scratch Register */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL0               0x0044200c /* HIF Power Management Control0 Register */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL1               0x00442010 /* HIF Power Management Control1 Register */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL2               0x00442014 /* HIF Power Management Control Register:used to control SDIO_0 (CARD) */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3               0x00442018 /* HIF Power Management Control Register:used to control SDIO_1 (EMMC) */
+#define BCHP_HIF_TOP_CTRL_FLASH_TYPE             0x0044201c /* HIF Decoded Flash Type */
+#define BCHP_HIF_TOP_CTRL_CPU_MODE_CTRL          0x00442030 /* CPU MODE Control register (PUBLIC) */
+#define BCHP_HIF_TOP_CTRL_CPU_MODE_STATUS        0x00442034 /* CPU MODE Control status register (PUBLIC) */
+#define BCHP_HIF_TOP_CTRL_EMMC_PIN_CTRL          0x00442038 /* EMMC Pin Control register */
 
 /***************************************************************************
  *EXT_IRQ_LEVEL - External IRQ Active Level Control Register
@@ -472,9 +472,18 @@
 #define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_CMD_PM_IN_DRIVE_INACTIVE_Low 1
 #define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_CMD_PM_IN_DRIVE_INACTIVE_HIGH 2
 
-/* HIF_TOP_CTRL :: PM_CTRL3 :: reserved1 [15:10] */
-#define BCHP_HIF_TOP_CTRL_PM_CTRL3_reserved1_MASK                  0x0000fc00
-#define BCHP_HIF_TOP_CTRL_PM_CTRL3_reserved1_SHIFT                 10
+/* HIF_TOP_CTRL :: PM_CTRL3 :: reserved1 [15:12] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_reserved1_MASK                  0x0000f000
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_reserved1_SHIFT                 12
+
+/* HIF_TOP_CTRL :: PM_CTRL3 :: SDIO_VOLTAGE_PM_OUT_CTRL [11:10] */
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_MASK   0x00000c00
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_SHIFT  10
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_DEFAULT 0x00000000
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_FUNCTIONAL 0
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_LOW    1
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_HIGH   2
+#define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_VOLTAGE_PM_OUT_CTRL_Tristate 3
 
 /* HIF_TOP_CTRL :: PM_CTRL3 :: SDIO_POWER_PM_OUT_CTRL [09:08] */
 #define BCHP_HIF_TOP_CTRL_PM_CTRL3_SDIO_POWER_PM_OUT_CTRL_MASK     0x00000300

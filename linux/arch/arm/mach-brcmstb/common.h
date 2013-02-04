@@ -1,17 +1,26 @@
 /*
- * Copyright (c) 2011 Picochip Ltd., Jamie Iles
+ * Copyright (C) 2013 Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  *
- * All enquiries to support@picochip.com
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __PICOXCELL_COMMON_H__
-#define __PICOXCELL_COMMON_H__
+
+#ifndef __BRCMSTB_COMMON_H__
+#define __BRCMSTB_COMMON_H__
 
 #include <asm/mach/time.h>
 
-extern struct sys_timer picoxcell_timer;
+extern struct sys_timer brcmstb_timer;
+extern void brcmstb_secondary_startup(void);
 
-#endif /* __PICOXCELL_COMMON_H__ */
+#endif /* __BRCMSTB_COMMON_H__ */

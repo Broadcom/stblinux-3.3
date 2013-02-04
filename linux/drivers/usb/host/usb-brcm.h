@@ -24,6 +24,8 @@
 #include <linux/io.h>
 #include <linux/version.h>
 #include <linux/irq.h>
+#include <linux/dma-mapping.h>
+#include <linux/of.h>
 #include <linux/brcmstb/brcmstb.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)

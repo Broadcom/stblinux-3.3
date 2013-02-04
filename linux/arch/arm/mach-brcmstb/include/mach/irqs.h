@@ -17,4 +17,7 @@
 /* We dynamically allocate our irq_desc's. */
 #define NR_IRQS				0
 
+#define IRQ_LOCALTIMER			29
+#define BRCMSTB_GIC_START		31
+
 #endif /* __MACH_IRQS_H */

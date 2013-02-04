@@ -42,6 +42,57 @@
 		 val << BCHP_SDIO_0_CFG_##reg##_##field##_SHIFT);	\
 	} while (0)
 
+#define SDHCI_OVERRIDE_OPTIONS_NONE		0x00000000
+#define SDHCI_OVERRIDE_OPTIONS_UHS_SDR50	0x00000001
+#define SDHCI_OVERRIDE_OPTIONS_TUNING		0x00000002
+
+#define CAP0_SHIFT(field) BCHP_SDIO_0_CFG_CAP_REG0_##field##_SHIFT
+#define CAP1_SHIFT(field) BCHP_SDIO_0_CFG_CAP_REG1_##field##_SHIFT
+
+static inline void sdhci_override_caps(uintptr_t cfg_base, int base_clock,
+				       int timeout_clock, int options)
+{
+	uint32_t val;
+
+	/* Set default for every field with all options off */
+	val = (0 << CAP0_SHIFT(DDR50_SUPPORT) |			\
+	       0 << CAP0_SHIFT(SD104_SUPPORT) |			\
+	       0 << CAP0_SHIFT(SDR50) |				\
+	       0 << CAP0_SHIFT(SLOT_TYPE) |			\
+	       0 << CAP0_SHIFT(ASYNCH_INT_SUPPORT) |		\
+	       0 << CAP0_SHIFT(64B_SYS_BUS_SUPPORT) |		\
+	       0 << CAP0_SHIFT(1_8V_SUPPORT) |			\
+	       0 << CAP0_SHIFT(3_0V_SUPPORT) |			\
+	       1 << CAP0_SHIFT(3_3V_SUPPORT) |			\
+	       1 << CAP0_SHIFT(SUSP_RES_SUPPORT) |		\
+	       1 << CAP0_SHIFT(SDMA_SUPPORT) |			\
+	       1 << CAP0_SHIFT(HIGH_SPEED_SUPPORT) |		\
+	       1 << CAP0_SHIFT(ADMA2_SUPPORT) |			\
+	       1 << CAP0_SHIFT(EXTENDED_MEDIA_SUPPORT) |	\
+	       1 << CAP0_SHIFT(MAX_BL) |			\
+	       0 << CAP0_SHIFT(BASE_FREQ) |			\
+	       1 << CAP0_SHIFT(TIMEOUT_CLK_UNIT) |		\
+	       0 << CAP0_SHIFT(TIMEOUT_FREQ));
+
+	val |= (base_clock << CAP0_SHIFT(BASE_FREQ));
+	val |= (timeout_clock << CAP0_SHIFT(TIMEOUT_FREQ));
+	if (options & SDHCI_OVERRIDE_OPTIONS_UHS_SDR50)
+		val |= (1 << CAP0_SHIFT(SDR50)) |
+			(1 << CAP0_SHIFT(1_8V_SUPPORT));
+	BDEV_WR(SDIO_CFG_REG(cfg_base, CAP_REG0), val);
+
+	val = (1 << CAP1_SHIFT(CAP_REG_OVERRIDE) |	\
+	       0 << CAP1_SHIFT(SPI_BLK_MODE) |		\
+	       0 << CAP1_SHIFT(SPI_MODE) |		\
+	       0 << CAP1_SHIFT(CLK_MULT) |		\
+	       0 << CAP1_SHIFT(RETUNING_MODES) |	\
+	       0 << CAP1_SHIFT(USE_TUNING) |		\
+	       0 << CAP1_SHIFT(RETUNING_TIMER) |	\
+	       0 << CAP1_SHIFT(Driver_D_SUPPORT) |	\
+	       0 << CAP1_SHIFT(Driver_C_SUPPORT) |	\
+	       0 << CAP1_SHIFT(Driver_A_SUPPORT));
+	BDEV_WR(SDIO_CFG_REG(cfg_base, CAP_REG1), val);
+}
 
 static int sdhci_brcmstb_config(struct platform_device *pdev)
 {
@@ -88,10 +139,8 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 	 */
 	if (BRCM_CHIP_REV() == 0x12) {
 		/* disable tuning */
-		SDIO_CFG_UNSET(cfg_base, CAP_REG0, SLOT_TYPE);
-		SDIO_CFG_UNSET(cfg_base, CAP_REG0, DDR50_SUPPORT);
-		SDIO_CFG_UNSET(cfg_base, CAP_REG1, USE_TUNING);
-		SDIO_CFG_SET(cfg_base, CAP_REG1, CAP_REG_OVERRIDE);
+		sdhci_override_caps(cfg_base, 100, 50,
+				    SDHCI_OVERRIDE_OPTIONS_UHS_SDR50);
 
 		/* enable input delay, resolution = 1, value = 8 */
 		SDIO_CFG_FIELD(cfg_base, IP_DLY, IP_TAP_DELAY, 8);
@@ -101,6 +150,8 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 		/* Use the manual clock delay */
 		SDIO_CFG_FIELD(cfg_base, SD_CLOCK_DELAY, INPUT_CLOCK_DELAY, 8);
 	}
+#elif defined(CONFIG_BCM7563A0)
+	sdhci_override_caps(cfg_base, 50, 50, SDHCI_OVERRIDE_OPTIONS_NONE);
 #endif
 	return 0;
 }

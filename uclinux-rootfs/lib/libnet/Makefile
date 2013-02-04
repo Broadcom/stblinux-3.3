@@ -11,12 +11,12 @@ LIBNET = libnet.a
 
 all: $(LIBNET)
 
-$(LIBNET): $(LIBNET)($(OBJS))
+$(LIBNET): $(OBJS)
 	$(AR) rcv $(LIBNET) $(OBJS)
 	$(RANLIB) $(LIBNET)
 
-$(LIBNET)($(OBJS)): $(SRC)
-	$(CC) $(CFLAGS) -DL_$(basename $*) -o $(basename $*).o -c $^
+$(OBJS): $(SRC)
+	$(CC) $(CFLAGS) -DL_$(basename $@) -o $(basename $@).o -c $^
 
 romfs:
 

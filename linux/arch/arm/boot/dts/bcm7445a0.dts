@@ -1,0 +1,129 @@
+/dts-v1/;
+
+/ {
+	model = "Broadcom STB (7445a0)";
+	compatible = "brcm,brcmstb";
+	#address-cells = <1>;
+	#size-cells = <1>;
+	interrupt-parent = <&gic>;
+
+	chosen {
+		bootargs = "console=ttyS0,115200 earlyprintk";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x10000000>; /* 256 MB */
+	};
+
+	// ARM GIC
+	gic: interrupt-controller@FFD00000 {
+		compatible = "arm,cortex-a15-gic";
+		interrupt-controller;
+		#interrupt-cells = <3>;
+		reg = <0xFFD01000 0x1000>,
+		      <0xFFD02000 0x2000>;
+	};
+
+	//
+	// UARTS
+	//
+
+	// UART A (0)
+	uart0: serial@F0406B00 {
+		compatible = "ns16550a";
+		reg = <0xF0406B00 0x20>;
+		reg-shift = <2>;
+		reg-io-width = <4>;
+		interrupts = <0 75 0x4>;
+		clock-frequency = <81000000>;
+	};
+
+	// UART B (1)
+	uart1: serial@F0406B40 {
+		compatible = "ns16550a";
+		reg = <0xF0406B40 0x20>;
+		reg-shift = <2>;
+		reg-io-width = <4>;
+		interrupts = <0 76 0x4>;
+		clock-frequency = <81000000>;
+	};
+
+	// UART C (2)
+	uart2: serial@F0406B80 {
+		compatible = "ns16550a";
+		reg = <0xF0406B80 0x20>;
+		reg-shift = <2>;
+		reg-io-width = <4>;
+		interrupts = <0 77 0x4>;
+		clock-frequency = <81000000>;
+	};
+
+	usb0: usb@f0470000 {
+		compatible = "brcm,usb-instance";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0xf0470200 0x100>;
+		ipp = <1>;
+		ioc = <1>;
+		ranges;
+
+		ehci0: ehci@f0470300 {
+			compatible = "brcm,ehci-brcm";
+			reg = <0xf0470300 0x100>;
+			interrupts = <0 79 0>;
+		};
+
+		ohci0: ehci@f0470400 {
+			compatible = "brcm,ohci-brcm";
+			reg = <0xf0470400 0x100>;
+			interrupts = <0 81 0>;
+		};
+
+		ehci1: ehci@f0470500 {
+			compatible = "brcm,ehci-brcm";
+			reg = <0xf0470500 0x100>;
+			interrupts = <0 80 0>;
+		};
+
+		ohci1: ehci@f0470600 {
+			compatible = "brcm,ohci-brcm";
+			reg = <0xf0470600 0x100>;
+			interrupts = <0 82 0>;
+		};
+	};
+
+	usb1: usb@f0480000 {
+		compatible = "brcm,usb-instance";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0xf0480200 0x100>;
+		ipp = <1>;
+		ioc = <1>;
+		ranges;
+
+		ehci2: ehci@f0480300 {
+			compatible = "brcm,ehci-brcm";
+			reg = <0xf0480300 0x100>;
+			interrupts = <0 86 0>;
+		};
+
+		ohci2: ehci@f0480400 {
+			compatible = "brcm,ohci-brcm";
+			reg = <0xf0480400 0x100>;
+			interrupts = <0 88 0>;
+		};
+
+		ehci3: ehci@f0480500 {
+			compatible = "brcm,ehci-brcm";
+			reg = <0xf0480500 0x100>;
+			interrupts = <0 87 0>;
+		};
+
+		ohci3: ehci@f0480600 {
+			compatible = "brcm,ohci-brcm";
+			reg = <0xf0480600 0x100>;
+			interrupts = <0 89 0>;
+		};
+	};
+};

@@ -39,7 +39,7 @@
 #define BVIRTADDR(x)		KSEG1ADDR(BPHYSADDR(x))
 #else
 
-#include <mach/map.h>
+#include <mach/hardware.h>
 #define BRCM_MAX_LOWER_MB	256
 #define MEMC1_START		0xc0000000
 #define BVIRTADDR(x)		IO_ADDRESS(BPHYSADDR(x))
@@ -505,7 +505,9 @@
 #include <linux/brcmstb/7445a0/bchp_ebi.h>
 #include <linux/brcmstb/7445a0/bchp_gio.h>
 #include <linux/brcmstb/7445a0/bchp_gio_aon.h>
+#include <linux/brcmstb/7445a0/bchp_hif_continuation.h>
 #include <linux/brcmstb/7445a0/bchp_hif_cpu_intr1.h>
+#include <linux/brcmstb/7445a0/bchp_hif_cpubiuctrl.h>
 #include <linux/brcmstb/7445a0/bchp_hif_intr2.h>
 #include <linux/brcmstb/7445a0/bchp_hif_mspi.h>
 #include <linux/brcmstb/7445a0/bchp_hif_spi_intr2.h>
@@ -885,7 +887,7 @@ void bchip_moca_init(void);
 void __init bchip_check_compat(void);
 void __init bchip_set_features(void);
 void __init bchip_early_setup(void);
-void brcm_machine_restart(char *command);
+void brcm_machine_restart(const char *command);
 void brcm_machine_halt(void);
 char *__devinit brcmstb_pcibios_setup(char *str);
 

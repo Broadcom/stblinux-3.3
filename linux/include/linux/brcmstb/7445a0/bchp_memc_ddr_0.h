@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:30 2012
+ * Date:           Generated on         Wed Oct 17 03:11:30 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -65,7 +65,7 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_3            0x003b203c /* DDR-SDRAM Timing Register 3 */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_4            0x003b2040 /* DDR-SDRAM Timing Register 4 */
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_5            0x003b2044 /* DDR-SDRAM Timing Register 5 */
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ         0x003b2048 /* Memory Controller Sequencer Enable */
+#define BCHP_MEMC_DDR_0_PHY_OP_ACCESS_PENALTY    0x003b2048 /* PHY Operational Access Penalty Count. */
 #define BCHP_MEMC_DDR_0_CNTRLR_SM_TIMEOUT        0x003b204c /* Memory Controller , state machine timeout register. */
 #define BCHP_MEMC_DDR_0_BANK_STATUS              0x003b2050 /* Memory Controller, Bank Status Register */
 #define BCHP_MEMC_DDR_0_TESTER_LATENCY           0x003b2054 /* Memory Controller, Tester Latency Register. */
@@ -73,7 +73,6 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE1               0x003b205c /* Memory Controller, DATA_PINMAP_BYTE1_SEL Register. */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE2               0x003b2060 /* Memory Controller, DATA_PINMAP_BYTE2_SEL Register. */
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3               0x003b2064 /* Memory Controller, DATA_PINMAP_BYTE3_SEL Register. */
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD   0x003b2068 /* Memory Controller, DDR3 DRAM reset Register. */
 #define BCHP_MEMC_DDR_0_STAT_CONTROL             0x003b206c /* Statistics Control register */
 #define BCHP_MEMC_DDR_0_STAT_TIMER               0x003b2070 /* Statistics Timer */
 #define BCHP_MEMC_DDR_0_STAT_IDLE_NOP            0x003b2074 /* DRAM Idle_NOP Cycle Count Register. */
@@ -452,30 +451,51 @@
 /***************************************************************************
  *DRAM_INIT_CNTRL - Dram initialization control
  ***************************************************************************/
-/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: reserved0 [31:03] */
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved0_MASK             0xfffffff8
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved0_SHIFT            3
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: reserved0 [31:06] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved0_MASK             0xffffffc0
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved0_SHIFT            6
 
-/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: BYPASS_PHY_INIT_RDY [02:02] */
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_BYPASS_PHY_INIT_RDY_MASK   0x00000004
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_BYPASS_PHY_INIT_RDY_SHIFT  2
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_BYPASS_PHY_INIT_RDY_DEFAULT 0x00000000
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: IGNORE_PHY_REQUEST_AT_RESET [05:05] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_IGNORE_PHY_REQUEST_AT_RESET_MASK 0x00000020
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_IGNORE_PHY_REQUEST_AT_RESET_SHIFT 5
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_IGNORE_PHY_REQUEST_AT_RESET_DEFAULT 0x00000000
 
-/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: reserved1 [01:01] */
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved1_MASK             0x00000002
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_reserved1_SHIFT            1
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: ENTER_PHY_OP_STATE [04:04] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENTER_PHY_OP_STATE_MASK    0x00000010
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENTER_PHY_OP_STATE_SHIFT   4
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENTER_PHY_OP_STATE_DEFAULT 0x00000000
 
-/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: DDR3_INIT_MODE [00:00] */
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_DDR3_INIT_MODE_MASK        0x00000001
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_DDR3_INIT_MODE_SHIFT       0
-#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_DDR3_INIT_MODE_DEFAULT     0x00000000
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: ENABLE_AUTO_PHY_OP_ACCESS [03:03] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENABLE_AUTO_PHY_OP_ACCESS_MASK 0x00000008
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENABLE_AUTO_PHY_OP_ACCESS_SHIFT 3
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_ENABLE_AUTO_PHY_OP_ACCESS_DEFAULT 0x00000000
+
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: OVERRIDE_PHY_INIT_COMPLETE [02:02] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_INIT_COMPLETE_MASK 0x00000004
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_INIT_COMPLETE_SHIFT 2
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_INIT_COMPLETE_DEFAULT 0x00000000
+
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: OVERRIDE_PHY_DFI_GRANT [01:01] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_DFI_GRANT_MASK 0x00000002
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_DFI_GRANT_SHIFT 1
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_OVERRIDE_PHY_DFI_GRANT_DEFAULT 0x00000000
+
+/* MEMC_DDR_0 :: DRAM_INIT_CNTRL :: PHY_DFI_GRANT_VALUE [00:00] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_PHY_DFI_GRANT_VALUE_MASK   0x00000001
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_PHY_DFI_GRANT_VALUE_SHIFT  0
+#define BCHP_MEMC_DDR_0_DRAM_INIT_CNTRL_PHY_DFI_GRANT_VALUE_DEFAULT 0x00000000
 
 /***************************************************************************
  *DRAM_INIT_STATUS - Dram initialization status
  ***************************************************************************/
-/* MEMC_DDR_0 :: DRAM_INIT_STATUS :: reserved0 [31:01] */
-#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_reserved0_MASK            0xfffffffe
-#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_reserved0_SHIFT           1
+/* MEMC_DDR_0 :: DRAM_INIT_STATUS :: reserved0 [31:02] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_reserved0_MASK            0xfffffffc
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_reserved0_SHIFT           2
+
+/* MEMC_DDR_0 :: DRAM_INIT_STATUS :: PHY_DFI_REQUEST_VALUE [01:01] */
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_PHY_DFI_REQUEST_VALUE_MASK 0x00000002
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_PHY_DFI_REQUEST_VALUE_SHIFT 1
+#define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_PHY_DFI_REQUEST_VALUE_DEFAULT 0x00000000
 
 /* MEMC_DDR_0 :: DRAM_INIT_STATUS :: INIT_DONE [00:00] */
 #define BCHP_MEMC_DDR_0_DRAM_INIT_STATUS_INIT_DONE_MASK            0x00000001
@@ -493,42 +513,6 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_unused_0_MASK                  0x0000e000
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_unused_0_SHIFT                 13
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_unused_0_DEFAULT               0x00000000
-
-/* union - case DDR2 [12:00] */
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: PD_EXIT [12:12] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_PD_EXIT_MASK              0x00001000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_PD_EXIT_SHIFT             12
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_PD_EXIT_DEFAULT           0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: WR [11:09] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_WR_MASK                   0x00000e00
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_WR_SHIFT                  9
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_WR_DEFAULT                0x00000007
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: DLL_RST [08:08] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_DLL_RST_MASK              0x00000100
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_DLL_RST_SHIFT             8
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_DLL_RST_DEFAULT           0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: TEST_MODE [07:07] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_TEST_MODE_MASK            0x00000080
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_TEST_MODE_SHIFT           7
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_TEST_MODE_DEFAULT         0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: CL [06:04] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_CL_MASK                   0x00000070
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_CL_SHIFT                  4
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_CL_DEFAULT                0x00000007
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: BT [03:03] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BT_MASK                   0x00000008
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BT_SHIFT                  3
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BT_DEFAULT                0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR2 :: BL [02:00] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BL_MASK                   0x00000007
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BL_SHIFT                  0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR2_BL_DEFAULT                0x00000002
 
 /* union - case DDR3 [12:00] */
 /* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR3 :: DLL_CNTRL_PPD [12:12] */
@@ -572,10 +556,10 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR3_BL_DEFAULT                0x00000000
 
 /* union - case DDR4 [12:00] */
-/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR4 :: DLL_CNTRL_PPD [12:12] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_DLL_CNTRL_PPD_MASK        0x00001000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_DLL_CNTRL_PPD_SHIFT       12
-#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_DLL_CNTRL_PPD_DEFAULT     0x00000000
+/* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR4 :: unused_1 [12:12] */
+#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_unused_1_MASK             0x00001000
+#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_unused_1_SHIFT            12
+#define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_unused_1_DEFAULT          0x00000000
 
 /* MEMC_DDR_0 :: DRAM_MODE_0 :: DDR4 :: WR [11:09] */
 #define BCHP_MEMC_DDR_0_DRAM_MODE_0_DDR4_WR_MASK                   0x00000e00
@@ -649,60 +633,6 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_1_unused_0_MASK                  0x0000e000
 #define BCHP_MEMC_DDR_0_DRAM_MODE_1_unused_0_SHIFT                 13
 #define BCHP_MEMC_DDR_0_DRAM_MODE_1_unused_0_DEFAULT               0x00000000
-
-/* union - case DDR2 [12:00] */
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: Q_OFF [12:12] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_Q_OFF_MASK                0x00001000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_Q_OFF_SHIFT               12
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_Q_OFF_DEFAULT             0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_Q_OFF_ENABLE              0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_Q_OFF_DISABLE             1
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: RDQS [11:11] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_RDQS_MASK                 0x00000800
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_RDQS_SHIFT                11
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_RDQS_DEFAULT              0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_RDQS_ENABLE               1
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_RDQS_DISABLE              0
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: DQSB [10:10] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DQSB_MASK                 0x00000400
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DQSB_SHIFT                10
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DQSB_DEFAULT              0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DQSB_ENABLE               0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DQSB_DISABLE              1
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: OCD_CAL [09:07] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_OCD_CAL_MASK              0x00000380
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_OCD_CAL_SHIFT             7
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_OCD_CAL_DEFAULT           0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: ODT_CNTRL_1 [06:06] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_1_MASK          0x00000040
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_1_SHIFT         6
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_1_DEFAULT       0x00000001
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: AL [05:03] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_AL_MASK                   0x00000038
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_AL_SHIFT                  3
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_AL_DEFAULT                0x00000006
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: ODT_CNTRL_0 [02:02] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_0_MASK          0x00000004
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_0_SHIFT         2
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_ODT_CNTRL_0_DEFAULT       0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: DRV_IMP [01:01] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DRV_IMP_MASK              0x00000002
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DRV_IMP_SHIFT             1
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DRV_IMP_DEFAULT           0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR2 :: DLL_EN [00:00] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DLL_EN_MASK               0x00000001
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DLL_EN_SHIFT              0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DLL_EN_DEFAULT            0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DLL_EN_ENABLE             0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_1_DDR2_DLL_EN_DISABLE            1
 
 /* union - case DDR3 [12:00] */
 /* MEMC_DDR_0 :: DRAM_MODE_1 :: DDR3 :: Q_OFF [12:12] */
@@ -907,36 +837,6 @@
 #define BCHP_MEMC_DDR_0_DRAM_MODE_2_unused_0_MASK                  0x0000e000
 #define BCHP_MEMC_DDR_0_DRAM_MODE_2_unused_0_SHIFT                 13
 #define BCHP_MEMC_DDR_0_DRAM_MODE_2_unused_0_DEFAULT               0x00000000
-
-/* union - case DDR2 [12:00] */
-/* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR2 :: unused_1 [12:08] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_1_MASK             0x00001f00
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_1_SHIFT            8
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_1_DEFAULT          0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR2 :: HT_SRF [07:07] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_HT_SRF_MASK               0x00000080
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_HT_SRF_SHIFT              7
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_HT_SRF_DEFAULT            0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_HT_SRF_ENABLE             1
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_HT_SRF_DISABLE            0
-
-/* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR2 :: unused_2 [06:04] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_2_MASK             0x00000070
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_2_SHIFT            4
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_unused_2_DEFAULT          0x00000000
-
-/* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR2 :: DCC_ENABLE [03:03] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_DCC_ENABLE_MASK           0x00000008
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_DCC_ENABLE_SHIFT          3
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_DCC_ENABLE_DEFAULT        0x00000000
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_DCC_ENABLE_ENABLE         1
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_DCC_ENABLE_DISABLE        0
-
-/* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR2 :: PASR [02:00] */
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_PASR_MASK                 0x00000007
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_PASR_SHIFT                0
-#define BCHP_MEMC_DDR_0_DRAM_MODE_2_DDR2_PASR_DEFAULT              0x00000000
 
 /* union - case DDR3 [12:00] */
 /* MEMC_DDR_0 :: DRAM_MODE_2 :: DDR3 :: unused_1 [12:11] */
@@ -1589,9 +1489,19 @@
 /***************************************************************************
  *PPD_CONFIG - Precharge power down mode configuration register
  ***************************************************************************/
-/* MEMC_DDR_0 :: PPD_CONFIG :: reserved0 [31:13] */
-#define BCHP_MEMC_DDR_0_PPD_CONFIG_reserved0_MASK                  0xffffe000
-#define BCHP_MEMC_DDR_0_PPD_CONFIG_reserved0_SHIFT                 13
+/* MEMC_DDR_0 :: PPD_CONFIG :: reserved0 [31:15] */
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_reserved0_MASK                  0xffff8000
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_reserved0_SHIFT                 15
+
+/* MEMC_DDR_0 :: PPD_CONFIG :: FORCE_PPD_EXIT [14:14] */
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_FORCE_PPD_EXIT_MASK             0x00004000
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_FORCE_PPD_EXIT_SHIFT            14
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_FORCE_PPD_EXIT_DEFAULT          0x00000000
+
+/* MEMC_DDR_0 :: PPD_CONFIG :: PPD_FORCE [13:13] */
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_PPD_FORCE_MASK                  0x00002000
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_PPD_FORCE_SHIFT                 13
+#define BCHP_MEMC_DDR_0_PPD_CONFIG_PPD_FORCE_DEFAULT               0x00000000
 
 /* MEMC_DDR_0 :: PPD_CONFIG :: PPD_EN [12:12] */
 #define BCHP_MEMC_DDR_0_PPD_CONFIG_PPD_EN_MASK                     0x00001000
@@ -1606,9 +1516,14 @@
 /***************************************************************************
  *SRPD_CONFIG - Self-refresh power down mode configuration register
  ***************************************************************************/
-/* MEMC_DDR_0 :: SRPD_CONFIG :: reserved0 [31:17] */
-#define BCHP_MEMC_DDR_0_SRPD_CONFIG_reserved0_MASK                 0xfffe0000
-#define BCHP_MEMC_DDR_0_SRPD_CONFIG_reserved0_SHIFT                17
+/* MEMC_DDR_0 :: SRPD_CONFIG :: reserved0 [31:18] */
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG_reserved0_MASK                 0xfffc0000
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG_reserved0_SHIFT                18
+
+/* MEMC_DDR_0 :: SRPD_CONFIG :: FORCE_SRPD_EXIT [17:17] */
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG_FORCE_SRPD_EXIT_MASK           0x00020000
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG_FORCE_SRPD_EXIT_SHIFT          17
+#define BCHP_MEMC_DDR_0_SRPD_CONFIG_FORCE_SRPD_EXIT_DEFAULT        0x00000000
 
 /* MEMC_DDR_0 :: SRPD_CONFIG :: SRPD_EN [16:16] */
 #define BCHP_MEMC_DDR_0_SRPD_CONFIG_SRPD_EN_MASK                   0x00010000
@@ -1811,16 +1726,12 @@
 #define BCHP_MEMC_DDR_0_DRAM_TIMING_5_SELFREF_EXIT_DELAY_DEFAULT   0x00000200
 
 /***************************************************************************
- *CNTRLR_START_SEQ - Memory Controller Sequencer Enable
+ *PHY_OP_ACCESS_PENALTY - PHY Operational Access Penalty Count.
  ***************************************************************************/
-/* MEMC_DDR_0 :: CNTRLR_START_SEQ :: reserved0 [31:01] */
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_reserved0_MASK            0xfffffffe
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_reserved0_SHIFT           1
-
-/* MEMC_DDR_0 :: CNTRLR_START_SEQ :: START_SEQ [00:00] */
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_START_SEQ_MASK            0x00000001
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_START_SEQ_SHIFT           0
-#define BCHP_MEMC_DDR_0_CNTRLR_START_SEQ_START_SEQ_DEFAULT         0x00000000
+/* MEMC_DDR_0 :: PHY_OP_ACCESS_PENALTY :: PHY_OP_ACCESS_WAIT_PENALTY [31:00] */
+#define BCHP_MEMC_DDR_0_PHY_OP_ACCESS_PENALTY_PHY_OP_ACCESS_WAIT_PENALTY_MASK 0xffffffff
+#define BCHP_MEMC_DDR_0_PHY_OP_ACCESS_PENALTY_PHY_OP_ACCESS_WAIT_PENALTY_SHIFT 0
+#define BCHP_MEMC_DDR_0_PHY_OP_ACCESS_PENALTY_PHY_OP_ACCESS_WAIT_PENALTY_DEFAULT 0x00000000
 
 /***************************************************************************
  *CNTRLR_SM_TIMEOUT - Memory Controller , state machine timeout register.
@@ -2162,18 +2073,6 @@
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3_DT_0_SEL_MASK                   0x00000007
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3_DT_0_SEL_SHIFT                  0
 #define BCHP_MEMC_DDR_0_DTPM_BYTE3_DT_0_SEL_DEFAULT                0x00000000
-
-/***************************************************************************
- *DRAM_DDR3_RESET_PERIOD - Memory Controller, DDR3 DRAM reset Register.
- ***************************************************************************/
-/* MEMC_DDR_0 :: DRAM_DDR3_RESET_PERIOD :: reserved0 [31:20] */
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_reserved0_MASK      0xfff00000
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_reserved0_SHIFT     20
-
-/* MEMC_DDR_0 :: DRAM_DDR3_RESET_PERIOD :: DRAM_RESET_PERIOD [19:00] */
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_DRAM_RESET_PERIOD_MASK 0x000fffff
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_DRAM_RESET_PERIOD_SHIFT 0
-#define BCHP_MEMC_DDR_0_DRAM_DDR3_RESET_PERIOD_DRAM_RESET_PERIOD_DEFAULT 0x0000a8c0
 
 /***************************************************************************
  *STAT_CONTROL - Statistics Control register
@@ -4516,7 +4415,7 @@
 /* MEMC_DDR_0 :: SEQ_RING_BUF_DEPTH :: RING_BUF_DEPTH [04:00] */
 #define BCHP_MEMC_DDR_0_SEQ_RING_BUF_DEPTH_RING_BUF_DEPTH_MASK     0x0000001f
 #define BCHP_MEMC_DDR_0_SEQ_RING_BUF_DEPTH_RING_BUF_DEPTH_SHIFT    0
-#define BCHP_MEMC_DDR_0_SEQ_RING_BUF_DEPTH_RING_BUF_DEPTH_DEFAULT  0x00000003
+#define BCHP_MEMC_DDR_0_SEQ_RING_BUF_DEPTH_RING_BUF_DEPTH_DEFAULT  0x0000000f
 
 /***************************************************************************
  *SEQ_WRDATA_ERR_INFO - Sequencer write data error info

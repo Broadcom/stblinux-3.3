@@ -40,6 +40,7 @@
 #include <linux/pm.h>
 #include <linux/clk.h>
 #include <linux/version.h>
+#include <asm/unaligned.h>
 
 #include <linux/mii.h>
 #include <linux/ethtool.h>
@@ -161,20 +162,6 @@ static void restore_state(struct BcmEnet_devctrl *pDevCtrl);
 static struct net_device *eth_root_dev;
 static int DmaDescThres = DMA_DESC_THRES;
 
-#ifdef CONFIG_BCM7429A0
-static void bcm7429_ephy_workaround(struct BcmEnet_devctrl *pDevCtrl)
-{
-	int data;
-	data = pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1f);
-	data |= 0x0004;
-	pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1f, data);
-	data = 0x7555;
-	pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x13, data);
-	data = pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1f);
-	data &= ~0x0004;
-	pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1f, data);
-}
-#endif
 /*
  * HFB data for ARP request.
  * In WoL (Magic Packet or ACPI) mode, we need to response
@@ -454,7 +441,7 @@ static void bcmgenet_gphy_link_status(struct work_struct *work)
 	struct BcmEnet_devctrl *pDevCtrl = container_of(work,
 			struct BcmEnet_devctrl, bcmgenet_link_work);
 
-	mii_setup(pDevCtrl->dev);
+	bcmgenet_mii_setup(pDevCtrl->dev);
 }
 /* --------------------------------------------------------------------------
 Name: bcmgenet_gphy_link_timer
@@ -538,7 +525,7 @@ static int bcmgenet_open(struct net_device *dev)
 	udelay(10);
 
 	/* disable ethernet MAC while updating its registers */
-	pDevCtrl->umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
+	umac->cmd &= ~(CMD_TX_EN | CMD_RX_EN);
 
 	umac->mac_0 = (dev->dev_addr[0] << 24 |
 			dev->dev_addr[1] << 16 |
@@ -552,8 +539,8 @@ static int bcmgenet_open(struct net_device *dev)
 		/* init umac registers to synchronize s/w with h/w */
 		init_umac(pDevCtrl);
 		/* Speed settings must be restored */
-		mii_init(dev);
-		mii_setup(dev);
+		bcmgenet_mii_init(dev);
+		bcmgenet_mii_setup(dev);
 	}
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
@@ -568,9 +555,9 @@ static int bcmgenet_open(struct net_device *dev)
 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
 	pDevCtrl->txDma->tdma_ctrl &= ~dma_ctrl;
 	pDevCtrl->rxDma->rdma_ctrl &= ~dma_ctrl;
-	pDevCtrl->umac->tx_flush = 1;
+	umac->tx_flush = 1;
 	udelay(10);
-	pDevCtrl->umac->tx_flush = 0;
+	umac->tx_flush = 0;
 
 	/* reset dma, start from beginning of the ring. */
 	init_edma(pDevCtrl);
@@ -607,7 +594,7 @@ static int bcmgenet_open(struct net_device *dev)
 	netif_tx_start_all_queues(dev);
 	napi_enable(&pDevCtrl->napi);
 
-	pDevCtrl->umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
+	umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
 
 #ifdef CONFIG_BRCM_HAS_STANDBY
 	brcm_pm_wakeup_register(&bcmgenet_wakeup_ops, pDevCtrl, dev->name);
@@ -696,9 +683,9 @@ static int bcmgenet_close(struct net_device *dev)
 		save_state(pDevCtrl);
 
 	if (device_may_wakeup(&dev->dev) && pDevCtrl->dev_asleep) {
-		if (pDevCtrl->wolopts & WAKE_MAGIC)
+		if (pDevCtrl->wolopts & (WAKE_MAGIC|WAKE_MAGICSECURE))
 			bcmgenet_power_down(pDevCtrl, GENET_POWER_WOL_MAGIC);
-		else if (pDevCtrl->wolopts & WAKE_ARP)
+		if (pDevCtrl->wolopts & WAKE_ARP)
 			bcmgenet_power_down(pDevCtrl, GENET_POWER_WOL_ACPI);
 	} else if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
 		bcmgenet_power_down(pDevCtrl, GENET_POWER_PASSIVE);
@@ -1697,7 +1684,7 @@ static void bcmgenet_irq_task(struct work_struct *work)
 	/* Link UP/DOWN event */
 	if (pDevCtrl->irq0_stat & (UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN)) {
 		pDevCtrl->irq0_stat &= ~(UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN);
-		mii_setup(pDevCtrl->dev);
+		bcmgenet_mii_setup(pDevCtrl->dev);
 	}
 }
 /*
@@ -3090,17 +3077,13 @@ static void bcmgenet_get_wol(struct net_device *dev,
 
 	wol->wolopts = pDevCtrl->wolopts;
 	if (wol->wolopts & WAKE_MAGICSECURE) {
-		unsigned short pwd_ms;
-		unsigned long pwd_ls;
-		wol->wolopts |= WAKE_MAGICSECURE;
-		pwd_ls = umac->mpd_pw_ls;
-		copy_to_user(&wol->sopass[0], &pwd_ls, 4);
-		pwd_ms = umac->mpd_pw_ms & 0xFFFF;
-		copy_to_user(&wol->sopass[4], &pwd_ms, 2);
+		put_unaligned_be16(umac->mpd_pw_ms, &wol->sopass[0]);
+		put_unaligned_be32(umac->mpd_pw_ls, &wol->sopass[2]);
 	} else {
 		memset(&wol->sopass[0], 0, sizeof(wol->sopass));
 	}
 }
+
 /*
  * ethtool function - set WOL (Wake on LAN) settings.
  * Only for magic packet detection mode.
@@ -3115,8 +3098,8 @@ static int bcmgenet_set_wol(struct net_device *dev,
 		return -EINVAL;
 
 	if (wol->wolopts & WAKE_MAGICSECURE) {
-		umac->mpd_pw_ls = *(unsigned long *)&wol->sopass[0];
-		umac->mpd_pw_ms = *(unsigned short *)&wol->sopass[4];
+		umac->mpd_pw_ms = get_unaligned_be16(&wol->sopass[0]);
+		umac->mpd_pw_ls = get_unaligned_be32(&wol->sopass[2]);
 		umac->mpd_ctrl |= MPD_PW_EN;
 	}
 
@@ -3169,7 +3152,7 @@ static int bcmgenet_set_settings(struct net_device *dev,
 		err = mii_ethtool_sset(&pDevCtrl->mii, cmd);
 		if (err < 0)
 			return err;
-		mii_setup(dev);
+		bcmgenet_mii_setup(dev);
 
 		if (cmd->maxrxpkt != 0)
 			DmaDescThres = cmd->maxrxpkt;
@@ -3339,7 +3322,7 @@ static void bcmgenet_power_down(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		pDevCtrl->intrl2_0->cpu_mask_clear |= UMAC_IRQ_MPD_R;
 
 		set_bit(GENET_POWER_WOL_MAGIC, &pDevCtrl->wol_enabled);
-		/* fall-through */
+		break;
 	case GENET_POWER_WOL_ACPI:
 		if (bcmgenet_enable_arp_filter(pDevCtrl)) {
 			printk(KERN_CRIT "%s failed to set HFB filter\n",
@@ -3361,18 +3344,18 @@ static void bcmgenet_power_down(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		}
 		/* Receiver must be enabled for WOL ACPI detection */
 		pDevCtrl->umac->cmd |= CMD_RX_EN;
+		if (pDevCtrl->ext && pDevCtrl->dev_asleep)
+			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_ENERGY_DET_MASK;
 		printk(KERN_DEBUG "%s: ACPI WOL-ready status set "
 		       "after %d msec\n", dev->name, retries);
-		/* Service RX BD until empty */
+		/* enable HFB match interrupts */
 		pDevCtrl->intrl2_0->cpu_mask_clear |= (UMAC_IRQ_HFB_MM |
 				UMAC_IRQ_HFB_SM);
 		set_bit(GENET_POWER_WOL_ACPI, &pDevCtrl->wol_enabled);
 		break;
 	case GENET_POWER_PASSIVE:
 		/* Power down LED */
-		pDevCtrl->mii.mdio_write(pDevCtrl->dev,
-				pDevCtrl->phyAddr, MII_BMCR, BMCR_RESET);
-		udelay(1);
+		bcmgenet_mii_reset(pDevCtrl->dev);
 		if (pDevCtrl->ext)
 			pDevCtrl->ext->ext_pwr_mgmt |= (EXT_PWR_DOWN_PHY |
 				EXT_PWR_DOWN_DLL | EXT_PWR_DOWN_BIAS);
@@ -3394,15 +3377,8 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		/* enable APD */
 		if (pDevCtrl->ext) {
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-			pDevCtrl->mii.mdio_write(pDevCtrl->dev,
-					pDevCtrl->phyAddr, MII_BMCR,
-					BMCR_RESET);
-			udelay(1);
+			bcmgenet_mii_reset(pDevCtrl->dev);
 		}
-		/* enable 64 clock MDIO */
-		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
-				0x1000);
-		pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d);
 		break;
 	case GENET_POWER_WOL_MAGIC:
 		pDevCtrl->umac->mpd_ctrl &= ~MPD_EN;
@@ -3411,7 +3387,7 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 		/* Stop monitoring magic packet IRQ */
 		pDevCtrl->intrl2_0->cpu_mask_set |= UMAC_IRQ_MPD_R;
 		clear_bit(GENET_POWER_WOL_MAGIC, &pDevCtrl->wol_enabled);
-		/* fall through */
+		break;
 	case GENET_POWER_WOL_ACPI:
 		GENET_HFB_CTRL(pDevCtrl) &= ~RBUF_ACPI_EN;
 		bcmgenet_clear_hfb(pDevCtrl, CLEAR_ALL_HFB);
@@ -3427,22 +3403,13 @@ static void bcmgenet_power_up(struct BcmEnet_devctrl *pDevCtrl, int mode)
 			pDevCtrl->ext->ext_pwr_mgmt &= ~EXT_PWR_DOWN_BIAS;
 			/* enable APD */
 			pDevCtrl->ext->ext_pwr_mgmt |= EXT_PWR_DN_EN_LD;
-			pDevCtrl->mii.mdio_write(pDevCtrl->dev,
-					pDevCtrl->phyAddr, MII_BMCR,
-					BMCR_RESET);
-			udelay(1);
+			bcmgenet_mii_reset(pDevCtrl->dev);
 		}
-		/* enable 64 clock MDIO */
-		pDevCtrl->mii.mdio_write(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d,
-				0x1000);
-		pDevCtrl->mii.mdio_read(pDevCtrl->dev, pDevCtrl->phyAddr, 0x1d);
 	default:
 		break;
 	}
-#ifdef CONFIG_BCM7429A0
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
-		bcm7429_ephy_workaround(pDevCtrl);
-#endif
+		bcmgenet_ephy_workaround(pDevCtrl->dev);
 }
 /*
  * ioctl handle special commands that are not present in ethtool.
@@ -3589,7 +3556,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		goto err1;
 
 	if (cfg->phy_id == BRCM_PHY_ID_AUTO) {
-		if (mii_probe(dev, cfg) < 0) {
+		if (bcmgenet_mii_probe(dev, cfg) < 0) {
 			printk(KERN_ERR "No PHY detected, not registering interface:%d\n",
 					pdev->id);
 			bcmgenet_clock_disable(pDevCtrl);
@@ -3602,7 +3569,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	} else {
 		pDevCtrl->phyAddr = cfg->phy_id;
 	}
-	mii_init(dev);
+	bcmgenet_mii_init(dev);
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
 
@@ -3619,7 +3586,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		pDevCtrl->timer.function = bcmgenet_gphy_link_timer;
 	} else {
 		/* check link status */
-		mii_setup(dev);
+		bcmgenet_mii_setup(dev);
 	}
 
 	netif_carrier_off(pDevCtrl->dev);

@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,11 +42,11 @@
 /***************************************************************************
  *WKTMR - Wakeup timer
  ***************************************************************************/
-#define BCHP_WKTMR_EVENT                         0x00409580 /* Wakeup Timer Register */
-#define BCHP_WKTMR_COUNTER                       0x00409584 /* Wakeup Counter */
-#define BCHP_WKTMR_ALARM                         0x00409588 /* Wakeup Timer Alarm */
-#define BCHP_WKTMR_PRESCALER                     0x0040958c /* Wakeup Timer Prescaler */
-#define BCHP_WKTMR_PRESCALER_VAL                 0x00409590 /* Wakeup Timer Prescaler Value */
+#define BCHP_WKTMR_EVENT                         0x00411580 /* Wakeup Timer Register */
+#define BCHP_WKTMR_COUNTER                       0x00411584 /* Wakeup Counter */
+#define BCHP_WKTMR_ALARM                         0x00411588 /* Wakeup Timer Alarm */
+#define BCHP_WKTMR_PRESCALER                     0x0041158c /* Wakeup Timer Prescaler */
+#define BCHP_WKTMR_PRESCALER_VAL                 0x00411590 /* Wakeup Timer Prescaler Value */
 
 /***************************************************************************
  *EVENT - Wakeup Timer Register

@@ -456,9 +456,15 @@ const char *get_system_type(void)
 
 void __init prom_free_prom_memory(void) {}
 
+static void brcm_machine_restart_mips(char *command)
+{
+	/* On ARM the argument needs to be const */
+	brcm_machine_restart(command);
+}
+
 void __init plat_mem_setup(void)
 {
-	_machine_restart = brcm_machine_restart;
+	_machine_restart = brcm_machine_restart_mips;
 	_machine_halt = brcm_machine_halt;
 	pm_power_off = brcm_machine_halt;
 

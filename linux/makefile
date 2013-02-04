@@ -33,7 +33,13 @@ ifeq ($(ARCH),mips)
 else
 ifeq ($(ARCH),arm)
 	$(MAKE) -f Makefile zImage
+ifeq ($(CONFIG_ARM_APPENDED_DTB),y)
+	rm -f arch/arm/boot/*.dtb
+	$(MAKE) -f Makefile dtbs
+	cat arch/arm/boot/zImage arch/arm/boot/*.dtb > vmlinuz
+else
 	cp arch/arm/boot/zImage vmlinuz
+endif
 else
 	$(MAKE) -f Makefile
 endif

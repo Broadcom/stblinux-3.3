@@ -449,6 +449,10 @@ static int __init platform_devices_setup(void)
 {
 	int i;
 
+#ifdef CONFIG_OF
+	return 0;
+#endif
+
 	/* UARTs */
 
 	brcm_16550_ports[0].uartclk = brcm_base_baud0 * 16;
@@ -903,7 +907,7 @@ void __init bus_error_init(void)
 {
 }
 
-void brcm_machine_restart(char *command)
+void brcm_machine_restart(const char *command)
 {
 /* PR21527 - Fix SMP reboot problem */
 #ifdef CONFIG_SMP

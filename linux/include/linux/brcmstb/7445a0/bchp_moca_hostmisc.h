@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -80,14 +80,26 @@
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_13      0x00fffd8c /* MoCA to Host MMP inbox registers , register set index 13. */
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_14      0x00fffd90 /* MoCA to Host MMP inbox registers , register set index 14. */
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_15      0x00fffd94 /* MoCA to Host MMP inbox registers , register set index 15. */
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_STATUS    0x00fffd98 /* "MoCA dynamic memory power gating chain power up (bit per chain),Active when moca_dmpg_gisb_en is high,0: Chain is on,1: Chain is off" */
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_PWR_UP    0x00fffd9c /* "MoCA dynamic memory power gating chain status (bit per chain),0:  Power down chain,1:  Power up chain" */
 
 /***************************************************************************
  *MISC_CTRL - Moca Software Reset
  ***************************************************************************/
-/* MOCA_HOSTMISC :: MISC_CTRL :: spare_ctrl [31:15] */
-#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_MASK               0xffff8000
-#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_SHIFT              15
-#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_DEFAULT            0x0001ffff
+/* MOCA_HOSTMISC :: MISC_CTRL :: spare_ctrl [31:17] */
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_MASK               0xfffe0000
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_SHIFT              17
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_ctrl_DEFAULT            0x00007fff
+
+/* MOCA_HOSTMISC :: MISC_CTRL :: moca_dmpg_sel [16:16] */
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_sel_MASK            0x00010000
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_sel_SHIFT           16
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_sel_DEFAULT         0x00000000
+
+/* MOCA_HOSTMISC :: MISC_CTRL :: moca_dmpg_en [15:15] */
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_en_MASK             0x00008000
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_en_SHIFT            15
+#define BCHP_MOCA_HOSTMISC_MISC_CTRL_moca_dmpg_en_DEFAULT          0x00000001
 
 /* MOCA_HOSTMISC :: MISC_CTRL :: spare_status [14:10] */
 #define BCHP_MOCA_HOSTMISC_MISC_CTRL_spare_status_MASK             0x00007c00
@@ -212,30 +224,10 @@
 /***************************************************************************
  *SUBSYS_CFG - Moca Subsystem configuration
  ***************************************************************************/
-/* MOCA_HOSTMISC :: SUBSYS_CFG :: spare_cfg [31:12] */
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg_MASK               0xfffff000
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg_SHIFT              12
+/* MOCA_HOSTMISC :: SUBSYS_CFG :: spare_cfg [31:01] */
+#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg_MASK               0xfffffffe
+#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg_SHIFT              1
 #define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg_DEFAULT            0x00000000
-
-/* MOCA_HOSTMISC :: SUBSYS_CFG :: psm_vdd_sp_pd_mask [11:11] */
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_sp_pd_mask_MASK      0x00000800
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_sp_pd_mask_SHIFT     11
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_sp_pd_mask_DEFAULT   0x00000000
-
-/* MOCA_HOSTMISC :: SUBSYS_CFG :: psm_vdd_regfile_mask [10:10] */
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_regfile_mask_MASK    0x00000400
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_regfile_mask_SHIFT   10
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_psm_vdd_regfile_mask_DEFAULT 0x00000000
-
-/* MOCA_HOSTMISC :: SUBSYS_CFG :: moca_ctl_mem_split_reg [09:07] */
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_moca_ctl_mem_split_reg_MASK  0x00000380
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_moca_ctl_mem_split_reg_SHIFT 7
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_moca_ctl_mem_split_reg_DEFAULT 0x00000004
-
-/* MOCA_HOSTMISC :: SUBSYS_CFG :: spare_cfg0 [06:01] */
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg0_MASK              0x0000007e
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg0_SHIFT             1
-#define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_spare_cfg0_DEFAULT           0x00000000
 
 /* MOCA_HOSTMISC :: SUBSYS_CFG :: moca_arb_rr_sel [00:00] */
 #define BCHP_MOCA_HOSTMISC_SUBSYS_CFG_moca_arb_rr_sel_MASK         0x00000001
@@ -497,6 +489,22 @@
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_15_h2m_mmp_inbox_MASK     0xffffffff
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_15_h2m_mmp_inbox_SHIFT    0
 #define BCHP_MOCA_HOSTMISC_M2H_MMP_INBOX_15_h2m_mmp_inbox_DEFAULT  0x00000000
+
+/***************************************************************************
+ *DMPG_CHAINS_STATUS - "MoCA dynamic memory power gating chain power up (bit per chain),Active when moca_dmpg_gisb_en is high,0: Chain is on,1: Chain is off"
+ ***************************************************************************/
+/* MOCA_HOSTMISC :: DMPG_CHAINS_STATUS :: dmpg_pda_out_status [31:00] */
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_STATUS_dmpg_pda_out_status_MASK 0xffffffff
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_STATUS_dmpg_pda_out_status_SHIFT 0
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_STATUS_dmpg_pda_out_status_DEFAULT 0x00000000
+
+/***************************************************************************
+ *DMPG_CHAINS_PWR_UP - "MoCA dynamic memory power gating chain status (bit per chain),0:  Power down chain,1:  Power up chain"
+ ***************************************************************************/
+/* MOCA_HOSTMISC :: DMPG_CHAINS_PWR_UP :: dmpg_pwr_up [31:00] */
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_PWR_UP_dmpg_pwr_up_MASK     0xffffffff
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_PWR_UP_dmpg_pwr_up_SHIFT    0
+#define BCHP_MOCA_HOSTMISC_DMPG_CHAINS_PWR_UP_dmpg_pwr_up_DEFAULT  0xffffffff
 
 #endif /* #ifndef BCHP_MOCA_HOSTMISC_H__ */
 

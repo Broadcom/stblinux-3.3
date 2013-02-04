@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2011, Broadcom Corporation
+ *     Copyright (c) 1999-2012, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon Apr 11 13:39:59 2011
- *                 MD5 Checksum         8cf142ad25caa9f873c54e8bb2bb1755
+ * Date:           Generated on         Wed Oct 17 03:11:31 2012
+ *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
@@ -32,10 +32,7 @@
  *
  * Revision History:
  *
- * $brcm_Log: /magnum/basemodules/chp/7425/rdb/b0/bchp_memc_misc_1.h $
- * 
- * Hydra_Software_Devel/2   4/12/11 9:02a vanessah
- * SW7425-112: Update rdb files for 7425 B0.
+ * $brcm_Log: $
  *
  ***************************************************************************/
 
@@ -60,41 +57,35 @@
 /* MEMC_MISC_1 :: SOFT_RESET :: MEMC_IOBUF_RBUS [04:04] */
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_RBUS_MASK           0x00000010
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_RBUS_SHIFT          4
-#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_RBUS_DEFAULT        0
+#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_RBUS_DEFAULT        0x00000000
 
 /* MEMC_MISC_1 :: SOFT_RESET :: MEMC_IOBUF [03:03] */
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_MASK                0x00000008
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_SHIFT               3
-#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_DEFAULT             0
+#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_IOBUF_DEFAULT             0x00000000
 
 /* MEMC_MISC_1 :: SOFT_RESET :: MEMC_DRAM_INIT [02:02] */
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_DRAM_INIT_MASK            0x00000004
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_DRAM_INIT_SHIFT           2
-#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_DRAM_INIT_DEFAULT         0
+#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_DRAM_INIT_DEFAULT         0x00000000
 
 /* MEMC_MISC_1 :: SOFT_RESET :: MEMC_RBUS [01:01] */
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_RBUS_MASK                 0x00000002
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_RBUS_SHIFT                1
-#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_RBUS_DEFAULT              0
+#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_RBUS_DEFAULT              0x00000000
 
 /* MEMC_MISC_1 :: SOFT_RESET :: MEMC_CORE [00:00] */
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_CORE_MASK                 0x00000001
 #define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_CORE_SHIFT                0
-#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_CORE_DEFAULT              0
+#define BCHP_MEMC_MISC_1_SOFT_RESET_MEMC_CORE_DEFAULT              0x00000000
 
 /***************************************************************************
  *MEMC_STRAP_DDR_CONFIG - MEMC_STRAP_DDR_CONFIG Control Register
  ***************************************************************************/
-/* MEMC_MISC_1 :: MEMC_STRAP_DDR_CONFIG :: reserved0 [31:02] */
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_reserved0_MASK      0xfffffffc
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_reserved0_SHIFT     2
-
-/* MEMC_MISC_1 :: MEMC_STRAP_DDR_CONFIG :: DDR_CONFIG [01:00] */
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_DDR_CONFIG_MASK     0x00000003
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_DDR_CONFIG_SHIFT    0
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_DDR_CONFIG_DEFAULT  1
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_DDR_CONFIG_DDR32BIT 1
-#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_DDR_CONFIG_DDR16BIT 2
+/* MEMC_MISC_1 :: MEMC_STRAP_DDR_CONFIG :: reserved_for_eco0 [31:00] */
+#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_reserved_for_eco0_MASK 0xffffffff
+#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_reserved_for_eco0_SHIFT 0
+#define BCHP_MEMC_MISC_1_MEMC_STRAP_DDR_CONFIG_reserved_for_eco0_DEFAULT 0x00000000
 
 /***************************************************************************
  *MEMC_TOP_TM_CNTRL - MEMC MBIST TM Control Register
@@ -106,17 +97,17 @@
 /* MEMC_MISC_1 :: MEMC_TOP_TM_CNTRL :: MEMC_PFRI_FIFO_2 [05:04] */
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_2_MASK   0x00000030
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_2_SHIFT  4
-#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_2_DEFAULT 0
+#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_2_DEFAULT 0x00000000
 
 /* MEMC_MISC_1 :: MEMC_TOP_TM_CNTRL :: MEMC_PFRI_FIFO_1 [03:02] */
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_1_MASK   0x0000000c
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_1_SHIFT  2
-#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_1_DEFAULT 0
+#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_1_DEFAULT 0x00000000
 
 /* MEMC_MISC_1 :: MEMC_TOP_TM_CNTRL :: MEMC_PFRI_FIFO_0 [01:00] */
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_0_MASK   0x00000003
 #define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_0_SHIFT  0
-#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_0_DEFAULT 0
+#define BCHP_MEMC_MISC_1_MEMC_TOP_TM_CNTRL_MEMC_PFRI_FIFO_0_DEFAULT 0x00000000
 
 /***************************************************************************
  *SCRATCH_0 - Scratch Register
@@ -124,7 +115,7 @@
 /* MEMC_MISC_1 :: SCRATCH_0 :: VALUE [31:00] */
 #define BCHP_MEMC_MISC_1_SCRATCH_0_VALUE_MASK                      0xffffffff
 #define BCHP_MEMC_MISC_1_SCRATCH_0_VALUE_SHIFT                     0
-#define BCHP_MEMC_MISC_1_SCRATCH_0_VALUE_DEFAULT                   0
+#define BCHP_MEMC_MISC_1_SCRATCH_0_VALUE_DEFAULT                   0x00000000
 
 #endif /* #ifndef BCHP_MEMC_MISC_1_H__ */
 

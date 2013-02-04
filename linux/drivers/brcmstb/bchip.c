@@ -142,13 +142,13 @@ void __init bchip_check_compat(void)
 
 #ifdef CONFIG_BRCM_HAS_SATA3
 
-#ifdef CONFIG_CPU_BIG_ENDIAN
+#ifdef __BIG_ENDIAN
 #define DATA_ENDIAN             2       /* AHCI->DDR inbound accesses */
 #define MMIO_ENDIAN             2       /* MIPS->AHCI outbound accesses */
 #else
 #define DATA_ENDIAN             0
 #define MMIO_ENDIAN             0
-#endif /* CONFIG_CPU_BIG_ENDIAN */
+#endif /* __BIG_ENDIAN */
 
 /* SATA3 SSC per-port bitfield */
 static u32 sata3_enable_ssc;
@@ -250,7 +250,7 @@ void bchip_sata3_init(void)
 #endif
 }
 
-#ifdef CONFIG_CPU_LITTLE_ENDIAN
+#ifdef __LITTLE_ENDIAN
 #define USB_ENDIAN		0x03 /* !WABO !FNBO FNHW BABO */
 #else
 #define USB_ENDIAN		0x0e /* WABO FNBO FNHW !BABO */
@@ -371,7 +371,7 @@ void __init bchip_set_features(void)
 #if defined(CONFIG_BRCM_HAS_PCIE)
 	brcm_pcie_enabled = 1;
 #endif
-#if defined(CONFIG_SMP)
+#if defined(CONFIG_SMP) && defined(CONFIG_MIPS)
 	bmips_smp_enabled = 1;
 #endif
 #if defined(CONFIG_BRCM_HAS_MOCA)

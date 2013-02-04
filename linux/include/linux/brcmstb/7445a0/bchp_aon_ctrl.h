@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,40 +42,41 @@
 /***************************************************************************
  *AON_CTRL - AON Control Registers
  ***************************************************************************/
-#define BCHP_AON_CTRL_RESET_CTRL                 0x00408000 /* Reset Control register for AON */
-#define BCHP_AON_CTRL_PM_CTRL                    0x00408004 /* Control register for Power Controller */
-#define BCHP_AON_CTRL_PM_STATUS                  0x00408008 /* Status register for Power Controller */
-#define BCHP_AON_CTRL_PM_IRQ_INPUT_STATUS        0x0040800c /* Power Management IRQ input status */
-#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT          0x00408010 /* Power Management Wait counter in place of Wait for Host CPU IRQ */
-#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER     0x00408014 /* Power Good Guardband Timer for Host CPU */
-#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER        0x00408018 /* Deep Standby Assertion Timer */
-#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER         0x0040801c /* Deep Standby Wakeup Timer */
-#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE    0x00408020 /* Control register for Power Controller */
-#define BCHP_AON_CTRL_PM_LED_CTRL                0x00408024 /* LED set control register */
-#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES     0x00408028 /* LED set control register */
-#define BCHP_AON_CTRL_HLCD_CTRL                  0x00408030 /* HW LED Clock Driver Control */
-#define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER    0x00408034 /* Second Fraction Counter Initial value */
-#define BCHP_AON_CTRL_TIME_COUNTER               0x00408038 /* Hour/Minute Counter Initial value */
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_0           0x0040803c /* Digit Code for digit 0, 1, 2, 3 */
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_1           0x00408040 /* Digit Code for digit 4, 5, 6, 7 */
-#define BCHP_AON_CTRL_LED_DIGIT_CODE_2           0x00408044 /* Digit Code for digit 8, 9 */
-#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET      0x00408048 /* Hour MSD/LSD and minute MSD/LSD address offset */
-#define BCHP_AON_CTRL_LED_STATUS_CTRL            0x0040804c /* LED status control */
-#define BCHP_AON_CTRL_GENERAL_CTRL_0             0x00408050 /* General control register 0 */
-#define BCHP_AON_CTRL_GENERAL_STATUS_0           0x00408054 /* General status register 0 */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0     0x00408058 /* General control register without scan 0 */
-#define BCHP_AON_CTRL_SPARE_CTRL_0               0x00408060 /* Spare control bits reserved for future use */
-#define BCHP_AON_CTRL_SPARE_CTRL_1               0x00408064 /* Spare control bits reserved for future use */
-#define BCHP_AON_CTRL_UNCLEARED_SCRATCH          0x00408068 /* Scratch register */
-#define BCHP_AON_CTRL_RESET_HISTORY              0x0040806c /* Reset History Register For AON */
-#define BCHP_AON_CTRL_NMI_CTRL                   0x00408070 /* Control register for NMI */
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL           0x00408074 /* Ana xtal low cur 40g m7fc gisb control */
-#define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL         0x00408078 /* Test_mode control register */
-#define BCHP_AON_CTRL_SUB_TEST_MODE              0x0040807c /* Register source for sub_test_mode */
-#define BCHP_AON_CTRL_LATCHED_TEST_MODE          0x00408080 /* Final latched testmode value */
-#define BCHP_AON_CTRL_LATCHED_SUB_TEST_MODE      0x00408084 /* Final latched sub-testmode value */
-#define BCHP_AON_CTRL_PM_INITIATE                0x00408088 /* Power down initiate */
-#define BCHP_AON_CTRL_HOST_MISC_CMDS             0x0040808c /* Power up restore */
+#define BCHP_AON_CTRL_RESET_CTRL                 0x00410000 /* Reset Control register for AON */
+#define BCHP_AON_CTRL_PM_CTRL                    0x00410004 /* Control register for Power Controller */
+#define BCHP_AON_CTRL_PM_STATUS                  0x00410008 /* Status register for Power Controller */
+#define BCHP_AON_CTRL_PM_IRQ_INPUT_STATUS        0x0041000c /* Power Management IRQ input status */
+#define BCHP_AON_CTRL_PM_CPU_WAIT_COUNT          0x00410010 /* Power Management Wait counter in place of Wait for Host CPU IRQ */
+#define BCHP_AON_CTRL_PM_CPU_GUARDBAND_TIMER     0x00410014 /* Power Good Guardband Timer for Host CPU */
+#define BCHP_AON_CTRL_PM_S3_STANDBY_TIMER        0x00410018 /* Deep Standby Assertion Timer */
+#define BCHP_AON_CTRL_PM_S3_WAKEUP_TIMER         0x0041001c /* Deep Standby Wakeup Timer */
+#define BCHP_AON_CTRL_PM_FAST_PWRDN_PRECHARGE    0x00410020 /* Control register for Power Controller */
+#define BCHP_AON_CTRL_PM_LED_CTRL                0x00410024 /* LED set control register */
+#define BCHP_AON_CTRL_PM_LED_AUTO_ON_ENABLES     0x00410028 /* LED set control register */
+#define BCHP_AON_CTRL_HLCD_CTRL                  0x00410030 /* HW LED Clock Driver Control */
+#define BCHP_AON_CTRL_SECOND_FRACTION_COUNTER    0x00410034 /* Second Fraction Counter Initial value */
+#define BCHP_AON_CTRL_TIME_COUNTER               0x00410038 /* Hour/Minute Counter Initial value */
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_0           0x0041003c /* Digit Code for digit 0, 1, 2, 3 */
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_1           0x00410040 /* Digit Code for digit 4, 5, 6, 7 */
+#define BCHP_AON_CTRL_LED_DIGIT_CODE_2           0x00410044 /* Digit Code for digit 8, 9 */
+#define BCHP_AON_CTRL_LED_DIGIT_ADDR_OFFSET      0x00410048 /* Hour MSD/LSD and minute MSD/LSD address offset */
+#define BCHP_AON_CTRL_LED_STATUS_CTRL            0x0041004c /* LED status control */
+#define BCHP_AON_CTRL_GENERAL_CTRL_0             0x00410050 /* General control register 0 */
+#define BCHP_AON_CTRL_GENERAL_STATUS_0           0x00410054 /* General status register 0 */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0     0x00410058 /* General control register without scan 0 */
+#define BCHP_AON_CTRL_SPARE_CTRL_0               0x00410060 /* Spare control bits reserved for future use */
+#define BCHP_AON_CTRL_SPARE_CTRL_1               0x00410064 /* Spare control bits reserved for future use */
+#define BCHP_AON_CTRL_UNCLEARED_SCRATCH          0x00410068 /* Scratch register */
+#define BCHP_AON_CTRL_RESET_HISTORY              0x0041006c /* Reset History Register For AON */
+#define BCHP_AON_CTRL_NMI_CTRL                   0x00410070 /* Control register for NMI */
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL           0x00410074 /* Ana xtal low cur 40g m7fc gisb control */
+#define BCHP_AON_CTRL_SUB_TEST_MODE_CTRL         0x00410078 /* Test_mode control register */
+#define BCHP_AON_CTRL_SUB_TEST_MODE              0x0041007c /* Register source for sub_test_mode */
+#define BCHP_AON_CTRL_LATCHED_TEST_MODE          0x00410080 /* Final latched testmode value */
+#define BCHP_AON_CTRL_LATCHED_SUB_TEST_MODE      0x00410084 /* Final latched sub-testmode value */
+#define BCHP_AON_CTRL_PM_INITIATE                0x00410088 /* Power down initiate */
+#define BCHP_AON_CTRL_HOST_MISC_CMDS             0x0041008c /* Power up restore */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL   0x00410090 /* Ana xtal low cur 40g m7fc external CML control */
 
 /***************************************************************************
  *RESET_CTRL - Reset Control register for AON
@@ -1395,22 +1396,17 @@
 /***************************************************************************
  *ANA_XTAL_CONTROL - Ana xtal low cur 40g m7fc gisb control
  ***************************************************************************/
-/* AON_CTRL :: ANA_XTAL_CONTROL :: reserved0 [31:07] */
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_reserved0_MASK              0xffffff80
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_reserved0_SHIFT             7
+/* AON_CTRL :: ANA_XTAL_CONTROL :: reserved0 [31:08] */
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_reserved0_MASK              0xffffff00
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_reserved0_SHIFT             8
 
-/* AON_CTRL :: ANA_XTAL_CONTROL :: osc_test_select_gisb_control [06:06] */
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_MASK 0x00000040
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_SHIFT 6
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_test_select_gisb_control_DEFAULT 0x00000000
-
-/* AON_CTRL :: ANA_XTAL_CONTROL :: osc_select_current_gisb_control [05:05] */
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_MASK 0x00000020
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_SHIFT 5
+/* AON_CTRL :: ANA_XTAL_CONTROL :: osc_select_current_gisb_control [07:07] */
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_MASK 0x00000080
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_SHIFT 7
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_select_current_gisb_control_DEFAULT 0x00000000
 
-/* AON_CTRL :: ANA_XTAL_CONTROL :: osc_cml_sel_pd [04:03] */
-#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_MASK         0x00000018
+/* AON_CTRL :: ANA_XTAL_CONTROL :: osc_cml_sel_pd [06:03] */
+#define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_MASK         0x00000078
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_SHIFT        3
 #define BCHP_AON_CTRL_ANA_XTAL_CONTROL_osc_cml_sel_pd_DEFAULT      0x00000000
 
@@ -1582,9 +1578,41 @@
 #define BCHP_AON_CTRL_HOST_MISC_CMDS_pm_restore_DEFAULT            0x00000000
 
 /***************************************************************************
+ *ANA_XTAL_EXT_CML_CONTROL - Ana xtal low cur 40g m7fc external CML control
+ ***************************************************************************/
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: reserved0 [31:06] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_reserved0_MASK      0xffffffc0
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_reserved0_SHIFT     6
+
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: osc_PMSM_S3_pd_buffer [05:05] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_PMSM_S3_pd_buffer_MASK 0x00000020
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_PMSM_S3_pd_buffer_SHIFT 5
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_PMSM_S3_pd_buffer_DEFAULT 0x00000000
+
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: osc_override_strap [04:04] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_override_strap_MASK 0x00000010
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_override_strap_SHIFT 4
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_override_strap_DEFAULT 0x00000000
+
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: osc_pd_buffer [03:03] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_pd_buffer_MASK  0x00000008
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_pd_buffer_SHIFT 3
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_pd_buffer_DEFAULT 0x00000000
+
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: osc_div2_sel [02:02] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_div2_sel_MASK   0x00000004
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_div2_sel_SHIFT  2
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_div2_sel_DEFAULT 0x00000001
+
+/* AON_CTRL :: ANA_XTAL_EXT_CML_CONTROL :: osc_current [01:00] */
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_current_MASK    0x00000003
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_current_SHIFT   0
+#define BCHP_AON_CTRL_ANA_XTAL_EXT_CML_CONTROL_osc_current_DEFAULT 0x00000001
+
+/***************************************************************************
  *SYSTEM_DATA_RAM%i - System Data RAM Address 0..127
  ***************************************************************************/
-#define BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_BASE                  0x00408200
+#define BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_BASE                  0x00410200
 #define BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_START                 0
 #define BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_END                   127
 #define BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_ELEMENT_SIZE          32

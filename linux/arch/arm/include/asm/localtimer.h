@@ -22,7 +22,7 @@ void percpu_timer_setup(void);
 
 #ifdef CONFIG_LOCAL_TIMERS
 
-#ifdef CONFIG_HAVE_ARM_TWD
+#if defined(CONFIG_HAVE_ARM_TWD) && !defined(CONFIG_BRCMSTB)
 
 #include "smp_twd.h"
 

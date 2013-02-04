@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:32 2012
+ * Date:           Generated on         Wed Oct 17 03:11:32 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,21 +42,21 @@
 /***************************************************************************
  *SDIO_0_CFG - SDIO (CARD) Configuration Registers
  ***************************************************************************/
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1          0x00410100 /* SDIO EMMC Control Register */
-#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL2          0x00410104 /* SDIO EMMC Control Register */
-#define BCHP_SDIO_0_CFG_TP_OUT_SEL               0x00410108 /* SDIO TP_OUT Control Register */
-#define BCHP_SDIO_0_CFG_CAP_REG0                 0x0041010c /* SDIO CAPABILITIES override Register */
-#define BCHP_SDIO_0_CFG_CAP_REG1                 0x00410110 /* SDIO CAPABILITIES override Register */
-#define BCHP_SDIO_0_CFG_PRESET1                  0x00410114 /* SDIO CAPABILITIES override Register */
-#define BCHP_SDIO_0_CFG_PRESET2                  0x00410118 /* SDIO CAPABILITIES override Register */
-#define BCHP_SDIO_0_CFG_SD_CLOCK_DELAY           0x0041011c /* SDIO Clock delay register */
-#define BCHP_SDIO_0_CFG_SD_PAD_DRV               0x00410120 /* SDIO Clock delay register */
-#define BCHP_SDIO_0_CFG_IP_DLY                   0x00410130 /* SDIO Host input delay register */
-#define BCHP_SDIO_0_CFG_OP_DLY                   0x00410134 /* SDIO Host output delay register */
-#define BCHP_SDIO_0_CFG_TUNING                   0x00410138 /* SDIO Host tuning configuration register */
-#define BCHP_SDIO_0_CFG_VOLT_CTRL                0x0041013c /* SDIO Host 1p8V control logic select register */
-#define BCHP_SDIO_0_CFG_SCRATCH                  0x004101fc /* SDIO Scratch Register */
-#define BCHP_SDIO_0_CFG_VERSION                  0x004101f0 /* SDIO VERSION Register */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL1          0x00440100 /* SDIO EMMC Control Register */
+#define BCHP_SDIO_0_CFG_SDIO_EMMC_CTRL2          0x00440104 /* SDIO EMMC Control Register */
+#define BCHP_SDIO_0_CFG_TP_OUT_SEL               0x00440108 /* SDIO TP_OUT Control Register */
+#define BCHP_SDIO_0_CFG_CAP_REG0                 0x0044010c /* SDIO CAPABILITIES override Register */
+#define BCHP_SDIO_0_CFG_CAP_REG1                 0x00440110 /* SDIO CAPABILITIES override Register */
+#define BCHP_SDIO_0_CFG_PRESET1                  0x00440114 /* SDIO CAPABILITIES override Register */
+#define BCHP_SDIO_0_CFG_PRESET2                  0x00440118 /* SDIO CAPABILITIES override Register */
+#define BCHP_SDIO_0_CFG_SD_CLOCK_DELAY           0x0044011c /* SDIO Clock delay register */
+#define BCHP_SDIO_0_CFG_SD_PAD_DRV               0x00440120 /* SDIO Clock delay register */
+#define BCHP_SDIO_0_CFG_IP_DLY                   0x00440130 /* SDIO Host input delay register */
+#define BCHP_SDIO_0_CFG_OP_DLY                   0x00440134 /* SDIO Host output delay register */
+#define BCHP_SDIO_0_CFG_TUNING                   0x00440138 /* SDIO Host tuning configuration register */
+#define BCHP_SDIO_0_CFG_VOLT_CTRL                0x0044013c /* SDIO Host 1p8V control logic select register */
+#define BCHP_SDIO_0_CFG_SCRATCH                  0x004401fc /* SDIO Scratch Register */
+#define BCHP_SDIO_0_CFG_VERSION                  0x004401f0 /* SDIO VERSION Register */
 
 /***************************************************************************
  *SDIO_EMMC_CTRL1 - SDIO EMMC Control Register

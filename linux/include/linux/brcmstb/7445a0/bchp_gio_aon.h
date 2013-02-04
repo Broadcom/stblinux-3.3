@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:34 2012
+ * Date:           Generated on         Wed Oct 17 03:11:33 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,22 +42,22 @@
 /***************************************************************************
  *GIO_AON - GPIO
  ***************************************************************************/
-#define BCHP_GIO_AON_ODEN_LO                     0x004094c0 /* GENERAL PURPOSE I/O OPEN DRAIN ENABLE [17:0] */
-#define BCHP_GIO_AON_DATA_LO                     0x004094c4 /* GENERAL PURPOSE I/O DATA [17:0] */
-#define BCHP_GIO_AON_IODIR_LO                    0x004094c8 /* GENERAL PURPOSE I/O DIRECTION [17:0] */
-#define BCHP_GIO_AON_EC_LO                       0x004094cc /* GENERAL PURPOSE I/O EDGE CONFIGURATION [17:0] */
-#define BCHP_GIO_AON_EI_LO                       0x004094d0 /* GENERAL PURPOSE I/O EDGE INSENSITIVE [17:0] */
-#define BCHP_GIO_AON_MASK_LO                     0x004094d4 /* GENERAL PURPOSE I/O INTERRUPT MASK [17:0] */
-#define BCHP_GIO_AON_LEVEL_LO                    0x004094d8 /* GENERAL PURPOSE I/O INTERRUPT TYPE [17:0] */
-#define BCHP_GIO_AON_STAT_LO                     0x004094dc /* GENERAL PURPOSE I/O INTERRUPT STATUS [17:0] */
-#define BCHP_GIO_AON_ODEN_EXT                    0x004094e0 /* GENERAL PURPOSE I/O OPEN DRAIN ENABLE [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_DATA_EXT                    0x004094e4 /* GENERAL PURPOSE I/O DATA [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_IODIR_EXT                   0x004094e8 /* GENERAL PURPOSE I/O DIRECTION [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_EC_EXT                      0x004094ec /* GENERAL PURPOSE I/O EDGE CONFIGURATION [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_EI_EXT                      0x004094f0 /* GENERAL PURPOSE I/O EDGE INSENSITIVE [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_MASK_EXT                    0x004094f4 /* GENERAL PURPOSE I/O INTERRUPT MASK [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_LEVEL_EXT                   0x004094f8 /* GENERAL PURPOSE I/O INTERRUPT TYPE [65:64] (SGPIO[3:0]) */
-#define BCHP_GIO_AON_STAT_EXT                    0x004094fc /* GENERAL PURPOSE I/O INTERRUPT STATUS [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_ODEN_LO                     0x004114c0 /* GENERAL PURPOSE I/O OPEN DRAIN ENABLE [17:0] */
+#define BCHP_GIO_AON_DATA_LO                     0x004114c4 /* GENERAL PURPOSE I/O DATA [17:0] */
+#define BCHP_GIO_AON_IODIR_LO                    0x004114c8 /* GENERAL PURPOSE I/O DIRECTION [17:0] */
+#define BCHP_GIO_AON_EC_LO                       0x004114cc /* GENERAL PURPOSE I/O EDGE CONFIGURATION [17:0] */
+#define BCHP_GIO_AON_EI_LO                       0x004114d0 /* GENERAL PURPOSE I/O EDGE INSENSITIVE [17:0] */
+#define BCHP_GIO_AON_MASK_LO                     0x004114d4 /* GENERAL PURPOSE I/O INTERRUPT MASK [17:0] */
+#define BCHP_GIO_AON_LEVEL_LO                    0x004114d8 /* GENERAL PURPOSE I/O INTERRUPT TYPE [17:0] */
+#define BCHP_GIO_AON_STAT_LO                     0x004114dc /* GENERAL PURPOSE I/O INTERRUPT STATUS [17:0] */
+#define BCHP_GIO_AON_ODEN_EXT                    0x004114e0 /* GENERAL PURPOSE I/O OPEN DRAIN ENABLE [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_DATA_EXT                    0x004114e4 /* GENERAL PURPOSE I/O DATA [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_IODIR_EXT                   0x004114e8 /* GENERAL PURPOSE I/O DIRECTION [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_EC_EXT                      0x004114ec /* GENERAL PURPOSE I/O EDGE CONFIGURATION [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_EI_EXT                      0x004114f0 /* GENERAL PURPOSE I/O EDGE INSENSITIVE [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_MASK_EXT                    0x004114f4 /* GENERAL PURPOSE I/O INTERRUPT MASK [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_LEVEL_EXT                   0x004114f8 /* GENERAL PURPOSE I/O INTERRUPT TYPE [65:64] (SGPIO[3:0]) */
+#define BCHP_GIO_AON_STAT_EXT                    0x004114fc /* GENERAL PURPOSE I/O INTERRUPT STATUS [65:64] (SGPIO[3:0]) */
 
 /***************************************************************************
  *ODEN_LO - GENERAL PURPOSE I/O OPEN DRAIN ENABLE [17:0]

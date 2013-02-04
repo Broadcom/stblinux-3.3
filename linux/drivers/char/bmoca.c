@@ -1802,6 +1802,8 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 	switch (cmd) {
 	case MOCA_IOCTL_START:
 		ret = clk_set_rate(priv->phy_clk, DEFAULT_PHY_CLOCK);
+		/* FIXME: this fails on some platforms, so ignore the value */
+		ret = 0;
 		if (ret < 0)
 			break;
 

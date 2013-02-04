@@ -112,7 +112,7 @@ static struct brcm_pci_bus brcm_buses[] = {
  * PCIe Bridge setup
  ***********************************************************************/
 
-#if defined(CONFIG_CPU_BIG_ENDIAN)
+#if defined(__BIG_ENDIAN)
 #define	DATA_ENDIAN		2	/* PCI->DDR inbound accesses */
 #define MMIO_ENDIAN		2	/* MIPS->PCI outbound accesses */
 #else

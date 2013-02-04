@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:34 2012
+ * Date:           Generated on         Wed Oct 17 03:11:33 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,15 +42,15 @@
 /***************************************************************************
  *BSPI_RAF - Public Linear Read BSPI Pipe Registers
  ***************************************************************************/
-#define BCHP_BSPI_RAF_START_ADDR                 0x00413300 /* Physical Starting Address Location in Flash device */
-#define BCHP_BSPI_RAF_NUM_WORDS                  0x00413304 /* Number of Words to be fetched */
-#define BCHP_BSPI_RAF_CTRL                       0x00413308 /* RAF Session Control Register */
-#define BCHP_BSPI_RAF_FULLNESS                   0x0041330c /* Fullness indicator for the read ahead buffer */
-#define BCHP_BSPI_RAF_WATERMARK                  0x00413310 /* Watermark level in the read ahead buffer that triggers an interrupt */
-#define BCHP_BSPI_RAF_STATUS                     0x00413314 /* Linear Read Status Register */
-#define BCHP_BSPI_RAF_READ_DATA                  0x00413318 /* Read data from Raf-buffer */
-#define BCHP_BSPI_RAF_WORD_CNT                   0x0041331c /* Current number of words fetched from Flash */
-#define BCHP_BSPI_RAF_CURR_ADDR                  0x00413320 /* Current read address for the linear read session */
+#define BCHP_BSPI_RAF_START_ADDR                 0x00443300 /* Physical Starting Address Location in Flash device */
+#define BCHP_BSPI_RAF_NUM_WORDS                  0x00443304 /* Number of Words to be fetched */
+#define BCHP_BSPI_RAF_CTRL                       0x00443308 /* RAF Session Control Register */
+#define BCHP_BSPI_RAF_FULLNESS                   0x0044330c /* Fullness indicator for the read ahead buffer */
+#define BCHP_BSPI_RAF_WATERMARK                  0x00443310 /* Watermark level in the read ahead buffer that triggers an interrupt */
+#define BCHP_BSPI_RAF_STATUS                     0x00443314 /* Linear Read Status Register */
+#define BCHP_BSPI_RAF_READ_DATA                  0x00443318 /* Read data from Raf-buffer */
+#define BCHP_BSPI_RAF_WORD_CNT                   0x0044331c /* Current number of words fetched from Flash */
+#define BCHP_BSPI_RAF_CURR_ADDR                  0x00443320 /* Current read address for the linear read session */
 
 /***************************************************************************
  *START_ADDR - Physical Starting Address Location in Flash device

@@ -22,6 +22,10 @@
 #include <linux/clk.h>
 #include <linux/version.h>
 #include <linux/module.h>
+#include <linux/bitops.h>
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/of_platform.h>
 #include <linux/brcmstb/brcmstb.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
@@ -33,6 +37,10 @@
 #define MAX_HCD			8
 
 static struct clk *usb_clk;
+
+/***********************************************************************
+ * Library functions
+ ***********************************************************************/
 
 int brcm_usb_probe(struct platform_device *pdev, char *hcd_name,
 	const struct hc_driver *hc_driver)
@@ -128,6 +136,126 @@ void brcm_usb_resume(struct usb_hcd *hcd)
 	enable_irq(hcd->irq);
 }
 EXPORT_SYMBOL(brcm_usb_resume);
+
+#ifdef CONFIG_OF
+
+/***********************************************************************
+ * DT support for USB instances
+ ***********************************************************************/
+
+struct brcm_usb_instance {
+	void __iomem		*ctrl_regs;
+	int			ioc;
+	int			ipp;
+};
+
+#ifdef __LITTLE_ENDIAN
+#define ENDIAN_SETTING		0x03 /* !WABO !FNBO FNHW BABO */
+#else
+#define ENDIAN_SETTING		0x0e /* WABO FNBO FNHW !BABO */
+#endif
+
+#define ENDIAN_m		0x0f
+#define IOC_m			BIT(4)
+#define IPP_m			BIT(5)
+
+#define SEQ_EN_m		BIT(0)
+#define SCB_SIZE_s		7
+#define SCB_SIZE_m		(0x1f << SCB_SIZE_s)
+
+#define SETUP_REG		0x00
+#define EBRIDGE_REG		0x0c
+#define OBRIDGE_REG		0x10
+
+static void brcm_usb_instance_hw_init(struct brcm_usb_instance *priv)
+{
+	u32 reg;
+
+	/* set up byte order for DRAM accesses */
+	reg = (readl(priv->ctrl_regs + SETUP_REG) & ~ENDIAN_m) |
+	      ENDIAN_SETTING;
+
+	/* set overcurrent and power polarity based on DT properties */
+	reg &= ~(IOC_m | IPP_m);
+	if (priv->ioc)
+		reg |= IOC_m;
+	if (priv->ipp)
+		reg |= IPP_m;
+	writel(reg, priv->ctrl_regs + SETUP_REG);
+
+	/* override lame bridge defaults */
+	reg = readl(priv->ctrl_regs + OBRIDGE_REG);
+	reg &= ~SEQ_EN_m;
+	writel(reg, priv->ctrl_regs + OBRIDGE_REG);
+
+	reg = readl(priv->ctrl_regs + EBRIDGE_REG);
+	reg &= ~SEQ_EN_m;
+	reg &= ~SCB_SIZE_m;
+	reg |= 0x08 << SCB_SIZE_s;
+	writel(reg, priv->ctrl_regs + EBRIDGE_REG);
+}
+
+static int __devinit brcm_usb_instance_probe(struct platform_device *pdev)
+{
+	struct device_node *dn = pdev->dev.of_node;
+	struct resource ctrl_res;
+	const u32 *prop;
+	struct brcm_usb_instance *priv;
+
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
+	dev_set_drvdata(&pdev->dev, priv);
+
+	if (of_address_to_resource(dn, 0, &ctrl_res)) {
+		dev_err(&pdev->dev, "can't get USB_CTRL base address\n");
+		return -EINVAL;
+	}
+
+	priv->ctrl_regs = devm_request_and_ioremap(&pdev->dev, &ctrl_res);
+	if (!priv->ctrl_regs) {
+		dev_err(&pdev->dev, "can't map register space\n");
+		return -EINVAL;
+	}
+
+	prop = of_get_property(dn, "ipp", NULL);
+	if (prop)
+		priv->ipp = be32_to_cpup(prop);
+
+	prop = of_get_property(dn, "ioc", NULL);
+	if (prop)
+		priv->ioc = be32_to_cpup(prop);
+
+	brcm_usb_instance_hw_init(priv);
+
+	return of_platform_populate(dn, NULL, NULL, NULL);
+}
+
+static const struct of_device_id brcm_usb_instance_match[] = {
+	{ .compatible = "brcm,usb-instance" },
+	{},
+};
+
+static struct platform_driver brcm_usb_instance_driver = {
+	.driver = {
+		.name = "usb-brcm",
+		.bus = &platform_bus_type,
+		.of_match_table = of_match_ptr(brcm_usb_instance_match),
+	}
+};
+
+/*
+ * We really don't want to try to undo of_platform_populate(), so it
+ * is not possible to unbind/deregister this driver.
+ */
+static int __init brcm_usb_instance_init(void)
+{
+	return platform_driver_probe(&brcm_usb_instance_driver,
+				     brcm_usb_instance_probe);
+}
+module_init(brcm_usb_instance_init);
+
+#endif
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Broadcom Corporation");

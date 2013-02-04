@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:31 2012
+ * Date:           Generated on         Wed Oct 17 03:11:31 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -42,26 +42,26 @@
 /***************************************************************************
  *BSPI - Public BSPI Control Registers
  ***************************************************************************/
-#define BCHP_BSPI_REVISION_ID                    0x00413200 /* Revision ID */
-#define BCHP_BSPI_SCRATCH                        0x00413204 /* Revision ID */
-#define BCHP_BSPI_MAST_N_BOOT_CTRL               0x00413208 /* Master/Boot SPI Control Register */
-#define BCHP_BSPI_BUSY_STATUS                    0x0041320c /* BSPI Busy Status Register */
-#define BCHP_BSPI_INTR_STATUS                    0x00413210 /* Interrupt Status Register */
-#define BCHP_BSPI_B0_STATUS                      0x00413214 /* Prefetch Buffer 0 Status Register */
-#define BCHP_BSPI_B0_CTRL                        0x00413218 /* Prefetch Buffer 0 Control Register */
-#define BCHP_BSPI_B1_STATUS                      0x0041321c /* Prefetch Buffer 1 Status Register */
-#define BCHP_BSPI_B1_CTRL                        0x00413220 /* Prefetch Buffer 1 Control Register */
-#define BCHP_BSPI_STRAP_OVERRIDE_CTRL            0x00413224 /* Dual/Single Receive Mode Control Register */
-#define BCHP_BSPI_FLEX_MODE_ENABLE               0x00413228 /* Flexible Control Mode Enable Register */
-#define BCHP_BSPI_BITS_PER_CYCLE                 0x0041322c /* Bits per cycle "b-p-c" Control Register */
-#define BCHP_BSPI_BITS_PER_PHASE                 0x00413230 /* Bits per Phase "b-p-p" Control Register */
-#define BCHP_BSPI_CMD_AND_MODE_BYTE              0x00413234 /* Command and Mode Data Register */
-#define BCHP_BSPI_BSPI_FLASH_UPPER_ADDR_BYTE     0x00413238 /* Bspi FLash upper address byte register */
-#define BCHP_BSPI_BSPI_XOR_VALUE                 0x0041323c /* BSPI FLASH XOR Value Register */
-#define BCHP_BSPI_BSPI_XOR_ENABLE                0x00413240 /* BSPI FLASH XOR Enable Register */
-#define BCHP_BSPI_BSPI_PIO_MODE_ENABLE           0x00413244 /* BSPI Pin  Programmed IO Mode Enable Register */
-#define BCHP_BSPI_BSPI_PIO_IODIR                 0x00413248 /* BSPI Pin  Programmed IO Mode Direction Register */
-#define BCHP_BSPI_BSPI_PIO_DATA                  0x0041324c /* BSPI Pin  Programmed IO Mode Data Register */
+#define BCHP_BSPI_REVISION_ID                    0x00443200 /* Revision ID */
+#define BCHP_BSPI_SCRATCH                        0x00443204 /* Revision ID */
+#define BCHP_BSPI_MAST_N_BOOT_CTRL               0x00443208 /* Master/Boot SPI Control Register */
+#define BCHP_BSPI_BUSY_STATUS                    0x0044320c /* BSPI Busy Status Register */
+#define BCHP_BSPI_INTR_STATUS                    0x00443210 /* Interrupt Status Register */
+#define BCHP_BSPI_B0_STATUS                      0x00443214 /* Prefetch Buffer 0 Status Register */
+#define BCHP_BSPI_B0_CTRL                        0x00443218 /* Prefetch Buffer 0 Control Register */
+#define BCHP_BSPI_B1_STATUS                      0x0044321c /* Prefetch Buffer 1 Status Register */
+#define BCHP_BSPI_B1_CTRL                        0x00443220 /* Prefetch Buffer 1 Control Register */
+#define BCHP_BSPI_STRAP_OVERRIDE_CTRL            0x00443224 /* Dual/Single Receive Mode Control Register */
+#define BCHP_BSPI_FLEX_MODE_ENABLE               0x00443228 /* Flexible Control Mode Enable Register */
+#define BCHP_BSPI_BITS_PER_CYCLE                 0x0044322c /* Bits per cycle "b-p-c" Control Register */
+#define BCHP_BSPI_BITS_PER_PHASE                 0x00443230 /* Bits per Phase "b-p-p" Control Register */
+#define BCHP_BSPI_CMD_AND_MODE_BYTE              0x00443234 /* Command and Mode Data Register */
+#define BCHP_BSPI_BSPI_FLASH_UPPER_ADDR_BYTE     0x00443238 /* Bspi FLash upper address byte register */
+#define BCHP_BSPI_BSPI_XOR_VALUE                 0x0044323c /* BSPI FLASH XOR Value Register */
+#define BCHP_BSPI_BSPI_XOR_ENABLE                0x00443240 /* BSPI FLASH XOR Enable Register */
+#define BCHP_BSPI_BSPI_PIO_MODE_ENABLE           0x00443244 /* BSPI Pin  Programmed IO Mode Enable Register */
+#define BCHP_BSPI_BSPI_PIO_IODIR                 0x00443248 /* BSPI Pin  Programmed IO Mode Direction Register */
+#define BCHP_BSPI_BSPI_PIO_DATA                  0x0044324c /* BSPI Pin  Programmed IO Mode Data Register */
 
 /***************************************************************************
  *REVISION_ID - Revision ID
@@ -78,7 +78,7 @@
 /* BSPI :: REVISION_ID :: MINOR [07:00] */
 #define BCHP_BSPI_REVISION_ID_MINOR_MASK                           0x000000ff
 #define BCHP_BSPI_REVISION_ID_MINOR_SHIFT                          0
-#define BCHP_BSPI_REVISION_ID_MINOR_DEFAULT                        0x00000000
+#define BCHP_BSPI_REVISION_ID_MINOR_DEFAULT                        0x00000001
 
 /***************************************************************************
  *SCRATCH - Revision ID
@@ -384,7 +384,7 @@
 /* BSPI :: BSPI_XOR_VALUE :: bspi_xor_value [31:20] */
 #define BCHP_BSPI_BSPI_XOR_VALUE_bspi_xor_value_MASK               0xfff00000
 #define BCHP_BSPI_BSPI_XOR_VALUE_bspi_xor_value_SHIFT              20
-#define BCHP_BSPI_BSPI_XOR_VALUE_bspi_xor_value_DEFAULT            0x00000000
+#define BCHP_BSPI_BSPI_XOR_VALUE_bspi_xor_value_DEFAULT            0x00000e00
 
 /* BSPI :: BSPI_XOR_VALUE :: reserved0 [19:00] */
 #define BCHP_BSPI_BSPI_XOR_VALUE_reserved0_MASK                    0x000fffff
@@ -400,7 +400,7 @@
 /* BSPI :: BSPI_XOR_ENABLE :: bspi_xor_enable [00:00] */
 #define BCHP_BSPI_BSPI_XOR_ENABLE_bspi_xor_enable_MASK             0x00000001
 #define BCHP_BSPI_BSPI_XOR_ENABLE_bspi_xor_enable_SHIFT            0
-#define BCHP_BSPI_BSPI_XOR_ENABLE_bspi_xor_enable_DEFAULT          0x00000000
+#define BCHP_BSPI_BSPI_XOR_ENABLE_bspi_xor_enable_DEFAULT          0x00000001
 
 /***************************************************************************
  *BSPI_PIO_MODE_ENABLE - BSPI Pin  Programmed IO Mode Enable Register

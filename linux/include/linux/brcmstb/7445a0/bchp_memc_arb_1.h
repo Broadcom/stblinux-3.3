@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Fri Jun 29 03:07:31 2012
+ * Date:           Generated on         Wed Oct 17 03:11:31 2012
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -333,6 +333,7680 @@
 #define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO   0x003c1480 /* "Client init error violation info" */
 #define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT      0x003c1484 /* "Client init software init" */
 #define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS       0x003c1488 /* "Client init status and debug register" */
+
+/***************************************************************************
+ *PHY_DEBUG_REGISTER - MEMC CORE and IOBUF Interface Debug Register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: reserved0 [31:08] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_reserved0_MASK          0xffffff00
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_reserved0_SHIFT         8
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: PMC2MEMC_BSP_RDY [07:07] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PMC2MEMC_BSP_RDY_MASK   0x00000080
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PMC2MEMC_BSP_RDY_SHIFT  7
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: PHY2CORE_INIT_RDY [06:06] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PHY2CORE_INIT_RDY_MASK  0x00000040
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PHY2CORE_INIT_RDY_SHIFT 6
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: PHY2CORE_POWERDOWN_RDY [05:05] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PHY2CORE_POWERDOWN_RDY_MASK 0x00000020
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_PHY2CORE_POWERDOWN_RDY_SHIFT 5
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: IO2C_CMD_DATA_FIFO_FULL [04:04] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_IO2C_CMD_DATA_FIFO_FULL_MASK 0x00000010
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_IO2C_CMD_DATA_FIFO_FULL_SHIFT 4
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: IO2C_RD_DATA_FIFO_EMPTY [03:03] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_IO2C_RD_DATA_FIFO_EMPTY_MASK 0x00000008
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_IO2C_RD_DATA_FIFO_EMPTY_SHIFT 3
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: C2IO_CMD_DATA_FIFO_PUSH [02:02] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_C2IO_CMD_DATA_FIFO_PUSH_MASK 0x00000004
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_C2IO_CMD_DATA_FIFO_PUSH_SHIFT 2
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: DRAM_RD_DATA_FIFO_POP [01:01] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_DRAM_RD_DATA_FIFO_POP_MASK 0x00000002
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_DRAM_RD_DATA_FIFO_POP_SHIFT 1
+
+/* MEMC_ARB_1 :: PHY_DEBUG_REGISTER :: CORE2PHY_PLL_DLL_SHUTDOWN_REQ [00:00] */
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_CORE2PHY_PLL_DLL_SHUTDOWN_REQ_MASK 0x00000001
+#define BCHP_MEMC_ARB_1_PHY_DEBUG_REGISTER_CORE2PHY_PLL_DLL_SHUTDOWN_REQ_SHIFT 0
+
+/***************************************************************************
+ *CLIENT_INFO_0 - Client Programming register for client 0.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_0 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_0 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_0 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_0 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_0 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_0_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_1 - Client Programming register for client 1.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_1 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_1 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_1 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_1 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_1 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_1_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_2 - Client Programming register for client 2.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_2 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_2 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_2 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_2 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_2 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_2_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_3 - Client Programming register for client 3.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_3 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_3 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_3 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_3 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_3 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_3_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_4 - Client Programming register for client 4.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_4 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_4 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_4 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_4 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_4 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_4_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_5 - Client Programming register for client 5.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_5 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_5 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_5 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_5 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_5 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_5_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_6 - Client Programming register for client 6.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_6 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_6 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_6 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_6 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_6 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_6_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_7 - Client Programming register for client 7.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_7 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_7 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_7 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_7 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_7 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_7_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_8 - Client Programming register for client 8.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_8 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_8 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_8 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_8 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_8 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_8_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_9 - Client Programming register for client 9.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_9 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_RR_EN_MASK                   0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_RR_EN_SHIFT                  31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_RR_EN_DEFAULT                0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_RR_EN_DISABLED               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_RR_EN_ENABLED                1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_9 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_reserved0_MASK               0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_reserved0_SHIFT              30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_9 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_BO_VAL_MASK                  0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_BO_VAL_SHIFT                 12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_BO_VAL_DEFAULT               0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_9 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_reserved1_MASK               0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_reserved1_SHIFT              8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_9 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_PR_TAG_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_PR_TAG_SHIFT                 0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_9_PR_TAG_DEFAULT               0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_10 - Client Programming register for client 10.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_10 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_10 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_10 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_10 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_10 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_10_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_11 - Client Programming register for client 11.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_11 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_11 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_11 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_11 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_11 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_11_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_12 - Client Programming register for client 12.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_12 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_12 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_12 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_12 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_12 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_12_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_13 - Client Programming register for client 13.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_13 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_13 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_13 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_13 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_13 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_13_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_14 - Client Programming register for client 14.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_14 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_14 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_14 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_14 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_14 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_14_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_15 - Client Programming register for client 15.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_15 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_15 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_15 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_15 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_15 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_15_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_16 - Client Programming register for client 16.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_16 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_16 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_16 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_16 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_16 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_16_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_17 - Client Programming register for client 17.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_17 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_17 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_17 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_17 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_17 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_17_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_18 - Client Programming register for client 18.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_18 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_18 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_18 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_18 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_18 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_18_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_19 - Client Programming register for client 19.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_19 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_19 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_19 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_19 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_19 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_19_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_20 - Client Programming register for client 20.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_20 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_20 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_20 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_20 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_20 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_20_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_21 - Client Programming register for client 21.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_21 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_21 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_21 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_21 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_21 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_21_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_22 - Client Programming register for client 22.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_22 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_22 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_22 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_22 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_22 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_22_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_23 - Client Programming register for client 23.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_23 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_23 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_23 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_23 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_23 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_23_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_24 - Client Programming register for client 24.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_24 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_24 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_24 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_24 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_24 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_24_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_25 - Client Programming register for client 25.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_25 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_25 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_25 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_25 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_25 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_25_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_26 - Client Programming register for client 26.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_26 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_26 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_26 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_26 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_26 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_26_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_27 - Client Programming register for client 27.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_27 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_27 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_27 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_27 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_27 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_27_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_28 - Client Programming register for client 28.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_28 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_28 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_28 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_28 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_28 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_28_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_29 - Client Programming register for client 29.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_29 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_29 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_29 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_29 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_29 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_29_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_30 - Client Programming register for client 30.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_30 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_30 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_30 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_30 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_30 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_30_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_31 - Client Programming register for client 31.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_31 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_31 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_31 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_31 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_31 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_31_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_32 - Client Programming register for client 32.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_32 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_32 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_32 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_32 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_32 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_32_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_33 - Client Programming register for client 33.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_33 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_33 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_33 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_33 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_33 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_33_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_34 - Client Programming register for client 34.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_34 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_34 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_34 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_34 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_34 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_34_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_35 - Client Programming register for client 35.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_35 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_35 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_35 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_35 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_35 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_35_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_36 - Client Programming register for client 36.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_36 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_36 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_36 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_36 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_36 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_36_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_37 - Client Programming register for client 37.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_37 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_37 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_37 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_37 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_37 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_37_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_38 - Client Programming register for client 38.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_38 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_38 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_38 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_38 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_38 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_38_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_39 - Client Programming register for client 39.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_39 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_39 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_39 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_39 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_39 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_39_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_40 - Client Programming register for client 40.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_40 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_40 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_40 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_40 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_40 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_40_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_41 - Client Programming register for client 41.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_41 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_41 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_41 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_41 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_41 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_41_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_42 - Client Programming register for client 42.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_42 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_42 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_42 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_42 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_42 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_42_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_43 - Client Programming register for client 43.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_43 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_43 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_43 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_43 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_43 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_43_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_44 - Client Programming register for client 44.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_44 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_44 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_44 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_44 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_44 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_44_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_45 - Client Programming register for client 45.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_45 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_45 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_45 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_45 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_45 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_45_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_46 - Client Programming register for client 46.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_46 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_46 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_46 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_46 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_46 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_46_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_47 - Client Programming register for client 47.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_47 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_47 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_47 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_47 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_47 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_47_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_48 - Client Programming register for client 48.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_48 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_48 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_48 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_48 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_48 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_48_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_49 - Client Programming register for client 49.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_49 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_49 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_49 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_49 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_49 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_49_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_50 - Client Programming register for client 50.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_50 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_50 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_50 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_50 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_50 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_50_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_51 - Client Programming register for client 51.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_51 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_51 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_51 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_51 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_51 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_51_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_52 - Client Programming register for client 52.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_52 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_52 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_52 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_52 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_52 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_52_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_53 - Client Programming register for client 53.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_53 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_53 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_53 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_53 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_53 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_53_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_54 - Client Programming register for client 54.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_54 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_54 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_54 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_54 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_54 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_54_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_55 - Client Programming register for client 55.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_55 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_55 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_55 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_55 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_55 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_55_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_56 - Client Programming register for client 56.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_56 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_56 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_56 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_56 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_56 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_56_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_57 - Client Programming register for client 57.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_57 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_57 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_57 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_57 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_57 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_57_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_58 - Client Programming register for client 58.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_58 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_58 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_58 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_58 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_58 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_58_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_59 - Client Programming register for client 59.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_59 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_59 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_59 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_59 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_59 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_59_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_60 - Client Programming register for client 60.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_60 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_60 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_60 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_60 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_60 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_60_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_61 - Client Programming register for client 61.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_61 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_61 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_61 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_61 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_61 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_61_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_62 - Client Programming register for client 62.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_62 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_62 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_62 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_62 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_62 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_62_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_63 - Client Programming register for client 63.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_63 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_63 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_63 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_63 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_63 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_63_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_64 - Client Programming register for client 64.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_64 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_64 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_64 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_64 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_64 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_64_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_65 - Client Programming register for client 65.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_65 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_65 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_65 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_65 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_65 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_65_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_66 - Client Programming register for client 66.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_66 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_66 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_66 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_66 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_66 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_66_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_67 - Client Programming register for client 67.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_67 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_67 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_67 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_67 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_67 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_67_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_68 - Client Programming register for client 68.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_68 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_68 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_68 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_68 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_68 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_68_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_69 - Client Programming register for client 69.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_69 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_69 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_69 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_69 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_69 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_69_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_70 - Client Programming register for client 70.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_70 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_70 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_70 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_70 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_70 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_70_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_71 - Client Programming register for client 71.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_71 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_71 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_71 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_71 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_71 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_71_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_72 - Client Programming register for client 72.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_72 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_72 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_72 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_72 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_72 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_72_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_73 - Client Programming register for client 73.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_73 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_73 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_73 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_73 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_73 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_73_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_74 - Client Programming register for client 74.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_74 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_74 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_74 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_74 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_74 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_74_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_75 - Client Programming register for client 75.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_75 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_75 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_75 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_75 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_75 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_75_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_76 - Client Programming register for client 76.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_76 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_76 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_76 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_76 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_76 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_76_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_77 - Client Programming register for client 77.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_77 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_77 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_77 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_77 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_77 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_77_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_78 - Client Programming register for client 78.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_78 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_78 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_78 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_78 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_78 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_78_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_79 - Client Programming register for client 79.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_79 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_79 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_79 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_79 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_79 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_79_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_80 - Client Programming register for client 80.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_80 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_80 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_80 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_80 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_80 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_80_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_81 - Client Programming register for client 81.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_81 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_81 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_81 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_81 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_81 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_81_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_82 - Client Programming register for client 82.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_82 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_82 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_82 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_82 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_82 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_82_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_83 - Client Programming register for client 83.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_83 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_83 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_83 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_83 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_83 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_83_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_84 - Client Programming register for client 84.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_84 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_84 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_84 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_84 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_84 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_84_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_85 - Client Programming register for client 85.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_85 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_85 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_85 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_85 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_85 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_85_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_86 - Client Programming register for client 86.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_86 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_86 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_86 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_86 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_86 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_86_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_87 - Client Programming register for client 87.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_87 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_87 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_87 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_87 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_87 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_87_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_88 - Client Programming register for client 88.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_88 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_88 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_88 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_88 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_88 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_88_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_89 - Client Programming register for client 89.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_89 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_89 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_89 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_89 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_89 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_89_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_90 - Client Programming register for client 90.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_90 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_90 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_90 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_90 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_90 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_90_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_91 - Client Programming register for client 91.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_91 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_91 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_91 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_91 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_91 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_91_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_92 - Client Programming register for client 92.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_92 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_92 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_92 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_92 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_92 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_92_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_93 - Client Programming register for client 93.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_93 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_93 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_93 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_93 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_93 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_93_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_94 - Client Programming register for client 94.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_94 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_94 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_94 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_94 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_94 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_94_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_95 - Client Programming register for client 95.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_95 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_95 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_95 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_95 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_95 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_95_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_96 - Client Programming register for client 96.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_96 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_96 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_96 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_96 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_96 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_96_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_97 - Client Programming register for client 97.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_97 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_97 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_97 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_97 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_97 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_97_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_98 - Client Programming register for client 98.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_98 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_98 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_98 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_98 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_98 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_98_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_99 - Client Programming register for client 99.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_99 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_RR_EN_MASK                  0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_RR_EN_SHIFT                 31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_RR_EN_DEFAULT               0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_RR_EN_DISABLED              0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_RR_EN_ENABLED               1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_99 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_reserved0_MASK              0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_reserved0_SHIFT             30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_99 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_BO_VAL_MASK                 0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_BO_VAL_SHIFT                12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_BO_VAL_DEFAULT              0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_99 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_reserved1_MASK              0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_reserved1_SHIFT             8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_99 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_PR_TAG_MASK                 0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_PR_TAG_SHIFT                0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_99_PR_TAG_DEFAULT              0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_100 - Client Programming register for client 100.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_100 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_100 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_100 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_100 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_100 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_100_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_101 - Client Programming register for client 101.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_101 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_101 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_101 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_101 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_101 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_101_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_102 - Client Programming register for client 102.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_102 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_102 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_102 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_102 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_102 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_102_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_103 - Client Programming register for client 103.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_103 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_103 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_103 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_103 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_103 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_103_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_104 - Client Programming register for client 104.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_104 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_104 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_104 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_104 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_104 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_104_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_105 - Client Programming register for client 105.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_105 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_105 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_105 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_105 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_105 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_105_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_106 - Client Programming register for client 106.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_106 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_106 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_106 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_106 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_106 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_106_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_107 - Client Programming register for client 107.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_107 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_107 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_107 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_107 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_107 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_107_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_108 - Client Programming register for client 108.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_108 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_108 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_108 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_108 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_108 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_108_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_109 - Client Programming register for client 109.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_109 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_109 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_109 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_109 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_109 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_109_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_110 - Client Programming register for client 110.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_110 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_110 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_110 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_110 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_110 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_110_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_111 - Client Programming register for client 111.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_111 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_111 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_111 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_111 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_111 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_111_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_112 - Client Programming register for client 112.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_112 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_112 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_112 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_112 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_112 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_112_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_113 - Client Programming register for client 113.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_113 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_113 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_113 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_113 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_113 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_113_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_114 - Client Programming register for client 114.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_114 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_114 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_114 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_114 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_114 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_114_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_115 - Client Programming register for client 115.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_115 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_115 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_115 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_115 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_115 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_115_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_116 - Client Programming register for client 116.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_116 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_116 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_116 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_116 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_116 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_116_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_117 - Client Programming register for client 117.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_117 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_117 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_117 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_117 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_117 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_117_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_118 - Client Programming register for client 118.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_118 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_118 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_118 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_118 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_118 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_118_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_119 - Client Programming register for client 119.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_119 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_119 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_119 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_119 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_119 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_119_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_120 - Client Programming register for client 120.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_120 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_120 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_120 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_120 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_120 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_120_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_121 - Client Programming register for client 121.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_121 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_121 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_121 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_121 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_121 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_121_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_122 - Client Programming register for client 122.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_122 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_122 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_122 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_122 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_122 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_122_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_123 - Client Programming register for client 123.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_123 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_123 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_123 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_123 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_123 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_123_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_124 - Client Programming register for client 124.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_124 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_124 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_124 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_124 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_124 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_124_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_125 - Client Programming register for client 125.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_125 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_125 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_125 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_125 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_125 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_125_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_126 - Client Programming register for client 126.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_126 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_126 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_126 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_126 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_126 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_126_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_127 - Client Programming register for client 127
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_127 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_127 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_127 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_127 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_127 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_127_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_128 - Client Programming register for client 128.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_128 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_128 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_128 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_128 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_128 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_128_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_129 - Client Programming register for client 129.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_129 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_129 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_129 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_129 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_129 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_129_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_130 - Client Programming register for client 130.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_130 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_130 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_130 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_130 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_130 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_130_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_131 - Client Programming register for client 131.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_131 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_131 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_131 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_131 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_131 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_131_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_132 - Client Programming register for client 132.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_132 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_132 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_132 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_132 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_132 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_132_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_133 - Client Programming register for client 133.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_133 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_133 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_133 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_133 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_133 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_133_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_134 - Client Programming register for client 134.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_134 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_134 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_134 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_134 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_134 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_134_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_135 - Client Programming register for client 135.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_135 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_135 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_135 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_135 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_135 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_135_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_136 - Client Programming register for client 136.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_136 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_136 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_136 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_136 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_136 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_136_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_137 - Client Programming register for client 137.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_137 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_137 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_137 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_137 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_137 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_137_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_138 - Client Programming register for client 138.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_138 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_138 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_138 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_138 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_138 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_138_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_139 - Client Programming register for client 139.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_139 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_139 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_139 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_139 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_139 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_139_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_140 - Client Programming register for client 140.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_140 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_140 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_140 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_140 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_140 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_140_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_141 - Client Programming register for client 141.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_141 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_141 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_141 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_141 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_141 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_141_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_142 - Client Programming register for client 142.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_142 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_142 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_142 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_142 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_142 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_142_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_143 - Client Programming register for client 143.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_143 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_143 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_143 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_143 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_143 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_143_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_144 - Client Programming register for client 144.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_144 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_144 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_144 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_144 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_144 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_144_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_145 - Client Programming register for client 145.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_145 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_145 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_145 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_145 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_145 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_145_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_146 - Client Programming register for client 146.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_146 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_146 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_146 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_146 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_146 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_146_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_147 - Client Programming register for client 147.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_147 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_147 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_147 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_147 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_147 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_147_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_148 - Client Programming register for client 148.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_148 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_148 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_148 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_148 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_148 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_148_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_149 - Client Programming register for client 149.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_149 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_149 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_149 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_149 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_149 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_149_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_150 - Client Programming register for client 150.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_150 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_150 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_150 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_150 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_150 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_150_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_151 - Client Programming register for client 151.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_151 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_151 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_151 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_151 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_151 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_151_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_152 - Client Programming register for client 152.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_152 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_152 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_152 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_152 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_152 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_152_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_153 - Client Programming register for client 153.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_153 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_153 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_153 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_153 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_153 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_153_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_154 - Client Programming register for client 154.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_154 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_154 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_154 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_154 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_154 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_154_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_155 - Client Programming register for client 155.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_155 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_155 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_155 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_155 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_155 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_155_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_156 - Client Programming register for client 156.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_156 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_156 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_156 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_156 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_156 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_156_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_157 - Client Programming register for client 157.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_157 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_157 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_157 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_157 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_157 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_157_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_158 - Client Programming register for client 158.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_158 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_158 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_158 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_158 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_158 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_158_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_159 - Client Programming register for client 159.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_159 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_159 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_159 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_159 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_159 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_159_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_160 - Client Programming register for client 160.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_160 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_160 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_160 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_160 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_160 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_160_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_161 - Client Programming register for client 161.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_161 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_161 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_161 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_161 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_161 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_161_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_162 - Client Programming register for client 162.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_162 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_162 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_162 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_162 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_162 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_162_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_163 - Client Programming register for client 163.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_163 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_163 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_163 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_163 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_163 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_163_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_164 - Client Programming register for client 164.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_164 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_164 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_164 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_164 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_164 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_164_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_165 - Client Programming register for client 165.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_165 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_165 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_165 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_165 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_165 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_165_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_166 - Client Programming register for client 166.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_166 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_166 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_166 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_166 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_166 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_166_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_167 - Client Programming register for client 167.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_167 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_167 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_167 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_167 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_167 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_167_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_168 - Client Programming register for client 168.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_168 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_168 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_168 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_168 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_168 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_168_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_169 - Client Programming register for client 169.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_169 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_169 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_169 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_169 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_169 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_169_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_170 - Client Programming register for client 170.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_170 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_170 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_170 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_170 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_170 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_170_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_171 - Client Programming register for client 171.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_171 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_171 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_171 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_171 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_171 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_171_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_172 - Client Programming register for client 172.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_172 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_172 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_172 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_172 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_172 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_172_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_173 - Client Programming register for client 173.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_173 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_173 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_173 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_173 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_173 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_173_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_174 - Client Programming register for client 174.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_174 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_174 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_174 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_174 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_174 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_174_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_175 - Client Programming register for client 175.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_175 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_175 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_175 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_175 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_175 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_175_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_176 - Client Programming register for client 176.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_176 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_176 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_176 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_176 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_176 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_176_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_177 - Client Programming register for client 177.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_177 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_177 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_177 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_177 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_177 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_177_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_178 - Client Programming register for client 178.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_178 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_178 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_178 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_178 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_178 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_178_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_179 - Client Programming register for client 179.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_179 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_179 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_179 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_179 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_179 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_179_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_180 - Client Programming register for client 180.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_180 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_180 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_180 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_180 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_180 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_180_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_181 - Client Programming register for client 181.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_181 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_181 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_181 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_181 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_181 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_181_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_182 - Client Programming register for client 182.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_182 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_182 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_182 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_182 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_182 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_182_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_183 - Client Programming register for client 183.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_183 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_183 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_183 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_183 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_183 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_183_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_184 - Client Programming register for client 184.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_184 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_184 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_184 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_184 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_184 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_184_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_185 - Client Programming register for client 185.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_185 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_185 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_185 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_185 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_185 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_185_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_186 - Client Programming register for client 186.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_186 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_186 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_186 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_186 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_186 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_186_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_187 - Client Programming register for client 187.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_187 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_187 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_187 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_187 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_187 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_187_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_188 - Client Programming register for client 188.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_188 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_188 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_188 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_188 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_188 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_188_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_189 - Client Programming register for client 189.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_189 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_189 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_189 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_189 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_189 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_189_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_190 - Client Programming register for client 190.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_190 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_190 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_190 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_190 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_190 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_190_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_191 - Client Programming register for client 191.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_191 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_191 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_191 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_191 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_191 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_191_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_192 - Client Programming register for client 192.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_192 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_192 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_192 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_192 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_192 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_192_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_193 - Client Programming register for client 193.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_193 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_193 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_193 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_193 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_193 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_193_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_194 - Client Programming register for client 194.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_194 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_194 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_194 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_194 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_194 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_194_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_195 - Client Programming register for client 195.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_195 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_195 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_195 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_195 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_195 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_195_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_196 - Client Programming register for client 196.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_196 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_196 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_196 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_196 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_196 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_196_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_197 - Client Programming register for client 197.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_197 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_197 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_197 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_197 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_197 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_197_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_198 - Client Programming register for client 198.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_198 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_198 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_198 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_198 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_198 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_198_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_199 - Client Programming register for client 199.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_199 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_199 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_199 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_199 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_199 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_199_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_200 - Client Programming register for client 200.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_200 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_200 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_200 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_200 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_200 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_200_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_201 - Client Programming register for client 201.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_201 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_201 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_201 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_201 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_201 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_201_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_202 - Client Programming register for client 202.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_202 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_202 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_202 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_202 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_202 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_202_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_203 - Client Programming register for client 203.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_203 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_203 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_203 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_203 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_203 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_203_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_204 - Client Programming register for client 204.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_204 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_204 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_204 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_204 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_204 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_204_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_205 - Client Programming register for client 205.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_205 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_205 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_205 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_205 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_205 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_205_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_206 - Client Programming register for client 206.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_206 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_206 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_206 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_206 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_206 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_206_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_207 - Client Programming register for client 207.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_207 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_207 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_207 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_207 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_207 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_207_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_208 - Client Programming register for client 208.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_208 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_208 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_208 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_208 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_208 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_208_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_209 - Client Programming register for client 209.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_209 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_209 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_209 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_209 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_209 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_209_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_210 - Client Programming register for client 210.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_210 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_210 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_210 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_210 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_210 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_210_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_211 - Client Programming register for client 211.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_211 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_211 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_211 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_211 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_211 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_211_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_212 - Client Programming register for client 212.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_212 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_212 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_212 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_212 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_212 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_212_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_213 - Client Programming register for client 213.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_213 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_213 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_213 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_213 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_213 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_213_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_214 - Client Programming register for client 214.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_214 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_214 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_214 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_214 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_214 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_214_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_215 - Client Programming register for client 215.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_215 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_215 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_215 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_215 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_215 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_215_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_216 - Client Programming register for client 216.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_216 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_216 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_216 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_216 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_216 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_216_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_217 - Client Programming register for client 217.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_217 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_217 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_217 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_217 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_217 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_217_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_218 - Client Programming register for client 218.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_218 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_218 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_218 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_218 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_218 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_218_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_219 - Client Programming register for client 219.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_219 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_219 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_219 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_219 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_219 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_219_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_220 - Client Programming register for client 220.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_220 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_220 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_220 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_220 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_220 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_220_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_221 - Client Programming register for client 221.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_221 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_221 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_221 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_221 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_221 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_221_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_222 - Client Programming register for client 222.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_222 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_222 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_222 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_222 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_222 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_222_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_223 - Client Programming register for client 223.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_223 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_223 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_223 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_223 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_223 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_223_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_224 - Client Programming register for client 224.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_224 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_224 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_224 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_224 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_224 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_224_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_225 - Client Programming register for client 225.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_225 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_225 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_225 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_225 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_225 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_225_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_226 - Client Programming register for client 226.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_226 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_226 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_226 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_226 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_226 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_226_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_227 - Client Programming register for client 227.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_227 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_227 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_227 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_227 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_227 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_227_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_228 - Client Programming register for client 228.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_228 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_228 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_228 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_228 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_228 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_228_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_229 - Client Programming register for client 229.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_229 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_229 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_229 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_229 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_229 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_229_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_230 - Client Programming register for client 230.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_230 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_230 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_230 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_230 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_230 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_230_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_231 - Client Programming register for client 231.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_231 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_231 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_231 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_231 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_231 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_231_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_232 - Client Programming register for client 232.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_232 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_232 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_232 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_232 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_232 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_232_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_233 - Client Programming register for client 233.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_233 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_233 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_233 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_233 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_233 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_233_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_234 - Client Programming register for client 234.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_234 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_234 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_234 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_234 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_234 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_234_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_235 - Client Programming register for client 235.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_235 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_235 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_235 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_235 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_235 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_235_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_236 - Client Programming register for client 236.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_236 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_236 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_236 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_236 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_236 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_236_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_237 - Client Programming register for client 237.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_237 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_237 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_237 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_237 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_237 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_237_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_238 - Client Programming register for client 238.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_238 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_238 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_238 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_238 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_238 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_238_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_239 - Client Programming register for client 239.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_239 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_239 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_239 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_239 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_239 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_239_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_240 - Client Programming register for client 240.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_240 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_240 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_240 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_240 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_240 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_240_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_241 - Client Programming register for client 241.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_241 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_241 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_241 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_241 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_241 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_241_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_242 - Client Programming register for client 242.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_242 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_242 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_242 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_242 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_242 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_242_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_243 - Client Programming register for client 243.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_243 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_243 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_243 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_243 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_243 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_243_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_244 - Client Programming register for client 244.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_244 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_244 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_244 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_244 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_244 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_244_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_245 - Client Programming register for client 245.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_245 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_245 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_245 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_245 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_245 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_245_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_246 - Client Programming register for client 246.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_246 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_246 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_246 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_246 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_246 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_246_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_247 - Client Programming register for client 247.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_247 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_247 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_247 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_247 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_247 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_247_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_248 - Client Programming register for client 248.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_248 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_248 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_248 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_248 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_248 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_248_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_249 - Client Programming register for client 249.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_249 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_249 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_249 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_249 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_249 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_249_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_250 - Client Programming register for client 250.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_250 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_250 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_250 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_250 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_250 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_250_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_251 - Client Programming register for client 251.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_251 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_251 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_251 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_251 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_251 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_251_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_252 - Client Programming register for client 252.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_252 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_252 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_252 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_252 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_252 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_252_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_253 - Client Programming register for client 253.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_253 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_253 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_253 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_253 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_253 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_253_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_254 - Client Programming register for client 254.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_254 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_RR_EN_DEFAULT              0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_254 :: reserved0 [30:30] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_reserved0_MASK             0x40000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_reserved0_SHIFT            30
+
+/* MEMC_ARB_1 :: CLIENT_INFO_254 :: BO_VAL [29:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_BO_VAL_MASK                0x3ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_BO_VAL_SHIFT               12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_BO_VAL_DEFAULT             0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INFO_254 :: reserved1 [11:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_reserved1_MASK             0x00000f00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_reserved1_SHIFT            8
+
+/* MEMC_ARB_1 :: CLIENT_INFO_254 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_254_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *CLIENT_INFO_255 - Client Programming register for client 255
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INFO_255 :: RR_EN [31:31] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_RR_EN_MASK                 0x80000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_RR_EN_SHIFT                31
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_RR_EN_DEFAULT              0x00000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_RR_EN_DISABLED             0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_RR_EN_ENABLED              1
+
+/* MEMC_ARB_1 :: CLIENT_INFO_255 :: REF_PRD [30:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_PRD_MASK               0x7ffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_PRD_SHIFT              12
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_PRD_DEFAULT            0x00000818
+
+/* MEMC_ARB_1 :: CLIENT_INFO_255 :: reserved0 [11:10] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_reserved0_MASK             0x00000c00
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_reserved0_SHIFT            10
+
+/* MEMC_ARB_1 :: CLIENT_INFO_255 :: REF_CLUST [09:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_MASK             0x00000300
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_SHIFT            8
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_DEFAULT          0x00000000
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_NO_CLUSTER       0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_CLUSTER_TWO      1
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_REF_CLUST_CLUSTER_FOUR     2
+
+/* MEMC_ARB_1 :: CLIENT_INFO_255 :: PR_TAG [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_PR_TAG_MASK                0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_PR_TAG_SHIFT               0
+#define BCHP_MEMC_ARB_1_CLIENT_INFO_255_PR_TAG_DEFAULT             0x00000000
+
+/***************************************************************************
+ *REQ_MASK_0 - Request Mask register for Clients 0 to 31
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_0 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_0_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_0_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_0_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_0_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_1 - Request Mask register for Clients 32 to 63
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_1 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_1_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_1_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_1_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_1_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_2 - Request Mask register for Clients 64 to 95
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_2 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_2_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_2_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_2_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_2_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_3 - Request Mask register for Clients 96 to 127
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_3 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_3_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_3_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_3_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_3_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_4 - Request Mask register for Clients 128 to 159
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_4 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_4_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_4_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_4_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_4_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_5 - Request Mask register for Clients 160 to 191
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_5 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_5_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_5_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_5_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_5_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_6 - Request Mask register for Clients 192 to 223
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_6 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_6_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_6_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_6_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_6_MASK_UNMASK                     0
+
+/***************************************************************************
+ *REQ_MASK_7 - Request Mask register for Clients 224 to 255
+ ***************************************************************************/
+/* MEMC_ARB_1 :: REQ_MASK_7 :: MASK [31:00] */
+#define BCHP_MEMC_ARB_1_REQ_MASK_7_MASK_MASK                       0xffffffff
+#define BCHP_MEMC_ARB_1_REQ_MASK_7_MASK_SHIFT                      0
+#define BCHP_MEMC_ARB_1_REQ_MASK_7_MASK_DEFAULT                    0x00000000
+#define BCHP_MEMC_ARB_1_REQ_MASK_7_MASK_UNMASK                     0
+
+/***************************************************************************
+ *ARB_WINNER - SCB-Arbitration Winner.
+ ***************************************************************************/
+/* MEMC_ARB_1 :: ARB_WINNER :: reserved0 [31:08] */
+#define BCHP_MEMC_ARB_1_ARB_WINNER_reserved0_MASK                  0xffffff00
+#define BCHP_MEMC_ARB_1_ARB_WINNER_reserved0_SHIFT                 8
+
+/* MEMC_ARB_1 :: ARB_WINNER :: CLIENT_ID [07:00] */
+#define BCHP_MEMC_ARB_1_ARB_WINNER_CLIENT_ID_MASK                  0x000000ff
+#define BCHP_MEMC_ARB_1_ARB_WINNER_CLIENT_ID_SHIFT                 0
+#define BCHP_MEMC_ARB_1_ARB_WINNER_CLIENT_ID_DEFAULT               0x00000000
+
+/***************************************************************************
+ *RTS_ERR_0 - RTS Deadline miss register for Clients 0 to 31
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_0 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_0_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_0_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_0_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_0_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_0_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_1 - RTS Deadline miss register for Clients 32 to 63
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_1 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_1_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_1_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_1_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_1_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_1_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_2 - RTS Deadline miss register for Clients 64 to 95
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_2 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_2_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_2_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_2_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_2_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_2_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_3 - RTS Deadline miss register for Clients 96 to 127
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_3 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_3_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_3_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_3_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_3_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_3_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_4 - RTS Deadline miss register for Clients 128 to 159
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_4 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_4_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_4_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_4_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_4_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_4_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_5 - RTS Deadline miss register for Clients 160 to 191
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_5 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_5_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_5_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_5_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_5_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_5_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_6 - RTS Deadline miss register for Clients 192 to 223
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_6 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_6_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_6_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_6_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_6_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_6_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *RTS_ERR_7 - RTS Deadline miss register for Clients 224 to 255
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_7 :: CLIENT [31:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_7_CLIENT_MASK                      0xffffffff
+#define BCHP_MEMC_ARB_1_RTS_ERR_7_CLIENT_SHIFT                     0
+#define BCHP_MEMC_ARB_1_RTS_ERR_7_CLIENT_DEFAULT                   0x00000000
+#define BCHP_MEMC_ARB_1_RTS_ERR_7_CLIENT_ERROR                     1
+#define BCHP_MEMC_ARB_1_RTS_ERR_7_CLIENT_NOERROR                   0
+
+/***************************************************************************
+ *FULLNESS_THRESHOLD - Arbiter fullness threshold register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: FULLNESS_THRESHOLD :: reserved0 [31:06] */
+#define BCHP_MEMC_ARB_1_FULLNESS_THRESHOLD_reserved0_MASK          0xffffffc0
+#define BCHP_MEMC_ARB_1_FULLNESS_THRESHOLD_reserved0_SHIFT         6
+
+/* MEMC_ARB_1 :: FULLNESS_THRESHOLD :: FULLNESS_THRESHOLD_VALUE [05:00] */
+#define BCHP_MEMC_ARB_1_FULLNESS_THRESHOLD_FULLNESS_THRESHOLD_VALUE_MASK 0x0000003f
+#define BCHP_MEMC_ARB_1_FULLNESS_THRESHOLD_FULLNESS_THRESHOLD_VALUE_SHIFT 0
+#define BCHP_MEMC_ARB_1_FULLNESS_THRESHOLD_FULLNESS_THRESHOLD_VALUE_DEFAULT 0x00000005
+
+/***************************************************************************
+ *FULLNESS_UPDATE_HOLDOFF - SCB and MCP Write Fullness Update Holdoff register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: FULLNESS_UPDATE_HOLDOFF :: reserved0 [31:06] */
+#define BCHP_MEMC_ARB_1_FULLNESS_UPDATE_HOLDOFF_reserved0_MASK     0xffffffc0
+#define BCHP_MEMC_ARB_1_FULLNESS_UPDATE_HOLDOFF_reserved0_SHIFT    6
+
+/* MEMC_ARB_1 :: FULLNESS_UPDATE_HOLDOFF :: SCB_MCP_WRITE_DATA_FULLNESS_UPDATE_HOLDOFF [05:00] */
+#define BCHP_MEMC_ARB_1_FULLNESS_UPDATE_HOLDOFF_SCB_MCP_WRITE_DATA_FULLNESS_UPDATE_HOLDOFF_MASK 0x0000003f
+#define BCHP_MEMC_ARB_1_FULLNESS_UPDATE_HOLDOFF_SCB_MCP_WRITE_DATA_FULLNESS_UPDATE_HOLDOFF_SHIFT 0
+#define BCHP_MEMC_ARB_1_FULLNESS_UPDATE_HOLDOFF_SCB_MCP_WRITE_DATA_FULLNESS_UPDATE_HOLDOFF_DEFAULT 0x00000002
+
+/***************************************************************************
+ *MINIMUM_COMMAND_SIZE - Minimum command size register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: reserved0 [31:30] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved0_MASK        0xc0000000
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved0_SHIFT       30
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: MINIMUM_MCP_COMMAND_SIZE [29:24] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_MCP_COMMAND_SIZE_MASK 0x3f000000
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_MCP_COMMAND_SIZE_SHIFT 24
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_MCP_COMMAND_SIZE_DEFAULT 0x00000003
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: reserved1 [23:22] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved1_MASK        0x00c00000
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved1_SHIFT       22
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: MINIMUM_LMB_COMMAND_SIZE [21:16] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_LMB_COMMAND_SIZE_MASK 0x003f0000
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_LMB_COMMAND_SIZE_SHIFT 16
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_LMB_COMMAND_SIZE_DEFAULT 0x00000003
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: reserved2 [15:14] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved2_MASK        0x0000c000
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved2_SHIFT       14
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: MINIMUM_PFRI_COMMAND_SIZE [13:08] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_PFRI_COMMAND_SIZE_MASK 0x00003f00
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_PFRI_COMMAND_SIZE_SHIFT 8
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_PFRI_COMMAND_SIZE_DEFAULT 0x00000003
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: reserved3 [07:06] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved3_MASK        0x000000c0
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_reserved3_SHIFT       6
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE :: MINIMUM_SCB_COMMAND_SIZE [05:00] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_SCB_COMMAND_SIZE_MASK 0x0000003f
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_SCB_COMMAND_SIZE_SHIFT 0
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE_MINIMUM_SCB_COMMAND_SIZE_DEFAULT 0x00000003
+
+/***************************************************************************
+ *MINIMUM_COMMAND_SIZE2 - Minimum command size register for UBUS
+ ***************************************************************************/
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE2 :: reserved0 [31:06] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE2_reserved0_MASK       0xffffffc0
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE2_reserved0_SHIFT      6
+
+/* MEMC_ARB_1 :: MINIMUM_COMMAND_SIZE2 :: MINIMUM_UBUS_COMMAND_SIZE [05:00] */
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE2_MINIMUM_UBUS_COMMAND_SIZE_MASK 0x0000003f
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE2_MINIMUM_UBUS_COMMAND_SIZE_SHIFT 0
+#define BCHP_MEMC_ARB_1_MINIMUM_COMMAND_SIZE2_MINIMUM_UBUS_COMMAND_SIZE_DEFAULT 0x00000003
+
+/***************************************************************************
+ *RTS_ERR_INFO_WRITE_CLEAR - MEMC RTS_ERR_INFO write clear register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: RTS_ERR_INFO_WRITE_CLEAR :: reserved0 [31:01] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_INFO_WRITE_CLEAR_reserved0_MASK    0xfffffffe
+#define BCHP_MEMC_ARB_1_RTS_ERR_INFO_WRITE_CLEAR_reserved0_SHIFT   1
+
+/* MEMC_ARB_1 :: RTS_ERR_INFO_WRITE_CLEAR :: WRITE_CLEAR [00:00] */
+#define BCHP_MEMC_ARB_1_RTS_ERR_INFO_WRITE_CLEAR_WRITE_CLEAR_MASK  0x00000001
+#define BCHP_MEMC_ARB_1_RTS_ERR_INFO_WRITE_CLEAR_WRITE_CLEAR_SHIFT 0
+#define BCHP_MEMC_ARB_1_RTS_ERR_INFO_WRITE_CLEAR_WRITE_CLEAR_DEFAULT 0x00000000
+
+/***************************************************************************
+ *SCB_ARBITER_DEBUG_REGISTER - MEMC SCB Interface and Arbiter State Machine and FIFO Debug Register
+ ***************************************************************************/
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved0 [31:30] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved0_MASK  0xc0000000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved0_SHIFT 30
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_RD_STATE [29:28] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_RD_STATE_MASK 0x30000000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_RD_STATE_SHIFT 28
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved1 [27:26] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved1_MASK  0x0c000000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved1_SHIFT 26
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SS_WR_STRB_STATE [25:24] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SS_WR_STRB_STATE_MASK 0x03000000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SS_WR_STRB_STATE_SHIFT 24
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved2 [23:21] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved2_MASK  0x00e00000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved2_SHIFT 21
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_LAST_WRITE_STATE [20:20] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_LAST_WRITE_STATE_MASK 0x00100000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_LAST_WRITE_STATE_SHIFT 20
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved3 [19:17] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved3_MASK  0x000e0000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved3_SHIFT 17
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_WR_NATIVE_WORD_STATE [16:16] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_NATIVE_WORD_STATE_MASK 0x00010000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_NATIVE_WORD_STATE_SHIFT 16
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved4 [15:14] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved4_MASK  0x0000c000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved4_SHIFT 14
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_WR_DATA_FIFO_FULL [13:13] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_DATA_FIFO_FULL_MASK 0x00002000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_DATA_FIFO_FULL_SHIFT 13
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_WR_DATA_FIFO_EMPTY [12:12] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_DATA_FIFO_EMPTY_MASK 0x00001000
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_DATA_FIFO_EMPTY_SHIFT 12
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_WR_MASK_FIFO_FULL [11:11] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_MASK_FIFO_FULL_MASK 0x00000800
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_MASK_FIFO_FULL_SHIFT 11
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_WR_MASK_FIFO_EMPTY [10:10] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_MASK_FIFO_EMPTY_MASK 0x00000400
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_WR_MASK_FIFO_EMPTY_SHIFT 10
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_CMD_FIFO_FULL [09:09] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_CMD_FIFO_FULL_MASK 0x00000200
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_CMD_FIFO_FULL_SHIFT 9
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: SCB_CMD_FIFO_EMPTY [08:08] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_CMD_FIFO_EMPTY_MASK 0x00000100
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_SCB_CMD_FIFO_EMPTY_SHIFT 8
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: reserved5 [07:06] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved5_MASK  0x000000c0
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_reserved5_SHIFT 6
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: LCA_ARB_STATE [05:03] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_LCA_ARB_STATE_MASK 0x00000038
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_LCA_ARB_STATE_SHIFT 3
+
+/* MEMC_ARB_1 :: SCB_ARBITER_DEBUG_REGISTER :: RCA_ARB_STATE [02:00] */
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_RCA_ARB_STATE_MASK 0x00000007
+#define BCHP_MEMC_ARB_1_SCB_ARBITER_DEBUG_REGISTER_RCA_ARB_STATE_SHIFT 0
+
+/***************************************************************************
+ *SPARE_1 - Spare Register 1 .
+ ***************************************************************************/
+/* MEMC_ARB_1 :: SPARE_1 :: SPARE [31:00] */
+#define BCHP_MEMC_ARB_1_SPARE_1_SPARE_MASK                         0xffffffff
+#define BCHP_MEMC_ARB_1_SPARE_1_SPARE_SHIFT                        0
+#define BCHP_MEMC_ARB_1_SPARE_1_SPARE_DEFAULT                      0x00000000
+
+/***************************************************************************
+ *SPARE_2 - Spare Register 2 .
+ ***************************************************************************/
+/* MEMC_ARB_1 :: SPARE_2 :: SPARE [31:00] */
+#define BCHP_MEMC_ARB_1_SPARE_2_SPARE_MASK                         0xffffffff
+#define BCHP_MEMC_ARB_1_SPARE_2_SPARE_SHIFT                        0
+#define BCHP_MEMC_ARB_1_SPARE_2_SPARE_DEFAULT                      0x00000000
+
+/***************************************************************************
+ *SPARE_RO_1 - Read only Spare Register 1 .
+ ***************************************************************************/
+/* MEMC_ARB_1 :: SPARE_RO_1 :: SPARE_RO [31:00] */
+#define BCHP_MEMC_ARB_1_SPARE_RO_1_SPARE_RO_MASK                   0xffffffff
+#define BCHP_MEMC_ARB_1_SPARE_RO_1_SPARE_RO_SHIFT                  0
+#define BCHP_MEMC_ARB_1_SPARE_RO_1_SPARE_RO_DEFAULT                0x00000000
+
+/***************************************************************************
+ *SPARE_RO_2 - Read only Spare Register 2 .
+ ***************************************************************************/
+/* MEMC_ARB_1 :: SPARE_RO_2 :: SPARE_RO [31:00] */
+#define BCHP_MEMC_ARB_1_SPARE_RO_2_SPARE_RO_MASK                   0xffffffff
+#define BCHP_MEMC_ARB_1_SPARE_RO_2_SPARE_RO_SHIFT                  0
+#define BCHP_MEMC_ARB_1_SPARE_RO_2_SPARE_RO_DEFAULT                0x00000000
+
+/***************************************************************************
+ *CLIENT_INIT_ENABLE - "Enable for client init block."
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_ENABLE :: reserved0 [31:01] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ENABLE_reserved0_MASK          0xfffffffe
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ENABLE_reserved0_SHIFT         1
+
+/* MEMC_ARB_1 :: CLIENT_INIT_ENABLE :: ENABLE [00:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ENABLE_ENABLE_MASK             0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ENABLE_ENABLE_SHIFT            0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ENABLE_ENABLE_DEFAULT          0x00000001
+
+/***************************************************************************
+ *CLIENT_INIT_COUNTER_THRESH - "Client init block counter threshold value"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_COUNTER_THRESH :: reserved0 [31:12] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_COUNTER_THRESH_reserved0_MASK  0xfffff000
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_COUNTER_THRESH_reserved0_SHIFT 12
+
+/* MEMC_ARB_1 :: CLIENT_INIT_COUNTER_THRESH :: THRESHOLD [11:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_COUNTER_THRESH_THRESHOLD_MASK  0x00000fff
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_COUNTER_THRESH_THRESHOLD_SHIFT 0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_COUNTER_THRESH_THRESHOLD_DEFAULT 0x00000100
+
+/***************************************************************************
+ *CLIENT_INIT_ERROR_INTERRUPT - "Client init error interrupt"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_INTERRUPT :: reserved0 [31:01] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INTERRUPT_reserved0_MASK 0xfffffffe
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INTERRUPT_reserved0_SHIFT 1
+
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_INTERRUPT :: INIT_REQ_ERROR [00:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INTERRUPT_INIT_REQ_ERROR_MASK 0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INTERRUPT_INIT_REQ_ERROR_SHIFT 0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INTERRUPT_INIT_REQ_ERROR_DEFAULT 0x00000000
+
+/***************************************************************************
+ *CLIENT_INIT_ERROR_WRITE_CLEAR - "Client init error write clear"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_WRITE_CLEAR :: reserved0 [31:01] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_WRITE_CLEAR_reserved0_MASK 0xfffffffe
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_WRITE_CLEAR_reserved0_SHIFT 1
+
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_WRITE_CLEAR :: WRITE_CLEAR [00:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_WRITE_CLEAR_WRITE_CLEAR_MASK 0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_WRITE_CLEAR_WRITE_CLEAR_SHIFT 0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_WRITE_CLEAR_WRITE_CLEAR_DEFAULT 0x00000000
+
+/***************************************************************************
+ *CLIENT_INIT_ERROR_INFO - "Client init error violation info"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_INFO :: reserved0 [31:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO_reserved0_MASK      0xffffff00
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO_reserved0_SHIFT     8
+
+/* MEMC_ARB_1 :: CLIENT_INIT_ERROR_INFO :: CLIENT_ID [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO_CLIENT_ID_MASK      0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO_CLIENT_ID_SHIFT     0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_ERROR_INFO_CLIENT_ID_DEFAULT   0x00000000
+
+/***************************************************************************
+ *CLIENT_INIT_SW_INIT - "Client init software init"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_SW_INIT :: reserved0 [31:09] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_reserved0_MASK         0xfffffe00
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_reserved0_SHIFT        9
+
+/* MEMC_ARB_1 :: CLIENT_INIT_SW_INIT :: CLIENT_INIT_REQ [08:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_REQ_MASK   0x00000100
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_REQ_SHIFT  8
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_REQ_DEFAULT 0x00000000
+
+/* MEMC_ARB_1 :: CLIENT_INIT_SW_INIT :: CLIENT_INIT_ID [07:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_ID_MASK    0x000000ff
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_ID_SHIFT   0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_SW_INIT_CLIENT_INIT_ID_DEFAULT 0x00000000
+
+/***************************************************************************
+ *CLIENT_INIT_STATUS - "Client init status and debug register"
+ ***************************************************************************/
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: reserved0 [31:20] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved0_MASK          0xfff00000
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved0_SHIFT         20
+
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: COUNTER_VALUE [19:08] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_COUNTER_VALUE_MASK      0x000fff00
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_COUNTER_VALUE_SHIFT     8
+
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: reserved1 [07:06] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved1_MASK          0x000000c0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved1_SHIFT         6
+
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: CLIENT_INIT_STATE [05:04] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_CLIENT_INIT_STATE_MASK  0x00000030
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_CLIENT_INIT_STATE_SHIFT 4
+
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: reserved2 [03:01] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved2_MASK          0x0000000e
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_reserved2_SHIFT         1
+
+/* MEMC_ARB_1 :: CLIENT_INIT_STATUS :: CLIENT_INIT_ACK [00:00] */
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_CLIENT_INIT_ACK_MASK    0x00000001
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_CLIENT_INIT_ACK_SHIFT   0
+#define BCHP_MEMC_ARB_1_CLIENT_INIT_STATUS_CLIENT_INIT_ACK_DEFAULT 0x00000000
 
 #endif /* #ifndef BCHP_MEMC_ARB_1_H__ */
 

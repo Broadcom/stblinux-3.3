@@ -389,6 +389,7 @@ config BCM7563A0
 	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V0
 	select BRCM_HAS_DIGITAL_DDR_PHY
+	select BRCM_HAS_UPPER_MEMORY
 
 config BCM7584A0
 	bool "7584 Ax"
@@ -1203,7 +1204,7 @@ config BRCM_ARM_DEFAULTS
 	bool
 	select ARCH_REQUIRE_GPIOLIB
 	select ARM_PATCH_PHYS_VIRT
-	select ARM_VIC
+	select ARM_GIC
 	select CPU_V7
 	select DW_APB_TIMER
 	select GENERIC_CLOCKEVENTS
@@ -1213,6 +1214,7 @@ config BRCM_ARM_DEFAULTS
 	select NO_IOPORT
 	select SPARSE_IRQ
 	select USE_OF
+	select HAVE_SMP
 
 
 #####################################################################
@@ -1248,6 +1250,9 @@ config BCM7445
 	bool
 
 config BCM7552
+	bool
+
+config BCM7563
 	bool
 
 config BCM7584

@@ -14,9 +14,7 @@ romfs:
 		$(MACHINE)/mocad /bin/mocad
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
 		$(MACHINE)/mocap /bin/mocap
-	$(ROMFSINST) -e CONFIG_USER_MOCA_GEN1 \
-		fw/moca20core-gen1.bin /etc/moca/moca20core-gen1.bin
-	$(ROMFSINST) -e CONFIG_USER_MOCA_GEN2 \
-		fw/moca20core-gen2.bin /etc/moca/moca20core-gen2.bin
-	$(ROMFSINST) -e CONFIG_USER_MOCA_GEN3 \
-		fw/moca20core-gen3.bin /etc/moca/moca20core-gen3.bin
+	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
+		fw/moca20core-gen21.bin /etc/moca/moca20core-gen21.bin
+	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
+		fw/moca20core-gen22.bin /etc/moca/moca20core-gen22.bin

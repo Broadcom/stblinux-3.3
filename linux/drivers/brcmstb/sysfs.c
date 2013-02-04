@@ -95,6 +95,7 @@ static ssize_t show_cfe_boardname(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%s\n", brcm_cfe_boardname);
 }
 
+#ifdef CONFIG_MIPS
 static ssize_t show_cache_max_writeback(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -119,7 +120,6 @@ static ssize_t show_cache_prefetch_enabled(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%d\n", info.prefetch_enabled);
 }
 
-#ifdef CONFIG_MIPS
 static ssize_t show_cpu_name(struct device *dev,
 	struct device_attribute *attr, char *buf)
 {
@@ -221,10 +221,10 @@ static struct device_attribute brcmstb_attr_list[] = {
 	__ATTR(chip_rev, 0444, show_chip_rev, NULL),
 	__ATTR(ocap_partition, 0444, show_ocap_partition, NULL),
 	__ATTR(cfe_boardname, 0444, show_cfe_boardname, NULL),
+#if defined(CONFIG_MIPS)
 	__ATTR(cache_max_writeback, 0444, show_cache_max_writeback, NULL),
 	__ATTR(cache_max_writethrough, 0444, show_cache_max_writethrough, NULL),
 	__ATTR(cache_prefetch_enabled, 0444, show_cache_prefetch_enabled, NULL),
-#if defined(CONFIG_MIPS)
 	__ATTR(cpu_name, 0444, show_cpu_name, NULL),
 	__ATTR(cp0_config_regs, 0444, show_cp0_config_regs, NULL),
 	__ATTR(cpu_khz, 0444, show_cpu_khz, NULL),
