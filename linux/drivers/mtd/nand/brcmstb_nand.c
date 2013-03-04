@@ -33,8 +33,9 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
+#include <linux/of.h>
+#include <linux/of_platform.h>
 
-#include <asm/addrspace.h>
 #include <linux/brcmstb/brcmstb.h>
 
 /*
@@ -639,7 +640,6 @@ static int brcmstb_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 			BDEV_RD(BCHP_NAND_INTFC_STATUS));
 	}
 	ctrl.cmd_pending = 0;
-	brcmstb_nand_wp(mtd, 1);
 	return BDEV_RD_F(NAND_INTFC_STATUS, FLASH_STATUS);
 }
 
@@ -696,6 +696,10 @@ static void brcmstb_nand_cmdfunc(struct mtd_info *mtd, unsigned command,
 
 	brcmstb_nand_send_cmd(native_cmd);
 	brcmstb_nand_waitfunc(mtd, chip);
+
+	/* Re-enable protection is necessary only after erase */
+	if (command == NAND_CMD_ERASE1)
+		brcmstb_nand_wp(mtd, 1);
 }
 
 static uint8_t brcmstb_nand_read_byte(struct mtd_info *mtd)
@@ -795,7 +799,6 @@ static int brcmstb_nand_dma_trans(struct brcmstb_nand_host *host, u64 addr,
 	buf_pa = dma_map_single(&host->pdev->dev, buf, len, dir);
 	brcmstb_nand_fill_dma_desc(host, ctrl.dma_desc, addr, (u64)buf_pa, len,
 			dma_cmd);
-	brcmstb_nand_wp(mtd, dma_cmd == CMD_PAGE_READ);
 
 	/* Start FLASH_DMA engine */
 	BDEV_WR_RB(BCHP_FLASH_DMA_FIRST_DESC, ctrl.dma_pa);
@@ -833,8 +836,6 @@ static int brcmstb_nand_edu_trans(struct brcmstb_nand_host *host, u64 addr,
 	ctrl.sas = host->hwcfg.spare_area_size;
 	ctrl.sector_size_1k = host->hwcfg.sector_size_1k;
 	ctrl.oob = oob;
-
-	brcmstb_nand_wp(mtd, edu_cmd == EDU_CMD_READ);
 
 	BDEV_WR_RB(BCHP_EDU_DRAM_ADDR, (u32)ctrl.edu_dram_addr);
 	BDEV_WR_RB(BCHP_EDU_EXT_ADDR, ctrl.edu_ext_addr);
@@ -1083,7 +1084,7 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 {
 	struct brcmstb_nand_host *host = chip->priv;
 	unsigned int i = 0, j, trans = mtd->writesize >> FC_SHIFT;
-	int status;
+	int status, ret = 0;
 
 	DBG("%s %llx <- %p\n", __func__, (unsigned long long)addr, buf);
 
@@ -1092,11 +1093,13 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 		buf = (u32 *)((u32)buf & ~0x03);
 	}
 
+	brcmstb_nand_wp(mtd, 0);
+
 	if (buf && !oob && DMA_VA_OK(buf) && !((u32)buf & 0x1f)) {
 		if (brcmstb_nand_dma_trans(host, addr, (u32 *)buf,
 					mtd->writesize, CMD_PROGRAM_PAGE))
-			return -EIO;
-		return 0;
+			ret = -EIO;
+		goto out;
 	}
 
 	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
@@ -1107,8 +1110,10 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 
 	if (buf && EDU_VA_OK(buf)) {
 		if (brcmstb_nand_edu_trans(host, addr, (u32 *)buf, oob, trans,
-				EDU_CMD_WRITE))
-			return -EIO;
+				EDU_CMD_WRITE)) {
+			ret = -EIO;
+			goto out;
+		}
 		i = trans;
 	}
 
@@ -1128,8 +1133,6 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 					host->hwcfg.sector_size_1k);
 		}
 
-		brcmstb_nand_wp(mtd, 0);
-
 		/* we cannot use SPARE_AREA_PROGRAM when PARTIAL_PAGE_EN=0 */
 		brcmstb_nand_send_cmd(CMD_PROGRAM_PAGE);
 		status = brcmstb_nand_waitfunc(mtd, chip);
@@ -1137,10 +1140,13 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 		if (status & NAND_STATUS_FAIL) {
 			dev_info(&host->pdev->dev, "program failed at %llx\n",
 				(unsigned long long)addr);
-			return -EIO;
+			ret = -EIO;
+			goto out;
 		}
 	}
-	return 0;
+out:
+	brcmstb_nand_wp(mtd, 1);
+	return ret;
 }
 
 static void brcmstb_nand_write_page(struct mtd_info *mtd,
@@ -1340,8 +1346,13 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 			orig_cfg.blk_adr_bytes != new_cfg.blk_adr_bytes ||
 			orig_cfg.ful_adr_bytes != new_cfg.ful_adr_bytes) {
 #if CONTROLLER_VER >= 50
+#ifdef CONFIG_BCM7445A0
+		/* HW7445-750: 7445A0 NAND is broken for SECTOR_SIZE = 1024B */
+		new_cfg.sector_size_1k = 0;
+#else
 		/* default to 1K sector size (if page is large enough) */
 		new_cfg.sector_size_1k = (new_cfg.page_size >= 1024) ? 1 : 0;
+#endif /* CONFIG_BCM7445A0 */
 #endif
 
 		WR_ACC_CONTROL(host->cs, RD_ECC_EN, 1);
@@ -1374,11 +1385,21 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 			dev_info(&host->pdev->dev, "detected %s\n", msg);
 		}
 	} else {
+#ifdef CONFIG_BCM7445A0
+		/* HW7445-750 */
+		if (orig_cfg.sector_size_1k != 0) {
+			dev_err(&host->pdev->dev, "1KB ECC sectors not "
+					"supported on 7445A0\n");
+			return -ENXIO;
+		}
+#endif
 		brcmstb_nand_print_cfg(msg, &orig_cfg);
 		dev_info(&host->pdev->dev, "%s\n", msg);
 	}
 
+#if CONTROLLER_VER < 70
 	WR_ACC_CONTROL(host->cs, FAST_PGM_RDIN, 0);
+#endif
 	WR_ACC_CONTROL(host->cs, RD_ERASED_ECC_EN, 0);
 	WR_ACC_CONTROL(host->cs, PARTIAL_PAGE_EN, 0);
 	WR_ACC_CONTROL(host->cs, PAGE_HIT_EN, 1);
@@ -1456,13 +1477,15 @@ static int brcmstb_check_exceptions(struct mtd_info *mtd)
 static int __devinit brcmstb_nand_probe(struct platform_device *pdev)
 {
 	struct brcmnand_platform_data *pd = pdev->dev.platform_data;
+	struct device_node *dn = pdev->dev.of_node;
 	struct brcmstb_nand_host *host;
 	struct mtd_info *mtd;
 	struct nand_chip *chip;
 	int ret = 0;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0)
-	const char *part_probe_types[] = { "cmdlinepart", "RedBoot", NULL };
+	const char *part_probe_types[] = { "cmdlinepart", "ofpart", "RedBoot",
+		NULL };
 #elif defined(CONFIG_MTD_PARTITIONS)
 	/* for 2.6.37 compatibility only */
 	int nr_parts;
@@ -1470,15 +1493,24 @@ static int __devinit brcmstb_nand_probe(struct platform_device *pdev)
 	const char *part_probe_types[] = { "cmdlinepart", "RedBoot", NULL };
 #endif
 
-	DBG("%s: id %d cs %d\n", __func__, pdev->id, pd->chip_select);
-
 	host = kzalloc(sizeof(*host), GFP_KERNEL);
 	if (!host) {
 		dev_err(&pdev->dev, "can't allocate memory\n");
 		return -ENOMEM;
 	}
 
-	host->cs = pd->chip_select;
+	if (dn) {
+		ret = of_property_read_u32(dn, "reg", &host->cs);
+		if (ret) {
+			dev_err(&pdev->dev, "can't get chip-select\n");
+			ret = -ENXIO;
+			goto out;
+		}
+	} else {
+		host->cs = pd->chip_select;
+	}
+
+	DBG("%s: id %d cs %d\n", __func__, pdev->id, host->cs);
 
 	mtd = &host->mtd;
 	chip = &host->chip;
@@ -1538,8 +1570,14 @@ static int __devinit brcmstb_nand_probe(struct platform_device *pdev)
 	mtd->ecclayout = chip->ecc.layout;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0)
-	mtd_device_parse_register(mtd, part_probe_types, NULL,
-		pd->parts, pd->nr_parts);
+	if (dn) {
+		struct mtd_part_parser_data ppdata = { .of_node = dn };
+		mtd_device_parse_register(mtd, part_probe_types, &ppdata, NULL,
+				0);
+	} else {
+		mtd_device_parse_register(mtd, part_probe_types, NULL,
+				pd->parts, pd->nr_parts);
+	}
 #elif defined(CONFIG_MTD_PARTITIONS)
 	nr_parts = parse_mtd_partitions(mtd, part_probe_types, &parts, 0);
 	if (nr_parts <= 0) {
@@ -1691,6 +1729,11 @@ static const struct dev_pm_ops brcmstb_nand_pm_ops = {
 	.resume			= brcmstb_nand_resume,
 };
 
+static const struct of_device_id brcmstb_nand_of_match[] = {
+	{ .compatible = "brcm,nandcs" },
+	{},
+};
+
 /***********************************************************************
  * Platform driver setup (per controller)
  ***********************************************************************/
@@ -1701,6 +1744,7 @@ static struct platform_driver brcmstb_nand_driver = {
 		.name		= "brcmnand",
 		.owner		= THIS_MODULE,
 		.pm		= &brcmstb_nand_pm_ops,
+		.of_match_table	= brcmstb_nand_of_match,
 	},
 };
 
@@ -1767,7 +1811,14 @@ static int __init brcmstb_nand_init(void)
 	wp_on = 0;
 #endif
 
+#ifdef CONFIG_BCM7445A0
+	/* HACK: 7445A0 GIC will map HIF interrupt with an offset of 32 */
+	ctrl.irq = 32 + (BRCM_IRQ_HIF - 1);
+#elif defined(CONFIG_OF)
+#error Legacy driver cannot initialize NAND with OF/DeviceTree
+#else
 	ctrl.irq = BRCM_IRQ_HIF;
+#endif
 
 	HIF_ACK_IRQ(NAND_CTLRDY);
 	HIF_ENABLE_IRQ(NAND_CTLRDY);
@@ -1837,6 +1888,37 @@ static void __exit brcmstb_nand_exit(void)
 
 module_init(brcmstb_nand_init);
 module_exit(brcmstb_nand_exit);
+
+#ifdef CONFIG_OF
+
+static int __devinit brcm_nand_controller_probe(struct platform_device *pdev)
+{
+	struct device_node *dn = pdev->dev.of_node;
+	return of_platform_populate(dn, brcmstb_nand_of_match, NULL, NULL);
+}
+
+static const struct of_device_id brcm_nand_controller_match[] = {
+	{ .compatible = "brcm,brcmnand" },
+	{},
+};
+
+static struct platform_driver brcm_nand_controller_driver = {
+	.driver = {
+		.name = "brcmnand-host",
+		.bus = &platform_bus_type,
+		.of_match_table = of_match_ptr(brcm_nand_controller_match),
+	}
+};
+
+/* Don't unbind/deregister this driver */
+static int __init brcm_nand_controller_init(void)
+{
+	return platform_driver_probe(&brcm_nand_controller_driver,
+			brcm_nand_controller_probe);
+}
+module_init(brcm_nand_controller_init);
+
+#endif /* CONFIG_OF */
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Broadcom Corporation");

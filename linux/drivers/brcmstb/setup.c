@@ -290,7 +290,8 @@ static void __init brcm_add_usb_hosts(void)
 				break;
 			}
 #if defined(CONFIG_BCM7425B0) || defined(CONFIG_BCM7231B0) || \
-	defined(CONFIG_BCM7344B0) || defined(CONFIG_BCM7346B0)
+	defined(CONFIG_BCM7344B0) || defined(CONFIG_BCM7346B0) || \
+	defined(CONFIG_BCM7584A0)
 		/* bug: incorrect CAP_LAST bit on some chips */
 		} while (capp != (caplist[i] + 0x20));
 #else
@@ -742,6 +743,9 @@ static int __init brcmstb_mtd_setup(void)
 	int nr_parts;
 	int i, first = -1, primary = -1, primary_type = TYPE_NAND;
 
+#ifdef CONFIG_OF
+	return 0;
+#endif
 	if (noflash)
 		return 0;
 

@@ -177,7 +177,7 @@ function handle_opt_1()
 	echo ""
 	echo "To boot:"
 	echo ""
-	echo "  boot -z -elf flash0.kernel: 'ARGS'"
+	echo "  boot flash0.kernel: 'ARGS'"
 	echo ""
 	echo "Sample ARGS: root=/dev/sda1"
 	echo "             ubiroot"
@@ -190,6 +190,12 @@ function handle_opt_2()
 {
 	check_root mtd ubi
 	mtd=/dev/mtd${rootfs_part}
+	if [ "$rootfs_mtd_name" = "rootfs" ]; then
+		# old style
+		cmdline=ubiroot
+	else
+		cmdline="${dt_console_args} ubi.mtd=${rootfs_mtd_name} rootfstype=ubifs root=ubi0:rootfs"
+	fi
 
 	rem_img=ubifs-$(($flash_erasesize / 1024))k-$(($flash_writesize))-${plat}.img
 
@@ -226,7 +232,7 @@ function handle_opt_2()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'ubiroot'"
+	echo "  boot $tftphost:$tftppath/vmlinuz-$plat '$cmdline'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -252,7 +258,7 @@ function handle_opt_3()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat 'rootfstype=jffs2 root=/dev/mtdblock${rootfs_part}'"
+	echo "  boot $tftphost:$tftppath/vmlinuz-$plat 'rootfstype=jffs2 root=/dev/mtdblock${rootfs_part}'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -300,7 +306,7 @@ function handle_opt_4()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat '$cmdline'"
+	echo "  boot $tftphost:$tftppath/vmlinuz-$plat '$cmdline'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -364,7 +370,7 @@ function handle_opt_5()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf $tftphost:$tftppath/vmlinuz-$plat"
+	echo "  boot $tftphost:$tftppath/vmlinuz-$plat"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -407,7 +413,7 @@ function handle_opt_7()
 	echo ""
 	echo "Sample boot command line:"
 	echo ""
-	echo "  boot -z -elf usbdisk0:vmlinuz-$plat 'rootwait root=/dev/$thumbdrive'"
+	echo "  boot usbdisk0:vmlinuz-$plat 'rootwait root=/dev/$thumbdrive'"
 	echo ""
 	echo "To mount the filesystem now:"
 	echo ""
@@ -452,11 +458,15 @@ EOF
 #
 
 rootfs_part=
+rootfs_mtd_name=
 kernel_part=
 flash_type=
 flash_erasesize=
 flash_writesize=
 hdd_dev=/dev/sda
+
+# For use with device-tree-based systems
+dt_console_args="console=ttyS0,115200 earlyprintk"
 
 local_dir=
 resp=
@@ -473,16 +483,24 @@ tftphost=$TFTPHOST
 tftppath=$TFTPPATH
 plat=$PLAT
 
-if find_mtd_partition rootfs rootfs_part; then
-	if \
-		! get_mtd_attr $rootfs_part type flash_type || \
-		! get_mtd_attr $rootfs_part erasesize flash_erasesize || \
-		! get_mtd_attr $rootfs_part writesize flash_writesize; then
+for part_name in rootfs flash1.rootfs flash0.rootfs; do
+	if find_mtd_partition $part_name rootfs_part; then
+		if \
+			! get_mtd_attr $rootfs_part type flash_type || \
+			! get_mtd_attr $rootfs_part erasesize flash_erasesize || \
+			! get_mtd_attr $rootfs_part writesize flash_writesize; then
 
-		echo "Can't get flash info for rootfs"
-		exit 1
+			echo "Can't get flash info for rootfs"
+			exit 1
+		elif [ "$flash_type" = "ubi" ]; then
+			# Don't use a UBI partition; must be the bare MTD
+			continue
+		else
+			rootfs_mtd_name=$(cat /sys/class/mtd/mtd${rootfs_part}/name)
+			break
+		fi
 	fi
-fi
+done
 
 find_mtd_partition kernel kernel_part || true
 
@@ -543,6 +561,11 @@ fi
 if [ "$flash_type" = "nand" ]; then
 	suf3="(not available)"
 	suf4="(uses UBI)"
+fi
+
+# Don't support SQUASHFS on 7445 yet
+if [ "$rootfs_mtd_name" != "rootfs" ]; then
+	suf4="(not available)"
 fi
 
 if ! find_thumbdrive; then

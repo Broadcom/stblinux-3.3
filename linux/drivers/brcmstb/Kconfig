@@ -323,15 +323,13 @@ config BCM7445A0
 	#select BRCM_UARTC_IS_16550
 	select BRCM_HAS_USB_CAPS
 	#select BRCM_HAS_PCIE
-	select BRCM_HAS_GENET_0
 	#select BRCM_HAS_MOCA_20_GEN23
-	#select BRCM_MOCA_ON_GENET_1
-	select BRCM_GENET_V3
+	select BRCM_GENET_V4
 	#select BRCM_HAS_NOR
-	#select BRCM_HAS_NAND_MAJOR_6
-	#select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_NAND_MAJOR_7
+	select BRCM_HAS_NAND_MINOR_0
 	#select BRCM_HAS_EDU
-	select BRCM_HAS_FLASH_DMA
+	#select BRCM_HAS_FLASH_DMA
 	#select BRCM_HAS_BSPI_V4
 	#select BRCM_MSPI_64B_WORDS
 	#select BRCM_HAS_SDIO_V1
@@ -572,6 +570,24 @@ config BCMGENET
 
 if BCMGENET
 	source drivers/net/ethernet/broadcom/genet/Kconfig
+endif
+
+config BCMGENET_NG
+	tristate "Broadcom STB 10/100/1000 MAC/PHY support"
+	depends on ETHERNET && BRCMSTB && OF
+	default y
+	select CRC32
+	select MII
+	help
+	  Say Y to support the internal 10/100/1000 GENET MAC/PHY on
+	  Broadcom set-top chips.  This driver also supports the datapath
+	  for the onchip MoCA transceiver.
+
+	  If your chipset supports power management, disabling this driver
+	  will keep the device permanently powered down.
+
+if BCMGENET_NG
+	source drivers/net/ethernet/broadcom/genet-ng/Kconfig
 endif
 
 config BRCM_MOCA
@@ -899,11 +915,15 @@ config BRCM_GENET_V2
 config BRCM_GENET_V3
 	bool
 
+config BRCM_GENET_V4
+	bool
+
 config BRCM_GENET_VERSION
 	int
 	default 1 if BRCM_GENET_V1
 	default 2 if BRCM_GENET_V2
 	default 3 if BRCM_GENET_V3
+	default 4 if BRCM_GENET_V4
 
 # standalone or MoCA GENET controller
 config BRCM_HAS_GENET
@@ -1042,9 +1062,14 @@ config BRCM_HAS_NAND_MAJOR_6
 	bool
 	select BRCM_HAS_NAND
 
+config BRCM_HAS_NAND_MAJOR_7
+	bool
+	select BRCM_HAS_NAND
+
 
 config BRCMNAND_MAJOR_VERS
 	int
+	default "7" if BRCM_HAS_NAND_MAJOR_7
 	default "6" if BRCM_HAS_NAND_MAJOR_6
 	default "5" if BRCM_HAS_NAND_MAJOR_5
 	default "4" if BRCM_HAS_NAND_MAJOR_4

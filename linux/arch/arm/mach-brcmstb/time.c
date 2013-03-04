@@ -282,13 +282,8 @@ static int __init arch_timer_register(void)
 		}
 	}
 
-#if 0
-	err = local_timer_register(&arch_timer_ops);
-	if (err) {
-#else
 	/* Execute if 'nosmp' or UP configured */
 	if (setup_max_cpus <= 1) {
-#endif
 		/*
 		 * We couldn't register as a local timer (could be
 		 * because we're on a UP platform, or because some
@@ -315,9 +310,8 @@ out_free:
 	return err;
 }
 
-#if 0
 static const struct of_device_id arch_timer_of_match[] __initconst = {
-	{ .compatible	= "arm,armv7-timer",	},
+	{.compatible	= "arm,armv7-timer",},
 	{},
 };
 
@@ -343,7 +337,6 @@ int __init arch_timer_of_register(void)
 
 	return arch_timer_register();
 }
-#endif
 
 int __init arch_timer_sched_clock_init(void)
 {
@@ -359,9 +352,7 @@ int __init arch_timer_sched_clock_init(void)
 
 void __init brcmstb_timer_init(void)
 {
-	arch_timer_ppi = IRQ_LOCALTIMER;
-	arch_timer_ppi2 = 30;
-	BUG_ON(arch_timer_register() != 0);
+	BUG_ON(arch_timer_of_register() != 0);
 	BUG_ON(arch_timer_sched_clock_init());
 
 	/* Calibrate the delay loop directly */

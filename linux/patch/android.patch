@@ -113540,7 +113540,7 @@ diff -Nur a/linux/kernel/power/userwakelock.c b/linux/kernel/power/userwakelock.
 diff -Nur a/linux/kernel/power/wakelock.c b/linux/kernel/power/wakelock.c
 --- a/linux/kernel/power/wakelock.c	1969-12-31 16:00:00.000000000 -0800
 +++ b/linux/kernel/power/wakelock.c	2012-02-24 18:07:07.000000000 -0800
-@@ -0,0 +1,634 @@
+@@ -0,0 +1,640 @@
 +/* kernel/power/wakelock.c
 + *
 + * Copyright (C) 2005-2008 Google, Inc.
@@ -113879,12 +113879,18 @@ diff -Nur a/linux/kernel/power/wakelock.c b/linux/kernel/power/wakelock.c
 +
 +static int power_suspend_late(struct device *dev)
 +{
-+	int ret = has_wake_lock(WAKE_LOCK_SUSPEND) ? -EAGAIN : 0;
++	int ret;
++
++	wake_unlock(&main_wake_lock);
++
++	ret = has_wake_lock(WAKE_LOCK_SUSPEND) ? -EAGAIN : 0;
 +#ifdef CONFIG_WAKELOCK_STAT
 +	wait_for_wakeup = !ret;
 +#endif
 +	if (debug_mask & DEBUG_SUSPEND)
 +		pr_info("power_suspend_late return %d\n", ret);
++
++	wake_lock(&main_wake_lock);
 +	return ret;
 +}
 +
