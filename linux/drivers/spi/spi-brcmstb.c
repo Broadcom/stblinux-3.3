@@ -271,13 +271,30 @@ static u32 bcmspi_read_interrupt(void)
 	return BDEV_RD(BCHP_HIF_SPI_INTR2_CPU_STATUS);
 }
 
+static int bcmspi_busy_poll(struct bcmspi_priv *priv)
+{
+	int i;
+
+	/* this should normally finish within 10us */
+	for (i = 0; i < 1000; i++) {
+		if ((priv->bspi_hw->busy_status & 1) == 0)
+			return 0;
+		udelay(1);
+	}
+	dev_warn(&priv->pdev->dev, "timeout waiting for !busy_status\n");
+	return -EIO;
+}
+
 static void bcmspi_flush_prefetch_buffers(struct bcmspi_priv *priv)
 {
+	/* SWLINUX-2407: avoid flushing if B1 prefetch is still active */
+	bcmspi_busy_poll(priv);
+
 	/* Force rising edge for the b0/b1 'flush' field */
-	priv->bspi_hw->b0_ctrl = 0;
-	priv->bspi_hw->b1_ctrl = 0;
 	priv->bspi_hw->b0_ctrl = 1;
 	priv->bspi_hw->b1_ctrl = 1;
+	priv->bspi_hw->b0_ctrl = 0;
+	priv->bspi_hw->b1_ctrl = 0;
 }
 
 static int bcmspi_lr_is_fifo_empty(struct bcmspi_priv *priv)
@@ -497,26 +514,17 @@ static inline int is_bspi_chip_select(struct bcmspi_priv *priv, u8 cs)
 
 static void bcmspi_disable_bspi(struct bcmspi_priv *priv)
 {
-	int i;
-
 	if (!priv->bspi_hw || !priv->bspi_enabled)
 		return;
-	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 1) {
-		priv->bspi_enabled = 0;
+
+	priv->bspi_enabled = 0;
+	if ((priv->bspi_hw->mast_n_boot_ctrl & 1) == 1)
 		return;
-	}
 
 	DBG("disabling bspi\n");
-	for (i = 0; i < 1000; i++) {
-		if ((priv->bspi_hw->busy_status & 1) == 0) {
-			priv->bspi_hw->mast_n_boot_ctrl = 1;
-			priv->bspi_enabled = 0;
-			udelay(1);
-			return;
-		}
-		udelay(1);
-	}
-	dev_warn(&priv->pdev->dev, "timeout setting MSPI mode\n");
+	bcmspi_busy_poll(priv);
+	priv->bspi_hw->mast_n_boot_ctrl = 1;
+	udelay(1);
 }
 
 static void bcmspi_enable_bspi(struct bcmspi_priv *priv)
@@ -1190,8 +1198,14 @@ static void bcmspi_hw_init(struct bcmspi_priv *priv)
 
 	bcmspi_hw_set_parms(priv, &bcmspi_default_parms_cs0);
 
+	if (!priv->bspi_hw)
+		return;
+
 	priv->bspi_enabled = 1;
 	bcmspi_disable_bspi(priv);
+
+	priv->bspi_hw->b0_ctrl = 0;
+	priv->bspi_hw->b1_ctrl = 0;
 }
 
 static void bcmspi_hw_uninit(struct bcmspi_priv *priv)

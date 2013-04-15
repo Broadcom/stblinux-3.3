@@ -3,6 +3,7 @@
 
 #include "bonnie.h"
 class BonTimer;
+class Rand;
 
 typedef unsigned long MASK_TYPE;
 
@@ -20,7 +21,7 @@ public:
   int stat_sequential(BonTimer &timer);
 
 private:
-  void make_names(bool do_random);
+  void make_names(Rand &r, bool do_random);
   int stat_file(CPCCHAR file);
   int create_a_file(const char *filename, char *buf, int size, int dir);
   int create_a_link(const char *original, const char *filename, int dir);
@@ -41,7 +42,7 @@ private:
   bool *m_exit;
   bool m_sync_dir;
 
-  void random_sort();
+  void random_sort(Rand &r);
 
   COpenTest(const COpenTest &t);
   COpenTest & operator =(const COpenTest &t);

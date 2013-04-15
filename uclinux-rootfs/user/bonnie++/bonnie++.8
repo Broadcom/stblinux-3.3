@@ -1,14 +1,15 @@
-.TH bonnie++ 1 
+.TH bonnie++ 8
 .SH "NAME"
 bonnie++ \- program to test hard drive performance.
 
 .SH "SYNOPSIS"
 .B bonnie++
-.I [\-d dir] [\-s size(Mb)[:chunk\-size(b)]]
-.I [\-n number\-to\-stat(*1024)[:max\-size[:min\-size][:num\-directories]]]
-.I [\-m machine\-name] [\-r ram\-size\-in\-Mb] [\-x number\-of\-tests]
+.I [\-d dir] [\-s size(MiB)[:chunk\-size(b)]]
+.I [\-n number\-to\-stat(*1024)[:max\-size[:min\-size][:num\-directories[:chunk\-size]]]]
+.I [\-m machine\-name] [\-r ram\-size\-in\-MiB] [\-x number\-of\-tests]
 .I [\-u uid\-to\-use:gid\-to\-use] [\-g gid\-to\-use]
-.I [\-q] [\-f] [\-b] [\-p processes | \-y]
+.I [\-q] [\-f size\-for\-char\-io] [\-b] [\-D] [\-p processes | \-y p|s ]
+.I [\-z seed\-num|\-Z random\-file]
 
 .SH "DESCRIPTION"
 This manual page documents briefly the
@@ -45,9 +46,9 @@ the size of the file(s) for IO performance measures in megabytes. If the size
 is greater than 1G then multiple files will be used to store the data, and
 each file will be up to 1G in size.  This parameter may include the chunk size
 seperated from the size by a colon.  The chunk\-size is measured in bytes and
-must be a power of two from 256 to 1048576.  NB You can specify the size in
-giga\-bytes or the chunk\-size in kilo\-bytes if you add 'g' or 'k' to the end of
-the number respectively.
+must be a power of two from 256 to 1048576, the default is 8192.  NB You can
+specify the size in giga\-bytes or the chunk\-size in kilo\-bytes if you add
+\f3g\f1 or \f3k\f1 to the end of the number respectively.
 
 If the specified size is 0 then this test will be skipped.
 .TP
@@ -60,7 +61,7 @@ If the specified number is 0 then this test will be skipped.
 
 The default for this test is to test with 0 byte files. To use files of other
 sizes you can specify
-.B number:max:min:num\-directories
+.B number:max:min:num\-directories:chunk\-size
 where
 .B max
 is the maximum size and
@@ -104,7 +105,8 @@ tests have been completed, or it is killed.
 .TP
 .B \-u
 user\-id to use.  When running as root specify the UID to use for the tests.  It
-is not recommended to use root, so if you really want to run as root then use
+is not recommended to use root (since the occasion when a Bonnie++ bug wiped
+out someone's system), so if you really want to run as root then use
 .B \-u root.
 Also if you want to specify the group to run as then use the
 .B user:group
@@ -125,11 +127,15 @@ programs.
 .TP
 .B \-q
 quiet mode. If specified then some of the extra informational messages will be
-suppressed.
+suppressed. Also the csv data will be the only output on standard out and the
+plain text data will be on standard error. This means you can run
+.B bonnie++ \-q >> file.csv
+to record your csv data.
 
 .TP
-.B \-f
-fast mode, skips per\-char IO tests.
+.B \-f size\-for\-char\-io
+fast mode control, skips per\-char IO tests if no parameter, otherwise specifies
+the size of the tests for per\-char IO tests (default 20M).
 
 .TP
 .B \-b
@@ -140,15 +146,40 @@ no write buffering.  fsync() after every write.
 number of processes to serve semaphores for.  This is used to create the
 semaphores for synchronising multiple Bonnie++ processes.  All the processes
 which are told to use the semaphore with
-.B \-y
-will start each test at the same time.  Use the value \-1 to delete the
-semaphore.
+.B \-ys
+will start each test with synchronization.  Use "\-p \-1" to delete the semaphore.
 
 .TP
-.B \-y
-wait for semaphore before each test.
+.B \-y s|p
+perform synchronization before each test.  Option
+.B s
+for semaphores and option
+.B p
+for prompting.
 
+.TP
+.B \-D
+use direct IO (O_DIRECT) for the bulk IO tests
+
+.TP
+.B \-z seed
+random number seed to repeat the same test.
+
+.TP
+.B \-Z random\-file
+file containing random data in network byte order.
 .P
+
+.SH "MULTIPLE PROCESSES"
+Run the following commands to run three copies of Bonnie++ simultaneously:
+.P
+bonnie++ -p3
+.P
+bonnie++ -y > out1 &
+.P
+bonnie++ -y > out2 &
+.P
+bonnie++ -y > out3 &
 
 .SH "OUTPUT"
 The primary output is plain\-text in 80 columns which is designed to fit well
@@ -170,7 +201,7 @@ can't be calculated accurately due to rounding errors and I would rather
 display no result than a wrong result.
 
 .SH "AUTHOR"
-This program, it's manual page, and the Debian package were written by
+This program, its manual page, and the Debian package were written by
 Russell Coker <russell@coker.com.au>, parts of the program are based on the
 work of Tim Bray <tbray@textuality.com>.
 .P
@@ -180,7 +211,7 @@ under joint copyright with Tim Bray.
 
 .SH "SIGNALS"
 Handles SIGINT and does a cleanup (which may take some time), a second SIGINT
-or a SIGQUIT will cause it to immidiately die.
+or a SIGQUIT will cause it to immediately die.
 .P
 SIGXCPU and SIGXFSZ act like SIGINT.
 .P
@@ -192,6 +223,13 @@ The random file sizes will add up to different values for different test runs.
 I plan to add some code that checks the sum and ensures that the sum of the
 values will be the same on seperate runs.
 
+.SH "AVAILABILITY"
+The source is available from http://www.coker.com.au/bonnie++ .
+.P
+See http://etbe.coker.com.au/category/benchmark for further information.
+
 .SH "SEE ALSO"
+.BR zcav (8),
+.BR getc_putc (8),
 .BR bon_csv2html (1),
 .BR bon_csv2txt (1)

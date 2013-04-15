@@ -1,7 +1,7 @@
 include $(ROOTDIR)/config.arch
 
 all:
-	./configure --host=$(MACHINE)-linux
+	./configure --host=$(MACHINE)-linux large_file=yes
 	make -f Makefile
 
 clean:

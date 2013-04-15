@@ -1,53 +1,74 @@
-#ifndef PORT_H
-#define PORT_H
+#ifndef PORT_UNIX_H
+#define PORT_UNIX_H
 
-#include <stdio.h>
+#include "conf.h"
 
-#if defined (WIN32) || defined (OS2)
-#define NON_UNIX
+#ifndef HAVE_MIN_MAX
+#if defined(HAVE_ALGO_H) || defined(HAVE_ALGO)
+#ifdef HAVE_ALGO
+#include <algo>
+#else
+#include <algo.h>
+#endif
+#else
+#define min(XX,YY) ((XX) < (YY) ? (XX) : (YY))
+#define max(XX,YY) ((XX) > (YY) ? (XX) : (YY))
+#endif
 #endif
 
 @semun@
-@sa_sigaction@
 @bool@
 @snprintf@
-@aix_mem_size@
+#ifndef _LARGEFILE64_SOURCE
+@large_file@
+#endif
+#ifdef _LARGEFILE64_SOURCE
+#define OFF_T_PRINTF "%lld"
+#else
+#define OFF_T_PRINTF "%d"
+#endif
+
 #if @true_false@
 #define false 0
 #define true 1
 #endif
 
-#ifdef OS2
-#define NO_SNPRINTF
-typedef enum
-{
-  false = 0,
-  true = 1
-} bool;
+// UNIX here
+typedef struct timeval TIMEVAL_TYPE;
 
-#define INCL_DOSQUEUES
-#include <os2.h>
-
-#define rmdir(XX) { DosDeleteDir(XX); }
-#define chdir(XX) DosSetCurrentDir(XX)
-#define file_close(XX) { DosClose(XX); }
-#define make_directory(XX) DosCreateDir(XX, NULL)
-typedef HFILE FILE_TYPE;
-#define pipe(XX) DosCreatePipe(&XX[0], &XX[1], 8 * 1024)
-#define sleep(XX) DosSleep((XX) * 1000)
-#define exit(XX) DosExit(EXIT_THREAD, XX)
+#ifdef _LARGEFILE64_SOURCE
+#define OFF_TYPE off64_t
+#define file_lseek lseek64
+#define file_creat creat64
+#define file_open open64
 #else
-#define file_close(XX) { ::close(XX); }
-#define make_directory(XX) mkdir(XX, S_IRWXU)
-typedef int FILE_TYPE;
+#define OFF_TYPE off_t
+#define file_lseek lseek
+#define file_creat creat
+#define file_open open
 #endif
-typedef FILE_TYPE *PFILE_TYPE;
-//typedef FILE *PFILE;
 
-#endif
+typedef int FILE_TYPE;
+#define __min min
+#define __max max
+typedef unsigned int UINT;
+typedef unsigned long ULONG;
+typedef const char * PCCHAR;
+typedef char * PCHAR;
+typedef PCHAR const CPCHAR;
+typedef PCCHAR const CPCCHAR;
+typedef void * PVOID;
+typedef PVOID const CPVOID;
+typedef const CPVOID CPCVOID;
+
+typedef FILE_TYPE *PFILE_TYPE;
+
+#define _strdup strdup
 
 #ifdef NO_SNPRINTF
-#define snprintf sprintf
+#define _snprintf sprintf
+#else
+#define _snprintf snprintf
 #endif
 
-#define EXIT_CTRL_C 5
+#endif

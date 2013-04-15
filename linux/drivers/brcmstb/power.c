@@ -1901,6 +1901,8 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	defined(CONFIG_BCM7346) || \
 	defined(CONFIG_BCM7231) || \
 	defined(CONFIG_BCM7552) || \
+	defined(CONFIG_BCM7584) || \
+	defined(CONFIG_BCM7563) || \
 	defined(CONFIG_BCM7344) || \
 	defined(CONFIG_BCM7358) || \
 	defined(CONFIG_BCM7360)
@@ -3616,6 +3618,361 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	DEF_SYSTEM_PM_OP(7552),
 	.clk_get		= brcm_pm_clk_get,
 	.initialize		= brcm_ddr_phy_initialize,
+};
+#endif
+
+#if	defined(CONFIG_BCM7584)
+
+static void bcm7584_pm_usb_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+	bcm40nm_pm_usb_disable_s3();
+
+	/* power down USB PHY */
+	BDEV_SET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+	/* power down USB PLL */
+	BDEV_UNSET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+
+	/* power down memory */
+	SRAM_OFF_2(USB, USB0);
+
+	/* disable the clocks */
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_SCB_CLOCK_ENABLE, 0);
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_108_CLOCK_ENABLE, 0);
+}
+
+static void bcm7584_pm_usb_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	/* enable the clocks */
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_SCB_CLOCK_ENABLE, 1);
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_108_CLOCK_ENABLE, 1);
+
+	/* power down memory */
+	SRAM_ON_2(USB, USB0);
+
+	/* power up USB PLL */
+	BDEV_SET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+
+	/* power up USB PHY */
+	BDEV_UNSET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+
+	bcm40nm_pm_usb_enable_s3();
+}
+
+static void bcm7584_pm_genet_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+#if defined(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_POWER_SWITCH_MEMORY_A)
+	SRAM_OFF_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
+#endif
+
+	if (ENET_WOL(flags)) {
+		/* switch to slow clock */
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET0_CLOCK_SELECT, 1);
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET0_GMII_CLOCK_SELECT, 1);
+
+		/*
+		 * Do not clear GENET0_L2INTR_CLOCK_ENABLE - it screws up
+		 * receiver after resume !!!
+		 */
+		/* 250, EEE, UNIMAC-TX */
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x83);
+	} else {
+		/* system slow clock, pm clock */
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
+		    3);
+
+		/* Every genet0 clock */
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0xFF);
+	}
+
+}
+static void bcm7584_pm_genet_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+#if defined(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_POWER_SWITCH_MEMORY_A)
+	SRAM_ON_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
+#endif
+
+	if (ENET_WOL(flags)) {
+		/* switch to fast clock */
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET0_CLOCK_SELECT, 0);
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET0_GMII_CLOCK_SELECT, 0);
+
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x83);
+	} else {
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
+		    3);
+
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0xFF);
+	}
+
+}
+
+static void bcm7584_pm_genet1_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+	if (ENET_WOL(flags)) {
+		/* switch to slow clock */
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET1_CLOCK_SELECT, 1);
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET1_GMII_CLOCK_SELECT, 1);
+
+		/*
+		 * Do not clear GENET1_L2INTR_CLOCK_ENABLE - it screws up
+		 * receiver after resume !!!
+		 */
+		/* 250, EEE, UNIMAC-TX */
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x4300);
+	} else {
+		/* Disable all genet1 clocks */
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x7F00);
+		/* system slow clock, pm clock */
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
+		    0xC);
+	}
+}
+
+static void bcm7584_pm_genet1_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+	BDEV_UNSET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
+		0xC);
+
+	if (ENET_WOL(flags)) {
+		/* switch to fast clock */
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET1_CLOCK_SELECT, 0);
+		BDEV_WR_F_RB(
+		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
+		    GENET1_GMII_CLOCK_SELECT, 0);
+
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x4300);
+	} else {
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x7F00);
+	}
+}
+static void bcm7584_pm_network_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	if (ANY_WOL(flags))
+		return;
+
+	/* SCB, 108 clocks */
+	BDEV_UNSET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		0x18000);
+}
+
+static void bcm7584_pm_network_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	if (ANY_WOL(flags))
+		return;
+
+	/* SCB, 108 clocks */
+	BDEV_SET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		0x18000);
+}
+
+static void bcm7584_pm_sata_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	SRAM_OFF_2(SATA3_TOP, SATA3);
+
+	/* gate the clocks */
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_ENABLE,
+		SATA3_SCB_CLOCK_ENABLE, 0);
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_ENABLE,
+		SATA3_108_CLOCK_ENABLE, 0);
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_DISABLE,
+		DISABLE_SATA_LV_CLK_30, 1);
+}
+
+static void bcm7584_pm_sata_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+	/* reenable the clocks */
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_DISABLE,
+		DISABLE_SATA_LV_CLK_30, 0);
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_ENABLE,
+		SATA3_108_CLOCK_ENABLE, 1);
+	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_CLOCK_ENABLE,
+		SATA3_SCB_CLOCK_ENABLE, 1);
+
+	SRAM_ON_2(SATA3_TOP, SATA3);
+
+}
+
+#define PM_OPS_DEFINED
+static struct brcm_chip_pm_ops chip_pm_ops = {
+	DEF_BLOCK_PM_OP(usb, 7584),
+	DEF_BLOCK_PM_OP(genet, 7584),
+	DEF_BLOCK_PM_OP(genet1, 7584),
+	DEF_BLOCK_PM_OP(network, 7584),
+	DEF_BLOCK_PM_OP(sata, 7584),
+	.clk_get		= brcm_pm_clk_get,
+};
+#endif
+
+#if	defined(CONFIG_BCM7563)
+
+static void bcm7563_pm_usb_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+	bcm40nm_pm_usb_disable_s3();
+
+	/* power down USB PHY */
+	BDEV_SET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+	/* power down USB PLL */
+	BDEV_UNSET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+
+	/* power down memory */
+	SRAM_OFF_2(USB, USB0);
+
+	/* disable the clocks */
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_SCB_CLOCK_ENABLE, 0);
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_108_CLOCK_ENABLE, 0);
+}
+
+static void bcm7563_pm_usb_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	/* enable the clocks */
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_SCB_CLOCK_ENABLE, 1);
+	BDEV_WR_F_RB(CLKGEN_USB_CLOCK_ENABLE, USB0_108_CLOCK_ENABLE, 1);
+
+	/* power down memory */
+	SRAM_ON_2(USB, USB0);
+
+	/* power up USB PLL */
+	BDEV_SET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+
+	/* power up USB PHY */
+	BDEV_UNSET(BCHP_USB_CTRL_PLL_CTL,
+		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+
+	bcm40nm_pm_usb_enable_s3();
+}
+
+static void bcm7563_pm_genet_disable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	if (ENET_WOL(flags)) {
+		BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT,
+			GENET0_GMII_CLOCK_SELECT, 1);
+		BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT,
+			GENET0_CLOCK_SELECT, 1);
+		BDEV_SET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE, 0xB);
+		/*
+		 * NOTE: disabling L2INTR clock breaks ACPI pattern detection
+		 */
+		BDEV_UNSET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE,
+			0x1C7);
+		PLL_CH_DIS(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 1);
+		return;
+	}
+
+	/* Stop GENET clocks */
+	BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE,
+		GENET_SCB_CLOCK_ENABLE, 0);
+	BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE,
+		GENET_108_CLOCK_ENABLE, 0);
+	BDEV_SET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE, 0xF);
+
+	/* Power down PLL channels */
+	PLL_CH_DIS(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 0);
+	PLL_CH_DIS(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 1);
+	PLL_CH_DIS(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 2);
+}
+static void bcm7563_pm_genet_enable(u32 flags)
+{
+	PRINT_PM_CALLBACK;
+
+	if (ENET_WOL(flags)) {
+		PLL_CH_ENA(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 1);
+		BDEV_SET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE, 0x1C7);
+		BDEV_UNSET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE, 0xB);
+		BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT,
+			GENET0_GMII_CLOCK_SELECT, 0);
+		BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_SELECT,
+			GENET0_CLOCK_SELECT, 0);
+		return;
+	}
+
+	/* Power up PLL channels */
+	PLL_CH_ENA(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 0);
+	PLL_CH_ENA(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 1);
+	PLL_CH_ENA(CLKGEN_PLL_SYS1_PLL_CHANNEL_CTRL, 2);
+
+	/* Restart GENET clocks */
+	BDEV_UNSET(BCHP_CLKGEN_GENET_TOP_RGMII_INST_CLOCK_DISABLE, 0xF);
+	BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE,
+		GENET_SCB_CLOCK_ENABLE, 1);
+	BDEV_WR_F_RB(CLKGEN_GENET_TOP_RGMII_INST_CLOCK_ENABLE,
+		GENET_108_CLOCK_ENABLE, 1);
+}
+
+static void bcm7563_pm_suspend(u32 flags)
+{
+	/* disable self-refresh since it interferes with suspend */
+	brcm_pm_set_ddr_timeout(0);
+}
+
+static void bcm7563_pm_resume(u32 flags)
+{
+}
+
+#define PM_OPS_DEFINED
+static struct brcm_chip_pm_ops chip_pm_ops = {
+	DEF_BLOCK_PM_OP(usb, 7563),
+	DEF_BLOCK_PM_OP(genet, 7563),
+	DEF_SYSTEM_PM_OP(7563),
+	.clk_get		= brcm_pm_clk_get,
 };
 #endif
 

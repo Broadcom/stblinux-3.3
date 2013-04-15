@@ -1,0 +1,52 @@
+#
+# Kbuild ignores
+#
+.*
+*.o
+*.o.*
+*.a
+*.s
+
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# configure generated files
+#
+Makefile
+bonnie.h
+port.h
+bonnie++.spec
+bon_csv2txt
+bon_csv2html.1
+sun/pkginfo
+
+#
+# Normal output
+#
+autom4te.cache/
+bon_csv2html
+bonnie++
+config.log
+config.status
+generate_randfile
+getc_putc
+getc_putc_helper
+zcav
+
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+
+#
+# debugging stuff
+#
+core
+.gdb_history
+.gdbinit

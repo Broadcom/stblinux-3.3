@@ -383,7 +383,7 @@ void __init prom_init(void)
 		 * reserved (bmem) region, so the application can manage it.
 		 */
 		mb = brcm_dram0_size_mb - dram0_mb;	/* Linux memory */
-		if (!brcm_dram1_size_mb && mb == 256) {
+		if (!brcm_dram1_size_mb) {
 			printk(KERN_INFO "MEMC0 split: %lu MB -> Linux; "
 				"%lu MB -> extra bmem\n", mb, dram0_mb);
 			brcm_dram1_size_mb = dram0_mb;

@@ -209,6 +209,12 @@ s3_standby_exit:
 	sync
 	nop
 
+	/* setup mmu defaults */
+	mtc0	zero, CP0_WIRED
+	mtc0	zero, CP0_ENTRYHI
+	li	k0, PM_DEFAULT_MASK
+	mtc0	k0, CP0_PAGEMASK
+
 #ifdef CONFIG_BRCM_UPPER_MEMORY
 	li	sp, BRCM_WARM_RESTART_VEC
 	la	k0, plat_wired_tlb_setup

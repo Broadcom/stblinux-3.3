@@ -1,109 +1,135 @@
+#include "bonnie.h"
+#include <stdlib.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#ifdef OS2
-#define INCL_DOSPROCESS
-#define INCL_DOSFILEMGR
-#include <os2.h>
-#else
+
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#endif
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <string.h>
+#include "sync.h"
 
-#include "bonnie.h"
+#include <string.h>
+#include <limits.h>
+
 #include "bon_io.h"
-#include "semaphore.h"
 #include "bon_time.h"
 
-#include "forkit.h"
+
+#define END_SEEK_PROCESS INT_MIN
 
 CFileOp::~CFileOp()
 {
-  close();
+  Close();
   if(m_name)
   {
-    int len = strlen(m_name);
-    for(int i = 0; i < m_num_files; i++)
-    {
-      sprintf(&m_name[len], ".%03d", i);
-      unlink(m_name);
-    }
-    delete m_name;
+    unlink(m_name);
+    free(m_name);
   }
   delete m_buf;
 }
 
-void seeker(Fork *f, PVOID param, int)
+Thread *CFileOp::newThread(int threadNum)
 {
-  struct report_s seeker_report;
-  CFileOp *file = (CFileOp *)param;
-  int num_chunks = file->chunks();
-  if(file->reopen(false))
-    exit(1);
-  char ticket;
-  int rc;
-  int lseek_count = 0;
-
-  rc = f->Read(&ticket, 1, 0);
-
-  file->getTimer().timestamp();
-  seeker_report.StartTime = file->getTimer().get_cur_time();
-
-  if(rc == 1 && ticket) do
-  {
-    bool update;
-    if( (lseek_count++ % UpdateSeek) == 0)
-      update = true;
-    else
-      update = false;
-    if(file->doseek(rand() % num_chunks, update) )
-      exit(1);
-  }
-  while((rc = f->Read(&ticket, 1, 0)) == 1 && ticket);
-
-  if(rc != 1)
-  {
-    fprintf(stderr, "Can't read ticket.\n");
-    exit(1);
-  }
-  file->close();
-  file->getTimer().get_delta_report(seeker_report);
-  if(f->Write(&seeker_report, sizeof(seeker_report)) != sizeof(seeker_report))
-  {
-    fprintf(stderr, "Can't write report.\n");
-    exit(1);
-  }
+  return new CFileOp(threadNum, this);
 }
 
-int CFileOp::seek_test(bool quiet, Semaphore &s)
+CFileOp::CFileOp(int threadNum, CFileOp *parent)
+ : Thread(threadNum, parent)
+ , m_timer(parent->m_timer)
+ , m_file_size(parent->m_file_size)
+ , m_fd(-1)
+ , m_isopen(false)
+ , m_name(PCHAR(malloc(strlen(parent->m_name) + 5)))
+ , m_sync(parent->m_sync)
+#ifdef O_DIRECT
+ , m_use_direct_io(parent->m_use_direct_io)
+#endif
+ , m_chunk_bits(parent->m_chunk_bits)
+ , m_chunk_size(parent->m_chunk_size)
+ , m_total_chunks(parent->m_total_chunks)
+ , m_buf(new char[m_chunk_size])
 {
-  char   seek_tickets[SeekProcCount + Seeks];
-  int next;
-  for (next = 0; next < Seeks; next++)
-    seek_tickets[next] = 1;
-  for ( ; next < (Seeks + SeekProcCount); next++)
-    seek_tickets[next] = 0;
-  Fork f;
-  f.go(seeker, this, SeekProcCount);
+  strcpy(m_name, parent->m_name);
+}
 
-  sleep(5);
+int CFileOp::action(PVOID)
+{
+  struct report_s seeker_report;
+  if(reopen(false))
+    return 1;
+  int ticket;
+  int rc;
+  Duration dur, test_time;
+  rc = Read(&ticket, sizeof(ticket), 0);
+  CPU_Duration test_cpu;
+  test_time.getTime(&seeker_report.StartTime);
+  test_cpu.start();
+  if(rc == sizeof(ticket) && ticket != END_SEEK_PROCESS) do
+  {
+    bool update = false;
+    if(ticket < 0)
+    {
+      ticket = abs(ticket);
+      update = true;
+    }
+    dur.start();
+    if(doseek(ticket % m_total_chunks, update) )
+      return 1;
+    dur.stop();
+  } while((rc = Read(&ticket, sizeof(ticket), 0)) == sizeof(ticket)
+         && ticket != END_SEEK_PROCESS);
+
+  if(rc != sizeof(ticket))
+  {
+    fprintf(stderr, "Can't read ticket.\n");
+    return 1;
+  }
+  Close();
+  // seeker report is start and end times, CPU used, and latency
+  test_time.getTime(&seeker_report.EndTime);
+  seeker_report.CPU = test_cpu.stop();
+  seeker_report.Latency = dur.getMax();
+  if(Write(&seeker_report, sizeof(seeker_report), 0) != sizeof(seeker_report))
+  {
+    fprintf(stderr, "Can't write report.\n");
+    return 1;
+  }
+  return 0;
+}
+
+int CFileOp::seek_test(Rand &r, bool quiet, Sync &s)
+{
+  int seek_tickets[SeekProcCount + Seeks];
+  int next;
+  for(next = 0; next < Seeks; next++)
+  {
+    seek_tickets[next] = r.getNum();
+    if(seek_tickets[next] < 0)
+      seek_tickets[next] = abs(seek_tickets[next]);
+    if(seek_tickets[next] % UpdateSeek == 0)
+      seek_tickets[next] = -seek_tickets[next];
+  }
+  for( ; next < (Seeks + SeekProcCount); next++)
+    seek_tickets[next] = END_SEEK_PROCESS;
+  if(reopen(false))
+    return 1;
+  go(NULL, SeekProcCount);
+
+  sleep(3);
   if(s.decrement_and_wait(Lseek))
     return 1;
   if(!quiet) fprintf(stderr, "start 'em...");
-  if(f.Write(seek_tickets, sizeof(seek_tickets)) != int(sizeof(seek_tickets)) )
+  if(Write(seek_tickets, sizeof(seek_tickets), 0) != int(sizeof(seek_tickets)) )
   {
     fprintf(stderr, "Can't write tickets.\n");
     return 1;
   }
+  Close();
   for (next = 0; next < SeekProcCount; next++)
   { /* for each child */
     struct report_s seeker_report;
 
     int rc;
-    if((rc = f.Read(&seeker_report, sizeof(seeker_report), 0))
+    if((rc = Read(&seeker_report, sizeof(seeker_report), 0))
         != sizeof(seeker_report))
     {
       fprintf(stderr, "Can't read from pipe, expected %d, got %d.\n"
@@ -117,14 +143,6 @@ int CFileOp::seek_test(bool quiet, Semaphore &s)
      *  time the last child stopped
      */
     m_timer.add_delta_report(seeker_report, Lseek);
-#ifdef OS2
-    TID status = 0;
-    if(DosWaitThread(&status, DCWW_WAIT))
-#else
-    int status = 0;
-    if(wait(&status) == -1)
-#endif
-      return io_error("wait");
     if(!quiet) fprintf(stderr, "done...");
   } /* for each child */
   if(!quiet) fprintf(stderr, "\n");
@@ -133,62 +151,15 @@ int CFileOp::seek_test(bool quiet, Semaphore &s)
 
 int CFileOp::seek(int offset, int whence)
 {
-  switch(whence)
-  {
-    case SEEK_SET:
-      m_file_ind = offset / m_chunks_per_file;
-      m_cur_pos = offset % m_chunks_per_file;
-    break;
-    case SEEK_CUR:
-      m_cur_pos += offset;
-      while(m_cur_pos < 0)
-      {
-        m_file_ind--;
-        m_cur_pos += m_chunks_per_file;
-      }
-      while(m_cur_pos >= m_chunks_per_file)
-      {
-        m_file_ind++;
-        m_cur_pos -= m_chunks_per_file;
-      }
-    break;
-    default:
-      fprintf(stderr, "unsupported seek option\n");
-      return -1;
-  }
-  if(m_file_ind == m_num_files)
-  {
-    m_file_ind--;
-    m_cur_pos += m_chunks_per_file;
-  }
-  else
-  {
-    if(m_file_ind < 0 || m_file_ind >= m_num_files
-       || (m_file_ind == m_num_files - 1 && m_cur_pos >= m_last_file_chunks))
-    {
-      fprintf(stderr, "Bad seek offset\n");
-      return -1;
-    }
-    off_t rc;
-    if(m_fd)
-    {
-#ifdef OS2
-      unsigned long actual;
-      rc = DosSetFilePtr(m_fd[m_file_ind], m_cur_pos << m_chunk_bits, FILE_BEGIN, &actual);
-      if(rc != 0) rc = -1;
-#else
-      rc = lseek(m_fd[m_file_ind], m_cur_pos << m_chunk_bits, SEEK_SET);
-#endif
-    }
-    else
-    {
-      rc = fseek(m_stream[m_file_ind], m_cur_pos << m_chunk_bits, SEEK_SET);
-    }
+  OFF_TYPE rc;
+  OFF_TYPE real_offset = offset;
+  real_offset *= m_chunk_size;
+  rc = file_lseek(m_fd, real_offset, whence);
 
-    if(rc == off_t(-1))
-      fprintf(stderr, "Error in lseek to %d\n", (m_cur_pos << m_chunk_bits));
-    else
-      rc = 0;
+  if(rc == OFF_TYPE(-1))
+  {
+    sprintf(m_buf, "Error in lseek to chunk %d(" OFF_T_PRINTF ")", offset, real_offset);
+    perror(m_buf);
     return rc;
   }
   return 0;
@@ -200,228 +171,133 @@ int CFileOp::read_block(PVOID buf)
   bool printed_error = false;
   while(total != m_chunk_size)
   {
-#ifdef OS2
-    unsigned long actual;
-    int rc = DosRead(m_fd[m_file_ind], buf, m_chunk_size - total
-                   , &actual);
-    if(rc)
-      rc = -1;
-    else
-      rc = actual;
-#else
-    int rc = ::read(m_fd[m_file_ind], buf, m_chunk_size - total);
-#endif
-    m_cur_pos++;
-    if(m_cur_pos >= m_chunks_per_file)
-    {
-      if(seek(0, SEEK_CUR) == -1)
-      {
-        fprintf(stderr, "Error in seek(0)\n");
-        return -1;
-      }
-    }
+    int rc = read(m_fd, buf, m_chunk_size - total);
     if(rc == -1)
     {
       io_error("re-write read"); // exits program
     }
-    else if(rc != m_chunk_size && !printed_error)
+    else if(rc != m_chunk_size)
     {
-      fprintf(stderr, "Can't read a full block, only got %d bytes.\n", rc);
-      printed_error = true;
+      if(!printed_error)
+      {
+        fprintf(stderr, "Can't read a full block, only got %d bytes.\n", rc);
+        printed_error = true;
+        if(rc == 0)
+          return -1;
+      }
     }
     total += rc;
   }
   return total;
 }
 
-int CFileOp::read_block_getc(char *buf)
+int CFileOp::read_block_byte(char *buf)
 {
-  int next;
+  char next;
   for(int i = 0; i < m_chunk_size; i++)
   {
-    if ((next = getc(m_stream[m_file_ind])) == EOF)
+    if(read(m_fd, &next, 1) != 1)
     {
-      fprintf(stderr, "Can't getc(3)\n");
+      fprintf(stderr, "Can't read a byte\n");
       return -1;
     }
     /* just to fool optimizers */
-    buf[next]++;
+    buf[int(next)]++;
   }
 
-  m_cur_pos++;
-  if(m_cur_pos >= m_chunks_per_file)
-  {
-    if(seek(0, SEEK_CUR) == -1)
-      return -1;
-  }
   return 0;
 }
 
 int CFileOp::write_block(PVOID buf)
 {
-#ifdef OS2
-  unsigned long actual;
-  int rc = DosWrite(m_fd[m_file_ind], buf, m_chunk_size, &actual);
-  if(rc)
-    rc = -1;
-  else
-    rc = 0;
-  if(actual != m_chunk_size)
-    rc = -1;
-#else
-  int rc = ::write(m_fd[m_file_ind], buf, m_chunk_size);
+  int rc = ::write(m_fd, buf, m_chunk_size);
   if(rc != m_chunk_size)
   {
-    fprintf(stderr, "Can't write block.\n");
+    perror("Can't write block.");
     return -1;
-  }
-#endif
-  m_cur_pos++;
-  if(m_cur_pos >= m_chunks_per_file)
-  {
-    if(seek(0, SEEK_CUR) == -1)
-      return -1;
   }
   return rc;
 }
 
-int CFileOp::write_block_putc()
+int CFileOp::write_block_byte()
 {
   for(int i = 0; i < m_chunk_size; i++)
   {
-    if (putc(i & 0x7f, m_stream[m_file_ind]) == EOF)
+    char c = i & 0x7f;
+    if(write(m_fd, &c, 1) != 1)
     {
-      fprintf(stderr, "Can't putc() - disk full?\n");
+      fprintf(stderr, "Can't write() - disk full?\n");
       return -1;
     }
   }
-  m_cur_pos++;
-  if(m_cur_pos >= m_chunks_per_file)
-  {
-    if(seek(0, SEEK_CUR) == -1)
-      return -1;
-  }
   return 0;
 }
 
-int CFileOp::open(CPCCHAR base_name, bool create, bool use_fopen)
+int CFileOp::Open(CPCCHAR base_name, bool create)
 {
-  m_name = new char[strlen(base_name) + 8];
+  m_name = PCHAR(malloc(strlen(base_name) + 5));
   strcpy(m_name, base_name);
-  return reopen(create, use_fopen);
+  return reopen(create);
 }
 
-CFileOp::CFileOp(BonTimer &timer, int file_size, int chunk_bits, bool use_sync)
+CFileOp::CFileOp(BonTimer &timer, int file_size, int chunk_bits, bool use_sync
+#ifdef O_DIRECT
+               , bool use_direct_io
+#endif
+                )
  : m_timer(timer)
- , m_stream(NULL)
- , m_fd(NULL)
+ , m_file_size(file_size)
+ , m_fd(-1)
  , m_isopen(false)
  , m_name(NULL)
  , m_sync(use_sync)
+#ifdef O_DIRECT
+ , m_use_direct_io(use_direct_io)
+#endif
  , m_chunk_bits(chunk_bits)
  , m_chunk_size(1 << m_chunk_bits)
- , m_chunks_per_file(Unit / m_chunk_size * IOFileSize)
  , m_total_chunks(Unit / m_chunk_size * file_size)
- , m_last_file_chunks(m_total_chunks % m_chunks_per_file)
- , m_cur_pos(0)
- , m_file_ind(0)
- , m_file_size(file_size)
- , m_num_files(m_file_size / IOFileSize + 1)
  , m_buf(new char[m_chunk_size])
 {
-  if(m_last_file_chunks == 0)
+  if(m_total_chunks / file_size * m_chunk_size != Unit)
   {
-    m_last_file_chunks = m_chunks_per_file;
-    m_num_files--;
+    fprintf(stderr, "File size %d too big for chunk size %d\n", file_size, m_chunk_size);
+    exit(1);
   }
 }
 
-typedef FILE * PFILE;
-
-int CFileOp::reopen(bool create, bool use_fopen)
+int CFileOp::reopen(bool create)
 {
-  int i;
-  m_cur_pos = 0;
-  m_file_ind = 0;
-
-  if(m_isopen) close();
+  if(m_isopen) Close();
 
   m_isopen = true;
-  if(use_fopen)
-  {
-    m_stream = new PFILE[m_num_files];
-    for(i = 0; i < m_num_files; i++)
-      m_stream[i] = NULL;
-  }
-  else
-  {
-#ifdef OS2
-    m_fd = new HFILE[m_num_files];
-#else
-    m_fd = new int[m_num_files];
-#endif
-    for(i = 0; i < m_num_files; i++)
-      m_fd[i] = -1;
-  }
-  int len = strlen(m_name);
-  for(i = 0; i < m_num_files; i++)
-  {
-    sprintf(&m_name[len], ".%03d", i);
-    if(m_open(m_name, i, create))
-      return 1;
-  }
-  m_name[len] = '\0';
+  if(m_open(m_name, create))
+    return 1;
   return 0;
 }
 
-int CFileOp::m_open(CPCCHAR base_name, int ind, bool create)
+int CFileOp::m_open(CPCCHAR base_name, bool create)
 {
-#ifdef OS2
-  ULONG createFlag;
-#else
   int flags;
-#endif
-  const char *fopen_mode;
   if(create)
   { /* create from scratch */
-#ifndef OS2
     unlink(base_name);
-#endif
-    fopen_mode = "w+";
-#ifdef OS2
-    createFlag = OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS;
-#else
     flags = O_RDWR | O_CREAT | O_EXCL;
+#ifdef O_DIRECT
+    if(m_use_direct_io)
+      flags |= O_DIRECT;
 #endif
   }
   else
   {
-    fopen_mode = "r+";
-#ifdef OS2
-    createFlag = OPEN_ACTION_OPEN_IF_EXISTS;
-#else
     flags = O_RDWR;
+#ifdef _LARGEFILE64_SOURCE
+    flags |= O_LARGEFILE;
 #endif
   }
-  if(m_fd)
-  {
-#ifdef OS2
-    ULONG action = 0;
-    ULONG rc = DosOpen(base_name, &m_fd[ind], &action, 0, FILE_NORMAL, createFlag
-                     , OPEN_FLAGS_SEQUENTIAL | OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE
-                     , NULL);
-    if(rc)
-      m_fd[ind] = -1;
-#else
-    m_fd[ind] = ::open(base_name, flags, S_IRUSR | S_IWUSR);
-#endif
-  }
-  else
-  {
-    m_stream[ind] = fopen(base_name, fopen_mode);
-  }
+  m_fd = file_open(base_name, flags, S_IRUSR | S_IWUSR);
 
-  if( (m_fd && m_fd[ind] == -1) || (m_stream && m_stream[ind] == NULL) )
+  if(m_fd == -1)
   {
     fprintf(stderr, "Can't open file %s\n", base_name);
     return -1;
@@ -429,30 +305,18 @@ int CFileOp::m_open(CPCCHAR base_name, int ind, bool create)
   return 0;
 }
 
-void CFileOp::close()
+void CFileOp::Close()
 {
   if(!m_isopen)
     return;
-  for(int i = 0; i < m_num_files; i++)
+  if(m_fd != -1)
   {
-    if(m_sync)
-      fflush(NULL);
-    if(m_stream && m_stream[i]) fclose(m_stream[i]);
-    if(m_fd && m_fd[i] != -1)
-    {
-      if(m_sync)
-      {
-        if(fsync(m_fd[i]))
-          fprintf(stderr, "Can't sync files.\n");
-      }
-      file_close(m_fd[i]);
-    }
+    if(fsync(m_fd))
+      fprintf(stderr, "Can't sync file.\n");
+    close(m_fd);
   }
   m_isopen = false;
-  delete m_fd;
-  delete m_stream;
-  m_fd = NULL;
-  m_stream = NULL;
+  m_fd = -1;
 }
 
 
@@ -466,32 +330,32 @@ void CFileOp::close()
  * However, it would be wrong to put the update percentage in as a
  *  parameter - the effect is too nonlinear.  Need a profile
  *  of what Oracle or Ingres or some such actually does.
- * Be warned - there is a *sharp* elbow in this curve - on a 1-Mb file,
+ * Be warned - there is a *sharp* elbow in this curve - on a 1-MiB file,
  *  most substantial unix systems show >2000 random I/Os per second -
  *  obviously they've cached the whole thing and are just doing buffer
  *  copies.
  */
 int
-CFileOp::doseek(long where, bool update)
+CFileOp::doseek(unsigned int where, bool update)
 {
   if (seek(where, SEEK_SET) == -1)
-    return io_error("lseek in doseek");
+    return -1;
   if (read_block(PVOID(m_buf)) == -1)
-    return io_error("read in doseek");
+    return -1;
 
   /* every so often, update a block */
   if (update)
   { /* update this block */
 
     /* touch a byte */
-    m_buf[int(rand()) % m_chunk_size]--;
+    m_buf[where % m_chunk_size]--;
     if(seek(where, SEEK_SET) == -1)
       return io_error("lseek in doseek update");
     if (write_block(PVOID(m_buf)) == -1)
-      return io_error("write in doseek");
+      return -1;
     if(m_sync)
     {
-      if(fsync(m_fd[m_file_ind]))
+      if(fsync(m_fd))
       {
         fprintf(stderr, "Can't sync file.\n");
         return -1;

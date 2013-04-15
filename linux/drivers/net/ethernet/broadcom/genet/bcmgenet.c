@@ -1339,8 +1339,8 @@ static int bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
 					__func__, i, frag->size);
 			print_hex_dump(KERN_NOTICE, "", DUMP_PREFIX_ADDRESS,
 				16, 1,
-				page_address(frag->page)+frag->page_offset,
-				frag->size, 0);
+				skb_frag_address(frag),
+				skb_frag_size(frag), 0);
 #endif
 			txCBPtr->BdAddr->length_status =
 					((unsigned long)frag->size << 16) |
@@ -1686,6 +1686,9 @@ static void bcmgenet_irq_task(struct work_struct *work)
 		pDevCtrl->irq0_stat &= ~(UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN);
 		bcmgenet_mii_setup(pDevCtrl->dev);
 	}
+
+	/* Re-enable interrupts */
+	pDevCtrl->intrl2_0->cpu_mask_clear = ~pDevCtrl->int_mask;
 }
 /*
  * bcmgenet_ring_rx: ring buffer rx function.
@@ -2002,7 +2005,12 @@ static irqreturn_t bcmgenet_isr0(int irq, void *dev_id)
 				UMAC_IRQ_HFB_SM |
 				UMAC_IRQ_HFB_MM |
 				UMAC_IRQ_MPD_R)) {
-		/* all other interested interrupts handled in bottom half */
+
+		/* all other interrupts are handled in the workqueue */
+		pDevCtrl->int_mask = pDevCtrl->intrl2_0->cpu_mask_status;
+		pDevCtrl->intrl2_0->cpu_mask_set = ~0;
+		mb();
+
 		schedule_work(&pDevCtrl->bcmgenet_irq_work);
 	}
 

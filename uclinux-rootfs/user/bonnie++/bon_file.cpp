@@ -1,21 +1,15 @@
+#include "bonnie.h"
 #include <fcntl.h>
-#include <sys/types.h>
-#ifdef OS2
-#define INCL_DOSFILEMGR
-#include <os2.h>
-#else
 #include <dirent.h>
 #include <unistd.h>
-#endif
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #include "bon_file.h"
 #include "bon_time.h"
+#include "duration.h"
 
 CPCCHAR rand_chars = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 
 COpenTest::COpenTest(int chunk_size, bool use_sync, bool *doExit)
  : m_chunk_size(chunk_size)
@@ -36,12 +30,12 @@ COpenTest::COpenTest(int chunk_size, bool use_sync, bool *doExit)
 {
 }
 
-void COpenTest::random_sort()
+void COpenTest::random_sort(Rand &r)
 {
   for(int i = 0; i < m_number; i++)
   {
     char *tmp = m_file_names[i];
-    int newind = rand() % m_number;
+    int newind = r.getNum() % m_number;
     m_file_names[i] = m_file_names[newind];
     m_file_names[newind] = tmp;
     if(m_dirIndex)
@@ -75,8 +69,7 @@ COpenTest::~COpenTest()
           io_error("rmdir");
       }
     }
-    chdir("..");
-    if(rmdir(m_dirname))
+    if(chdir("..") || rmdir(m_dirname))
       io_error("rmdir");
     delete m_dirname;
   }
@@ -92,7 +85,7 @@ COpenTest::~COpenTest()
   delete m_buf;
 }
 
-void COpenTest::make_names(bool do_random)
+void COpenTest::make_names(Rand &r, bool do_random)
 {
   delete m_file_name_buf;
   delete m_file_names;
@@ -111,6 +104,7 @@ void COpenTest::make_names(bool do_random)
   }
   m_file_names = new PCHAR[m_number];
   PCHAR buf = m_file_name_buf;
+  int num_rand_chars = strlen(rand_chars);
   for(int i = 0; i < m_number; i++)
   {
     if(*m_exit)
@@ -120,11 +114,11 @@ void COpenTest::make_names(bool do_random)
       return;
     }
     char rand_buf[RandExtraLen + 1];
-    int len = rand() % (RandExtraLen + 1);
+    int len = r.getNum() % (RandExtraLen + 1);
     int j;
     for(j = 0; j < len; j++)
     {
-      rand_buf[j] = rand_chars[rand() % strlen(rand_chars)];
+      rand_buf[j] = rand_chars[r.getNum() % num_rand_chars];
     }
     rand_buf[j] = '\0';
     m_file_names[i] = buf;
@@ -143,11 +137,11 @@ void COpenTest::make_names(bool do_random)
     }
     if(do_random)
     {
-      sprintf(buf, "%s%07d", rand_buf, i);
+      sprintf(buf, "%s%010x", rand_buf, i);
     }
     else
     {
-      sprintf(buf, "%07d%s", i, rand_buf);
+      sprintf(buf, "%010x%s", i, rand_buf);
     }
     buf += strlen(buf) + 1;
   }
@@ -156,15 +150,9 @@ void COpenTest::make_names(bool do_random)
 int COpenTest::create_a_file(const char *filename, char *buf, int size, int dir)
 {
   FILE_TYPE fd = 0;
-#ifdef OS2
-  ULONG action = 0;
-  ULONG rc = DosOpen(filename, &fd, &action, 0, FILE_NORMAL
-                   , OPEN_ACTION_CREATE_IF_NEW | OPEN_ACTION_REPLACE_IF_EXISTS
-                   , OPEN_FLAGS_SEQUENTIAL | OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE
-                   , NULL);
-#else
-  fd = creat(filename, S_IRUSR | S_IWUSR);
-#endif
+  int flags = S_IRUSR | S_IWUSR;
+  fd = file_open(filename, O_CREAT|O_EXCL|O_WRONLY, flags);
+
   if(fd == -1)
   {
     fprintf(stderr, "Can't create file %s\n", filename);
@@ -176,20 +164,11 @@ int COpenTest::create_a_file(const char *filename, char *buf, int size, int dir)
     {
       int to_write = size - i;
       if(to_write > m_chunk_size) to_write = m_chunk_size;
-#ifdef OS2
-      ULONG actual = 0;
-      if(DosWrite(fd, PVOID(buf), to_write, &actual))
-      {
-        fprintf(stderr, "Can't write data.\n");
-        return -1;
-      }
-#else
       if(to_write != write(fd, static_cast<void *>(buf), to_write))
       {
         fprintf(stderr, "Can't write data.\n");
         return -1;
       }
-#endif
     }
   }
   if(m_sync)
@@ -205,16 +184,12 @@ int COpenTest::create_a_file(const char *filename, char *buf, int size, int dir)
       m_sync_dir = false;
     }
   }
-  file_close(fd);
+  close(fd);
   return 0;
 }
 
 int COpenTest::create_a_link(const char *original, const char *filename, int dir)
 {
-#ifdef OS2
-  fprintf(stderr, "Not supported on OS/2\n");
-  return -1;
-#else
   if(m_max == -1)
   {
     if(link(original, filename))
@@ -248,7 +223,6 @@ int COpenTest::create_a_link(const char *original, const char *filename, int dir
     }
   }
   return 0;
-#endif
 }
 
 int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
@@ -262,14 +236,19 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
 
   m_number = num * DirectoryUnit;
   m_number_directories = num_directories;
-  make_names(do_random);
+  make_names(timer.random_source, do_random);
   m_max = max_size;
   m_min = min_size;
   m_size_range = m_max - m_min;
   m_dirname = new char[strlen(dirname) + 1];
   strcpy(m_dirname, dirname);
 
-  if(make_directory(dirname))
+  if(num_directories >= 100000)
+  {
+    fprintf(stderr, "Can't have more than 99,999 directories.\n");
+    return -1;
+  }
+  if(mkdir(dirname, S_IRWXU))
   {
     fprintf(stderr, "Can't make directory %s\n", dirname);
     return -1;
@@ -287,7 +266,7 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
     for(i = 0; i < num_directories; i++)
     {
       sprintf(m_buf, "%05d", i);
-      if(make_directory(m_buf))
+      if(mkdir(m_buf, S_IRWXU))
       {
         fprintf(stderr, "Can't make directory %s\n", m_buf);
         return -1;
@@ -313,13 +292,20 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
     }
   }
 
-  timer.timestamp();
+  Duration dur;
+  timer.start();
   for(i = 0; i < m_number; i++)
   {
     if(*m_exit)
     {
-      return EXIT_CTRL_C;
+      if(m_number_directories != 1 && chdir(".."))
+      {
+        fprintf(stderr, "Can't change to directory ..\n");
+        return -1;
+      }
+      return eCtrl_C;
     }
+    dur.start();
     // m_max < 0 means link or sym-link
     if(m_max < 0)
     {
@@ -339,24 +325,29 @@ int COpenTest::create(CPCCHAR dirname, BonTimer &timer, int num, int max_size
     {
       int size;
       if(m_size_range)
-        size = m_min + (rand() % (m_size_range + 1));
+        size = m_min + (timer.random_source.getNum() % (m_size_range + 1));
       else
         size = m_max;
       if(create_a_file(m_file_names[i], m_buf, size, m_dirIndex ? m_dirIndex[i] : 0))
         return -1;
     }
+    dur.stop();
   }
-  timer.get_delta_t(do_random ? CreateRand : CreateSeq);
+  sync();
+  timer.stop_and_record(do_random ? CreateRand : CreateSeq);
+  timer.add_latency(do_random ? CreateRand : CreateSeq, dur.getMax());
   return 0;
 }
 
 int COpenTest::delete_random(BonTimer &timer)
 {
-  random_sort();
-  timer.timestamp();
+  random_sort(timer.random_source);
+  timer.start();
   int i;
+  Duration dur;
   for(i = 0; i < m_number; i++)
   {
+    dur.start();
     if(unlink(m_file_names[i]))
     {
       fprintf(stderr, "Can't delete file %s\n", m_file_names[i]);
@@ -370,6 +361,7 @@ int COpenTest::delete_random(BonTimer &timer)
         m_sync_dir = false;
       }
     }
+    dur.stop();
   }
   if(m_number_directories > 1)
   {
@@ -395,22 +387,24 @@ int COpenTest::delete_random(BonTimer &timer)
       close(m_directoryHandles[0]);
     }
   }
-  chdir("..");
-  if(rmdir(m_dirname))
+  if(chdir("..") || rmdir(m_dirname))
   {
     io_error("rmdir");
     return -1;
   }
   delete m_dirname;
   m_dirname = NULL;
-  timer.get_delta_t(DelRand);
+  sync();
+  timer.stop_and_record(DelRand);
+  timer.add_latency(DelRand, dur.getMax());
   return 0;
 }
 
 int COpenTest::delete_sequential(BonTimer &timer)
 {
-  timer.timestamp();
+  timer.start();
   int count = 0;
+  Duration dur;
   for(int i = 0; i < m_number_directories; i++)
   {
     char buf[6];
@@ -423,41 +417,25 @@ int COpenTest::delete_sequential(BonTimer &timer)
         return -1;
       }
     }
-#ifdef OS2
-    HDIR d = 0;
-    ULONG entries = 1;
-    FILEFINDBUF3 findBuf;
-    ULONG rc = DosFindFirst("*", &d
-                          , FILE_ARCHIVED | FILE_SYSTEM | FILE_HIDDEN | FILE_READONLY
-                          , &findBuf, sizeof(findBuf), &entries, FIL_STANDARD);
-    if(rc || !entries)
-    {
-      fprintf(stderr, "Can't open directory.\n");
-      return -1;
-    }
-    do
-    {
-      if(unlink(findBuf.achName))
-      {
-        fprintf(stderr, "Can't delete file %s\n", findBuf.achName);
-        DosFindClose(d);
-        return -1;
-      }
-      count++;
-      rc = DosFindNext(d, &findBuf, sizeof(findBuf), &entries);
-    } while(!rc && entries == 1);
-    DosFindClose(d);
-#else
     DIR *d = opendir(".");
     if(!d)
     {
       fprintf(stderr, "Can't open directory.\n");
+      if(m_number_directories != 1)
+      {
+        if(chdir(".."))
+          fprintf(stderr, "Can't chdir().\n");
+      }
       return -1;
     }
     dirent *file_ent;
 
-    while((file_ent = readdir(d)) != NULL)
+    while(1)
     {
+      dur.start();
+      file_ent = readdir(d);
+      if(file_ent == NULL)
+        break;
       if(file_ent->d_name[0] != '.')
       {
         if(unlink(file_ent->d_name))
@@ -477,25 +455,23 @@ int COpenTest::delete_sequential(BonTimer &timer)
         }
         count++;
       }
+      dur.stop();
     }
     closedir(d);
-#endif
     if(m_sync)
     {
       close(m_directoryHandles[i]);
     }
     if(m_number_directories != 1)
     {
-      chdir("..");
-      if(rmdir(buf))
+      if(chdir("..") || rmdir(buf))
       {
         io_error("rmdir");
         return -1;
       }
     }
   }
-  chdir("..");
-  if(rmdir(m_dirname))
+  if(chdir("..") || rmdir(m_dirname))
   {
     io_error("rmdir");
     return -1;
@@ -507,7 +483,9 @@ int COpenTest::delete_sequential(BonTimer &timer)
     fprintf(stderr, "Expected %d files but only got %d\n", m_number, count);
     return -1;
   }
-  timer.get_delta_t(DelSeq);
+  sync();
+  timer.stop_and_record(DelSeq);
+  timer.add_latency(DelSeq, dur.getMax());
   return 0;
 }
 
@@ -522,17 +500,8 @@ int COpenTest::stat_file(CPCCHAR file)
   if(st.st_size)
   {
     FILE_TYPE fd = 0;
-#ifdef OS2
-    ULONG action = 0;
-    ULONG rc = DosOpen(file, &fd, &action, 0, FILE_NORMAL
-                     , OPEN_ACTION_FAIL_IF_NEW | OPEN_ACTION_OPEN_IF_EXISTS
-                     , OPEN_FLAGS_SEQUENTIAL | OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE
-                     , NULL);
-    if(rc)
-      fd = -1;
-#else
-    fd = open(file, O_RDONLY);
-#endif
+    int flags = O_RDONLY;
+    fd = open(file, flags);
     if(fd == -1)
     {
       fprintf(stderr, "Can't open file %s\n", file);
@@ -541,43 +510,44 @@ int COpenTest::stat_file(CPCCHAR file)
     for(int i = 0; i < st.st_size; i += m_chunk_size)
     {
       int to_read = st.st_size - i;
-      if(to_read > m_chunk_size) to_read = m_chunk_size;
-#ifdef OS2
-      ULONG actual = 0;
-      rc = DosRead(fd, PVOID(m_buf), to_read, &actual);
-      if(to_read != actual || rc)
-#else
+      if(to_read > m_chunk_size)
+        to_read = m_chunk_size;
+
       if(to_read != read(fd, static_cast<void *>(m_buf), to_read))
-#endif
       {
         fprintf(stderr, "Can't read data.\n");
         return -1;
       }
     }
-    file_close(fd);
+    close(fd);
   }
   return 0;
 }
 
 int COpenTest::stat_random(BonTimer &timer)
 {
-  random_sort();
-  timer.timestamp();
+  random_sort(timer.random_source);
+  timer.start();
 
   int i;
+  Duration dur;
   for(i = 0; i < m_number; i++)
   {
+    dur.start();
     if(-1 == stat_file(m_file_names[i]))
       return -1;
+    dur.stop();
   }
-  timer.get_delta_t(StatRand);
+  timer.stop_and_record(StatRand);
+  timer.add_latency(StatRand, dur.getMax());
   return 0;
 }
 
 int COpenTest::stat_sequential(BonTimer &timer)
 {
-  timer.timestamp();
+  timer.start();
   int count = 0;
+  Duration dur;
   for(int i = 0; i < m_number_directories; i++)
   {
     char buf[6];
@@ -590,51 +560,24 @@ int COpenTest::stat_sequential(BonTimer &timer)
         return -1;
       }
     }
-#ifdef OS2
-    HDIR d = 0;
-    ULONG entries = 1;
-    FILEFINDBUF3 findBuf;
-    ULONG rc = DosFindFirst("*", &d
-                          , FILE_ARCHIVED | FILE_SYSTEM | FILE_HIDDEN | FILE_READONLY
-                          , &findBuf, sizeof(findBuf), &entries, FIL_STANDARD);
-    if(rc || !entries)
-    {
-      fprintf(stderr, "Can't open directory.\n");
-      if(m_number_directories != 1)
-        chdir("..");
-      return -1;
-    }
-    do
-    {
-      if(*m_exit)
-      {
-        return EXIT_CTRL_C;
-      }
-      if(findBuf.achName[0] != '.') // our files do not start with a dot
-      {
-        if(-1 == stat_file(findBuf.achName))
-        {
-          if(m_number_directories != 1)
-            chdir("..");
-          return -1;
-        }
-        count++;
-      }
-      rc = DosFindNext(d, &findBuf, sizeof(findBuf), &entries);
-    } while(!rc && entries == 1);
-    DosFindClose(d);
-#else
     DIR *d = opendir(".");
     if(!d)
     {
       fprintf(stderr, "Can't open directory.\n");
       if(m_number_directories != 1)
-        chdir("..");
+      {
+        if(chdir(".."))
+          fprintf(stderr, "Can't chdir().\n");
+      }
       return -1;
     }
     dirent *file_ent;
-    while((file_ent = readdir(d)) != NULL)
+    while(1)
     {
+      dur.start();
+      file_ent = readdir(d);
+      if(file_ent == NULL)
+        break;
       if(*m_exit)
       {
         if(m_number_directories != 1 && chdir(".."))
@@ -642,25 +585,35 @@ int COpenTest::stat_sequential(BonTimer &timer)
           fprintf(stderr, "Can't change to directory ..\n");
           return -1;
         }
-        return EXIT_CTRL_C;
+        return eCtrl_C;
       }
       if(file_ent->d_name[0] != '.') // our files do not start with a dot
       {
         if(-1 == stat_file(file_ent->d_name))
         {
           if(m_number_directories != 1)
-            chdir("..");
+          {
+            if(chdir(".."))
+            {
+              fprintf(stderr, "Can't chdir().\n");
+              return -1;
+            }
+          }
+          dur.stop();
           return -1;
         }
         count++;
+        dur.stop();
       }
     }
     closedir(d);
-#endif
-    if(m_number_directories != 1 && chdir(".."))
+    if(m_number_directories != 1)
     {
-      fprintf(stderr, "Can't change to directory ..\n");
-      return -1;
+      if(chdir(".."))
+      {
+        fprintf(stderr, "Can't change to directory ..\n");
+        return -1;
+      }
     }
   }
   if(count != m_number)
@@ -668,7 +621,8 @@ int COpenTest::stat_sequential(BonTimer &timer)
     fprintf(stderr, "Expected %d files but only got %d\n", m_number, count);
     return -1;
   }
-  timer.get_delta_t(StatSeq);
+  timer.stop_and_record(StatSeq);
+  timer.add_latency(StatSeq, dur.getMax());
   return 0;
 }
 

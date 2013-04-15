@@ -1,6 +1,5 @@
 #include <pwd.h>
 #include <grp.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
 #include "bonnie.h"
@@ -28,8 +27,10 @@ int bon_setugid(CPCCHAR userName, CPCCHAR groupName, bool quiet)
       {
         gr = getgrnam("nogroup");
         if(gr)
+        {
           groupId = gr->gr_gid;
           setGroup = true;
+        }
       }
     }
     else

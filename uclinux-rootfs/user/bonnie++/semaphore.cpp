@@ -1,4 +1,5 @@
 #include "port.h"
+#include <stdio.h>
 #include "semaphore.h"
 #include <unistd.h>
 #include <stdlib.h>
@@ -55,6 +56,7 @@ int Semaphore::create(int count)
     }
   }
   m_semopen = true;
+  printf("Creating semaphore for %d procs.\n", count);
   return 0;
 }
 

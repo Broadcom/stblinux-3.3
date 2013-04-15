@@ -1,7 +1,6 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 

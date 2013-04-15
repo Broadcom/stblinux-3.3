@@ -443,6 +443,7 @@ int __ref brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 		dcache_linesz);
 
 	/* CPU reconfiguration */
+	local_flush_tlb_all();
 	brcmstb_cpu_setup();
 	bmips_ebase_setup();
 	cpumask_clear(&bmips_booted_mask);

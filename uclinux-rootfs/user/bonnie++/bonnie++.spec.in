@@ -5,7 +5,7 @@ Release: 1
 Copyright: GPL
 Group: Utilities/Benchmarking
 URL: http://www.coker.com.au/bonnie++
-Source: http://www.coker.com.au/bonnie++/bonnie++-%{version}.tgz 
+Source: http://www.coker.com.au/bonnie++/experimental/bonnie++-%{version}.tgz 
 BuildRoot: /tmp/%{name}-buildroot
 Prefixes: %{_prefix} %{_datadir}
 Requires: glibc >= 2.1
@@ -20,7 +20,7 @@ tests of hard drive and file system performance.
 %setup -q
 
 %build
-./configure --prefix=$RPM_BUILD_ROOT%{_prefix} --mandir=$RPM_BUILD_ROOT%{_mandir}
+./configure --prefix=$RPM_BUILD_ROOT%{_prefix} --mandir=3D$RPM_BUILD_ROOT%{_mandir}
 make
 
 %install
@@ -38,8 +38,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}/sbin/zcav
 %{_prefix}/bin/bon_csv2html
 %{_prefix}/bin/bon_csv2txt
-%{_mandir}/man1/*
-%{_mandir}/man8/*
+%{_mandir}/man1/bon_csv2html.1
+%{_mandir}/man1/bon_csv2txt.1
+%{_mandir}/man8/bonnie++.8
+%{_mandir}/man8/zcav.8
 
 %changelog
 * Wed Sep 06 2000 Rob Latham <rlatham@plogic.com>
