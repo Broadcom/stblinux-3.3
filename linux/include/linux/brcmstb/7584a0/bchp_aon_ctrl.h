@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2012, Broadcom Corporation
+ *     Copyright (c) 1999-2013, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May  7 03:06:16 2012
+ * Date:           Generated on         Tue Apr 16 03:20:12 2013
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -808,25 +808,23 @@
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_SHIFT 18
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_18_DEFAULT 0x00000001
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_17 [17:17] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_MASK 0x00020000
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_SHIFT 17
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_17_DEFAULT 0x00000001
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sc1_drive_sel [17:15] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_MASK    0x00038000
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_SHIFT   15
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DEFAULT 0x00000006
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_2MA 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_10MA 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_6MA 2
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_14MA 3
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_4MA 4
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_12MA 5
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_8MA 6
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_sel_DRIVE_16MA 7
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_16 [16:16] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_MASK 0x00010000
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_SHIFT 16
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_16_DEFAULT 0x00000001
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_15 [15:15] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_MASK 0x00008000
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_SHIFT 15
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_15_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_14 [14:14] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_MASK 0x00004000
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_SHIFT 14
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_14_DEFAULT 0x00000000
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sc1_drive_src [14:14] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_src_MASK    0x00004000
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_src_SHIFT   14
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sc1_drive_src_DEFAULT 0x00000000
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_13 [13:13] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_13_MASK 0x00002000
@@ -873,25 +871,23 @@
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_SHIFT 5
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_5_DEFAULT 0x00000000
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_4 [04:04] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_MASK 0x00000010
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_SHIFT 4
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_4_DEFAULT 0x00000000
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sdio_drive_src [04:04] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_src_MASK   0x00000010
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_src_SHIFT  4
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_src_DEFAULT 0x00000000
 
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_3 [03:03] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_MASK 0x00000008
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_SHIFT 3
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_3_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_2 [02:02] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_MASK 0x00000004
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_SHIFT 2
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_2_DEFAULT 0x00000000
-
-/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_1 [01:01] */
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_MASK 0x00000002
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_SHIFT 1
-#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_1_DEFAULT 0x00000000
+/* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: sdio_drive_sel [03:01] */
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_MASK   0x0000000e
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_SHIFT  1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DEFAULT 0x00000003
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_2MA 0
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_4MA 1
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_6MA 2
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_8MA 3
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_10MA 4
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_12MA 5
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_14MA 6
+#define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_sdio_drive_sel_DRIVE_16MA 7
 
 /* AON_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: mtsif_hys_en [00:00] */
 #define BCHP_AON_CTRL_GENERAL_CTRL_NO_SCAN_0_mtsif_hys_en_MASK     0x00000001

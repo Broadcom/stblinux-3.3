@@ -211,7 +211,8 @@ static struct sdhci_ops sdhci_brcmstb_ops = {
 };
 
 static struct sdhci_pltfm_data sdhci_brcmstb_pdata = {
-	.ops	= &sdhci_brcmstb_ops
+	.ops	= &sdhci_brcmstb_ops,
+	.quirks2 = SDHCI_QUIRK2_NO_1_8_V
 };
 
 

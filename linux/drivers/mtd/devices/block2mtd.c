@@ -104,14 +104,6 @@ static int block2mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
 	int offset = from & (PAGE_SIZE-1);
 	int cpylen;
 
-	if (from > mtd->size)
-		return -EINVAL;
-	if (from + len > mtd->size)
-		len = mtd->size - from;
-
-	if (retlen)
-		*retlen = 0;
-
 	while (len) {
 		if ((offset + len) > PAGE_SIZE)
 			cpylen = PAGE_SIZE - offset;	// multiple pages
@@ -148,8 +140,6 @@ static int _block2mtd_write(struct block2mtd_dev *dev, const u_char *buf,
 	int offset = to & ~PAGE_MASK;	// page offset
 	int cpylen;
 
-	if (retlen)
-		*retlen = 0;
 	while (len) {
 		if ((offset+len) > PAGE_SIZE)
 			cpylen = PAGE_SIZE - offset;	// multiple pages
@@ -187,13 +177,6 @@ static int block2mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
 {
 	struct block2mtd_dev *dev = mtd->priv;
 	int err;
-
-	if (!len)
-		return 0;
-	if (to >= mtd->size)
-		return -ENOSPC;
-	if (to + len > mtd->size)
-		len = mtd->size - to;
 
 	mutex_lock(&dev->write_mutex);
 	err = _block2mtd_write(dev, buf, to, len, retlen);

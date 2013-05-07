@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2012, Broadcom Corporation
+ *     Copyright (c) 1999-2013, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May  7 03:06:04 2012
+ * Date:           Generated on         Tue Apr 16 03:20:03 2013
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -38,6 +38,25 @@
 
 #ifndef BCHP_COMMON_H__
 #define BCHP_COMMON_H__
+
+/**
+ * m = memory, c = core, r = register, f = field, d = data.
+ */
+#if !defined(GET_FIELD) && !defined(SET_FIELD)
+#define BRCM_MASK(c,r,f)    c##_##r##_##f##_MASK
+#define BRCM_SHIFT(c,r,f)   c##_##r##_##f##_SHIFT
+
+#define GET_FIELD(m,c,r,f) \
+((((m) & BRCM_MASK(c,r,f)) >> BRCM_SHIFT(c,r,f)))
+
+#define SET_FIELD(m,c,r,f,d) \
+((m) = (((m) & ~BRCM_MASK(c,r,f)) | ((((d)) << BRCM_SHIFT(c,r,f)) & BRCM_MASK(c,r,f))))
+
+#define SET_TYPE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##d)
+#define SET_NAME_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,c##_##r##_##f##_##d)
+#define SET_VALUE_FIELD(m,c,r,f,d) SET_FIELD(m,c,r,f,d)
+
+#endif /* GET & SET */
 
 /***************************************************************************
  *BCM7584_A0
@@ -138,6 +157,8 @@
 #define BCHP_SATA_TOP_CTRL_REG_END                         0x00180038
 #define BCHP_SATA3_INTR2_REG_START                         0x00180080
 #define BCHP_SATA3_INTR2_REG_END                           0x001800ac
+#define BCHP_PORT_SATA3_PCB_REG_START                      0x00180100
+#define BCHP_PORT_SATA3_PCB_REG_END                        0x00180ffc
 #define BCHP_SATA_AHCI_GHC_REG_START                       0x00181000
 #define BCHP_SATA_AHCI_GHC_REG_END                         0x00181028
 #define BCHP_SATA_GLOBAL_RESERVED_REG_START                0x0018102c
@@ -259,7 +280,7 @@
 #define BCHP_S_MEMC_0_REG_START                            0x003ba000
 #define BCHP_S_MEMC_0_REG_END                              0x003ba220
 #define BCHP_SUN_GISB_ARB_REG_START                        0x00400000
-#define BCHP_SUN_GISB_ARB_REG_END                          0x004000d8
+#define BCHP_SUN_GISB_ARB_REG_END                          0x00400178
 #define BCHP_SUN_GR_REG_START                              0x00400400
 #define BCHP_SUN_GR_REG_END                                0x0040040c
 #define BCHP_SSP_RG_REG_START                              0x00400600
@@ -267,7 +288,7 @@
 #define BCHP_SUN_RG_REG_START                              0x00400800
 #define BCHP_SUN_RG_REG_END                                0x0040080c
 #define BCHP_TPCAP_REG_START                               0x00400c00
-#define BCHP_TPCAP_REG_END                                 0x00400c84
+#define BCHP_TPCAP_REG_END                                 0x00400c98
 #define BCHP_SUN_L2_REG_START                              0x00403000
 #define BCHP_SUN_L2_REG_END                                0x00403044
 #define BCHP_SM_L2_REG_START                               0x00403400
@@ -336,8 +357,6 @@
 #define BCHP_KBD1_REG_END                                  0x004088fc
 #define BCHP_KBD2_REG_START                                0x00408900
 #define BCHP_KBD2_REG_END                                  0x0040893c
-#define BCHP_KBD3_REG_START                                0x00408940
-#define BCHP_KBD3_REG_END                                  0x0040897c
 #define BCHP_BSCD_REG_START                                0x00408980
 #define BCHP_BSCD_REG_END                                  0x004089d4
 #define BCHP_MSPI_REG_START                                0x00408a00
@@ -355,7 +374,7 @@
 #define BCHP_WKTMR_REG_START                               0x00408e80
 #define BCHP_WKTMR_REG_END                                 0x00408e90
 #define BCHP_SYS_GISB_ARB_SEC_REG_START                    0x0040e000
-#define BCHP_SYS_GISB_ARB_SEC_REG_END                      0x0040e0b4
+#define BCHP_SYS_GISB_ARB_SEC_REG_END                      0x0040e154
 #define BCHP_SYS_TOP_CTRL_SEC_REG_START                    0x0040e700
 #define BCHP_SYS_TOP_CTRL_SEC_REG_END                      0x0040e704
 #define BCHP_AON_CTRL_SECURE_REG_START                     0x0040e800
@@ -392,6 +411,8 @@
 #define BCHP_HIF_TOP_CTRL_REG_END                          0x00412424
 #define BCHP_NAND_REG_START                                0x00412800
 #define BCHP_NAND_REG_END                                  0x00412bfc
+#define BCHP_HIF_SPI_CTRL_REG_START                        0x00412e00
+#define BCHP_HIF_SPI_CTRL_REG_END                          0x00412e00
 #define BCHP_BSPI_REG_START                                0x00413000
 #define BCHP_BSPI_REG_END                                  0x0041304c
 #define BCHP_BSPI_RAF_REG_START                            0x00413100
@@ -411,7 +432,7 @@
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_START        0x00414800
 #define BCHP_HIF_SECURE_INDIRECT_SPI_PIPE_REG_END          0x00414800
 #define BCHP_CLKGEN_REG_START                              0x00420000
-#define BCHP_CLKGEN_REG_END                                0x00420414
+#define BCHP_CLKGEN_REG_END                                0x00420518
 #define BCHP_VCXO_RM_REG_START                             0x00422800
 #define BCHP_VCXO_RM_REG_END                               0x0042282c
 #define BCHP_CLKGEN_GR_REG_START                           0x00423000
@@ -952,22 +973,22 @@
 #define BCHP_DS_WFE_FC_B_REG_END                           0x00e03044
 #define BCHP_DS_WFE_CZ_0_REG_START                         0x00e04000
 #define BCHP_DS_WFE_CZ_0_REG_END                           0x00e04010
-#define BCHP_DS_WFE_CZ_1_REG_START                         0x00e05000
-#define BCHP_DS_WFE_CZ_1_REG_END                           0x00e05010
-#define BCHP_DS_WFE_CZ_2_REG_START                         0x00e06000
-#define BCHP_DS_WFE_CZ_2_REG_END                           0x00e06010
-#define BCHP_DS_WFE_CZ_3_REG_START                         0x00e07000
-#define BCHP_DS_WFE_CZ_3_REG_END                           0x00e07010
-#define BCHP_DS_WFE_CZ_4_REG_START                         0x00e08000
-#define BCHP_DS_WFE_CZ_4_REG_END                           0x00e08010
-#define BCHP_DS_WFE_CZ_5_REG_START                         0x00e09000
-#define BCHP_DS_WFE_CZ_5_REG_END                           0x00e09010
-#define BCHP_DS_WFE_CZ_6_REG_START                         0x00e0a000
-#define BCHP_DS_WFE_CZ_6_REG_END                           0x00e0a010
-#define BCHP_DS_WFE_CZ_7_REG_START                         0x00e0b000
-#define BCHP_DS_WFE_CZ_7_REG_END                           0x00e0b010
-#define BCHP_DS_WFE_CZ_8_REG_START                         0x00e0c000
-#define BCHP_DS_WFE_CZ_8_REG_END                           0x00e0c010
+#define BCHP_DS_WFE_CZ_1_REG_START                         0x00e04f00
+#define BCHP_DS_WFE_CZ_1_REG_END                           0x00e04f10
+#define BCHP_DS_WFE_CZ_2_REG_START                         0x00e05000
+#define BCHP_DS_WFE_CZ_2_REG_END                           0x00e05010
+#define BCHP_DS_WFE_CZ_3_REG_START                         0x00e05f00
+#define BCHP_DS_WFE_CZ_3_REG_END                           0x00e05f10
+#define BCHP_DS_WFE_CZ_4_REG_START                         0x00e06000
+#define BCHP_DS_WFE_CZ_4_REG_END                           0x00e06010
+#define BCHP_DS_WFE_CZ_5_REG_START                         0x00e06f00
+#define BCHP_DS_WFE_CZ_5_REG_END                           0x00e06f10
+#define BCHP_DS_WFE_CZ_6_REG_START                         0x00e07000
+#define BCHP_DS_WFE_CZ_6_REG_END                           0x00e07010
+#define BCHP_DS_WFE_CZ_7_REG_START                         0x00e07f00
+#define BCHP_DS_WFE_CZ_7_REG_END                           0x00e07f10
+#define BCHP_DS_WFE_CZ_8_REG_START                         0x00e08000
+#define BCHP_DS_WFE_CZ_8_REG_END                           0x00e08010
 #define BCHP_DS_WFE_LIC_REG_START                          0x00e0d000
 #define BCHP_DS_WFE_LIC_REG_END                            0x00e0d2e0
 #define BCHP_DS_WFE_ADC_REG_START                          0x00e0e000
@@ -1098,6 +1119,25 @@
 /***************************************************************************
  *M2MC
  ***************************************************************************/
+/***************************************************************************
+ *TYPE_CLUT_COLOR_DATA - color data for color look up table
+ ***************************************************************************/
+/* M2MC :: TYPE_CLUT_COLOR_DATA :: ALPHA [31:24] */
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_ALPHA_MASK                  0xff000000
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_ALPHA_SHIFT                 24
+
+/* M2MC :: TYPE_CLUT_COLOR_DATA :: RED [23:16] */
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_RED_MASK                    0x00ff0000
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_RED_SHIFT                   16
+
+/* M2MC :: TYPE_CLUT_COLOR_DATA :: GREEN [15:08] */
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_GREEN_MASK                  0x0000ff00
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_GREEN_SHIFT                 8
+
+/* M2MC :: TYPE_CLUT_COLOR_DATA :: BLUE [07:00] */
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_BLUE_MASK                   0x000000ff
+#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_BLUE_SHIFT                  0
+
 /***************************************************************************
  *LIST_PACKET_ABSTRACT - Linked-List Packet Abstract
  ***************************************************************************/
@@ -1337,25 +1377,6 @@
 #define BCHP_M2MC_LIST_PKT_14_DST_CLUT_REGISTER_CONTENTS_SHIFT     0
 
 /***************************************************************************
- *TYPE_CLUT_COLOR_DATA - color data for color look up table
- ***************************************************************************/
-/* M2MC :: TYPE_CLUT_COLOR_DATA :: ALPHA [31:24] */
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_ALPHA_MASK                  0xff000000
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_ALPHA_SHIFT                 24
-
-/* M2MC :: TYPE_CLUT_COLOR_DATA :: RED [23:16] */
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_RED_MASK                    0x00ff0000
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_RED_SHIFT                   16
-
-/* M2MC :: TYPE_CLUT_COLOR_DATA :: GREEN [15:08] */
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_GREEN_MASK                  0x0000ff00
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_GREEN_SHIFT                 8
-
-/* M2MC :: TYPE_CLUT_COLOR_DATA :: BLUE [07:00] */
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_BLUE_MASK                   0x000000ff
-#define BCHP_M2MC_TYPE_CLUT_COLOR_DATA_BLUE_SHIFT                  0
-
-/***************************************************************************
  *MEM_DMA
  ***************************************************************************/
 /***************************************************************************
@@ -1479,210 +1500,6 @@
 /***************************************************************************
  *RAAGA_REGSET_DSP_CFG
  ***************************************************************************/
-/***************************************************************************
- *AAC_UPS_WORD_00 - AAC User Parameters Structure Word 0 - XPT_FORMAT
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_00 :: XPT_FORMAT [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_MASK  0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_SHIFT 0
-
-/***************************************************************************
- *AAC_UPS_WORD_01 - AAC User Parameters Structure Word 1 - DRC_GAIN_CONTROL_COMPRESS
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_01 :: DRC_GAIN_CONTROL_COMPRESS [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_SHIFT 0
-
-/***************************************************************************
- *AAC_UPS_WORD_02 - AAC User Parameters Structure Word 2 - DRC_GAIN_CONTROL_BOOST
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_02 :: DRC_GAIN_CONTROL_BOOST [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_SHIFT 0
-
-/***************************************************************************
- *AAC_UPS_WORD_03 - AAC User Parameters Structure Word 3 - DRC_TARGET_LEVEL
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_03 :: DRC_TARGET_LEVEL [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_SHIFT 0
-
-/***************************************************************************
- *AAC_UPS_WORD_04 - AAC User Parameters Structure Word 4 - DOWNMIX_TYPE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_04 :: DOWNMIX_TYPE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_SHIFT 0
-
-/***************************************************************************
- *AAC_UPS_WORD_05 - AAC User Parameters Structure Word 5 - OUTMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_05 :: OUTMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_MASK     0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_SHIFT    0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_Stereo   2
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_Mono     1
-
-/***************************************************************************
- *AAC_UPS_WORD_06 - AAC User Parameters Structure Word 6 - DUALMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_06 :: DUALMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_MASK    0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_SHIFT   0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Left_mono 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Right_mono 1
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Dual_stereo 2
-#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Dual_mixmono 3
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_00 - AC3 Plus User Parameters Structure Word 0 - COMPMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_00 :: COMPMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_01 - AC3 Plus User Parameters Structure Word 1 - PCMSCALE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_01 :: PCMSCALE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_Full_scale 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_Mute 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_02 - AC3 Plus User Parameters Structure Word 2 - DYNSCALEHIGH
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_02 :: DYNSCALEHIGH [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_03 - AC3 Plus User Parameters Structure Word 3 - DYNSCALELOW
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_03 :: DYNSCALELOW [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_04 - AC3 Plus User Parameters Structure Word 4 - OUTLFE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_04 :: OUTLFE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_05 - AC3 Plus User Parameters Structure Word 5 - OUTMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_05 :: OUTMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_06 - AC3 Plus User Parameters Structure Word 6 - STEREOMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_06 :: STEREOMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_07 - AC3 Plus User Parameters Structure Word 7 - DUALMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_07 :: DUALMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_08 - AC3 Plus User Parameters Structure Word 8 - KMODE
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_08 :: KMODE [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_MASK  0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_NO_VOCALS 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_VOCAL1 1
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_VOCAL2 2
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_BOTH_VOCALS 3
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_09 - AC3 Plus User Parameters Structure Word 9 - EXTDNMIX_ENABLED
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_09 :: EXTDNMIX_ENABLED [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_10_TO_45 - AC3 Plus User Parameters Structure Word 10 to 45 - EXTDNMIXTAB
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_10_TO_45 :: EXTDNMIXTAB [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_Full_scale 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_Mute 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_46 - AC3 Plus User Parameters Structure Word 46 - EXTKARAOKE_ENABLED
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_46 :: EXTKARAOKE_ENABLED [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_SHIFT 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_47 - AC3 Plus User Parameters Structure Word 47 - EXT_V1_LEVEL
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_47 :: EXT_V1_LEVEL [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_Full_scale 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_Mute 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_48 - AC3 Plus User Parameters Structure Word 48 - EXT_V1_PAN
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_48 :: EXT_V1_PAN [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right -2147483648
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_49 :: EXT_V2_LEVEL [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_Full_scale 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_Mute 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_50 - AC3 Plus User Parameters Structure Word 50 - EXT_V2_PAN
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_50 :: EXT_V2_PAN [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right -2147483648
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_51 :: EXT_GM_LEVEL [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_Full_scale 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_Mute 0
-
-/***************************************************************************
- *AC3_PLUS_UPS_WORD_52 - AC3 Plus User Parameters Structure Word 52 - EXT_GM_PAN
- ***************************************************************************/
-/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_52 :: EXT_GM_PAN [31:00] */
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_MASK 0xffffffff
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
-#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right -2147483648
-
 /***************************************************************************
  *AC3_UPS_WORD_00 - AC3 User Parameters Structure Word 0 - DYNRNGSCALEHI
  ***************************************************************************/
@@ -1869,6 +1686,210 @@
 #define BCHP_RAAGA_REGSET_DSP_CFG_AC3_UPS_WORD_53_DUMMY_SHIFT      0
 
 /***************************************************************************
+ *AC3_PLUS_UPS_WORD_00 - AC3 Plus User Parameters Structure Word 0 - COMPMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_00 :: COMPMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_00_COMPMODE_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_01 - AC3 Plus User Parameters Structure Word 1 - PCMSCALE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_01 :: PCMSCALE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_Full_scale 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_01_PCMSCALE_Mute 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_02 - AC3 Plus User Parameters Structure Word 2 - DYNSCALEHIGH
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_02 :: DYNSCALEHIGH [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_02_DYNSCALEHIGH_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_03 - AC3 Plus User Parameters Structure Word 3 - DYNSCALELOW
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_03 :: DYNSCALELOW [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_03_DYNSCALELOW_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_04 - AC3 Plus User Parameters Structure Word 4 - OUTLFE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_04 :: OUTLFE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_04_OUTLFE_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_05 - AC3 Plus User Parameters Structure Word 5 - OUTMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_05 :: OUTMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_05_OUTMODE_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_06 - AC3 Plus User Parameters Structure Word 6 - STEREOMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_06 :: STEREOMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_06_STEREOMODE_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_07 - AC3 Plus User Parameters Structure Word 7 - DUALMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_07 :: DUALMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_07_DUALMODE_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_08 - AC3 Plus User Parameters Structure Word 8 - KMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_08 :: KMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_MASK  0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_NO_VOCALS 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_VOCAL1 1
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_VOCAL2 2
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_08_KMODE_GBL_BOTH_VOCALS 3
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_09 - AC3 Plus User Parameters Structure Word 9 - EXTDNMIX_ENABLED
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_09 :: EXTDNMIX_ENABLED [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_09_EXTDNMIX_ENABLED_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_10_TO_45 - AC3 Plus User Parameters Structure Word 10 to 45 - EXTDNMIXTAB
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_10_TO_45 :: EXTDNMIXTAB [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_Full_scale 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_10_TO_45_EXTDNMIXTAB_Mute 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_46 - AC3 Plus User Parameters Structure Word 46 - EXTKARAOKE_ENABLED
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_46 :: EXTKARAOKE_ENABLED [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_46_EXTKARAOKE_ENABLED_SHIFT 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_47 - AC3 Plus User Parameters Structure Word 47 - EXT_V1_LEVEL
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_47 :: EXT_V1_LEVEL [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_Full_scale 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_47_EXT_V1_LEVEL_Mute 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_48 - AC3 Plus User Parameters Structure Word 48 - EXT_V1_PAN
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_48 :: EXT_V1_PAN [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_left 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Middle 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_48_EXT_V1_PAN_Hard_right 2147483648
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_49 - AC3 Plus User Parameters Structure Word 49 - EXT_V2_LEVEL
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_49 :: EXT_V2_LEVEL [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_Full_scale 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_49_EXT_V2_LEVEL_Mute 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_50 - AC3 Plus User Parameters Structure Word 50 - EXT_V2_PAN
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_50 :: EXT_V2_PAN [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_left 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Middle 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_50_EXT_V2_PAN_Hard_right 2147483648
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_51 - AC3 Plus User Parameters Structure Word 51 - EXT_GM_LEVEL
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_51 :: EXT_GM_LEVEL [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_Full_scale 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_51_EXT_GM_LEVEL_Mute 0
+
+/***************************************************************************
+ *AC3_PLUS_UPS_WORD_52 - AC3 Plus User Parameters Structure Word 52 - EXT_GM_PAN
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AC3_PLUS_UPS_WORD_52 :: EXT_GM_PAN [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_SHIFT 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_left 2147483647
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Middle 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AC3_PLUS_UPS_WORD_52_EXT_GM_PAN_Hard_right 2147483648
+
+/***************************************************************************
+ *AAC_UPS_WORD_00 - AAC User Parameters Structure Word 0 - XPT_FORMAT
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_00 :: XPT_FORMAT [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_MASK  0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_00_XPT_FORMAT_SHIFT 0
+
+/***************************************************************************
+ *AAC_UPS_WORD_01 - AAC User Parameters Structure Word 1 - DRC_GAIN_CONTROL_COMPRESS
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_01 :: DRC_GAIN_CONTROL_COMPRESS [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_01_DRC_GAIN_CONTROL_COMPRESS_SHIFT 0
+
+/***************************************************************************
+ *AAC_UPS_WORD_02 - AAC User Parameters Structure Word 2 - DRC_GAIN_CONTROL_BOOST
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_02 :: DRC_GAIN_CONTROL_BOOST [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_02_DRC_GAIN_CONTROL_BOOST_SHIFT 0
+
+/***************************************************************************
+ *AAC_UPS_WORD_03 - AAC User Parameters Structure Word 3 - DRC_TARGET_LEVEL
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_03 :: DRC_TARGET_LEVEL [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_03_DRC_TARGET_LEVEL_SHIFT 0
+
+/***************************************************************************
+ *AAC_UPS_WORD_04 - AAC User Parameters Structure Word 4 - DOWNMIX_TYPE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_04 :: DOWNMIX_TYPE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_MASK 0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_04_DOWNMIX_TYPE_SHIFT 0
+
+/***************************************************************************
+ *AAC_UPS_WORD_05 - AAC User Parameters Structure Word 5 - OUTMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_05 :: OUTMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_MASK     0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_SHIFT    0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_Stereo   2
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_05_OUTMODE_Mono     1
+
+/***************************************************************************
+ *AAC_UPS_WORD_06 - AAC User Parameters Structure Word 6 - DUALMODE
+ ***************************************************************************/
+/* RAAGA_REGSET_DSP_CFG :: AAC_UPS_WORD_06 :: DUALMODE [31:00] */
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_MASK    0xffffffff
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_SHIFT   0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Left_mono 0
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Right_mono 1
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Dual_stereo 2
+#define BCHP_RAAGA_REGSET_DSP_CFG_AAC_UPS_WORD_06_DUALMODE_Dual_mixmono 3
+
+/***************************************************************************
  *DTS_CORE_UPS_WORD_00 - DTS Core User Parameters Structure Word 0 - OUTMODE
  ***************************************************************************/
 /* RAAGA_REGSET_DSP_CFG :: DTS_CORE_UPS_WORD_00 :: OUTMODE [31:00] */
@@ -1961,10 +1982,86 @@
  *RDC
  ***************************************************************************/
 /***************************************************************************
+ *RUL - RUL Command.
+ ***************************************************************************/
+/* RDC :: RUL :: opcode [31:24] */
+#define BCHP_RDC_RUL_opcode_MASK                                   0xff000000
+#define BCHP_RDC_RUL_opcode_SHIFT                                  24
+#define BCHP_RDC_RUL_opcode_NOP                                    0
+#define BCHP_RDC_RUL_opcode_REG_WRITE_IMM                          1
+#define BCHP_RDC_RUL_opcode_REG_WRITE                              2
+#define BCHP_RDC_RUL_opcode_REG_READ                               3
+#define BCHP_RDC_RUL_opcode_LOAD_IMM                               4
+#define BCHP_RDC_RUL_opcode_WINDOW_WRITE                           5
+#define BCHP_RDC_RUL_opcode_BLOCK_WRITE                            6
+#define BCHP_RDC_RUL_opcode_WINDOW_COPY                            7
+#define BCHP_RDC_RUL_opcode_BLOCK_COPY                             8
+#define BCHP_RDC_RUL_opcode_WINDOW_TO_BLOCK                        9
+#define BCHP_RDC_RUL_opcode_BLOCK_TO_WINDOW                        10
+#define BCHP_RDC_RUL_opcode_AND                                    11
+#define BCHP_RDC_RUL_opcode_AND_IMM                                12
+#define BCHP_RDC_RUL_opcode_OR                                     13
+#define BCHP_RDC_RUL_opcode_OR_IMM                                 14
+#define BCHP_RDC_RUL_opcode_XOR                                    15
+#define BCHP_RDC_RUL_opcode_XOR_IMM                                16
+#define BCHP_RDC_RUL_opcode_NOT                                    17
+#define BCHP_RDC_RUL_opcode_ROTATE_RIGHT                           18
+#define BCHP_RDC_RUL_opcode_SUM                                    19
+#define BCHP_RDC_RUL_opcode_SUM_IMM                                20
+#define BCHP_RDC_RUL_opcode_COND_SKIP                              21
+#define BCHP_RDC_RUL_opcode_SKIP                                   22
+#define BCHP_RDC_RUL_opcode_EXIT                                   23
+#define BCHP_RDC_RUL_opcode_WAIT_EOP                               24
+#define BCHP_RDC_RUL_opcode_PLACEHOLDER                            255
+
+/* RDC :: RUL :: reserved0 [23:23] */
+#define BCHP_RDC_RUL_reserved0_MASK                                0x00800000
+#define BCHP_RDC_RUL_reserved0_SHIFT                               23
+
+/* union - case rdc_args [22:00] */
+/* RDC :: RUL :: rdc_args :: rotation [22:18] */
+#define BCHP_RDC_RUL_rdc_args_rotation_MASK                        0x007c0000
+#define BCHP_RDC_RUL_rdc_args_rotation_SHIFT                       18
+
+/* RDC :: RUL :: rdc_args :: src1 [17:12] */
+#define BCHP_RDC_RUL_rdc_args_src1_MASK                            0x0003f000
+#define BCHP_RDC_RUL_rdc_args_src1_SHIFT                           12
+
+/* RDC :: RUL :: rdc_args :: src2 [11:06] */
+#define BCHP_RDC_RUL_rdc_args_src2_MASK                            0x00000fc0
+#define BCHP_RDC_RUL_rdc_args_src2_SHIFT                           6
+
+/* RDC :: RUL :: rdc_args :: dest [05:00] */
+#define BCHP_RDC_RUL_rdc_args_dest_MASK                            0x0000003f
+#define BCHP_RDC_RUL_rdc_args_dest_SHIFT                           0
+
+/* union - case reg_args [22:00] */
+/* RDC :: RUL :: reg_args :: rotation [22:18] */
+#define BCHP_RDC_RUL_reg_args_rotation_MASK                        0x007c0000
+#define BCHP_RDC_RUL_reg_args_rotation_SHIFT                       18
+
+/* RDC :: RUL :: reg_args :: src1 [17:12] */
+#define BCHP_RDC_RUL_reg_args_src1_MASK                            0x0003f000
+#define BCHP_RDC_RUL_reg_args_src1_SHIFT                           12
+
+/* RDC :: RUL :: reg_args :: count [11:00] */
+#define BCHP_RDC_RUL_reg_args_count_MASK                           0x00000fff
+#define BCHP_RDC_RUL_reg_args_count_SHIFT                          0
+
+/* union - case eop_args [22:00] */
+/* RDC :: RUL :: eop_args :: reserved0 [22:08] */
+#define BCHP_RDC_RUL_eop_args_reserved0_MASK                       0x007fff00
+#define BCHP_RDC_RUL_eop_args_reserved0_SHIFT                      8
+
+/* RDC :: RUL :: eop_args :: eop [07:00] */
+#define BCHP_RDC_RUL_eop_args_eop_MASK                             0x000000ff
+#define BCHP_RDC_RUL_eop_args_eop_SHIFT                            0
+
+/***************************************************************************
  *EOP_ID_256 - EOP_ID
  ***************************************************************************/
 /* RDC :: EOP_ID_256 :: eop_id [255:00] */
-#define BCHP_RDC_EOP_ID_256_eop_id_MASK                            0x00000000000000000000000000000000000000000000000000000000ffffffff
+#define BCHP_RDC_EOP_ID_256_eop_id_MASK                            0x0000000000000000000000000000000000000000000000000000000000000000
 #define BCHP_RDC_EOP_ID_256_eop_id_SHIFT                           0
 #define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_0                    0
 #define BCHP_RDC_EOP_ID_256_eop_id_vnet_f_scl_1                    1
@@ -2222,82 +2319,6 @@
 #define BCHP_RDC_EOP_ID_256_eop_id_reserved_14                     253
 #define BCHP_RDC_EOP_ID_256_eop_id_reserved_15                     254
 #define BCHP_RDC_EOP_ID_256_eop_id_reserved_16                     255
-
-/***************************************************************************
- *RUL - RUL Command.
- ***************************************************************************/
-/* RDC :: RUL :: opcode [31:24] */
-#define BCHP_RDC_RUL_opcode_MASK                                   0xff000000
-#define BCHP_RDC_RUL_opcode_SHIFT                                  24
-#define BCHP_RDC_RUL_opcode_NOP                                    0
-#define BCHP_RDC_RUL_opcode_REG_WRITE_IMM                          1
-#define BCHP_RDC_RUL_opcode_REG_WRITE                              2
-#define BCHP_RDC_RUL_opcode_REG_READ                               3
-#define BCHP_RDC_RUL_opcode_LOAD_IMM                               4
-#define BCHP_RDC_RUL_opcode_WINDOW_WRITE                           5
-#define BCHP_RDC_RUL_opcode_BLOCK_WRITE                            6
-#define BCHP_RDC_RUL_opcode_WINDOW_COPY                            7
-#define BCHP_RDC_RUL_opcode_BLOCK_COPY                             8
-#define BCHP_RDC_RUL_opcode_WINDOW_TO_BLOCK                        9
-#define BCHP_RDC_RUL_opcode_BLOCK_TO_WINDOW                        10
-#define BCHP_RDC_RUL_opcode_AND                                    11
-#define BCHP_RDC_RUL_opcode_AND_IMM                                12
-#define BCHP_RDC_RUL_opcode_OR                                     13
-#define BCHP_RDC_RUL_opcode_OR_IMM                                 14
-#define BCHP_RDC_RUL_opcode_XOR                                    15
-#define BCHP_RDC_RUL_opcode_XOR_IMM                                16
-#define BCHP_RDC_RUL_opcode_NOT                                    17
-#define BCHP_RDC_RUL_opcode_ROTATE_RIGHT                           18
-#define BCHP_RDC_RUL_opcode_SUM                                    19
-#define BCHP_RDC_RUL_opcode_SUM_IMM                                20
-#define BCHP_RDC_RUL_opcode_COND_SKIP                              21
-#define BCHP_RDC_RUL_opcode_SKIP                                   22
-#define BCHP_RDC_RUL_opcode_EXIT                                   23
-#define BCHP_RDC_RUL_opcode_WAIT_EOP                               24
-#define BCHP_RDC_RUL_opcode_PLACEHOLDER                            255
-
-/* RDC :: RUL :: reserved0 [23:23] */
-#define BCHP_RDC_RUL_reserved0_MASK                                0x00800000
-#define BCHP_RDC_RUL_reserved0_SHIFT                               23
-
-/* union - case rdc_args [22:00] */
-/* RDC :: RUL :: rdc_args :: rotation [22:18] */
-#define BCHP_RDC_RUL_rdc_args_rotation_MASK                        0x007c0000
-#define BCHP_RDC_RUL_rdc_args_rotation_SHIFT                       18
-
-/* RDC :: RUL :: rdc_args :: src1 [17:12] */
-#define BCHP_RDC_RUL_rdc_args_src1_MASK                            0x0003f000
-#define BCHP_RDC_RUL_rdc_args_src1_SHIFT                           12
-
-/* RDC :: RUL :: rdc_args :: src2 [11:06] */
-#define BCHP_RDC_RUL_rdc_args_src2_MASK                            0x00000fc0
-#define BCHP_RDC_RUL_rdc_args_src2_SHIFT                           6
-
-/* RDC :: RUL :: rdc_args :: dest [05:00] */
-#define BCHP_RDC_RUL_rdc_args_dest_MASK                            0x0000003f
-#define BCHP_RDC_RUL_rdc_args_dest_SHIFT                           0
-
-/* union - case reg_args [22:00] */
-/* RDC :: RUL :: reg_args :: rotation [22:18] */
-#define BCHP_RDC_RUL_reg_args_rotation_MASK                        0x007c0000
-#define BCHP_RDC_RUL_reg_args_rotation_SHIFT                       18
-
-/* RDC :: RUL :: reg_args :: src1 [17:12] */
-#define BCHP_RDC_RUL_reg_args_src1_MASK                            0x0003f000
-#define BCHP_RDC_RUL_reg_args_src1_SHIFT                           12
-
-/* RDC :: RUL :: reg_args :: count [11:00] */
-#define BCHP_RDC_RUL_reg_args_count_MASK                           0x00000fff
-#define BCHP_RDC_RUL_reg_args_count_SHIFT                          0
-
-/* union - case eop_args [22:00] */
-/* RDC :: RUL :: eop_args :: reserved0 [22:08] */
-#define BCHP_RDC_RUL_eop_args_reserved0_MASK                       0x007fff00
-#define BCHP_RDC_RUL_eop_args_reserved0_SHIFT                      8
-
-/* RDC :: RUL :: eop_args :: eop [07:00] */
-#define BCHP_RDC_RUL_eop_args_eop_MASK                             0x000000ff
-#define BCHP_RDC_RUL_eop_args_eop_SHIFT                            0
 
 /***************************************************************************
  *XPT_PB

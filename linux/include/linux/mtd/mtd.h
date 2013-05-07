@@ -177,7 +177,7 @@ struct mtd_info {
 	int (*erase) (struct mtd_info *mtd, struct erase_info *instr);
 	int (*point) (struct mtd_info *mtd, loff_t from, size_t len,
 		      size_t *retlen, void **virt, resource_size_t *phys);
-	void (*unpoint) (struct mtd_info *mtd, loff_t from, size_t len);
+	int (*unpoint) (struct mtd_info *mtd, loff_t from, size_t len);
 	unsigned long (*get_unmapped_area) (struct mtd_info *mtd,
 					    unsigned long len,
 					    unsigned long offset,
@@ -240,81 +240,18 @@ struct mtd_info {
 	int usecount;
 };
 
-/*
- * Erase is an asynchronous operation.  Device drivers are supposed
- * to call instr->callback() whenever the operation completes, even
- * if it completes with a failure.
- * Callers are supposed to pass a callback function and wait for it
- * to be called before writing to the block.
- */
-static inline int mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
-{
-	return mtd->erase(mtd, instr);
-}
-
-/*
- * This stuff for eXecute-In-Place. phys is optional and may be set to NULL.
- */
-static inline int mtd_point(struct mtd_info *mtd, loff_t from, size_t len,
-			    size_t *retlen, void **virt, resource_size_t *phys)
-{
-	*retlen = 0;
-	if (!mtd->point)
-		return -EOPNOTSUPP;
-	return mtd->point(mtd, from, len, retlen, virt, phys);
-}
-
-/* We probably shouldn't allow XIP if the unpoint isn't a NULL */
-static inline void mtd_unpoint(struct mtd_info *mtd, loff_t from, size_t len)
-{
-	return mtd->unpoint(mtd, from, len);
-}
-
-/*
- * Allow NOMMU mmap() to directly map the device (if not NULL)
- * - return the address to which the offset maps
- * - return -ENOSYS to indicate refusal to do the mapping
- */
-static inline unsigned long mtd_get_unmapped_area(struct mtd_info *mtd,
-						  unsigned long len,
-						  unsigned long offset,
-						  unsigned long flags)
-{
-	if (!mtd->get_unmapped_area)
-		return -EOPNOTSUPP;
-	return mtd->get_unmapped_area(mtd, len, offset, flags);
-}
-
-static inline int mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
-			   size_t *retlen, u_char *buf)
-{
-	return mtd->read(mtd, from, len, retlen, buf);
-}
-
-static inline int mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
-			    size_t *retlen, const u_char *buf)
-{
-	*retlen = 0;
-	if (!mtd->write)
-		return -EROFS;
-	return mtd->write(mtd, to, len, retlen, buf);
-}
-
-/*
- * In blackbox flight recorder like scenarios we want to make successful writes
- * in interrupt context. panic_write() is only intended to be called when its
- * known the kernel is about to panic and we need the write to succeed. Since
- * the kernel is not going to be running for much longer, this function can
- * break locks and delay to ensure the write succeeds (but not sleep).
- */
-static inline int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len,
-				  size_t *retlen, const u_char *buf)
-{
-	*retlen = 0;
-	if (!mtd->panic_write)
-		return -EOPNOTSUPP;
-	return mtd->panic_write(mtd, to, len, retlen, buf);
-}
+int mtd_erase(struct mtd_info *mtd, struct erase_info *instr);
+int mtd_point(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
+	      void **virt, resource_size_t *phys);
+int mtd_unpoint(struct mtd_info *mtd, loff_t from, size_t len);
+unsigned long mtd_get_unmapped_area(struct mtd_info *mtd, unsigned long len,
+				    unsigned long offset, unsigned long flags);
+int mtd_read(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
+	     u_char *buf);
+int mtd_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
+	      const u_char *buf);
+int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
+		    const u_char *buf);
 
 static inline int mtd_read_oob(struct mtd_info *mtd, loff_t from,
 			       struct mtd_oob_ops *ops)
@@ -331,68 +268,22 @@ static inline int mtd_write_oob(struct mtd_info *mtd, loff_t to,
 	ops->retlen = ops->oobretlen = 0;
 	if (!mtd->write_oob)
 		return -EOPNOTSUPP;
+	if (!(mtd->flags & MTD_WRITEABLE))
+		return -EROFS;
 	return mtd->write_oob(mtd, to, ops);
 }
 
-/*
- * Method to access the protection register area, present in some flash
- * devices. The user data is one time programmable but the factory data is read
- * only.
- */
-static inline int mtd_get_fact_prot_info(struct mtd_info *mtd,
-					 struct otp_info *buf, size_t len)
-{
-	if (!mtd->get_fact_prot_info)
-		return -EOPNOTSUPP;
-	return mtd->get_fact_prot_info(mtd, buf, len);
-}
-
-static inline int mtd_read_fact_prot_reg(struct mtd_info *mtd, loff_t from,
-					 size_t len, size_t *retlen,
-					 u_char *buf)
-{
-	*retlen = 0;
-	if (!mtd->read_fact_prot_reg)
-		return -EOPNOTSUPP;
-	return mtd->read_fact_prot_reg(mtd, from, len, retlen, buf);
-}
-
-static inline int mtd_get_user_prot_info(struct mtd_info *mtd,
-					 struct otp_info *buf,
-					 size_t len)
-{
-	if (!mtd->get_user_prot_info)
-		return -EOPNOTSUPP;
-	return mtd->get_user_prot_info(mtd, buf, len);
-}
-
-static inline int mtd_read_user_prot_reg(struct mtd_info *mtd, loff_t from,
-					 size_t len, size_t *retlen,
-					 u_char *buf)
-{
-	*retlen = 0;
-	if (!mtd->read_user_prot_reg)
-		return -EOPNOTSUPP;
-	return mtd->read_user_prot_reg(mtd, from, len, retlen, buf);
-}
-
-static inline int mtd_write_user_prot_reg(struct mtd_info *mtd, loff_t to,
-					  size_t len, size_t *retlen,
-					  u_char *buf)
-{
-	*retlen = 0;
-	if (!mtd->write_user_prot_reg)
-		return -EOPNOTSUPP;
-	return mtd->write_user_prot_reg(mtd, to, len, retlen, buf);
-}
-
-static inline int mtd_lock_user_prot_reg(struct mtd_info *mtd, loff_t from,
-					 size_t len)
-{
-	if (!mtd->lock_user_prot_reg)
-		return -EOPNOTSUPP;
-	return mtd->lock_user_prot_reg(mtd, from, len);
-}
+int mtd_get_fact_prot_info(struct mtd_info *mtd, struct otp_info *buf,
+			   size_t len);
+int mtd_read_fact_prot_reg(struct mtd_info *mtd, loff_t from, size_t len,
+			   size_t *retlen, u_char *buf);
+int mtd_get_user_prot_info(struct mtd_info *mtd, struct otp_info *buf,
+			   size_t len);
+int mtd_read_user_prot_reg(struct mtd_info *mtd, loff_t from, size_t len,
+			   size_t *retlen, u_char *buf);
+int mtd_write_user_prot_reg(struct mtd_info *mtd, loff_t to, size_t len,
+			    size_t *retlen, u_char *buf);
+int mtd_lock_user_prot_reg(struct mtd_info *mtd, loff_t from, size_t len);
 
 int mtd_writev(struct mtd_info *mtd, const struct kvec *vecs,
 	       unsigned long count, loff_t to, size_t *retlen);
@@ -403,27 +294,11 @@ static inline void mtd_sync(struct mtd_info *mtd)
 		mtd->sync(mtd);
 }
 
-/* Chip-supported device locking */
-static inline int mtd_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-	if (!mtd->lock)
-		return -EOPNOTSUPP;
-	return mtd->lock(mtd, ofs, len);
-}
-
-static inline int mtd_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-	if (!mtd->unlock)
-		return -EOPNOTSUPP;
-	return mtd->unlock(mtd, ofs, len);
-}
-
-static inline int mtd_is_locked(struct mtd_info *mtd, loff_t ofs, uint64_t len)
-{
-	if (!mtd->is_locked)
-		return -EOPNOTSUPP;
-	return mtd->is_locked(mtd, ofs, len);
-}
+int mtd_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
+int mtd_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len);
+int mtd_is_locked(struct mtd_info *mtd, loff_t ofs, uint64_t len);
+int mtd_block_isbad(struct mtd_info *mtd, loff_t ofs);
+int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs);
 
 static inline int mtd_suspend(struct mtd_info *mtd)
 {
@@ -434,20 +309,6 @@ static inline void mtd_resume(struct mtd_info *mtd)
 {
 	if (mtd->resume)
 		mtd->resume(mtd);
-}
-
-static inline int mtd_block_isbad(struct mtd_info *mtd, loff_t ofs)
-{
-	if (!mtd->block_isbad)
-		return 0;
-	return mtd->block_isbad(mtd, ofs);
-}
-
-static inline int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs)
-{
-	if (!mtd->block_markbad)
-		return -EOPNOTSUPP;
-	return mtd->block_markbad(mtd, ofs);
 }
 
 static inline uint32_t mtd_div_by_eb(uint64_t sz, struct mtd_info *mtd)

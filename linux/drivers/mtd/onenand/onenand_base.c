@@ -1753,16 +1753,6 @@ static int onenand_panic_write(struct mtd_info *mtd, loff_t to, size_t len,
 	pr_debug("%s: to = 0x%08x, len = %i\n", __func__, (unsigned int)to,
 			(int)len);
 
-	/* Initialize retlen, in case of early exit */
-	*retlen = 0;
-
-	/* Do not allow writes past end of device */
-	if (unlikely((to + len) > mtd->size)) {
-		printk(KERN_ERR "%s: Attempt write to past end of device\n",
-			__func__);
-		return -EINVAL;
-	}
-
 	/* Reject writes, which are not page aligned */
         if (unlikely(NOTALIGNED(to) || NOTALIGNED(len))) {
 		printk(KERN_ERR "%s: Attempt to write not page aligned data\n",
@@ -1889,13 +1879,6 @@ static int onenand_write_ops_nolock(struct mtd_info *mtd, loff_t to,
 	/* Initialize retlen, in case of early exit */
 	ops->retlen = 0;
 	ops->oobretlen = 0;
-
-	/* Do not allow writes past end of device */
-	if (unlikely((to + len) > mtd->size)) {
-		printk(KERN_ERR "%s: Attempt write to past end of device\n",
-			__func__);
-		return -EINVAL;
-	}
 
 	/* Reject writes, which are not page aligned */
         if (unlikely(NOTALIGNED(to) || NOTALIGNED(len))) {
@@ -2493,12 +2476,6 @@ static int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 			(unsigned long long)instr->addr,
 			(unsigned long long)instr->len);
 
-	/* Do not allow erase past end of device */
-	if (unlikely((len + addr) > mtd->size)) {
-		printk(KERN_ERR "%s: Erase past end of device\n", __func__);
-		return -EINVAL;
-	}
-
 	if (FLEXONENAND(this)) {
 		/* Find the eraseregion of this address */
 		int i = flexonenand_region(mtd, addr);
@@ -2524,8 +2501,6 @@ static int onenand_erase(struct mtd_info *mtd, struct erase_info *instr)
 		printk(KERN_ERR "%s: Length not block aligned\n", __func__);
 		return -EINVAL;
 	}
-
-	instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
 
 	/* Grab the lock and see if the device is available */
 	onenand_get_device(mtd, FL_ERASING);

@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2012, Broadcom Corporation
+ *     Copyright (c) 1999-2013, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May  7 03:06:15 2012
+ * Date:           Generated on         Tue Apr 16 03:20:11 2013
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -56,7 +56,7 @@
 #define BCHP_USB_CTRL_UTMI_CTL_1                 0x0048022c /* UTMI Control Register */
 #define BCHP_USB_CTRL_UTMI_CTL_2                 0x00480230 /* UTMI Control 2 Register */
 #define BCHP_USB_CTRL_SPARE1                     0x00480234 /* Spare1 Register for future use */
-#define BCHP_USB_CTRL_SPARE2                     0x00480238 /* Spare2 Register for future use */
+#define BCHP_USB_CTRL_USB_PM                     0x00480238 /* USB Power management Register */
 
 /***************************************************************************
  *SETUP - Setup Register
@@ -91,15 +91,10 @@
 #define BCHP_USB_CTRL_SETUP_async_expire_dis_SHIFT                 12
 #define BCHP_USB_CTRL_SETUP_async_expire_dis_DEFAULT               0x00000000
 
-/* USB_CTRL :: SETUP :: discon_intr_en [11:11] */
-#define BCHP_USB_CTRL_SETUP_discon_intr_en_MASK                    0x00000800
-#define BCHP_USB_CTRL_SETUP_discon_intr_en_SHIFT                   11
-#define BCHP_USB_CTRL_SETUP_discon_intr_en_DEFAULT                 0x00000000
-
-/* USB_CTRL :: SETUP :: con_intr_en [10:10] */
-#define BCHP_USB_CTRL_SETUP_con_intr_en_MASK                       0x00000400
-#define BCHP_USB_CTRL_SETUP_con_intr_en_SHIFT                      10
-#define BCHP_USB_CTRL_SETUP_con_intr_en_DEFAULT                    0x00000000
+/* USB_CTRL :: SETUP :: SETUP_SPARE1 [11:10] */
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE1_MASK                      0x00000c00
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE1_SHIFT                     10
+#define BCHP_USB_CTRL_SETUP_SETUP_SPARE1_DEFAULT                   0x00000000
 
 /* USB_CTRL :: SETUP :: soft_shutdown [09:09] */
 #define BCHP_USB_CTRL_SETUP_soft_shutdown_MASK                     0x00000200
@@ -470,15 +465,10 @@
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_SHIFT       26
 #define BCHP_USB_CTRL_USB_SIMCTL_AUTOPPD_ON_OVERCUR_EN_DEFAULT     0x00000000
 
-/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:02] */
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03fffffc
-#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                2
+/* USB_CTRL :: USB_SIMCTL :: SIMCTL_SPARE [25:01] */
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_MASK                 0x03fffffe
+#define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_SHIFT                1
 #define BCHP_USB_CTRL_USB_SIMCTL_SIMCTL_SPARE_DEFAULT              0x00000000
-
-/* USB_CTRL :: USB_SIMCTL :: USB_DEVICE_ENABLE [01:01] */
-#define BCHP_USB_CTRL_USB_SIMCTL_USB_DEVICE_ENABLE_MASK            0x00000002
-#define BCHP_USB_CTRL_USB_SIMCTL_USB_DEVICE_ENABLE_SHIFT           1
-#define BCHP_USB_CTRL_USB_SIMCTL_USB_DEVICE_ENABLE_DEFAULT         0x00000000
 
 /* USB_CTRL :: USB_SIMCTL :: USB_CAP_DIS [00:00] */
 #define BCHP_USB_CTRL_USB_SIMCTL_USB_CAP_DIS_MASK                  0x00000001
@@ -548,10 +538,15 @@
 #define BCHP_USB_CTRL_UTMI_CTL_1_DFE_LPBACK_P1_SHIFT               27
 #define BCHP_USB_CTRL_UTMI_CTL_1_DFE_LPBACK_P1_DEFAULT             0x00000000
 
-/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE3 [26:25] */
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE3_MASK              0x06000000
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE3_SHIFT             25
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE3_DEFAULT           0x00000000
+/* USB_CTRL :: UTMI_CTL_1 :: AFE_LPBACK_P1 [26:26] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_P1_MASK                0x04000000
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_P1_SHIFT               26
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_P1_DEFAULT             0x00000000
+
+/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE2 [25:25] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE2_MASK              0x02000000
+#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE2_SHIFT             25
+#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE2_DEFAULT           0x00000000
 
 /* USB_CTRL :: UTMI_CTL_1 :: DISCON_PHY_P1 [24:24] */
 #define BCHP_USB_CTRL_UTMI_CTL_1_DISCON_PHY_P1_MASK                0x01000000
@@ -608,8 +603,13 @@
 #define BCHP_USB_CTRL_UTMI_CTL_1_DFE_LPBACK_SHIFT                  11
 #define BCHP_USB_CTRL_UTMI_CTL_1_DFE_LPBACK_DEFAULT                0x00000000
 
-/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE1 [10:09] */
-#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE1_MASK              0x00000600
+/* USB_CTRL :: UTMI_CTL_1 :: AFE_LPBACK [10:10] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_MASK                   0x00000400
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_SHIFT                  10
+#define BCHP_USB_CTRL_UTMI_CTL_1_AFE_LPBACK_DEFAULT                0x00000000
+
+/* USB_CTRL :: UTMI_CTL_1 :: UTMICTL1_SPARE1 [09:09] */
+#define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE1_MASK              0x00000200
 #define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE1_SHIFT             9
 #define BCHP_USB_CTRL_UTMI_CTL_1_UTMICTL1_SPARE1_DEFAULT           0x00000000
 
@@ -664,18 +664,52 @@
 /***************************************************************************
  *SPARE1 - Spare1 Register for future use
  ***************************************************************************/
-/* USB_CTRL :: SPARE1 :: SPARE1_BITS [31:00] */
-#define BCHP_USB_CTRL_SPARE1_SPARE1_BITS_MASK                      0xffffffff
-#define BCHP_USB_CTRL_SPARE1_SPARE1_BITS_SHIFT                     0
+/* USB_CTRL :: SPARE1 :: SPARE1_BITS [31:08] */
+#define BCHP_USB_CTRL_SPARE1_SPARE1_BITS_MASK                      0xffffff00
+#define BCHP_USB_CTRL_SPARE1_SPARE1_BITS_SHIFT                     8
 #define BCHP_USB_CTRL_SPARE1_SPARE1_BITS_DEFAULT                   0x00000000
 
+/* USB_CTRL :: SPARE1 :: PM_STATUS [07:00] */
+#define BCHP_USB_CTRL_SPARE1_PM_STATUS_MASK                        0x000000ff
+#define BCHP_USB_CTRL_SPARE1_PM_STATUS_SHIFT                       0
+
 /***************************************************************************
- *SPARE2 - Spare2 Register for future use
+ *USB_PM - USB Power management Register
  ***************************************************************************/
-/* USB_CTRL :: SPARE2 :: SPARE2_BITS [31:00] */
-#define BCHP_USB_CTRL_SPARE2_SPARE2_BITS_MASK                      0xffffffff
-#define BCHP_USB_CTRL_SPARE2_SPARE2_BITS_SHIFT                     0
-#define BCHP_USB_CTRL_SPARE2_SPARE2_BITS_DEFAULT                   0x00000000
+/* USB_CTRL :: USB_PM :: ehci_rmtwkup_override [31:31] */
+#define BCHP_USB_CTRL_USB_PM_ehci_rmtwkup_override_MASK            0x80000000
+#define BCHP_USB_CTRL_USB_PM_ehci_rmtwkup_override_SHIFT           31
+#define BCHP_USB_CTRL_USB_PM_ehci_rmtwkup_override_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB_PM :: ohci_rmtwkup_override [30:30] */
+#define BCHP_USB_CTRL_USB_PM_ohci_rmtwkup_override_MASK            0x40000000
+#define BCHP_USB_CTRL_USB_PM_ohci_rmtwkup_override_SHIFT           30
+#define BCHP_USB_CTRL_USB_PM_ohci_rmtwkup_override_DEFAULT         0x00000000
+
+/* USB_CTRL :: USB_PM :: USB_PM_SPARE [29:04] */
+#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_MASK                     0x3ffffff0
+#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_SHIFT                    4
+#define BCHP_USB_CTRL_USB_PM_USB_PM_SPARE_DEFAULT                  0x00000000
+
+/* USB_CTRL :: USB_PM :: S2_discon_intr_en [03:03] */
+#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_MASK                0x00000008
+#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_SHIFT               3
+#define BCHP_USB_CTRL_USB_PM_S2_discon_intr_en_DEFAULT             0x00000000
+
+/* USB_CTRL :: USB_PM :: S0_discon_intr_en [02:02] */
+#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_MASK                0x00000004
+#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_SHIFT               2
+#define BCHP_USB_CTRL_USB_PM_S0_discon_intr_en_DEFAULT             0x00000000
+
+/* USB_CTRL :: USB_PM :: con_intr_en [01:01] */
+#define BCHP_USB_CTRL_USB_PM_con_intr_en_MASK                      0x00000002
+#define BCHP_USB_CTRL_USB_PM_con_intr_en_SHIFT                     1
+#define BCHP_USB_CTRL_USB_PM_con_intr_en_DEFAULT                   0x00000000
+
+/* USB_CTRL :: USB_PM :: rmtwkup_en [00:00] */
+#define BCHP_USB_CTRL_USB_PM_rmtwkup_en_MASK                       0x00000001
+#define BCHP_USB_CTRL_USB_PM_rmtwkup_en_SHIFT                      0
+#define BCHP_USB_CTRL_USB_PM_rmtwkup_en_DEFAULT                    0x00000000
 
 #endif /* #ifndef BCHP_USB_CTRL_H__ */
 

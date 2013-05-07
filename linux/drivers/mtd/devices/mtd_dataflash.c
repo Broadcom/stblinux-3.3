@@ -164,9 +164,6 @@ static int dataflash_erase(struct mtd_info *mtd, struct erase_info *instr)
 	      dev_name(&spi->dev), (long long)instr->addr,
 	      (long long)instr->len);
 
-	/* Sanity checks */
-	if (instr->addr + instr->len > mtd->size)
-		return -EINVAL;
 	div_u64_rem(instr->len, priv->page_size, &rem);
 	if (rem)
 		return -EINVAL;
@@ -252,14 +249,6 @@ static int dataflash_read(struct mtd_info *mtd, loff_t from, size_t len,
 	pr_debug("%s: read 0x%x..0x%x\n", dev_name(&priv->spi->dev),
 			(unsigned)from, (unsigned)(from + len));
 
-	*retlen = 0;
-
-	/* Sanity checks */
-	if (!len)
-		return 0;
-	if (from + len > mtd->size)
-		return -EINVAL;
-
 	/* Calculate flash page/byte address */
 	addr = (((unsigned)from / priv->page_size) << priv->page_offset)
 		+ ((unsigned)from % priv->page_size);
@@ -327,14 +316,6 @@ static int dataflash_write(struct mtd_info *mtd, loff_t to, size_t len,
 
 	pr_debug("%s: write 0x%x..0x%x\n",
 		dev_name(&spi->dev), (unsigned)to, (unsigned)(to + len));
-
-	*retlen = 0;
-
-	/* Sanity checks */
-	if (!len)
-		return 0;
-	if ((to + len) > mtd->size)
-		return -EINVAL;
 
 	spi_message_init(&msg);
 
@@ -490,8 +471,6 @@ static ssize_t otp_read(struct spi_device *spi, unsigned base,
 
 	if ((off + len) > 64)
 		len = 64 - off;
-	if (len == 0)
-		return len;
 
 	spi_message_init(&m);
 

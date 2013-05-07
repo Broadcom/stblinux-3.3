@@ -581,10 +581,6 @@ static int doc_read(struct mtd_info *mtd, loff_t from, size_t len,
 	void __iomem * docptr = this->virtadr;
 	struct Nand *mychip = &this->chips[from >> (this->chipshift)];
 
-	/* Don't allow read past end of device */
-	if (from >= this->totlen)
-		return -EINVAL;
-
 	/* Don't allow a single read to cross a 512-byte block boundary */
 	if (from + len > ((from | 0x1ff) + 1))
 		len = ((from | 0x1ff) + 1) - from;
@@ -700,10 +696,6 @@ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
 	void __iomem * docptr = this->virtadr;
 	struct Nand *mychip = &this->chips[to >> (this->chipshift)];
 
-	/* Don't allow write past end of device */
-	if (to >= this->totlen)
-		return -EINVAL;
-
 	/* Don't allow writes which aren't exactly one block (512 bytes) */
 	if ((to & 0x1ff) || (len != 0x200))
 		return -EINVAL;
@@ -800,7 +792,6 @@ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
 		printk("MTD: Error 0x%x programming at 0x%x\n", dummy, (int)to);
 		/* Error in programming
 		   FIXME: implement Bad Block Replacement (in nftl.c ??) */
-		*retlen = 0;
 		ret = -EIO;
 	}
 	dummy = ReadDOC(docptr, Mplus_LastDataRead);

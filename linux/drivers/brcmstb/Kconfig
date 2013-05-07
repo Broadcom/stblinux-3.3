@@ -149,6 +149,30 @@ config BCM7360A0
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
+config BCM7362A0
+	bool "7362 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7362
+	select BRCM_HAS_BMIPS4380
+	select BRCM_HAS_XKS01
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
 config BCM7425B0
 	bool "7425 Bx"
 	depends on MIPS
@@ -341,6 +365,25 @@ config BCM7445A0
 	#select BRCM_HAS_AON
 	#select BRCM_PWR_HANDSHAKE_V1
 	#select BRCM_HAS_DIGITAL_DDR_PHY
+
+config BCM7543A0
+	bool "7543 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7543
+	select BRCM_HAS_BMIPS3300
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_AON
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7552B0
 	bool "7552 Bx"
@@ -1262,6 +1305,9 @@ config BCM7358
 config BCM7360
 	bool
 
+config BCM7362
+	bool
+
 config BCM7425
 	bool
 
@@ -1272,6 +1318,9 @@ config BCM7435
 	bool
 
 config BCM7445
+	bool
+
+config BCM7543
 	bool
 
 config BCM7552

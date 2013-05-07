@@ -1,5 +1,5 @@
 /***************************************************************************
- *     Copyright (c) 1999-2012, Broadcom Corporation
+ *     Copyright (c) 1999-2013, Broadcom Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -21,13 +21,13 @@
  * file. You must edit the source file for changes to be made to this file.
  *
  *
- * Date:           Generated on         Mon May  7 03:06:16 2012
+ * Date:           Generated on         Tue Apr 16 03:20:12 2013
  *                 MD5 Checksum         d41d8cd98f00b204e9800998ecf8427e
  *
  * Compiled with:  RDB Utility          combo_header.pl
  *                 RDB Parser           3.0
  *                 unknown              unknown
- *                 Perl Interpreter     5.008005
+ *                 Perl Interpreter     5.008008
  *                 Operating System     linux
  *
  * Revision History:
@@ -1308,9 +1308,29 @@
 /***************************************************************************
  *GENERAL_CTRL_NO_SCAN_0 - General control register without scan 0
  ***************************************************************************/
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: reserved0 [31:08] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_reserved0_MASK    0xffffff00
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_reserved0_SHIFT   8
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: reserved0 [31:12] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_reserved0_MASK    0xfffff000
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_reserved0_SHIFT   12
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_11 [11:11] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_MASK 0x00000800
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_SHIFT 11
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_11_DEFAULT 0x00000001
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_10 [10:10] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_MASK 0x00000400
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_SHIFT 10
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_10_DEFAULT 0x00000001
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_9 [09:09] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_MASK 0x00000200
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_SHIFT 9
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_9_DEFAULT 0x00000000
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: general_ctrl_no_scan0_8 [08:08] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_MASK 0x00000100
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_SHIFT 8
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_general_ctrl_no_scan0_8_DEFAULT 0x00000000
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_0 :: rgmii_1_pad_mode [07:04] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0_rgmii_1_pad_mode_MASK 0x000000f0
@@ -1325,19 +1345,47 @@
 /***************************************************************************
  *GENERAL_CTRL_NO_SCAN_1 - General control register without scan 1
  ***************************************************************************/
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: reserved0 [31:03] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_reserved0_MASK    0xfffffff8
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_reserved0_SHIFT   3
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: reserved0 [31:09] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_reserved0_MASK    0xfffffe00
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_reserved0_SHIFT   9
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: general_ctrl_no_scan1_2 [02:02] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_2_MASK 0x00000004
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_2_SHIFT 2
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_2_DEFAULT 0x00000001
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: general_ctrl_no_scan1_8 [08:08] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_8_MASK 0x00000100
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_8_SHIFT 8
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_8_DEFAULT 0x00000001
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: general_ctrl_no_scan1_1 [01:01] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_1_MASK 0x00000002
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_1_SHIFT 1
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_1_DEFAULT 0x00000000
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: general_ctrl_no_scan1_7 [07:07] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_7_MASK 0x00000080
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_7_SHIFT 7
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_7_DEFAULT 0x00000001
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: general_ctrl_no_scan1_6 [06:06] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_6_MASK 0x00000040
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_6_SHIFT 6
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_general_ctrl_no_scan1_6_DEFAULT 0x00000000
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: host_cpu_backup_clk_sel [05:05] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_host_cpu_backup_clk_sel_MASK 0x00000020
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_host_cpu_backup_clk_sel_SHIFT 5
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_host_cpu_backup_clk_sel_DEFAULT 0x00000000
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: sdio_drive_src [04:04] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_src_MASK 0x00000010
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_src_SHIFT 4
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_src_DEFAULT 0x00000000
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: sdio_drive_sel [03:01] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_MASK 0x0000000e
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_SHIFT 1
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DEFAULT 0x00000003
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_2MA 0
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_4MA 1
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_6MA 2
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_8MA 3
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_10MA 4
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_12MA 5
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_14MA 6
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_sdio_drive_sel_DRIVE_16MA 7
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_1 :: mtsif_hys_en [00:00] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_1_mtsif_hys_en_MASK 0x00000001
@@ -1347,19 +1395,23 @@
 /***************************************************************************
  *GENERAL_CTRL_NO_SCAN_2 - General control register without scan 2
  ***************************************************************************/
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: reserved0 [31:02] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved0_MASK    0xfffffffc
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved0_SHIFT   2
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: reserved0 [31:03] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved0_MASK    0xfffffff8
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved0_SHIFT   3
+
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: reserved_for_padding1 [02:02] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved_for_padding1_MASK 0x00000004
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_reserved_for_padding1_SHIFT 2
 
 /* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: general_ctrl_no_scan2_1 [01:01] */
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_1_MASK 0x00000002
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_1_SHIFT 1
 #define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_1_DEFAULT 0x00000001
 
-/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: general_ctrl_no_scan2_0 [00:00] */
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_0_MASK 0x00000001
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_0_SHIFT 0
-#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_general_ctrl_no_scan2_0_DEFAULT 0x00000000
+/* SUN_TOP_CTRL :: GENERAL_CTRL_NO_SCAN_2 :: wfe_force_daisy_up [00:00] */
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_wfe_force_daisy_up_MASK 0x00000001
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_wfe_force_daisy_up_SHIFT 0
+#define BCHP_SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_2_wfe_force_daisy_up_DEFAULT 0x00000000
 
 /***************************************************************************
  *GENERAL_CTRL_NO_SCAN_3 - General control register without scan 3
@@ -2055,7 +2107,7 @@
 /* SUN_TOP_CTRL :: PIN_MUX_CTRL_6 :: gpio_46 [07:04] */
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_MASK              0x000000f0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_SHIFT             4
-#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_DEFAULT           0x00000000
+#define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_DEFAULT           0x00000003
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_GPIO_46           0
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_POD2CHIP_MCLKI    1
 #define BCHP_SUN_TOP_CTRL_PIN_MUX_CTRL_6_gpio_46_PPKT_I_CLK        2
@@ -5965,10 +6017,9 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_GENET1  1
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_CPU     2
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_DS_TOP0 3
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_DS_WFE  4
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SATA    5
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_RFM     6
-#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SCPU    7
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SATA    4
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_RFM     5
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SCPU    6
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_SYS     16
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_CLK     17
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_AON     18
@@ -5978,6 +6029,7 @@
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_BVNM    23
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_VEC     25
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_AVD0    27
+#define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_GFX     29
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_AIO     30
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_RAAGA   31
 #define BCHP_SUN_TOP_CTRL_TEST_PORT_CTRL_encoded_tp_enable_XPT     33

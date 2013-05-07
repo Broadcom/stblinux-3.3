@@ -367,9 +367,6 @@ static int flash_erase (struct mtd_info *mtd,struct erase_info *instr)
    printk (KERN_DEBUG "%s(addr = 0x%.8x, len = %d)\n", __func__, instr->addr, instr->len);
 #endif
 
-   /* sanity checks */
-   if (instr->addr + instr->len > mtd->size) return (-EINVAL);
-
    /*
 	* check that both start and end of the requested erase are
 	* aligned with the erasesize at the appropriate addresses.
@@ -439,10 +436,6 @@ static int flash_read (struct mtd_info *mtd,loff_t from,size_t len,size_t *retle
 #ifdef LART_DEBUG
    printk (KERN_DEBUG "%s(from = 0x%.8x, len = %d)\n", __func__, (__u32)from, len);
 #endif
-
-   /* sanity checks */
-   if (!len) return (0);
-   if (from + len > mtd->size) return (-EINVAL);
 
    /* we always read len bytes */
    *retlen = len;
@@ -522,11 +515,8 @@ static int flash_write (struct mtd_info *mtd,loff_t to,size_t len,size_t *retlen
    printk (KERN_DEBUG "%s(to = 0x%.8x, len = %d)\n", __func__, (__u32)to, len);
 #endif
 
-   *retlen = 0;
-
    /* sanity checks */
    if (!len) return (0);
-   if (to + len > mtd->size) return (-EINVAL);
 
    /* first, we write a 0xFF.... padded byte until we reach a dword boundary */
    if (to & (BUSWIDTH - 1))
