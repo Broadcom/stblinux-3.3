@@ -3655,6 +3655,8 @@ static int bcmgenet_drv_resume(struct device *dev)
 
 	if (pDevCtrl->dev_opened)
 		val = bcmgenet_open(pDevCtrl->dev);
+	else
+		val = init_umac(pDevCtrl);
 	pDevCtrl->dev_asleep = 0;
 
 	return val;

@@ -426,7 +426,7 @@ void __cpuinit bmips_ebase_setup(void)
 		&bmips_smp_int_vec, 0x80);
 	__sync();
 	return;
-#elif defined(CONFIG_CPU_BMIPS4380)
+#elif defined(CONFIG_CPU_BMIPS3300) || defined(CONFIG_CPU_BMIPS4380)
 	/*
 	 * 0x8000_0000: reset/NMI (initially in kseg1)
 	 * 0x8000_0400: normal vectors
@@ -434,7 +434,9 @@ void __cpuinit bmips_ebase_setup(void)
 	new_ebase = 0x80000400;
 	cbr = BMIPS_GET_CBR();
 	__raw_writel(0x80080800, cbr + BMIPS_RELO_VECTOR_CONTROL_0);
+#ifdef CONFIG_CPU_BMIPS4380
 	__raw_writel(0xa0080800, cbr + BMIPS_RELO_VECTOR_CONTROL_1);
+#endif
 #elif defined(CONFIG_CPU_BMIPS5000)
 	/*
 	 * 0x8000_0000: reset/NMI (initially in kseg1)

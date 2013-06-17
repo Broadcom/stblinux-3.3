@@ -365,6 +365,6 @@ help:
 	@echo ""
 	@echo "Examples:"
 	@echo ""
-	@echo "  make images-7335b0       - Build all images for 7335b0"
-	@echo "  make vmlinuz-7335b0      - Build non-initrd kernel for 7335b0"
+	@echo "  make images-7231b0       - Build all images for 7231b0"
+	@echo "  make vmlinuz-7231b0      - Build non-initrd kernel for 7231b0"
 	@echo ""

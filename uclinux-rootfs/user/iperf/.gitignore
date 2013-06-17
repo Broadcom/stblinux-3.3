@@ -1,0 +1,22 @@
+#
+# Kbuild ignores
+#
+*.a
+
+# configure generated files
+#
+Makefile
+compat/.deps/
+compat/Makefile
+config.h
+config.log
+config.status
+doc/Makefile
+include/Makefile
+include/iperf-int.h
+man/Makefile
+src/.deps/
+src/Makefile
+src/iperf
+stamp-h1
+added

@@ -68,6 +68,10 @@ if($add == 1) {
 } else {
 	print STDERR "\n";
 	print STDERR "ERROR: Toolchain is not in \$PATH\n";
+	print STDERR "paths searched for are:\n";
+	foreach my $path (@searchpath) {
+		print STDERR "* $path\n";
+	}
 	print STDERR "\n";
 
 	exit 1;

@@ -121,8 +121,7 @@ libintl.la libgnuintl.la: $(OBJECTS)
 	  $(CC) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS) $(LDFLAGS) -o $@ \
 	  $(OBJECTS) @LTLIBICONV@ -lc \
 	  -version-info $(LTV_CURRENT):$(LTV_REVISION):$(LTV_AGE) \
-	  -rpath $(libdir) \
-	  -no-undefined
+	  -rpath $(libdir)
 
 libintl.h: libgnuintl.h
 	cp $(srcdir)/libgnuintl.h libintl.h

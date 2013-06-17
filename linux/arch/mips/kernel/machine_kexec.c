@@ -52,7 +52,9 @@ machine_kexec(struct kimage *image)
 	reboot_code_buffer =
 	  (unsigned long)page_address(image->control_code_page);
 
-	kexec_start_address = image->start;
+	kexec_start_address =
+		(unsigned long) phys_to_virt(image->start);
+
 	kexec_indirection_page =
 		(unsigned long) phys_to_virt(image->head & PAGE_MASK);
 

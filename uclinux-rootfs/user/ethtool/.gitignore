@@ -1,0 +1,11 @@
+#
+# configure generated files
+#
+.deps/
+Makefile
+config.log
+config.status
+ethtool
+ethtool-config.h
+stamp-h1
+changes
