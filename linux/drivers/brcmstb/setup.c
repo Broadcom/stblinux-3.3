@@ -245,8 +245,7 @@ static void __init brcm_add_usb_host(int type, int id, uintptr_t base)
 	pdev->dev.dma_mask = (u64 *)&usb_dmamask;
 	pdev->dev.coherent_dma_mask = 0xffffffff;
 
-#if defined(CONFIG_BCM7425B0) || defined(CONFIG_BCM7435A0) || \
-	defined(CONFIG_BCM7435B0)
+#if defined(CONFIG_BCM7425B0) || defined(CONFIG_BCM7435B0)
 	/* SWLINUX-2259: Prevent OHCI from doing DMA to memc1 */
 	if (type == CAP_TYPE_OHCI) {
 		static const u64 lowmem_dma_mask = DMA_BIT_MASK(31);

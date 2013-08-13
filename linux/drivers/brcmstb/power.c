@@ -3668,9 +3668,6 @@ static void bcm7584_pm_usb_enable(u32 flags)
 static void bcm7584_pm_genet_disable(u32 flags)
 {
 	PRINT_PM_CALLBACK;
-#if defined(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_POWER_SWITCH_MEMORY_A)
-	SRAM_OFF_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
-#endif
 
 	if (ENET_WOL(flags)) {
 		/* switch to slow clock */
@@ -3690,10 +3687,10 @@ static void bcm7584_pm_genet_disable(u32 flags)
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
 		    0x83);
 	} else {
-		/* system slow clock, pm clock */
+		/* disable genet0 clocks */
 		BDEV_SET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
-		    3);
+		    0xf);
 
 		/* Every genet0 clock */
 		BDEV_UNSET(
@@ -3705,11 +3702,12 @@ static void bcm7584_pm_genet_disable(u32 flags)
 static void bcm7584_pm_genet_enable(u32 flags)
 {
 	PRINT_PM_CALLBACK;
-#if defined(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_POWER_SWITCH_MEMORY_A)
-	SRAM_ON_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
-#endif
 
 	if (ENET_WOL(flags)) {
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x83);
+
 		/* switch to fast clock */
 		BDEV_WR_F_RB(
 		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
@@ -3718,13 +3716,11 @@ static void bcm7584_pm_genet_enable(u32 flags)
 		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
 		    GENET0_GMII_CLOCK_SELECT, 0);
 
-		BDEV_SET(
-		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
-		    0x83);
 	} else {
+		/* enable genet0 clocks */
 		BDEV_UNSET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
-		    3);
+		    0xf);
 
 		BDEV_SET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
@@ -3758,20 +3754,21 @@ static void bcm7584_pm_genet1_disable(u32 flags)
 		BDEV_UNSET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
 		    0x7F00);
-		/* system slow clock, pm clock */
 		BDEV_SET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
-		    0xC);
+		    0xf0);
 	}
 }
 
 static void bcm7584_pm_genet1_enable(u32 flags)
 {
 	PRINT_PM_CALLBACK;
-	BDEV_UNSET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
-		0xC);
 
 	if (ENET_WOL(flags)) {
+		BDEV_SET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
+		    0x4300);
+
 		/* switch to fast clock */
 		BDEV_WR_F_RB(
 		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
@@ -3780,13 +3777,14 @@ static void bcm7584_pm_genet1_enable(u32 flags)
 		    CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_SELECT,
 		    GENET1_GMII_CLOCK_SELECT, 0);
 
-		BDEV_SET(
-		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
-		    0x4300);
 	} else {
+		/* enable genet1 clocks */
 		BDEV_SET(
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
 		    0x7F00);
+		BDEV_UNSET(
+		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_DISABLE,
+		    0xf0);
 	}
 }
 static void bcm7584_pm_network_disable(u32 flags)
@@ -3799,6 +3797,8 @@ static void bcm7584_pm_network_disable(u32 flags)
 	/* SCB, 108 clocks */
 	BDEV_UNSET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,
 		0x18000);
+
+	SRAM_OFF_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
 }
 
 static void bcm7584_pm_network_enable(u32 flags)
@@ -3807,6 +3807,8 @@ static void bcm7584_pm_network_enable(u32 flags)
 
 	if (ANY_WOL(flags))
 		return;
+
+	SRAM_ON_3(DUAL_GENET_TOP_DUAL_RGMII, GENET0, _A);
 
 	/* SCB, 108 clocks */
 	BDEV_SET(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_CLOCK_ENABLE,

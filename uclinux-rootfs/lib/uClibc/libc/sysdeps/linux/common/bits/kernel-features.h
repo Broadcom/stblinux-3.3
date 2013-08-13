@@ -494,4 +494,11 @@
 # define __ASSUME_PRIVATE_FUTEX	1
 #endif
 
+/* Support for fallocate was added in 2.6.23,
+   on s390 only after 2.6.23-rc1, on alpha only after 2.6.33-rc1.  */
+#if __LINUX_KERNEL_VERSION >= 0x020617 \
+    && (!defined __s390__ || __LINUX_KERNEL_VERSION >= 0x020618) \
+    && (!defined __alpha__ || __LINUX_KERNEL_VERSION >= 0x020621)
+# define __ASSUME_FALLOCATE 1
+#endif
 

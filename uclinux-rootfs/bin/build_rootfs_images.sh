@@ -31,7 +31,7 @@ function make_ubi_img()
 	echo "Writing UBIFS image for ${pebk}kB erase, ${minmsg}..."
 
 	bin/mkfs.ubifs -U -D misc/devtable.txt -r romfs -o tmp/ubifs.img \
-		--nosquash-rino-perm -m $page -e $leb -c ${max_leb_cnt}
+		-m $page -e $leb -c ${max_leb_cnt}
 
 	vol_size=$(du -sm tmp/ubifs.img | cut -f1)
 

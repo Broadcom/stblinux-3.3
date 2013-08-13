@@ -2075,6 +2075,7 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 			dev->stats.rx_dropped++;
 			dev->stats.rx_errors++;
 			dev_kfree_skb_any(cb->skb);
+			cb->skb = NULL;
 			continue;
 		}
 		/* report errors */

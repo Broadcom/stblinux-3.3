@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h> /* Needed for 'strstr' prototype' */
 #include <stdbool.h>
+#include <bits/uClibc_mutex.h>
 
 #ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
@@ -41,12 +42,16 @@
 
 #if defined(USE_TLS) && USE_TLS
 #include <ldsodefs.h>
+#include <dl-tls.h>
 extern void _dl_add_to_slotinfo(struct link_map  *l);
 #endif
 
+/* TODO: get rid of global lock and use more finegrained locking, or
+ * perhaps RCU for the global structures */
+__UCLIBC_MUTEX_STATIC(_dl_mutex, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
+
 #ifdef SHARED
 # if defined(USE_TLS) && USE_TLS
-# include <dl-tls.h>
 extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
 # endif
 
@@ -271,7 +276,7 @@ void dl_cleanup(void)
 	}
 }
 
-void *dlopen(const char *libname, int flag)
+static void *do_dlopen(const char *libname, int flag)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *dyn_chain, *rpnt = NULL, *dyn_ptr, *relro_ptr, *handle;
@@ -605,7 +610,18 @@ oops:
 	return NULL;
 }
 
-void *dlsym(void *vhandle, const char *name)
+void *dlopen(const char *libname, int flag)
+{
+	void *ret;
+
+	__UCLIBC_MUTEX_CONDITIONAL_LOCK(_dl_mutex, 1);
+	ret = do_dlopen(libname, flag);
+	__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(_dl_mutex, 1);
+
+	return ret;
+}
+
+static void *do_dlsym(void *vhandle, const char *name, void *caller_address)
 {
 	struct elf_resolve *tpnt, *tfrom;
 	struct dyn_elf *handle;
@@ -653,7 +669,7 @@ void *dlsym(void *vhandle, const char *name)
 		 * dynamic loader itself, as it doesn't know
 		 * how to properly treat it.
 		 */
-		from = (ElfW(Addr)) __builtin_return_address(0);
+		from = (ElfW(Addr)) caller_address;
 
 		tfrom = NULL;
 		for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next) {
@@ -687,6 +703,17 @@ out:
 	if (name2 != tmp_buf)
 		free (name2);
 #endif
+	return ret;
+}
+
+void *dlsym(void *vhandle, const char *name)
+{
+	void *ret;
+
+	__UCLIBC_MUTEX_CONDITIONAL_LOCK(_dl_mutex, 1);
+	ret = do_dlsym(vhandle, name, __builtin_return_address(0));
+	__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(_dl_mutex, 1);
+
 	return ret;
 }
 
@@ -957,7 +984,13 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 int dlclose(void *vhandle)
 {
-	return do_dlclose(vhandle, 1);
+	int ret;
+
+	__UCLIBC_MUTEX_CONDITIONAL_LOCK(_dl_mutex, 1);
+	ret = do_dlclose(vhandle, 1);
+	__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(_dl_mutex, 1);
+
+	return ret;
 }
 
 char *dlerror(void)
@@ -1004,7 +1037,7 @@ int dlinfo(void)
 	return 0;
 }
 
-int dladdr(const void *__address, Dl_info * __info)
+static int do_dladdr(const void *__address, Dl_info * __info)
 {
 	struct elf_resolve *pelf;
 	struct elf_resolve *rpnt;
@@ -1116,3 +1149,14 @@ int dladdr(const void *__address, Dl_info * __info)
 	}
 }
 #endif
+
+int dladdr(const void *__address, Dl_info * __info)
+{
+	int ret;
+
+	__UCLIBC_MUTEX_CONDITIONAL_LOCK(_dl_mutex, 1);
+	ret = do_dladdr(__address, __info);
+	__UCLIBC_MUTEX_CONDITIONAL_UNLOCK(_dl_mutex, 1);
+
+	return ret;
+}

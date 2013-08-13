@@ -1,71 +1,35 @@
-diff -ru mtd-utils.orig/Makefile mtd-utils/Makefile
---- mtd-utils.orig/Makefile	2010-09-23 06:46:27.000000000 -0700
-+++ mtd-utils/Makefile	2010-09-23 15:37:11.920968013 -0700
-@@ -45,7 +45,7 @@
- 	compr_rtime.o mkfs.jffs2.o compr_zlib.o compr_lzo.o \
- 	compr.o rbtree.o)
+diff -rup mtd-utils.orig/Makefile mtd-utils/Makefile
+--- mtd-utils.orig/Makefile	2013-05-29 05:36:01.000000000 -0700
++++ mtd-utils/Makefile	2013-06-03 18:15:39.000000000 -0700
+@@ -11,7 +11,7 @@ endif
+ ifeq ($(WITHOUT_LZO), 1)
+   CPPFLAGS += -DWITHOUT_LZO
+ else
+-  LZOLDLIBS = -llzo2
++  LZOLDLIBS = -Wl,-Bstatic -llzo2 -Wl,-Bdynamic
+ endif
+ 
+ TESTS = tests
+@@ -86,10 +86,10 @@ $(BUILDDIR)/include/version.h.tmp:
+ #
+ obj-mkfs.jffs2 = compr_rtime.o compr_zlib.o compr_lzo.o compr.o rbtree.o
  LDFLAGS_mkfs.jffs2 = $(ZLIBLDFLAGS) $(LZOLDFLAGS)
--LDLIBS_mkfs.jffs2  = -lz -llzo2
-+LDLIBS_mkfs.jffs2  = -Wl,-Bstatic -lz -llzo2 -Wl,-Bdynamic
+-LDLIBS_mkfs.jffs2  = -lz $(LZOLDLIBS)
++LDLIBS_mkfs.jffs2  = -Wl,-Bstatic -lz -Wl,-Bdynamic $(LZOLDLIBS)
  
- $(BUILDDIR)/jffs2reader: $(BUILDDIR)/jffs2reader.o
  LDFLAGS_jffs2reader = $(ZLIBLDFLAGS) $(LZOLDFLAGS)
-diff -ru mtd-utils.orig/mkfs.ubifs/Makefile mtd-utils/mkfs.ubifs/Makefile
---- mtd-utils.orig/mkfs.ubifs/Makefile	2010-09-23 06:46:27.000000000 -0700
-+++ mtd-utils/mkfs.ubifs/Makefile	2010-09-23 15:38:13.760947616 -0700
-@@ -5,8 +5,9 @@
- ALL_SOURCES=*.[ch] hashtable/*.[ch]
+-LDLIBS_jffs2reader  = -lz $(LZOLDLIBS)
++LDLIBS_jffs2reader  = -Wl,-Bstatic -lz -Wl,-Bdynamic $(LZOLDLIBS)
  
- TARGETS = mkfs.ubifs
-+CFLAGS += $(LZOCPPFLAGS)
+ $(foreach v,$(MTD_BINS),$(eval $(call mkdep,,$(v))))
  
--LDLIBS_mkfs.ubifs = -lz -llzo2 -lm -luuid -L$(BUILDDIR)/../ubi-utils/ -lubi
-+LDLIBS_mkfs.ubifs = $(LZOLDFLAGS) -Wl,-Bstatic -lz -llzo2 -luuid -Wl,-Bdynamic -lm -L$(BUILDDIR)/../ubi-utils/ -lubi
- LDLIBS_mkfs.ubifs += -L$(BUILDDIR)/../lib -lmtd -lcrc32
- LDLIBS_mkfs.ubifs += $(ZLIBLDFLAGS) $(LZOLDFLAGS)
+@@ -104,7 +104,8 @@ $(call _mkdep,lib/,libmtd.a)
+ #
+ obj-mkfs.ubifs = crc16.o lpt.o compr.o devtable.o \
+ 	hashtable/hashtable.o hashtable/hashtable_itr.o
+-LDLIBS_mkfs.ubifs = -lz -llzo2 -lm -luuid
++LDFLAGS_mkfs.ubifs = $(ZLIBLDFLAGS) $(LZOLDFLAGS)
++LDLIBS_mkfs.ubifs = -Wl,-Bstatic -lz -llzo2 -luuid -Wl,-Bdynamic -lm
+ $(call mkdep,mkfs.ubifs/,mkfs.ubifs,,ubi-utils/libubi.a)
  
-diff -ru mtd-utils.orig/ubi-utils/Makefile mtd-utils/ubi-utils/Makefile
---- mtd-utils.orig/ubi-utils/Makefile	2010-09-23 06:46:27.000000000 -0700
-+++ mtd-utils/ubi-utils/Makefile	2010-09-23 15:38:36.710922010 -0700
-@@ -4,7 +4,7 @@
- 
- KERNELHDR := ../include
- 
--SUBDIRS = old-utils
-+# SUBDIRS = old-utils
- 
- # CFLAGS += -Werror
- CPPFLAGS += -Iinclude -Isrc -I$(KERNELHDR)
-diff --git a/mkfs.ubifs/mkfs.ubifs.c b/mkfs.ubifs/mkfs.ubifs.c
-index ec38f0e..d83f6bd 100644
---- a/mkfs.ubifs/mkfs.ubifs.c
-+++ b/mkfs.ubifs/mkfs.ubifs.c
-@@ -132,7 +132,7 @@ static struct inum_mapping **hash_table;
- /* Inode creation sequence number */
- static unsigned long long creat_sqnum;
- 
--static const char *optstring = "d:r:m:o:D:h?vVe:c:g:f:P:k:x:X:j:R:l:j:U";
-+static const char *optstring = "d:r:m:o:D:h?vVe:c:g:f:P:k:x:X:j:R:l:j:UQq";
- 
- static const struct option longopts[] = {
- 	{"root",               1, NULL, 'r'},
-@@ -698,8 +698,8 @@ static int get_options(int argc, char**argv)
- 		return err_msg("Maximum count of LEBs was not specified "
- 			       "(use -h for help)");
- 
--	if (squash_rino_perm != -1 && root)
--		return err_msg("--squash-rino-perm and nosquash-rino-perm options"
-+	if (squash_rino_perm != -1 && !root)
-+		return err_msg("--squash-rino-perm and nosquash-rino-perm options "
- 			       "can be used only with the --root option");
- 
- 	if (c->max_bud_bytes == -1) {
-@@ -1673,7 +1673,7 @@ static int write_data(void)
- 		if (squash_rino_perm == -1) {
- 			printf("WARNING: setting root UBIFS inode UID=GID=0 (root) and permissions "
- 				 "to u+rwx,go+rx; use --squash-rino-perm or --nosquash-rino-perm "
--				 "to suppress this warning");
-+				 "to suppress this warning\n");
- 			squash_rino_perm = 1;
- 		}
- 		if (squash_rino_perm) {
+ #

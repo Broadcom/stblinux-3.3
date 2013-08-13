@@ -19,7 +19,7 @@ fi
 
 if [[ "$base" = MoCADriver_* ]]; then
 	mocadir=user/moca
-	binaries="mocad,mocactl,soapserver"
+	binaries="mocad,mocactl"
 	pkg=moca
 else
 	mocadir=user/moca2

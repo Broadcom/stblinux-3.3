@@ -81,7 +81,7 @@ sub read_cfg($$)
 	while(<F>) {
 		if(m/^# (\S+) is not set/) {
 			$$h{$1} = "n";
-		} elsif(m/^(\S+)=(.+)$/) {
+		} elsif(m/^(\w+)=(.+)$/) {
 			$$h{$1} = $2;
 		}
 	}
@@ -96,7 +96,7 @@ sub write_cfg($$$)
 	open(IN, "<${in}") or die "can't open ${in}: $!";
 
 	while(<IN>) {
-		if(m/^# (\S+) is not set/ || m/^(\S+)=(.+)$/) {
+		if(m/^# (\S+) is not set/ || m/^(\w+)=(.+)$/) {
 			my $var = $1;
 			my $val = $$h{$var};
 
@@ -305,7 +305,7 @@ sub set_opt($$)
 	read_cfg($file, \%h);
 
 	foreach my $x (@$settings) {
-		if($x !~ /^(\S+)=(\S+)$/) {
+		if($x !~ /^(\w+)=(.+)$/) {
 			die "Invalid setting: $x";
 		}
 		my($key, $val) = ($1, $2);

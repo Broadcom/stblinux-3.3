@@ -912,11 +912,85 @@ static void brcmstb_nand_read_by_pio(struct mtd_info *mtd,
 	}
 }
 
+/*
+ * Assumes proper CS is already set
+ * Looks for erased page bitflips during data reads
+ * This tries to detect uncorrectable errors on erased page reads,
+ * however on a real error raw data will be returned to caller
+ * Returns 0 on false uncorrectable error on erased page bitflips
+ * else returns the number of bitflips to the caller.
+ */
+static int brcmstb_nand_verify_uncorr_err(struct mtd_info *mtd,
+		  struct nand_chip *chip, u64 addr)
+{
+	struct brcmstb_nand_host *host = chip->priv;
+	int i, sas, oob_nbits, sector_1k = host->hwcfg.sector_size_1k;
+	int len, data_nbits;
+	int uncorr_err = 1;
+	int oob_bitflips, data_bitflips, total_bitflips;
+	u8 *oob_buf = (u8 *) chip->oob_poi;
+	u8 *data_buf = (u8 *) chip->buffers->databuf;
+	u64 err_addr = addr;
+	int trans = (mtd->writesize >> FC_SHIFT);
+	int threshold = ((host->hwcfg.ecc_level << sector_1k) * 3 + 2) / 4;
+
+	sas = host->hwcfg.spare_area_size << sector_1k;
+	oob_nbits = sas << 3;
+	len = FC_BYTES << sector_1k;
+	data_nbits = len << 3;
+
+	/* read without ecc for verification */
+	WR_ACC_CONTROL(host->cs, RD_ECC_EN, 0);
+	WR_ACC_CONTROL(host->cs, ECC_LEVEL, 0);
+	brcmstb_nand_read_by_pio(mtd, chip, addr, trans,
+				 (u32 *)data_buf, oob_buf);
+	WR_ACC_CONTROL(host->cs, ECC_LEVEL, host->hwcfg.ecc_level);
+	WR_ACC_CONTROL(host->cs, RD_ECC_EN, 1);
+
+	for (i = 0; i < (trans >> sector_1k); i++, oob_buf += sas) {
+		oob_bitflips = oob_nbits -
+			bitmap_weight((unsigned long *)oob_buf, oob_nbits);
+		data_bitflips = data_nbits -
+			bitmap_weight((unsigned long *)data_buf, data_nbits);
+
+		total_bitflips = data_bitflips + oob_bitflips;
+
+		if (total_bitflips)
+			dev_warn(&host->pdev->dev,
+				 "bitflips oob(%d) data(%d) at 0x%llx\n",
+				 oob_bitflips, data_bitflips,
+				 (unsigned long long)err_addr);
+		data_buf += len;
+		err_addr += len;
+
+		/*
+		 * if oob is all ffs or we are within ecc_level
+		 * then we assume erased page sector
+		 */
+		if (!oob_bitflips || total_bitflips < threshold) {
+			uncorr_err = 0;
+			total_bitflips = 0;
+		} else {
+			/* this is not an erased page uncorrectable error */
+			uncorr_err = 1;
+			break;
+		}
+	}
+
+	if (!uncorr_err)
+		dev_warn(&host->pdev->dev,
+			 "bitflips in apparent erased page at 0x%llx\n",
+			 (unsigned long long)addr);
+
+	return uncorr_err;
+}
+
 static int brcmstb_nand_read(struct mtd_info *mtd,
 	struct nand_chip *chip, u64 addr, unsigned int trans,
 	u32 *buf, u8 *oob)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	struct brcmstb_nand_cfg *cfg = &host->hwcfg;
 	u64 err_addr;
 	bool use_edu, use_dma;
 
@@ -957,7 +1031,23 @@ static int brcmstb_nand_read(struct mtd_info *mtd,
 
 	err_addr = BDEV_RD(BCHP_NAND_ECC_UNC_ADDR) |
 		((u64)(BDEV_RD(BCHP_NAND_ECC_UNC_EXT_ADDR) & 0xffff) << 32);
+
 	if (err_addr != 0) {
+		/*
+		 * workaround to detect bit flip within erased page
+		 * applied to data reads for BCH-4 and above
+		 */
+		if (!is_hamming_ecc(cfg)) {
+			if (!brcmstb_nand_verify_uncorr_err(mtd, chip, addr)) {
+				if (buf)
+					memset(buf, 0xff, FC_BYTES * trans);
+				if (oob)
+					memset(oob, 0xff, mtd->oobsize);
+
+				goto no_eccerr;
+			}
+		}
+
 		dev_warn(&host->pdev->dev, "uncorrectable error at 0x%llx\n",
 			(unsigned long long)err_addr);
 		if (use_edu)
@@ -980,7 +1070,7 @@ static int brcmstb_nand_read(struct mtd_info *mtd,
 		/* NAND layer expects zero on ECC errors */
 		return 0;
 	}
-
+no_eccerr:
 	return 0;
 }
 
@@ -1294,6 +1384,36 @@ static void brcmstb_nand_print_cfg(char *buf, struct brcmstb_nand_cfg *cfg)
 		sprintf(buf, ", BCH-%u\n", cfg->ecc_level);
 }
 
+/*
+ * Return true if the two configurations are basically identical. Note that we
+ * allow certain variations in spare area size.
+ */
+static bool brcmstb_nand_config_match(struct brcmstb_nand_cfg *orig,
+		struct brcmstb_nand_cfg *new)
+{
+	/* Negative matches */
+	if (orig->device_size != new->device_size)
+		return false;
+	if (orig->block_size != new->block_size)
+		return false;
+	if (orig->page_size != new->page_size)
+		return false;
+	if (orig->device_width != new->device_width)
+		return false;
+	if (orig->col_adr_bytes != new->col_adr_bytes)
+		return false;
+	if (orig->blk_adr_bytes != new->blk_adr_bytes)
+		return false;
+	if (orig->ful_adr_bytes != new->ful_adr_bytes)
+		return false;
+
+	/* Positive matches */
+	if (orig->spare_area_size == new->spare_area_size)
+		return true;
+	return orig->spare_area_size >= 27 &&
+	       orig->spare_area_size <= new->spare_area_size;
+}
+
 static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 {
 	struct mtd_info *mtd = &host->mtd;
@@ -1327,24 +1447,7 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 	if (new_cfg.spare_area_size > MAX_CONTROLLER_OOB)
 		new_cfg.spare_area_size = MAX_CONTROLLER_OOB;
 
-	/* use bootloader spare_area_size if it's "close enough" */
-	if (new_cfg.spare_area_size == orig_cfg.spare_area_size + 1) {
-		new_cfg.spare_area_size = orig_cfg.spare_area_size;
-		/*
-		 * Set oobsize to be consistent with controller's
-		 * spare_area_size. This helps nandwrite testing.
-		 */
-		mtd->oobsize = new_cfg.spare_area_size * (mtd->writesize >> FC_SHIFT);
-	}
-
-	if (orig_cfg.device_size != new_cfg.device_size ||
-			orig_cfg.block_size != new_cfg.block_size ||
-			orig_cfg.page_size != new_cfg.page_size ||
-			orig_cfg.spare_area_size != new_cfg.spare_area_size ||
-			orig_cfg.device_width != new_cfg.device_width ||
-			orig_cfg.col_adr_bytes != new_cfg.col_adr_bytes ||
-			orig_cfg.blk_adr_bytes != new_cfg.blk_adr_bytes ||
-			orig_cfg.ful_adr_bytes != new_cfg.ful_adr_bytes) {
+	if (!brcmstb_nand_config_match(&orig_cfg, &new_cfg)) {
 #if CONTROLLER_VER >= 50
 #ifdef CONFIG_BCM7445A0
 		/* HW7445-750: 7445A0 NAND is broken for SECTOR_SIZE = 1024B */
@@ -1393,6 +1496,13 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 			return -ENXIO;
 		}
 #endif
+		/*
+		 * Set oobsize to be consistent with controller's
+		 * spare_area_size. This helps nandwrite testing.
+		 */
+		mtd->oobsize = new_cfg.spare_area_size *
+			       (mtd->writesize >> FC_SHIFT);
+
 		brcmstb_nand_print_cfg(msg, &orig_cfg);
 		dev_info(&host->pdev->dev, "%s\n", msg);
 	}
@@ -1643,47 +1753,12 @@ static int brcmstb_nand_suspend(struct device *dev)
 	return 0;
 }
 
-/*
- * Some chips with first-revision v6.x NAND controllers (7429A0, 7435A0) must
- * be configured via AUTO_DEVICE_ID_CONFIG + CMD_DEVICE_ID_READ before they can
- * function properly
- */
-static void __maybe_unused brcmstb_nand_auto_id_config_workaround(struct
-		brcmstb_nand_host *host)
-{
-	dev_info(&host->pdev->dev, "AUTO_DEVICE_ID_CONFIG workaround\n");
-	/* 1. Set NAND_CMD_EXT_ADDRESS to use CSx, x!=0 */
-	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS, host->cs << 16);
-	BDEV_WR_RB(BCHP_NAND_CMD_ADDRESS, 0);
-	/* 2. Write NAND_CMD_START = null to issue null command */
-	BDEV_WR(BCHP_NAND_CMD_START, CMD_NULL << BCHP_NAND_CMD_START_OPCODE_SHIFT);
-	/* 3. Poll NAND_INTFC_STATUS to make sure controller is idle */
-	while (!BDEV_RD_F(NAND_INTFC_STATUS, CTLR_READY))
-		msleep(1);
-	/* 4. Set NAND_CS_NAND_SELECT to enable auto configuration */
-	BDEV_WR_F(NAND_CS_NAND_SELECT, AUTO_DEVICE_ID_CONFIG, 1);
-	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS, host->cs << 16);
-	BDEV_WR_RB(BCHP_NAND_CMD_ADDRESS, 0);
-	/* 5. Write NAND_CMD_START = device ID read */
-	BDEV_WR(BCHP_NAND_CMD_START, CMD_DEVICE_ID_READ << BCHP_NAND_CMD_START_OPCODE_SHIFT);
-	/* 6. Poll NAND_INTFC_STATUS to make sure controller goes back to idle. */
-	while (!BDEV_RD_F(NAND_INTFC_STATUS, CTLR_READY))
-		msleep(1);
-	/* 7. NAND_CONFIG_CSx register gets updated with initalized value. */
-	/* 8. Disable AUTO_DEVICE_ID_CONFIG */
-	BDEV_WR_F(NAND_CS_NAND_SELECT, AUTO_DEVICE_ID_CONFIG, 0);
-}
-
 static int brcmstb_nand_resume(struct device *dev)
 {
 	if (brcm_pm_deep_sleep()) {
 		struct brcmstb_nand_host *host = dev_get_drvdata(dev);
 		struct mtd_info *mtd = &host->mtd;
 		struct nand_chip *chip = mtd->priv;
-
-#if defined(CONFIG_BCM7429A0) || defined(CONFIG_BCM7435A0)
-		brcmstb_nand_auto_id_config_workaround(host);
-#endif
 
 		dev_dbg(dev, "Restore state after S3 suspend\n");
 #ifdef CONFIG_BRCM_HAS_EDU

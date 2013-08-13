@@ -23,6 +23,8 @@
 #include <linux/brcmstb/brcmstb.h>
 #include <asm/tlbflush.h>
 #include <asm/sections.h>
+#include <asm/cpu-features.h>
+#include <asm/bmips.h>
 
 #define MAX_GP_REGS	16
 #define MAX_CP0_REGS	32
@@ -60,6 +62,9 @@ struct	brcm_pm_s3_context {
 	struct cp0_value	cp0_regs[MAX_CP0_REGS];
 	int			cp0_regs_idx;
 	u32			memc0_rts[NUM_MEMC_CLIENTS];
+	u32			relo_vector_control_0;
+	u32			relo_vector_control_1;
+	u32			sc_boot_vec;
 };
 
 struct brcm_pm_s3_context s3_context;
@@ -93,6 +98,9 @@ static __maybe_unused void brcm_pm_save_cp0_context(
 		struct brcm_pm_s3_context *cxt)
 {
 	int ci = cxt->cp0_regs_idx;
+	void __iomem *cbr;
+
+	/* Generic MIPS */
 
 	CPO_SAVE_INFO(cxt, ci, 4, 0); /* context */
 	CPO_SAVE_INFO(cxt, ci, 4, 2); /* userlocal */
@@ -102,9 +110,29 @@ static __maybe_unused void brcm_pm_save_cp0_context(
 	CPO_SAVE_INFO(cxt, ci, 12, 0); /* status */
 
 	/* Broadcom specific */
+
 	CPO_SAVE_INFO(cxt, ci, 22, 0); /* config */
 	CPO_SAVE_INFO(cxt, ci, 22, 1); /* mode */
 	CPO_SAVE_INFO(cxt, ci, 22, 3); /* eDSP */
+
+	switch (current_cpu_type()) {
+	case CPU_BMIPS4380:
+		cbr = BMIPS_GET_CBR();
+		cxt->relo_vector_control_1 =
+			__raw_readl(cbr + BMIPS_RELO_VECTOR_CONTROL_1);
+		/* falls through */
+	case CPU_BMIPS3300:
+	case CPU_BMIPS4350:
+		cbr = BMIPS_GET_CBR();
+		cxt->relo_vector_control_0 =
+			__raw_readl(cbr + BMIPS_RELO_VECTOR_CONTROL_0);
+		break;
+	case CPU_BMIPS5000:
+		CPO_SAVE_INFO(cxt, ci, 22, 4); /* bootvec */
+		CPO_SAVE_INFO(cxt, ci, 15, 1); /* ebase */
+		cxt->sc_boot_vec = bmips_read_zscm_reg(0xa0);
+		break;
+	}
 
 	cxt->cp0_regs_idx = ci;
 }
@@ -113,11 +141,34 @@ static __maybe_unused void brcm_pm_restore_cp0_context(
 		struct brcm_pm_s3_context *cxt)
 {
 	int ci = cxt->cp0_regs_idx;
+	void __iomem *cbr;
 
 	/* Broadcom specific */
+
+	switch (current_cpu_type()) {
+	case CPU_BMIPS4380:
+		cbr = BMIPS_GET_CBR();
+		__raw_writel(cxt->relo_vector_control_1,
+			cbr + BMIPS_RELO_VECTOR_CONTROL_1);
+		/* falls through */
+	case CPU_BMIPS3300:
+	case CPU_BMIPS4350:
+		cbr = BMIPS_GET_CBR();
+		__raw_writel(cxt->relo_vector_control_0,
+			cbr + BMIPS_RELO_VECTOR_CONTROL_0);
+		break;
+	case CPU_BMIPS5000:
+		bmips_write_zscm_reg(0xa0, cxt->sc_boot_vec);
+		write_c0_reg(15, 1, cxt->cp0_regs[--ci].value); /* ebase */
+		write_c0_reg(22, 4, cxt->cp0_regs[--ci].value); /* bootvec */
+		break;
+	}
+
 	write_c0_reg(22, 3, cxt->cp0_regs[--ci].value); /* eDSP */
 	write_c0_reg(22, 1, cxt->cp0_regs[--ci].value); /* mode */
 	write_c0_reg(22, 0, cxt->cp0_regs[--ci].value); /* config */
+
+	/* Generic MIPS */
 
 	write_c0_reg(12, 0, cxt->cp0_regs[--ci].value); /* status */
 	write_c0_reg(11, 0, cxt->cp0_regs[--ci].value); /* compare */
@@ -125,7 +176,6 @@ static __maybe_unused void brcm_pm_restore_cp0_context(
 	write_c0_reg(5, 0, cxt->cp0_regs[--ci].value); /* pagemask */
 	write_c0_reg(4, 2, cxt->cp0_regs[--ci].value); /* userlocal */
 	write_c0_reg(4, 0, cxt->cp0_regs[--ci].value); /* context */
-
 }
 
 static __maybe_unused void brcm_pm_cmp_context(
@@ -295,7 +345,7 @@ void brcm_pm_dram_encode(void)
 #define brcm_pm_dram_encode	NULL
 #endif
 
-int __ref brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
+int brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 {
 	int retval = 0;
 	unsigned long flags;
@@ -445,7 +495,6 @@ int __ref brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 	/* CPU reconfiguration */
 	local_flush_tlb_all();
 	brcmstb_cpu_setup();
-	bmips_ebase_setup();
 	cpumask_clear(&bmips_booted_mask);
 
 	/* restore RTS */
@@ -500,8 +549,6 @@ _failed:
 	dma_unmap_single(NULL, pa_dst, outbuflen, DMA_BIDIRECTIONAL);
 
 #endif
-	/* Start other cpu cores */
-	bmips_start_cpu_cores();
 
 	return retval;
 }

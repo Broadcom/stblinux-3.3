@@ -61,5 +61,8 @@ endif
 $(BOGUS_TARGETS)::
 
 # Everything else (maybe including clean, distclean) does get passed through
+# Since this file doesn't contain dependency information, don't parallelize
+# here.
+.NOTPARALLEL: %
 %:: FORCE
 	$(MAKE) -f Makefile $@

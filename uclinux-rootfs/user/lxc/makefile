@@ -37,7 +37,8 @@ all::
 		mkdir -p build; \
 		cd build; \
 		../configure --host=$(MACHINE)-linux --prefix= \
-			--disable-doc || exit 1 ; \
+			--disable-doc --with-linuxdir=$(ROOTDIR)/$(LINUXDIR) \
+			MISSING=/bin/true || exit 1 ; \
 	fi
 	$(MAKE) -C build
 

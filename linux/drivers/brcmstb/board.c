@@ -204,6 +204,9 @@ void board_pinmux_setup(void)
 		PADCTRL(8, gpio_129_pad_ctrl, 0);
 		PADCTRL(8, gpio_130_pad_ctrl, 0);
 		PADCTRL(8, gpio_131_pad_ctrl, 0);
+
+		genet_pdata[1].phy_speed = SPEED_1000;
+		genet_pdata[1].phy_type = BRCM_PHY_TYPE_EXT_RGMII_NO_ID;
 	}
 
 #elif defined(CONFIG_BCM7344)
@@ -446,8 +449,8 @@ void board_pinmux_setup(void)
 		PINMUX(15, gpio_129, 1);
 		PINMUX(15, gpio_131, 1);
 		/*
-		 * 7428a0 board uses GPIO_93 for SDIO0_PRES
-		 * 7429a0 board uses GPIO_130 for SDIO0_PRES
+		 * 7428 pinout uses GPIO_93 for SDIO0_PRES
+		 * 7429 pinout uses GPIO_130 for SDIO0_PRES
 		 */
 		if (BRCM_PROD_ID() == 0x7428) {
 			PINMUX(11, gpio_093, 5);

@@ -1,0 +1,56 @@
+diff -uNr squashfs4.2/squashfs-tools/Makefile squashfs4.2-with-static-compressors/squashfs-tools/Makefile
+--- squashfs4.2/squashfs-tools/Makefile	2011-02-28 12:04:15.000000000 -0800
++++ squashfs4.2-with-static-compressors/squashfs-tools/Makefile	2013-05-15 13:10:38.675523046 -0700
+@@ -106,12 +106,14 @@
+ 	-D_LARGEFILE_SOURCE -D_GNU_SOURCE -DCOMP_DEFAULT=\"$(COMP_DEFAULT)\" \
+ 	-Wall
+ 
+-LIBS = -lpthread -lm
++STATIC_LIBS = 
++DYNAMIC_LIBS = -lpthread -lm
++
+ ifeq ($(GZIP_SUPPORT),1)
+ CFLAGS += -DGZIP_SUPPORT
+ MKSQUASHFS_OBJS += gzip_wrapper.o
+ UNSQUASHFS_OBJS += gzip_wrapper.o
+-LIBS += -lz
++STATIC_LIBS += -lz
+ COMPRESSORS += gzip
+ endif
+ 
+@@ -129,7 +131,7 @@
+ CFLAGS += -DLZMA_SUPPORT
+ MKSQUASHFS_OBJS += lzma_xz_wrapper.o
+ UNSQUASHFS_OBJS += lzma_xz_wrapper.o
+-LIBS += -llzma
++STATIC_LIBS += -llzma
+ COMPRESSORS += lzma
+ endif
+ 
+@@ -137,7 +139,7 @@
+ CFLAGS += -DXZ_SUPPORT
+ MKSQUASHFS_OBJS += xz_wrapper.o
+ UNSQUASHFS_OBJS += xz_wrapper.o
+-LIBS += -llzma
++STATIC_LIBS += -llzma
+ COMPRESSORS += xz
+ endif
+ 
+@@ -149,7 +151,7 @@
+ endif
+ MKSQUASHFS_OBJS += lzo_wrapper.o
+ UNSQUASHFS_OBJS += lzo_wrapper.o
+-LIBS += $(LZO_LIBDIR) -llzo2
++STATIC_LIBS += $(LZO_LIBDIR) -llzo2
+ COMPRESSORS += lzo
+ endif
+ 
+@@ -163,6 +165,8 @@
+ UNSQUASHFS_OBJS += read_xattrs.o unsquashfs_xattr.o
+ endif
+ 
++LIBS = -Wl,-Bstatic $(STATIC_LIBS) -Wl,-Bdynamic $(DYNAMIC_LIBS)
++
+ #
+ # If LZMA_SUPPORT is specified then LZMA_DIR must be specified too
+ #
