@@ -37,6 +37,7 @@
 #include <asm/bmips.h>
 #include <asm/traps.h>
 #include <asm/barrier.h>
+#include <asm/cpu-features.h>
 
 static int __maybe_unused max_cpus = 1;
 
@@ -44,6 +45,11 @@ static int __maybe_unused max_cpus = 1;
 int bmips_smp_enabled = 1;
 int bmips_cpu_offset;
 cpumask_t bmips_booted_mask;
+
+#define RESET_FROM_KSEG0		0x80080800
+#define RESET_FROM_KSEG1		0xa0080800
+
+static void bmips_set_reset_vec(int cpu, u32 val);
 
 #ifdef CONFIG_SMP
 
@@ -155,9 +161,13 @@ static void bmips_boot_secondary(int cpu, struct task_struct *idle)
 
 	pr_info("SMP: Booting CPU%d...\n", cpu);
 
-	if (cpumask_test_cpu(cpu, &bmips_booted_mask))
+	if (cpumask_test_cpu(cpu, &bmips_booted_mask)) {
+		/* kseg1 might not exist if this CPU enabled XKS01 */
+		bmips_set_reset_vec(cpu, RESET_FROM_KSEG0);
 		bmips_send_ipi_single(cpu, 0);
-	else {
+	} else {
+		bmips_set_reset_vec(cpu, RESET_FROM_KSEG1);
+
 #if defined(CONFIG_CPU_BMIPS4350) || defined(CONFIG_CPU_BMIPS4380)
 		set_c0_brcm_cmt_ctrl(0x01);
 #elif defined(CONFIG_BCM7435A0)
@@ -187,17 +197,8 @@ static void bmips_init_secondary(void)
 	/* move NMI vector to kseg0, in case XKS01 is enabled */
 
 #if defined(CONFIG_CPU_BMIPS4350) || defined(CONFIG_CPU_BMIPS4380)
-	void __iomem *cbr = BMIPS_GET_CBR();
-	unsigned long old_vec;
-
-	old_vec = __raw_readl(cbr + BMIPS_RELO_VECTOR_CONTROL_1);
-	__raw_writel(old_vec & ~0x20000000, cbr + BMIPS_RELO_VECTOR_CONTROL_1);
-
 	clear_c0_cause(smp_processor_id() ? C_SW1 : C_SW0);
 #elif defined(CONFIG_CPU_BMIPS5000)
-	write_c0_brcm_bootvec(read_c0_brcm_bootvec() &
-		(smp_processor_id() & 0x01 ? ~0x20000000 : ~0x2000));
-
 	write_c0_brcm_action(ACTION_CLR_IPI(smp_processor_id(), 0));
 #endif
 
@@ -310,6 +311,24 @@ static void bmips_send_ipi_mask(const struct cpumask *mask,
 }
 
 #ifdef CONFIG_HOTPLUG_CPU
+static void bmips_fixup_irqs(void)
+{
+	/*
+	 *  All interrupts for this cpu must be disabled.
+	 *  If an interrupt was only routed to this cpu,
+	 *  it must be migrated to another cpu.
+	 *  Code TBD, see SWLINUX-2624
+	 */
+
+	/*
+	 * MIPS CPUs have a per-processor counter compare register.
+	 * This is typically used as the clock event interrupt.
+	 * On current STB SoCs, this is interrupt 7.
+	 * Disable the interrupt.
+	 */
+	clear_c0_status(IE_IRQ5);
+
+}
 
 static int bmips_cpu_disable(void)
 {
@@ -322,6 +341,12 @@ static int bmips_cpu_disable(void)
 
 	cpu_clear(cpu, cpu_online_map);
 	cpu_clear(cpu, cpu_callin_map);
+
+	/*
+	 *  all interrupts for this cpu must be disabled
+	 *  at this point.
+	 */
+	bmips_fixup_irqs();
 
 	local_flush_tlb_all();
 	local_flush_icache_range(0, ~0);
@@ -401,15 +426,61 @@ static inline void __cpuinit bmips_nmi_handler_setup(void)
 		&bmips_smp_int_vec_end);
 }
 
+struct reset_vec_info {
+	int cpu;
+	u32 val;
+};
+
+static void bmips_set_reset_vec_remote(void *vinfo)
+{
+	struct reset_vec_info *info = vinfo;
+	int shift = info->cpu & 0x01 ? 16 : 0;
+	u32 mask = ~(0xffff << shift), val = info->val >> 16;
+
+	preempt_disable();
+	if (smp_processor_id() > 0) {
+		smp_call_function_single(0, &bmips_set_reset_vec_remote,
+					 info, 1);
+	} else {
+		if (info->cpu & 0x02) {
+			/* BMIPS5200 "should" use mask/shift, but it's buggy */
+			bmips_write_zscm_reg(0xa0, (val << 16) | val);
+			bmips_read_zscm_reg(0xa0);
+		} else {
+			write_c0_brcm_bootvec((read_c0_brcm_bootvec() & mask) |
+					      (val << shift));
+		}
+	}
+	preempt_enable();
+}
+
+static void bmips_set_reset_vec(int cpu, u32 val)
+{
+	struct reset_vec_info info;
+
+	if (current_cpu_type() == CPU_BMIPS5000) {
+		/* this needs to run from CPU0 (which is always online) */
+		info.cpu = cpu;
+		info.val = val;
+		bmips_set_reset_vec_remote(&info);
+	} else {
+		void __iomem *cbr = BMIPS_GET_CBR();
+
+		if (cpu == 0)
+			__raw_writel(val, cbr + BMIPS_RELO_VECTOR_CONTROL_0);
+		else {
+			if (current_cpu_type() != CPU_BMIPS4380)
+				return;
+			__raw_writel(val, cbr + BMIPS_RELO_VECTOR_CONTROL_1);
+		}
+	}
+	__sync();
+	back_to_back_c0_hazard();
+}
+
 void __cpuinit bmips_ebase_setup(void)
 {
 	unsigned long new_ebase = ebase;
-	void __iomem __maybe_unused *cbr;
-
-#if !defined(CONFIG_BRCMSTB)
-	/* don't want to fire a BUG() on S3 re-entry */
-	BUG_ON(ebase != CKSEG0);
-#endif
 
 #if defined(CONFIG_CPU_BMIPS4350)
 	/*
@@ -432,21 +503,15 @@ void __cpuinit bmips_ebase_setup(void)
 	 * 0x8000_0400: normal vectors
 	 */
 	new_ebase = 0x80000400;
-	cbr = BMIPS_GET_CBR();
-	__raw_writel(0x80080800, cbr + BMIPS_RELO_VECTOR_CONTROL_0);
-#ifdef CONFIG_CPU_BMIPS4380
-	__raw_writel(0xa0080800, cbr + BMIPS_RELO_VECTOR_CONTROL_1);
-#endif
+	bmips_set_reset_vec(0, RESET_FROM_KSEG0);
 #elif defined(CONFIG_CPU_BMIPS5000)
 	/*
 	 * 0x8000_0000: reset/NMI (initially in kseg1)
 	 * 0x8000_1000: normal vectors
 	 */
 	new_ebase = 0x80001000;
-	write_c0_brcm_bootvec(0xa0088008);
+	bmips_set_reset_vec(0, RESET_FROM_KSEG0);
 	write_c0_ebase(new_ebase);
-	if (max_cpus > 2)
-		bmips_write_zscm_reg(0xa0, 0xa008a008);
 #else
 	return;
 #endif

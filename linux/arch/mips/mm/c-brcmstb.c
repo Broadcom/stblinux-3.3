@@ -264,7 +264,9 @@ void __cpuinit r4k_cache_init(void)
 	r4k_blast_scache_page_indexed = blast_scache128_page_indexed;
 	r4k_blast_scache = blast_scache128;
 
-	shm_align_mask = PAGE_SIZE-1;
+	/* SWLINUX-2630: align to the way size (8KB) on Zephyr */
+	shm_align_mask = max_t(unsigned long,
+			       current_cpu_data.dcache.waysize, PAGE_SIZE) - 1;
 
 	__flush_cache_vmap	= r4k___flush_cache_all;
 	__flush_cache_vunmap	= r4k___flush_cache_all;
@@ -306,6 +308,17 @@ int brcm_cacheflush(unsigned long addr, unsigned long bytes,
 		brcm_inv_prefetch(0, 0);
 		return 0;
 	}
+#else
+	/*
+	 * SWLINUX-2607, BMIPS5000_5200-ES100-R: Flush JTB and CRS on
+	 * user-initiated invalidations, in case a JIT buffer with mixed
+	 * code+data is getting rewritten.  This helps prevent a possible
+	 * CPU hang from prefetching invalid instructions.
+	 */
+	write_c0_brcm_action(4 << 16); /* reset JTB this thread */
+	write_c0_brcm_action(5 << 16); /* reset JTB other thread */
+	write_c0_brcm_action(6 << 16); /* reset CRS this thread */
+	write_c0_brcm_action(7 << 16); /* reset CRS other thread */
 #endif
 	/* ICACHE/BCACHE is handled by the standard implementation */
 	if (cache & ICACHE) {

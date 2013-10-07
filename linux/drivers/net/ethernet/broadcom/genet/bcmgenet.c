@@ -136,12 +136,12 @@ static unsigned int bcmgenet_ring_rx(void *ptr, unsigned int budget);
 Internal routines
 --------------------------------------------------------------------------*/
 /* Allocate and initialize tx/rx buffer descriptor pools */
-static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl);
+static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl, bool reset);
 static void bcmgenet_uninit_dev(struct BcmEnet_devctrl *pDevCtrl);
 /* Assign the Rx descriptor ring */
 static int assign_rx_buffers(struct BcmEnet_devctrl *pDevCtrl);
 /* Initialize the uniMac control registers */
-static int init_umac(struct BcmEnet_devctrl *pDevCtrl);
+static int init_umac(struct BcmEnet_devctrl *pDevCtrl, bool reset);
 /* Initialize DMA control register */
 static void init_edma(struct BcmEnet_devctrl *pDevCtrl);
 /* Interrupt bottom-half */
@@ -537,7 +537,7 @@ static int bcmgenet_open(struct net_device *dev)
 		/* From WOL-enabled suspend, switch to regular clock */
 		clk_disable(pDevCtrl->clk_wol);
 		/* init umac registers to synchronize s/w with h/w */
-		init_umac(pDevCtrl);
+		init_umac(pDevCtrl, true);
 		/* Speed settings must be restored */
 		bcmgenet_mii_init(dev);
 		bcmgenet_mii_setup(dev);
@@ -591,7 +591,6 @@ static int bcmgenet_open(struct net_device *dev)
 		goto err1;
 	}
 	/* Start the network engine */
-	netif_tx_start_all_queues(dev);
 	napi_enable(&pDevCtrl->napi);
 
 	umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
@@ -603,6 +602,8 @@ static int bcmgenet_open(struct net_device *dev)
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_PASSIVE);
+
+	netif_tx_start_all_queues(dev);
 
 	return 0;
 err1:
@@ -2261,7 +2262,7 @@ static void restore_state(struct BcmEnet_devctrl *pDevCtrl)
 /*
  * init_umac: Initializes the uniMac controller
  */
-static int init_umac(struct BcmEnet_devctrl *pDevCtrl)
+static int init_umac(struct BcmEnet_devctrl *pDevCtrl, bool reset)
 {
 	volatile struct uniMacRegs *umac;
 	volatile struct intrl2Regs *intrl2;
@@ -2270,6 +2271,9 @@ static int init_umac(struct BcmEnet_devctrl *pDevCtrl)
 	intrl2 = pDevCtrl->intrl2_0;
 
 	TRACE(("bcmgenet: init_umac "));
+
+	if (!reset)
+		goto rbuf_setup;
 
 	/* 7358a0/7552a0: bad default in RBUF_FLUSH_CTRL.umac_sw_rst */
 	GENET_RBUF_FLUSH_CTRL(pDevCtrl) = 0;
@@ -2294,6 +2298,7 @@ static int init_umac(struct BcmEnet_devctrl *pDevCtrl)
 	/*
 	 * init rx registers, enable ip header optimization.
 	 */
+rbuf_setup:
 	if (pDevCtrl->bIPHdrOptimize)
 		pDevCtrl->rbuf->rbuf_ctrl |= RBUF_ALIGN_2B ;
 #if CONFIG_BRCM_GENET_VERSION >= 3
@@ -2700,11 +2705,10 @@ static void bcmgenet_init_multiq(struct net_device *dev)
  * bcmgenet_init_dev: initialize uniMac devie
  * allocate Tx/Rx buffer descriptors pool, Tx control block pool.
  */
-static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
+static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl, bool reset)
 {
 	int i, ret;
 	unsigned long base;
-	void *ptxCbs, *prxCbs;
 	volatile struct DmaDesc *lastBd;
 
 	pDevCtrl->clk = clk_get(&pDevCtrl->pdev->dev, "enet");
@@ -2749,23 +2753,23 @@ static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
 		(unsigned int)pDevCtrl->rxBds, (unsigned int)pDevCtrl->txBds));
 
 	/* alloc space for the tx control block pool */
-	ptxCbs = kmalloc(pDevCtrl->nrTxBds*sizeof(struct Enet_CB), GFP_KERNEL);
-	if (!ptxCbs) {
+	if (!pDevCtrl->txCbs)
+		pDevCtrl->txCbs = kmalloc(pDevCtrl->nrTxBds*sizeof(struct Enet_CB), GFP_KERNEL);
+	if (!pDevCtrl->txCbs) {
 		bcmgenet_clock_disable(pDevCtrl);
 		return -ENOMEM;
 	}
-	memset(ptxCbs, 0, pDevCtrl->nrTxBds*sizeof(struct Enet_CB));
-	pDevCtrl->txCbs = (struct Enet_CB *)ptxCbs;
+	memset(pDevCtrl->txCbs, 0, pDevCtrl->nrTxBds*sizeof(struct Enet_CB));
 
 	/* initialize rx ring pointer variables. */
 	pDevCtrl->rxBdAssignPtr = pDevCtrl->rxBds;
-	prxCbs = kmalloc(pDevCtrl->nrRxBds*sizeof(struct Enet_CB), GFP_KERNEL);
-	if (!prxCbs) {
+	if (!pDevCtrl->rxCbs)
+		pDevCtrl->rxCbs = kmalloc(pDevCtrl->nrRxBds*sizeof(struct Enet_CB), GFP_KERNEL);
+	if (!pDevCtrl->rxCbs) {
 		ret = -ENOMEM;
 		goto error2;
 	}
-	memset(prxCbs, 0, pDevCtrl->nrRxBds*sizeof(struct Enet_CB));
-	pDevCtrl->rxCbs = (struct Enet_CB *)prxCbs;
+	memset(pDevCtrl->rxCbs, 0, pDevCtrl->nrRxBds*sizeof(struct Enet_CB));
 
 	/* init the receive buffer descriptor ring */
 	for (i = 0; i < pDevCtrl->nrRxBds; i++) {
@@ -2791,7 +2795,7 @@ static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
 
 	TRACE(("%s done!\n", __func__));
 	/* init umac registers */
-	if (init_umac(pDevCtrl)) {
+	if (init_umac(pDevCtrl, reset)) {
 		ret = -EFAULT;
 		goto error1;
 	}
@@ -2807,9 +2811,9 @@ static int bcmgenet_init_dev(struct BcmEnet_devctrl *pDevCtrl)
 	/* if we reach this point, we've init'ed successfully */
 	return 0;
 error1:
-	kfree(prxCbs);
+	kfree(pDevCtrl->rxCbs);
 error2:
-	kfree(ptxCbs);
+	kfree(pDevCtrl->txCbs);
 	bcmgenet_clock_disable(pDevCtrl);
 
 	TRACE(("%s Failed!\n", __func__));
@@ -3561,7 +3565,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	pDevCtrl->pdev = pdev;
 
 	/* Init GENET registers, Tx/Rx buffers */
-	if (bcmgenet_init_dev(pDevCtrl) < 0)
+	if (bcmgenet_init_dev(pDevCtrl, true) < 0)
 		goto err1;
 
 	if (cfg->phy_id == BRCM_PHY_ID_AUTO) {
@@ -3656,8 +3660,11 @@ static int bcmgenet_drv_resume(struct device *dev)
 
 	if (pDevCtrl->dev_opened)
 		val = bcmgenet_open(pDevCtrl->dev);
-	else
-		val = init_umac(pDevCtrl);
+	else {
+		bcmgenet_init_dev(pDevCtrl, false);
+		bcmgenet_clock_disable(pDevCtrl);
+	}
+
 	pDevCtrl->dev_asleep = 0;
 
 	return val;
