@@ -66,7 +66,7 @@ int bcmgenet_mii_read(struct net_device *dev, int phy_id, int location)
 			HZ/100);
 	ret = umac->mdio_cmd;
 	mutex_unlock(&pDevCtrl->mdio_mutex);
-	if (ret & MDIO_READ_FAIL) {
+	if (!pDevCtrl->sw_type && (ret & MDIO_READ_FAIL)) {
 		TRACE(("MDIO read failure\n"));
 		ret = 0;
 	}
@@ -142,7 +142,7 @@ int bcmgenet_mii_probe(struct net_device *dev, void *p)
  * setup netdev link state when PHY link status change and
  * update UMAC and RGMII block when link up
  */
-void bcmgenet_mii_setup(struct net_device *dev)
+void bcmgenet_mii_setup(struct net_device *dev, unsigned int force)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	struct ethtool_cmd ecmd;
@@ -155,7 +155,7 @@ void bcmgenet_mii_setup(struct net_device *dev)
 
 	cur_link = mii_link_ok(&pDevCtrl->mii);
 	prev_link = netif_carrier_ok(pDevCtrl->dev);
-	if (cur_link && !prev_link) {
+	if ((cur_link && !prev_link) || (cur_link && force)) {
 		mii_ethtool_gset(&pDevCtrl->mii, &ecmd);
 		/*
 		 * program UMAC and RGMII block based on established link

@@ -112,6 +112,12 @@ void brcmstb_cpu_setup(void)
 		"	.word	0x4008b008\n"	/* mfc0 $8, $22, 8 */
 		"	lui	$9, 0x0100\n"
 		"	or	$8, $9\n"
+#if defined(CONFIG_BCM7425) || defined(CONFIG_BCM7344) || \
+	defined(CONFIG_BCM7346)
+		/* SWLINUX-2712: disable "pref 30" on buggy CPUs */
+		"	lui	$9, 0x0800\n"
+		"	or	$8, $9\n"
+#endif
 		"	.word	0x4088b008\n"	/* mtc0 $8, $22, 8 */
 		: : : "$8", "$9");
 	}

@@ -194,6 +194,23 @@ struct uniMacRegs {
 
 };
 
+#define UMAC_MIB_START		0x400
+#define UMAC_RBUF_OVFL_CNT	0x61C
+#define UMAC_RBUF_ERR_CNT	0x634
+#define UMAC_MDF_ERR_CNT	0x638
+
+struct bcmgenet_mib_counters {
+	struct UniMacRSV rx;
+	struct UniMacTSV tx;
+	u32	rx_runt_cnt;
+	u32	rx_runt_fcs;
+	u32	rx_runt_fcs_align;
+	u32	rx_runt_bytes;
+	u32	rbuf_ovflow_cnt;
+	u32	rbuf_err_cnt;
+	u32	mdf_err_cnt;
+};
+
 #if CONFIG_BRCM_GENET_VERSION < 3
 #define HFB_NUM_FLTRS		16
 #else

@@ -611,9 +611,6 @@
 
 #endif
 
-#define BRCM_NMI_VEC		0x80000000
-#define BRCM_WARM_RESTART_VEC	0x80000380
-
 /* Kernel will program WKTMR to expire in 1 second */
 #define BRCM_STANDBY_TEST		0x01
 /* Wait 120s before entering standby, to allow registers to be read */
@@ -742,6 +739,7 @@ struct bcmemac_platform_data {
 	int			phy_type;
 	int			phy_id;
 	int			phy_speed;
+	int			sw_type;
 	u8			macaddr[ETH_ALEN];
 };
 

@@ -216,7 +216,7 @@ s3_standby_exit:
 	mtc0	k0, CP0_PAGEMASK
 
 #ifdef CONFIG_BRCM_UPPER_MEMORY
-	li	sp, BRCM_WARM_RESTART_VEC
+	li	sp, BMIPS_WARM_RESTART_VEC
 	la	k0, plat_wired_tlb_setup
 	jalr	k0
 	nop

@@ -6,8 +6,11 @@ CC			:= $(MACHINE)-linux-gcc
 STRIP			:= $(MACHINE)-linux-strip
 CFLAGS			:= -Os
 SHELL			:= bash
+VPATH			:= $(GCCSYSROOT)/lib:$(VPATH)
 
-export CC CFLAGS
+.LIBPATTERNS += $(shell echo lib%.so.{0..9})
+
+export CC CFLAGS VPATH .LIBPATTERNS
 
 .PHONY: all
 all::

@@ -99,6 +99,7 @@ static inline void bmips_write_zscm_reg(unsigned int offset, unsigned long data)
 		"_ssnop\n"
 		"_ssnop\n"
 		"_ssnop\n"
+		".set pop\n"
 		: /* no outputs */
 		: "r" (data),
 		  "i" (Index_Store_Tag_S), "r" (ZSCM_REG_BASE + offset)

@@ -134,6 +134,8 @@ struct BcmEnet_devctrl {
 	int	phyType;
 	int	phySpeed;
 	int	extPhy;
+	int	sw_type;
+	int	sw_addr;
 	int	bIPHdrOptimize;
 	unsigned int irq0_stat;	/* sw copy of irq0 status, for IRQ BH */
 	unsigned int irq1_stat;	/* sw copy of irq1 status, for NAPI rx */
@@ -156,6 +158,9 @@ struct BcmEnet_devctrl {
 	struct DmaDesc saved_rx_desc[TOTAL_DESC];
 	u32 int_mask;
 	u32 rbuf_ctrl;
+
+	struct mutex mib_mutex;
+	struct bcmgenet_mib_counters mib;
 };
 
 #if defined(CONFIG_BCMGENET_DUMP_TRACE)

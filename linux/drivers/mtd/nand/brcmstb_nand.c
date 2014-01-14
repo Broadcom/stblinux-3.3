@@ -1185,6 +1185,9 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 
 	brcmstb_nand_wp(mtd, 0);
 
+	for (j = 0; j < MAX_CONTROLLER_OOB; j += 4)
+		oob_reg_write(j, 0xffffffff);
+
 	if (buf && !oob && DMA_VA_OK(buf) && !((u32)buf & 0x1f)) {
 		if (brcmstb_nand_dma_trans(host, addr, (u32 *)buf,
 					mtd->writesize, CMD_PROGRAM_PAGE))
@@ -1194,9 +1197,6 @@ static int brcmstb_nand_write(struct mtd_info *mtd,
 
 	BDEV_WR_RB(BCHP_NAND_CMD_EXT_ADDRESS,
 		(host->cs << 16) | ((addr >> 32) & 0xffff));
-
-	for (j = 0; j < MAX_CONTROLLER_OOB; j += 4)
-		oob_reg_write(j, 0xffffffff);
 
 	if (buf && EDU_VA_OK(buf)) {
 		if (brcmstb_nand_edu_trans(host, addr, (u32 *)buf, oob, trans,
@@ -1270,11 +1270,14 @@ static int brcmstb_nand_write_oob_raw(struct mtd_info *mtd,
 	struct nand_chip *chip, int page)
 {
 	struct brcmstb_nand_host *host = chip->priv;
+	int ret;
 
 	WR_ACC_CONTROL(host->cs, WR_ECC_EN, 0);
-	return brcmstb_nand_write(mtd, chip, (u64)page << chip->page_shift, NULL,
+	ret = brcmstb_nand_write(mtd, chip, (u64)page << chip->page_shift, NULL,
 		(u8 *)chip->oob_poi);
 	WR_ACC_CONTROL(host->cs, WR_ECC_EN, 1);
+
+	return ret;
 }
 
 /***********************************************************************

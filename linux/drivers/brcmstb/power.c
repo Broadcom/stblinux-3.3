@@ -2179,9 +2179,22 @@ static void bcm40nm_pm_usb_enable(u32 flags)
 	bcm40nm_pm_usb_enable_s3();
 }
 
+/* These are not defined in the RDB headers for any 40nm chips. */
+#define SATA_TOP_CTRL_PHY_CTRL_1_DIS_HW_SLUMBER_MASK	BIT(8)
+#define SATA_TOP_CTRL_PHY_CTRL_2_SW_TX0_SLUMBER_MASK	BIT(12)
+#define SATA_TOP_CTRL_PHY_CTRL_3_SW_TX1_SLUMBER_MASK	BIT(12)
+
 static void bcm40nm_pm_sata_disable(u32 flags)
 {
 	PRINT_PM_CALLBACK;
+
+	/* put PHY into slumber mode */
+	BDEV_SET(BCHP_SATA_TOP_CTRL_PHY_CTRL_1,
+		SATA_TOP_CTRL_PHY_CTRL_1_DIS_HW_SLUMBER_MASK);
+	BDEV_SET(BCHP_SATA_TOP_CTRL_PHY_CTRL_2,
+		SATA_TOP_CTRL_PHY_CTRL_2_SW_TX0_SLUMBER_MASK);
+	BDEV_SET(BCHP_SATA_TOP_CTRL_PHY_CTRL_3,
+		SATA_TOP_CTRL_PHY_CTRL_3_SW_TX1_SLUMBER_MASK);
 
 	SRAM_OFF_2i(SATA3_TOP, SATA3);
 
@@ -2190,19 +2203,35 @@ static void bcm40nm_pm_sata_disable(u32 flags)
 		SATA3_SCB_CLOCK_ENABLE, 0);
 	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_INST_CLOCK_ENABLE,
 		SATA3_108_CLOCK_ENABLE, 0);
+#if !(defined(CONFIG_BCM7429B0) || defined(CONFIG_BCM7435B0))
+	BDEV_WR_F_RB(CLKGEN_SATA3_INST_CLOCK_DISABLE,
+		DISABLE_27_FUNC_CLK_30, 1);
+#endif
 }
 
 static void bcm40nm_pm_sata_enable(u32 flags)
 {
 	PRINT_PM_CALLBACK;
+
 	/* reenable the clocks */
 	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_INST_CLOCK_ENABLE,
 		SATA3_SCB_CLOCK_ENABLE, 1);
 	BDEV_WR_F_RB(CLKGEN_SATA3_TOP_INST_CLOCK_ENABLE,
 		SATA3_108_CLOCK_ENABLE, 1);
+#if !(defined(CONFIG_BCM7429B0) || defined(CONFIG_BCM7435B0))
+	BDEV_WR_F_RB(CLKGEN_SATA3_INST_CLOCK_DISABLE,
+		DISABLE_27_FUNC_CLK_30, 0);
+#endif
 
 	SRAM_ON_2i(SATA3_TOP, SATA3);
 
+	/* take PHY out from slumber */
+	BDEV_UNSET(BCHP_SATA_TOP_CTRL_PHY_CTRL_3,
+		SATA_TOP_CTRL_PHY_CTRL_3_SW_TX1_SLUMBER_MASK);
+	BDEV_UNSET(BCHP_SATA_TOP_CTRL_PHY_CTRL_2,
+		SATA_TOP_CTRL_PHY_CTRL_2_SW_TX0_SLUMBER_MASK);
+	BDEV_UNSET(BCHP_SATA_TOP_CTRL_PHY_CTRL_1,
+		SATA_TOP_CTRL_PHY_CTRL_1_DIS_HW_SLUMBER_MASK);
 }
 
 
@@ -4412,7 +4441,7 @@ static int brcm_pm_standby(int mode)
 {
 	int ret = 0, valid_event = 1;
 	u32 l2_mask;
-	unsigned long restart_vec = BRCM_WARM_RESTART_VEC;
+	unsigned long restart_vec = BMIPS_WARM_RESTART_VEC;
 	unsigned long restart_vec_size = bmips_smp_int_vec_end -
 		bmips_smp_int_vec;
 
@@ -4438,7 +4467,7 @@ static int brcm_pm_standby(int mode)
 	memcpy(vec, bmips_smp_int_vec, vecsize);
 	flush_icache_range(restart_vec, restart_vec + vecsize);
 #else
-	/* send all IRQs to BRCM_WARM_RESTART_VEC */
+	/* send all IRQs to BMIPS_WARM_RESTART_VEC */
 	clear_c0_cause(CAUSEF_IV);
 	irq_disable_hazard();
 	set_c0_status(ST0_BEV);

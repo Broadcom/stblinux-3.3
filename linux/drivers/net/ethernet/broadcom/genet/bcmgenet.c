@@ -441,7 +441,7 @@ static void bcmgenet_gphy_link_status(struct work_struct *work)
 	struct BcmEnet_devctrl *pDevCtrl = container_of(work,
 			struct BcmEnet_devctrl, bcmgenet_link_work);
 
-	bcmgenet_mii_setup(pDevCtrl->dev);
+	bcmgenet_mii_setup(pDevCtrl->dev, 0);
 }
 /* --------------------------------------------------------------------------
 Name: bcmgenet_gphy_link_timer
@@ -515,6 +515,7 @@ static int bcmgenet_open(struct net_device *dev)
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
 	unsigned long dma_ctrl;
 	volatile struct uniMacRegs *umac = pDevCtrl->umac;
+	unsigned int do_reinit = 0;
 
 	TRACE(("%s: bcmgenet_open\n", dev->name));
 
@@ -536,11 +537,18 @@ static int bcmgenet_open(struct net_device *dev)
 	if (pDevCtrl->wol_enabled) {
 		/* From WOL-enabled suspend, switch to regular clock */
 		clk_disable(pDevCtrl->clk_wol);
+		do_reinit = 1;
+	}
+	/* From deep sleep, re-initialize UMAC and MII configuration */
+	if (brcm_pm_deep_sleep())
+		do_reinit = 1;
+
+	if (do_reinit) {
 		/* init umac registers to synchronize s/w with h/w */
 		init_umac(pDevCtrl, true);
 		/* Speed settings must be restored */
 		bcmgenet_mii_init(dev);
-		bcmgenet_mii_setup(dev);
+		bcmgenet_mii_setup(dev, 1);
 	}
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
@@ -1685,7 +1693,7 @@ static void bcmgenet_irq_task(struct work_struct *work)
 	/* Link UP/DOWN event */
 	if (pDevCtrl->irq0_stat & (UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN)) {
 		pDevCtrl->irq0_stat &= ~(UMAC_IRQ_LINK_UP|UMAC_IRQ_LINK_DOWN);
-		bcmgenet_mii_setup(pDevCtrl->dev);
+		bcmgenet_mii_setup(pDevCtrl->dev, 0);
 	}
 
 	/* Re-enable interrupts */
@@ -2060,7 +2068,6 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 
 		cb = &pDevCtrl->rxCbs[read_ptr];
 		skb = cb->skb;
-		BUG_ON(skb == NULL);
 		dma_unmap_single(&dev->dev, dma_unmap_addr(cb, dma_addr),
 				pDevCtrl->rxBufLen, DMA_FROM_DEVICE);
 
@@ -2070,6 +2077,13 @@ static unsigned int bcmgenet_desc_rx(void *ptr, unsigned int budget)
 			read_ptr = 0;
 		else
 			read_ptr++;
+
+		if (unlikely(!skb)) {
+			TRACE(("ERROR: skb is NULL\n"));
+			dev->stats.rx_dropped++;
+			dev->stats.rx_errors++;
+			continue;
+		}
 
 		if (unlikely(!(dmaFlag & DMA_EOP) || !(dmaFlag & DMA_SOP))) {
 			printk(KERN_WARNING "Droping fragmented packet!\n");
@@ -3165,7 +3179,7 @@ static int bcmgenet_set_settings(struct net_device *dev,
 		err = mii_ethtool_sset(&pDevCtrl->mii, cmd);
 		if (err < 0)
 			return err;
-		bcmgenet_mii_setup(dev);
+		bcmgenet_mii_setup(dev, 0);
 
 		if (cmd->maxrxpkt != 0)
 			DmaDescThres = cmd->maxrxpkt;
@@ -3176,13 +3190,6 @@ static int bcmgenet_set_settings(struct net_device *dev,
 /*
  * ethtool function - get driver info.
  */
-static void bcmgenet_get_drvinfo(struct net_device *dev,
-		struct ethtool_drvinfo *info)
-{
-	strncpy(info->driver, CARDNAME, sizeof(info->driver));
-	strncpy(info->version, VER_STR, sizeof(info->version));
-
-}
 static int bcmgenet_set_rx_csum(struct net_device *dev)
 {
 	struct BcmEnet_devctrl *pDevCtrl = netdev_priv(dev);
@@ -3241,6 +3248,241 @@ static int bcmgenet_set_features(struct net_device *dev,
 	return ret;
 }
 
+/* standard ethtool support functions. */
+enum bcmgenet_stat_type {
+	BCMGENET_STAT_NETDEV = -1,
+	BCMGENET_STAT_MIB_RX,
+	BCMGENET_STAT_MIB_TX,
+	BCMGENET_STAT_RUNT,
+	BCMGENET_STAT_MISC,
+};
+
+struct bcmgenet_stats {
+	char stat_string[ETH_GSTRING_LEN];
+	int stat_sizeof;
+	int stat_offset;
+	enum bcmgenet_stat_type type;
+	/* reg offset from UMAC base for misc counters */
+	u16 reg_offset;
+};
+
+#define STAT_NETDEV(m) { \
+	.stat_string = __stringify(m), \
+	.stat_sizeof = sizeof(((struct net_device_stats *)0)->m), \
+	.stat_offset = offsetof(struct net_device_stats, m), \
+	.type = BCMGENET_STAT_NETDEV, \
+}
+
+#define STAT_GENET_MIB(str, m, _type) { \
+	.stat_string = str, \
+	.stat_sizeof = sizeof(((struct BcmEnet_devctrl *)0)->m), \
+	.stat_offset = offsetof(struct BcmEnet_devctrl, m), \
+	.type = _type, \
+}
+
+#define STAT_GENET_MIB_RX(str, m) STAT_GENET_MIB(str, m, BCMGENET_STAT_MIB_RX)
+#define STAT_GENET_MIB_TX(str, m) STAT_GENET_MIB(str, m, BCMGENET_STAT_MIB_TX)
+#define STAT_GENET_RUNT(str, m) STAT_GENET_MIB(str, m, BCMGENET_STAT_RUNT)
+
+#define STAT_GENET_MISC(str, m, offset) { \
+	.stat_string = str, \
+	.stat_sizeof = sizeof(((struct BcmEnet_devctrl *)0)->m), \
+	.stat_offset = offsetof(struct BcmEnet_devctrl, m), \
+	.type = BCMGENET_STAT_MISC, \
+	.reg_offset = offset, \
+}
+
+
+/* There is a 0xC gap between the end of RX and beginning of TX stats and then
+ * between the end of TX stats and the beginning of the RX RUNT
+ */
+#define BCMGENET_STAT_OFFSET	0xc
+
+/* Hardware counters must be kept in sync because the order/offset
+ * is important here (order in structure declaration = order in hardware)
+ */
+static const struct bcmgenet_stats bcmgenet_gstrings_stats[] = {
+	/* general stats */
+	STAT_NETDEV(rx_packets),
+	STAT_NETDEV(tx_packets),
+	STAT_NETDEV(rx_bytes),
+	STAT_NETDEV(tx_bytes),
+	STAT_NETDEV(rx_errors),
+	STAT_NETDEV(tx_errors),
+	STAT_NETDEV(rx_dropped),
+	STAT_NETDEV(tx_dropped),
+	STAT_NETDEV(multicast),
+	/* UniMAC RSV counters */
+	STAT_GENET_MIB_RX("rx_64_octets", mib.rx.stat_sz.cnt_64),
+	STAT_GENET_MIB_RX("rx_65_127_oct", mib.rx.stat_sz.cnt_127),
+	STAT_GENET_MIB_RX("rx_128_255_oct", mib.rx.stat_sz.cnt_255),
+	STAT_GENET_MIB_RX("rx_256_511_oct", mib.rx.stat_sz.cnt_511),
+	STAT_GENET_MIB_RX("rx_512_1023_oct", mib.rx.stat_sz.cnt_1023),
+	STAT_GENET_MIB_RX("rx_1024_1518_oct", mib.rx.stat_sz.cnt_1518),
+	STAT_GENET_MIB_RX("rx_vlan_1519_1522_oct", mib.rx.stat_sz.cnt_mgv),
+	STAT_GENET_MIB_RX("rx_1522_2047_oct", mib.rx.stat_sz.cnt_2047),
+	STAT_GENET_MIB_RX("rx_2048_4095_oct", mib.rx.stat_sz.cnt_4095),
+	STAT_GENET_MIB_RX("rx_4096_9216_oct", mib.rx.stat_sz.cnt_9216),
+	STAT_GENET_MIB_RX("rx_pkts", mib.rx.rx_pkt),
+	STAT_GENET_MIB_RX("rx_bytes", mib.rx.rx_bytes),
+	STAT_GENET_MIB_RX("rx_multicast", mib.rx.rx_mca),
+	STAT_GENET_MIB_RX("rx_broadcast", mib.rx.rx_bca),
+	STAT_GENET_MIB_RX("rx_fcs", mib.rx.rx_fcs),
+	STAT_GENET_MIB_RX("rx_control", mib.rx.rx_cf),
+	STAT_GENET_MIB_RX("rx_pause", mib.rx.rx_pf),
+	STAT_GENET_MIB_RX("rx_unknown", mib.rx.rx_uo),
+	STAT_GENET_MIB_RX("rx_align", mib.rx.rx_aln),
+	STAT_GENET_MIB_RX("rx_outrange", mib.rx.rx_flr),
+	STAT_GENET_MIB_RX("rx_code", mib.rx.rx_cde),
+	STAT_GENET_MIB_RX("rx_carrier", mib.rx.rx_fcr),
+	STAT_GENET_MIB_RX("rx_oversize", mib.rx.rx_ovr),
+	STAT_GENET_MIB_RX("rx_jabber", mib.rx.rx_jbr),
+	STAT_GENET_MIB_RX("rx_mtu_err", mib.rx.rx_mtue),
+	STAT_GENET_MIB_RX("rx_good_pkts", mib.rx.rx_pok),
+	STAT_GENET_MIB_RX("rx_unicast", mib.rx.rx_uc),
+	STAT_GENET_MIB_RX("rx_ppp", mib.rx.rx_ppp),
+	STAT_GENET_MIB_RX("rx_crc", mib.rx.rcrc),
+	/* UniMAC TSV counters */
+	STAT_GENET_MIB_TX("tx_64_octets", mib.tx.stat_sz.cnt_64),
+	STAT_GENET_MIB_TX("tx_65_127_oct", mib.tx.stat_sz.cnt_127),
+	STAT_GENET_MIB_TX("tx_128_255_oct", mib.tx.stat_sz.cnt_255),
+	STAT_GENET_MIB_TX("tx_256_511_oct", mib.tx.stat_sz.cnt_511),
+	STAT_GENET_MIB_TX("tx_512_1023_oct", mib.tx.stat_sz.cnt_1023),
+	STAT_GENET_MIB_TX("tx_1024_1518_oct", mib.tx.stat_sz.cnt_1518),
+	STAT_GENET_MIB_TX("tx_vlan_1519_1522_oct", mib.tx.stat_sz.cnt_mgv),
+	STAT_GENET_MIB_TX("tx_1522_2047_oct", mib.tx.stat_sz.cnt_2047),
+	STAT_GENET_MIB_TX("tx_2048_4095_oct", mib.tx.stat_sz.cnt_4095),
+	STAT_GENET_MIB_TX("tx_4096_9216_oct", mib.tx.stat_sz.cnt_9216),
+	STAT_GENET_MIB_TX("tx_pkts", mib.tx.tx_pkt),
+	STAT_GENET_MIB_TX("tx_multicast", mib.tx.tx_mca),
+	STAT_GENET_MIB_TX("tx_broadcast", mib.tx.tx_bca),
+	STAT_GENET_MIB_TX("tx_pause", mib.tx.tx_pf),
+	STAT_GENET_MIB_TX("tx_control", mib.tx.tx_cf),
+	STAT_GENET_MIB_TX("tx_fcs_err", mib.tx.tx_fcs),
+	STAT_GENET_MIB_TX("tx_oversize", mib.tx.tx_ovr),
+	STAT_GENET_MIB_TX("tx_defer", mib.tx.tx_drf),
+	STAT_GENET_MIB_TX("tx_excess_defer", mib.tx.tx_edf),
+	STAT_GENET_MIB_TX("tx_single_col", mib.tx.tx_scl),
+	STAT_GENET_MIB_TX("tx_multi_col", mib.tx.tx_mcl),
+	STAT_GENET_MIB_TX("tx_late_col", mib.tx.tx_lcl),
+	STAT_GENET_MIB_TX("tx_excess_col", mib.tx.tx_ecl),
+	STAT_GENET_MIB_TX("tx_frags", mib.tx.tx_frg),
+	STAT_GENET_MIB_TX("tx_total_col", mib.tx.tx_ncl),
+	STAT_GENET_MIB_TX("tx_jabber", mib.tx.tx_jbr),
+	STAT_GENET_MIB_TX("tx_bytes", mib.tx.tx_bytes),
+	STAT_GENET_MIB_TX("tx_good_pkts", mib.tx.tx_pok),
+	STAT_GENET_MIB_TX("tx_unicast", mib.tx.tx_uc),
+	/* UniMAC RUNT counters */
+	STAT_GENET_RUNT("rx_runt_pkts", mib.rx_runt_cnt),
+	STAT_GENET_RUNT("rx_runt_valid_fcs", mib.rx_runt_fcs),
+	STAT_GENET_RUNT("rx_runt_inval_fcs_align", mib.rx_runt_fcs_align),
+	STAT_GENET_RUNT("rx_runt_bytes", mib.rx_runt_bytes),
+	/* Misc UniMAC counters */
+	STAT_GENET_MISC("rbuf_ovflow_cnt", mib.rbuf_ovflow_cnt,
+			UMAC_RBUF_OVFL_CNT),
+	STAT_GENET_MISC("rbuf_err_cnt", mib.rbuf_err_cnt, UMAC_RBUF_ERR_CNT),
+	STAT_GENET_MISC("mdf_err_cnt", mib.mdf_err_cnt, UMAC_MDF_ERR_CNT),
+};
+
+#define BCMGENET_STATS_LEN	ARRAY_SIZE(bcmgenet_gstrings_stats)
+
+static void bcmgenet_get_drvinfo(struct net_device *dev,
+		struct ethtool_drvinfo *info)
+{
+	strncpy(info->driver, CARDNAME, sizeof(info->driver));
+	strncpy(info->version, VER_STR, sizeof(info->version));
+	info->n_stats = BCMGENET_STATS_LEN;
+}
+
+static int bcmgenet_get_sset_count(struct net_device *dev, int string_set)
+{
+	switch (string_set) {
+	case ETH_SS_STATS:
+		return BCMGENET_STATS_LEN;
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+static void bcmgenet_get_strings(struct net_device *dev,
+				u32 stringset, u8 *data)
+{
+	int i;
+
+	switch (stringset) {
+	case ETH_SS_STATS:
+		for (i = 0; i < BCMGENET_STATS_LEN; i++) {
+			memcpy(data + i * ETH_GSTRING_LEN,
+				bcmgenet_gstrings_stats[i].stat_string,
+				ETH_GSTRING_LEN);
+		}
+		break;
+	}
+}
+
+static void bcmgenet_update_mib_counters(struct BcmEnet_devctrl *priv)
+{
+	int i, j = 0;
+
+	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
+		const struct bcmgenet_stats *s;
+		u32 val;
+		char *p;
+		u8 offset = 0;
+
+		s = &bcmgenet_gstrings_stats[i];
+		switch (s->type) {
+		case BCMGENET_STAT_NETDEV:
+			continue;
+		case BCMGENET_STAT_MIB_RX:
+		case BCMGENET_STAT_MIB_TX:
+		case BCMGENET_STAT_RUNT:
+			if (s->type != BCMGENET_STAT_MIB_RX)
+				offset = BCMGENET_STAT_OFFSET;
+			val = DEV_RD(priv->dev->base_addr +
+					GENET_UMAC_OFF + UMAC_MIB_START +
+					j + offset);
+			break;
+		case BCMGENET_STAT_MISC:
+			val = DEV_RD(priv->dev->base_addr + GENET_UMAC_OFF + s->reg_offset);
+			/* clear if overflowed */
+			if (val == ~0)
+				DEV_WR(priv->dev->base_addr + GENET_UMAC_OFF + s->reg_offset, 0);
+			break;
+		}
+
+		j += s->stat_sizeof;
+		p = (char *)priv + s->stat_offset;
+		*(u32 *)p = val;
+	}
+}
+
+static void bcmgenet_get_ethtool_stats(struct net_device *dev,
+					struct ethtool_stats *stats,
+					u64 *data)
+{
+	struct BcmEnet_devctrl *priv = netdev_priv(dev);
+	int i;
+
+	mutex_lock(&priv->mib_mutex);
+	if (netif_running(dev))
+		bcmgenet_update_mib_counters(priv);
+
+	for (i = 0; i < BCMGENET_STATS_LEN; i++) {
+		const struct bcmgenet_stats *s;
+		char *p;
+
+		s = &bcmgenet_gstrings_stats[i];
+		if (s->type == -1)
+			p = (char *)&dev->stats;
+		else
+			p = (char *)priv;
+		p += s->stat_offset;
+		data[i] = *(u32 *)p;
+	}
+	mutex_unlock(&priv->mib_mutex);
+}
+
 /*
  * standard ethtool support functions.
  */
@@ -3251,6 +3493,9 @@ static struct ethtool_ops bcmgenet_ethtool_ops = {
 	.get_wol			= bcmgenet_get_wol,
 	.set_wol			= bcmgenet_set_wol,
 	.get_link			= ethtool_op_get_link,
+	.get_strings		= bcmgenet_get_strings,
+	.get_sset_count		= bcmgenet_get_sset_count,
+	.get_ethtool_stats	= bcmgenet_get_ethtool_stats,
 };
 
 static int bcmgenet_enable_arp_filter(struct BcmEnet_devctrl *pDevCtrl)
@@ -3551,6 +3796,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	spin_lock_init(&pDevCtrl->lock);
 	spin_lock_init(&pDevCtrl->bh_lock);
 	mutex_init(&pDevCtrl->mdio_mutex);
+	mutex_init(&pDevCtrl->mib_mutex);
 	/* Mii wait queue */
 	init_waitqueue_head(&pDevCtrl->wq);
 
@@ -3582,7 +3828,13 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	} else {
 		pDevCtrl->phyAddr = cfg->phy_id;
 	}
+
 	bcmgenet_mii_init(dev);
+
+	if (cfg->sw_type) {
+		pDevCtrl->sw_type = cfg->sw_type;
+		bcmgenet_ethsw_init(dev);
+	}
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
 
@@ -3599,7 +3851,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 		pDevCtrl->timer.function = bcmgenet_gphy_link_timer;
 	} else {
 		/* check link status */
-		bcmgenet_mii_setup(dev);
+		bcmgenet_mii_setup(dev, 0);
 	}
 
 	netif_carrier_off(pDevCtrl->dev);

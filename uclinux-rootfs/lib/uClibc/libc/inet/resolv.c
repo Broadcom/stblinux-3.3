@@ -2917,6 +2917,7 @@ int res_init(void)
 #endif
 
 	__UCLIBC_MUTEX_LOCK(__resolv_lock);
+	__res_sync = NULL;
 	__close_nameservers();
 	__open_nameservers();
 

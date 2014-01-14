@@ -1275,6 +1275,11 @@ static int ext4_flex_group_add(struct super_block *sb,
 
 	ext4_update_super(sb, flex_gd);
 
+	/*
+	 * Update the fs overhead information
+	 */
+	ext4_calculate_overhead(sb);
+
 	err = ext4_handle_dirty_super(handle, sb);
 
 exit_journal:

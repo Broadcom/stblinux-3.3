@@ -102,6 +102,9 @@ unsigned long brcm_moca_rf_band = MOCA_BAND_HIGHRF;
 
 void board_pinmux_setup(void)
 {
+	static int __maybe_unused sdio_0_disabled = -1;
+	static int __maybe_unused sdio_1_disabled = -1;
+
 #if !defined(CONFIG_BRCM_IKOS)
 #if defined(CONFIG_BCM7231)
 
@@ -318,8 +321,11 @@ void board_pinmux_setup(void)
 
 #elif defined(CONFIG_BCM7425)
 
-	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
-	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
+	if (sdio_0_disabled < 0)
+		/* Bootloader indicates availability of SDIO_0 in SCRATCH reg */
+		sdio_0_disabled = BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01;
+
+	if (!sdio_0_disabled) {
 		PINMUX(14, gpio_072, 2);
 		PINMUX(14, gpio_073, 2);
 		PINMUX(14, gpio_074, 2);
@@ -377,8 +383,12 @@ void board_pinmux_setup(void)
 	PINMUX(18, sgpio_00, 1);        /* MoCA I2C */
 	PINMUX(19, sgpio_01, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCC_REG_START);
-	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
-	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
+
+	if (sdio_0_disabled < 0)
+		/* Bootloader indicates availability of SDIO_0 in SCRATCH reg */
+		sdio_0_disabled = BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01;
+
+	if (!sdio_0_disabled) {
 		PINMUX(14, gpio_072, 2);
 		PINMUX(14, gpio_073, 2);
 		PINMUX(14, gpio_074, 2);
@@ -430,8 +440,11 @@ void board_pinmux_setup(void)
 	PINMUX(18, sgpio_01, 1);
 	brcm_moca_i2c_base = BPHYSADDR(BCHP_BSCD_REG_START);
 
-	/* Bootloader indicates the availability of SDIO_0 in SCRATCH reg */
-	if ((BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01) == 0) {
+	if (sdio_0_disabled < 0)
+		/* Bootloader indicates availability of SDIO_0 in SCRATCH reg */
+		sdio_0_disabled = BDEV_RD(SDIO_CFG_REG(0, SCRATCH)) & 0x01;
+
+	if (!sdio_0_disabled) {
 		/*
 		 * 7241 uses GPIO_092 for UART_TX0 instead of SDIO0_VCTL so
 		 * leave it alone. We don't need SDIO0_VCTL because the board
@@ -484,10 +497,56 @@ void board_pinmux_setup(void)
 		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_9,
 			gpio_131_pad_ctrl, 2);
 	}
-	/* Bootloader indicates the availability of SDIO_1 in SCRATCH reg */
-	if ((BDEV_RD(SDIO_CFG_REG(1, SCRATCH)) & 0x01) == 0)
+
+	if (sdio_1_disabled < 0)
+		/* Bootloader indicates availability of SDIO_1 in SCRATCH reg */
+		sdio_1_disabled = BDEV_RD(SDIO_CFG_REG(1, SCRATCH)) & 0x01;
+
+	if (!sdio_1_disabled)
 		/* default SDIO1 to eMMC */
 		BDEV_SET(BCHP_HIF_TOP_CTRL_EMMC_PIN_CTRL, 0x00000001);
+
+	/* GENET_1 is connected to BCM60321 via EXT_MII on BCM97241PLC
+	 * and GENET_1 is connected to a BCM53101 on BCM97241DCSFBTSFF
+	 */
+	if (!strcmp(brcm_cfe_boardname, "BCM97241PLC") ||
+		!strcmp(brcm_cfe_boardname, "BCM97241DCSFBTSFF")) {
+		/* set GENET_1 MII pinmuxing */
+		PINMUX(15, gpio_132, 1);	/* MII_RX_DV */
+		PINMUX(16, gpio_133, 1);	/* MII_RX_ER */
+		PINMUX(16, gpio_134, 1);	/* MII_RX_CLK */
+		PINMUX(16, gpio_135, 1);	/* MII_COL */
+		PINMUX(16, gpio_136, 1);	/* MII_CRS */
+		PINMUX(16, gpio_137, 1);	/* MII_MDIO */
+		PINMUX(16, gpio_138, 1);	/* MII_TX_CLK */
+		PINMUX(16, gpio_139, 1);	/* MII_RXD_03 */
+		PINMUX(16, gpio_140, 1);	/* MII_RXD_02 */
+		PINMUX(17, gpio_141, 1);	/* MII_RXD_01 */
+		PINMUX(17, gpio_142, 1);	/* MII_RXD_00 */
+		PINMUX(17, gpio_143, 1);	/* MII_TXD_03 */
+		PINMUX(17, gpio_144, 1);	/* MII_TXD_02 */
+		PINMUX(17, gpio_145, 1);	/* MII_TXD_01 */
+		PINMUX(17, gpio_146, 1);	/* MII_TXD_00 */
+		PINMUX(17, gpio_147, 1);	/* MII_TX_EN */
+		PINMUX(17, gpio_148, 1);	/* MII_TX_ER */
+		PINMUX(18, gpio_149, 1);	/* MII_MDC */
+
+		/* Switch MII control over GENET_1 */
+		BDEV_WR(BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0,
+			(BDEV_RD(BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0) |
+			BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_mii_genet_mac_select_MASK));
+
+		/*
+		 * BCM60321 firmware will snoop MII bus, but avoid any MDIO
+		 * transaction to be safe. The same applies for the BCM53101.
+		 */
+		genet_pdata[1].phy_type = BRCM_PHY_TYPE_EXT_MII;
+		genet_pdata[1].phy_id = BRCM_PHY_ID_NONE;
+		genet_pdata[1].phy_speed = 100;
+
+		if (!strcmp(brcm_cfe_boardname, "BCM97241DCSFBTSFF"))
+			genet_pdata[1].sw_type = 0x53101;
+	}
 
 #elif defined(CONFIG_BCM7563)
 

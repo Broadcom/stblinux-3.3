@@ -157,7 +157,13 @@ static u32 sata3_enable_ssc;
 #define SATA3_MDIO_BRIDGE_BASE		(BCHP_SATA_GRB_REG_START + 0x100)
 #define SATA3_MDIO_BASE_REG_ADDR	(SATA3_MDIO_BRIDGE_BASE + 0x8F * 4)
 
+#define SATA_AHCI_GHC_CAP		(BCHP_SATA_AHCI_GHC_REG_START + 0x0)
 #define SATA_AHCI_GHC_PORTS_IMPLEMENTED	(BCHP_SATA_AHCI_GHC_REG_START + 0xC)
+
+#define HOST_CAP_NCQ			(1 << 30)
+
+#define SATA_TOP_CTRL_BUS_CTRL			0x4
+#define SATA_TOP_CTRL_BUS_CTRL_OVERRIDE_HWINIT	(1 << 16)
 
 #define SATA3_TXPMD_CONTROL1			0x81
 #define SATA3_TXPMD_TX_FREQ_CTRL_CONTROL1	0x82
@@ -235,6 +241,24 @@ static int __init sata3_ssc_setup(char *str)
 
 __setup("sata3_ssc", sata3_ssc_setup);
 
+/*
+ * Disables NCQ at the SATA AHCI core level by clearing the bit that indicates
+ * support for it.
+ */
+static void brcm_sata3_disable_ncq(void)
+{
+	u32 top_ctrl = BCHP_SATA_TOP_CTRL_REG_START + SATA_TOP_CTRL_BUS_CTRL;
+
+	BDEV_SET(top_ctrl, SATA_TOP_CTRL_BUS_CTRL_OVERRIDE_HWINIT);
+
+	/*
+	 * Clear out the NCQ bit so the AHCI driver will not issue FPDMA/NCQ
+	 * commands.
+	 */
+	BDEV_UNSET(SATA_AHCI_GHC_CAP, HOST_CAP_NCQ);
+
+	BDEV_UNSET(top_ctrl, SATA_TOP_CTRL_BUS_CTRL_OVERRIDE_HWINIT);
+}
 #endif /* CONFIG_BRCM_HAS_SATA3 */
 
 void bchip_sata3_init(void)
@@ -247,6 +271,8 @@ void bchip_sata3_init(void)
 
 	for (i = 0; i < ports; i++)
 		brcm_sata3_init_freq(i, sata3_enable_ssc & (1 << i));
+
+	brcm_sata3_disable_ncq();
 #endif
 }
 

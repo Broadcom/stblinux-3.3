@@ -14114,7 +14114,24 @@ diff -Nur a/linux/drivers/mmc/card/Kconfig b/linux/drivers/mmc/card/Kconfig
 diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
 --- a/linux/drivers/mmc/card/block.c	2012-03-29 17:32:34.161068315 -0700
 +++ b/linux/drivers/mmc/card/block.c	2012-02-24 18:07:06.000000000 -0800
-@@ -144,11 +144,7 @@
+@@ -35,13 +35,15 @@
+ #include <linux/capability.h>
+ #include <linux/compat.h>
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/mmc.h>
++
+ #include <linux/mmc/ioctl.h>
+ #include <linux/mmc/card.h>
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/mmc.h>
+ #include <linux/mmc/sd.h>
+ 
+-#include <asm/system.h>
+ #include <asm/uaccess.h>
+ 
+ #include "queue.h"
+@@ -144,11 +146,7 @@
  
  static inline int mmc_get_devidx(struct gendisk *disk)
  {
@@ -14127,7 +14144,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	return devidx;
  }
  
-@@ -661,18 +657,22 @@
+@@ -661,18 +659,22 @@
  			req->rq_disk->disk_name, "timed out", name, status);
  
  		/* If the status cmd initially failed, retry the r/w cmd */
@@ -14153,100 +14170,152 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  		return ERR_ABORT;
  
  	default:
-@@ -874,7 +874,7 @@
- {
- 	struct mmc_blk_data *md = mq->data;
- 	struct mmc_card *card = md->queue.card;
--	unsigned int from, nr, arg, trim_arg, erase_arg;
-+	unsigned int from, nr, arg;
- 	int err = 0, type = MMC_BLK_SECDISCARD;
- 
- 	if (!(mmc_can_secure_erase_trim(card) || mmc_can_sanitize(card))) {
-@@ -882,26 +882,20 @@
- 		goto out;
- 	}
- 
--	from = blk_rq_pos(req);
--	nr = blk_rq_sectors(req);
--
- 	/* The sanitize operation is supported at v4.5 only */
- 	if (mmc_can_sanitize(card)) {
--		erase_arg = MMC_ERASE_ARG;
--		trim_arg = MMC_TRIM_ARG;
--	} else {
--		erase_arg = MMC_SECURE_ERASE_ARG;
--		trim_arg = MMC_SECURE_TRIM1_ARG;
--	}
--
--	if (mmc_erase_group_aligned(card, from, nr))
--		arg = erase_arg;
--	else if (mmc_can_trim(card))
--		arg = trim_arg;
--	else {
--		err = -EINVAL;
-+		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
-+				EXT_CSD_SANITIZE_START, 1, 0);
- 		goto out;
- 	}
-+
-+	from = blk_rq_pos(req);
-+	nr = blk_rq_sectors(req);
-+
-+	if (mmc_can_trim(card) && !mmc_erase_group_aligned(card, from, nr))
-+		arg = MMC_SECURE_TRIM1_ARG;
-+	else
-+		arg = MMC_SECURE_ERASE_ARG;
- retry:
- 	if (card->quirks & MMC_QUIRK_INAND_CMD38) {
- 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
-@@ -911,41 +905,25 @@
- 				 INAND_CMD38_ARG_SECERASE,
- 				 0);
- 		if (err)
--			goto out_retry;
-+			goto out;
- 	}
--
- 	err = mmc_erase(card, from, nr, arg);
--	if (err == -EIO)
--		goto out_retry;
--	if (err)
--		goto out;
--
--	if (arg == MMC_SECURE_TRIM1_ARG) {
-+	if (!err && arg == MMC_SECURE_TRIM1_ARG) {
- 		if (card->quirks & MMC_QUIRK_INAND_CMD38) {
- 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
- 					 INAND_CMD38_ARG_EXT_CSD,
- 					 INAND_CMD38_ARG_SECTRIM2,
- 					 0);
- 			if (err)
--				goto out_retry;
-+				goto out;
- 		}
--
- 		err = mmc_erase(card, from, nr, MMC_SECURE_TRIM2_ARG);
--		if (err == -EIO)
--			goto out_retry;
--		if (err)
--			goto out;
- 	}
--
--	if (mmc_can_sanitize(card))
--		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
--				 EXT_CSD_SANITIZE_START, 1, 0);
--out_retry:
--	if (err && !mmc_blk_reset(md, card->host, type))
-+out:
-+	if (err == -EIO && !mmc_blk_reset(md, card->host, type))
+@@ -862,7 +864,9 @@
  		goto retry;
  	if (!err)
  		mmc_blk_reset_success(md, type);
--out:
- 	spin_lock_irq(&md->lock);
- 	__blk_end_request(req, err, blk_rq_bytes(req));
- 	spin_unlock_irq(&md->lock);
-@@ -1395,12 +1373,22 @@
+-	blk_end_request(req, err, blk_rq_bytes(req));
++	spin_lock_irq(&md->lock);
++	__blk_end_request(req, err, blk_rq_bytes(req));
++	spin_unlock_irq(&md->lock);
+ 
+ 	return err ? 0 : 1;
+ }
+@@ -935,16 +939,21 @@
+ 			goto out;
+ 	}
+ 
+-	if (mmc_can_sanitize(card))
++	if (mmc_can_sanitize(card)) {
++		trace_mmc_blk_erase_start(EXT_CSD_SANITIZE_START, 0, 0);
+ 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+ 				 EXT_CSD_SANITIZE_START, 1, 0);
++		trace_mmc_blk_erase_end(EXT_CSD_SANITIZE_START, 0, 0);
++	}
+ out_retry:
+ 	if (err && !mmc_blk_reset(md, card->host, type))
+ 		goto retry;
+ 	if (!err)
+ 		mmc_blk_reset_success(md, type);
+ out:
+-	blk_end_request(req, err, blk_rq_bytes(req));
++	spin_lock_irq(&md->lock);
++	__blk_end_request(req, err, blk_rq_bytes(req));
++	spin_unlock_irq(&md->lock);
+ 
+ 	return err ? 0 : 1;
+ }
+@@ -959,7 +968,9 @@
+ 	if (ret)
+ 		ret = -EIO;
+ 
+-	blk_end_request_all(req, ret);
++	spin_lock_irq(&md->lock);
++	__blk_end_request_all(req, ret);
++	spin_unlock_irq(&md->lock);
+ 
+ 	return ret ? 0 : 1;
+ }
+@@ -1096,6 +1107,7 @@
+ 	struct mmc_blk_request *brq = &mqrq->brq;
+ 	struct request *req = mqrq->req;
+ 	struct mmc_blk_data *md = mq->data;
++	bool do_data_tag;
+ 
+ 	/*
+ 	 * Reliable writes are used to implement Forced Unit Access and
+@@ -1172,6 +1184,16 @@
+ 		mmc_apply_rel_rw(brq, card, req);
+ 
+ 	/*
++	 * Data tag is used only during writing meta data to speed
++	 * up write and any subsequent read of this meta data
++	 */
++	do_data_tag = (card->ext_csd.data_tag_unit_size) &&
++		(req->cmd_flags & REQ_META) &&
++		(rq_data_dir(req) == WRITE) &&
++		((brq->data.blocks * brq->data.blksz) >=
++		 card->ext_csd.data_tag_unit_size);
++
++	/*
+ 	 * Pre-defined multi-block transfers are preferable to
+ 	 * open ended-ones (and necessary for reliable writes).
+ 	 * However, it is not sufficient to just send CMD23,
+@@ -1189,13 +1211,13 @@
+ 	 * We'll avoid using CMD23-bounded multiblock writes for
+ 	 * these, while retaining features like reliable writes.
+ 	 */
+-
+-	if ((md->flags & MMC_BLK_CMD23) &&
+-	    mmc_op_multi(brq->cmd.opcode) &&
+-	    (do_rel_wr || !(card->quirks & MMC_QUIRK_BLK_NO_CMD23))) {
++	if ((md->flags & MMC_BLK_CMD23) && mmc_op_multi(brq->cmd.opcode) &&
++	    (do_rel_wr || !(card->quirks & MMC_QUIRK_BLK_NO_CMD23) ||
++	     do_data_tag)) {
+ 		brq->sbc.opcode = MMC_SET_BLOCK_COUNT;
+ 		brq->sbc.arg = brq->data.blocks |
+-			(do_rel_wr ? (1 << 31) : 0);
++			(do_rel_wr ? (1 << 31) : 0) |
++			(do_data_tag ? (1 << 29) : 0);
+ 		brq->sbc.flags = MMC_RSP_R1 | MMC_CMD_AC;
+ 		brq->mrq.sbc = &brq->sbc;
+ 	}
+@@ -1247,10 +1269,14 @@
+ 
+ 		blocks = mmc_sd_num_wr_blocks(card);
+ 		if (blocks != (u32)-1) {
+-			ret = blk_end_request(req, 0, blocks << 9);
++			spin_lock_irq(&md->lock);
++			ret = __blk_end_request(req, 0, blocks << 9);
++			spin_unlock_irq(&md->lock);
+ 		}
+ 	} else {
+-		ret = blk_end_request(req, 0, brq->data.bytes_xfered);
++		spin_lock_irq(&md->lock);
++		ret = __blk_end_request(req, 0, brq->data.bytes_xfered);
++		spin_unlock_irq(&md->lock);
+ 	}
+ 	return ret;
+ }
+@@ -1292,8 +1318,10 @@
+ 			 * A block was successfully transferred.
+ 			 */
+ 			mmc_blk_reset_success(md, type);
+-			ret = blk_end_request(req, 0,
++			spin_lock_irq(&md->lock);
++			ret = __blk_end_request(req, 0,
+ 						brq->data.bytes_xfered);
++			spin_unlock_irq(&md->lock);
+ 			/*
+ 			 * If the blk_end_request function returns non-zero even
+ 			 * though all data has been transferred and no errors
+@@ -1343,8 +1371,10 @@
+ 			 * time, so we only reach here after trying to
+ 			 * read a single sector.
+ 			 */
+-			ret = blk_end_request(req, -EIO,
++			spin_lock_irq(&md->lock);
++			ret = __blk_end_request(req, -EIO,
+ 						brq->data.blksz);
++			spin_unlock_irq(&md->lock);
+ 			if (!ret)
+ 				goto start_new_req;
+ 			break;
+@@ -1365,10 +1395,12 @@
+ 	return 1;
+ 
+  cmd_abort:
++	spin_lock_irq(&md->lock);
+ 	if (mmc_card_removed(card))
+ 		req->cmd_flags |= REQ_QUIET;
+ 	while (ret)
+-		ret = blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
++		ret = __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
++	spin_unlock_irq(&md->lock);
+ 
+  start_new_req:
+ 	if (rqc) {
+@@ -1379,12 +1411,22 @@
  	return 0;
  }
  
@@ -14269,7 +14338,28 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	if (req && !mq->mqrq_prev->req)
  		/* claim host only for the first request */
  		mmc_claim_host(card->host);
-@@ -1512,6 +1500,7 @@
+@@ -1392,7 +1434,9 @@
+ 	ret = mmc_blk_part_switch(card, md);
+ 	if (ret) {
+ 		if (req) {
+-			blk_end_request_all(req, -EIO);
++			spin_lock_irq(&md->lock);
++			__blk_end_request_all(req, -EIO);
++			spin_unlock_irq(&md->lock);
+ 		}
+ 		ret = 0;
+ 		goto out;
+@@ -1402,7 +1446,8 @@
+ 		/* complete ongoing async transfer before issuing discard */
+ 		if (card->host->areq)
+ 			mmc_blk_issue_rw_rq(mq, NULL);
+-		if (req->cmd_flags & REQ_SECURE)
++		if (req->cmd_flags & REQ_SECURE &&
++			!(card->quirks & MMC_QUIRK_SEC_ERASE_TRIM_BROKEN))
+ 			ret = mmc_blk_issue_secdiscard_rq(mq, req);
+ 		else
+ 			ret = mmc_blk_issue_discard_rq(mq, req);
+@@ -1494,6 +1539,7 @@
  	md->disk->queue = md->queue.queue;
  	md->disk->driverfs_dev = parent;
  	set_disk_ro(md->disk, md->read_only || default_ro);
@@ -14277,7 +14367,96 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	/*
  	 * As discussed on lkml, GENHD_FL_REMOVABLE should:
-@@ -1809,6 +1798,9 @@
+@@ -1617,24 +1663,6 @@
+ 	return ret;
+ }
+ 
+-static int
+-mmc_blk_set_blksize(struct mmc_blk_data *md, struct mmc_card *card)
+-{
+-	int err;
+-
+-	mmc_claim_host(card->host);
+-	err = mmc_set_blocklen(card, 512);
+-	mmc_release_host(card->host);
+-
+-	if (err) {
+-		pr_err("%s: unable to set block size to 512: %d\n",
+-			md->disk->disk_name, err);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ static void mmc_blk_remove_req(struct mmc_blk_data *md)
+ {
+ 	struct mmc_card *card;
+@@ -1689,7 +1717,7 @@
+ 
+ 	if ((md->area_type & MMC_BLK_DATA_AREA_BOOT) &&
+ 	     card->ext_csd.boot_ro_lockable) {
+-		mode_t mode;
++		umode_t mode;
+ 
+ 		if (card->ext_csd.boot_ro_lock & EXT_CSD_BOOT_WP_B_PWR_WP_DIS)
+ 			mode = S_IRUGO;
+@@ -1720,6 +1748,7 @@
+ #define CID_MANFID_SANDISK	0x2
+ #define CID_MANFID_TOSHIBA	0x11
+ #define CID_MANFID_MICRON	0x13
++#define CID_MANFID_SAMSUNG	0x15
+ 
+ static const struct mmc_fixup blk_fixups[] =
+ {
+@@ -1756,13 +1785,34 @@
+ 	MMC_FIXUP(CID_NAME_ANY, CID_MANFID_MICRON, 0x200, add_quirk_mmc,
+ 		  MMC_QUIRK_LONG_READ_TIME),
+ 
++	/*
++	 * On these Samsung MoviNAND parts, performing secure erase or
++	 * secure trim can result in unrecoverable corruption due to a
++	 * firmware bug.
++	 */
++	MMC_FIXUP("M8G2FA", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("MAG4FA", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("MBG8FA", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("MCGAFA", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("VAL00M", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("VYL00M", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("KYL00M", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++	MMC_FIXUP("VZL00M", CID_MANFID_SAMSUNG, CID_OEMID_ANY, add_quirk_mmc,
++		  MMC_QUIRK_SEC_ERASE_TRIM_BROKEN),
++
+ 	END_FIXUP
+ };
+ 
+ static int mmc_blk_probe(struct mmc_card *card)
+ {
+ 	struct mmc_blk_data *md, *part_md;
+-	int err;
+ 	char cap_str[10];
+ 
+ 	/*
+@@ -1775,10 +1825,6 @@
+ 	if (IS_ERR(md))
+ 		return PTR_ERR(md);
+ 
+-	err = mmc_blk_set_blksize(md, card);
+-	if (err)
+-		goto out;
+-
+ 	string_get_size((u64)get_capacity(md->disk) << 9, STRING_UNITS_2,
+ 			cap_str, sizeof(cap_str));
+ 	pr_info("%s: %s %s %s %s\n",
+@@ -1791,6 +1837,9 @@
  	mmc_set_drvdata(card, md);
  	mmc_fixup_device(card, blk_fixups);
  
@@ -14287,7 +14466,16 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	if (mmc_add_disk(md))
  		goto out;
  
-@@ -1834,6 +1826,9 @@
+@@ -1803,7 +1852,7 @@
+  out:
+ 	mmc_blk_remove_parts(card, md);
+ 	mmc_blk_remove_req(md);
+-	return err;
++	return 0;
+ }
+ 
+ static void mmc_blk_remove(struct mmc_card *card)
+@@ -1816,10 +1865,13 @@
  	mmc_release_host(card->host);
  	mmc_blk_remove_req(md);
  	mmc_set_drvdata(card, NULL);
@@ -14297,16 +14485,20 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  }
  
  #ifdef CONFIG_PM
-@@ -1857,7 +1852,9 @@
+-static int mmc_blk_suspend(struct mmc_card *card, pm_message_t state)
++static int mmc_blk_suspend(struct mmc_card *card)
+ {
+ 	struct mmc_blk_data *part_md;
+ 	struct mmc_blk_data *md = mmc_get_drvdata(card);
+@@ -1839,8 +1891,6 @@
  	struct mmc_blk_data *md = mmc_get_drvdata(card);
  
  	if (md) {
-+#ifndef CONFIG_MMC_BLOCK_DEFERRED_RESUME
- 		mmc_blk_set_blksize(md, card);
-+#endif
- 
+-		mmc_blk_set_blksize(md, card);
+-
  		/*
  		 * Resume involves the card going into idle state,
+ 		 * so current partition is always the main one.
 diff -Nur a/linux/drivers/mmc/core/Kconfig b/linux/drivers/mmc/core/Kconfig
 --- a/linux/drivers/mmc/core/Kconfig	2012-03-29 17:32:34.161068315 -0700
 +++ b/linux/drivers/mmc/core/Kconfig	2011-11-11 15:36:22.000000000 -0800
