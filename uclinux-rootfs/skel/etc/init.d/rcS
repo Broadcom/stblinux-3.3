@@ -12,6 +12,8 @@ mount -t tmpfs -o size=64k,mode=0755 tmpfs /dev
 mkdir -p /dev/pts
 mount -t devpts devpts /dev/pts
 mount -t tmpfs -o mode=01777 tmpfs /tmp
+mkdir -p /dev/shm
+mount -t tmpfs -o noexec,nosuid,nodev,mode=1777 shm /dev/shm
 
 echo "Starting mdev"
 echo "/sbin/stbhotplug" > /proc/sys/kernel/hotplug

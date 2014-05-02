@@ -414,72 +414,6 @@
 #include <linux/brcmstb/7435b0/bchp_wktmr.h>
 #include <linux/brcmstb/7435b0/brcmirq.h>
 
-#elif defined(CONFIG_BCM7445A0)
-#include <linux/brcmstb/7445a0/bchp_aon_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_aon_pin_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_aon_pm_l2.h>
-#include <linux/brcmstb/7445a0/bchp_bspi.h>
-#include <linux/brcmstb/7445a0/bchp_bspi_raf.h>
-#include <linux/brcmstb/7445a0/bchp_clkgen.h>
-#include <linux/brcmstb/7445a0/bchp_common.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_0_2.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_1_2.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_2_2.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_byte_lane_3_2.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_0.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_1.h>
-#include <linux/brcmstb/7445a0/bchp_ddr34_phy_control_regs_2.h>
-#include <linux/brcmstb/7445a0/bchp_ebi.h>
-#include <linux/brcmstb/7445a0/bchp_gio.h>
-#include <linux/brcmstb/7445a0/bchp_gio_aon.h>
-#include <linux/brcmstb/7445a0/bchp_hif_continuation.h>
-#include <linux/brcmstb/7445a0/bchp_hif_cpu_intr1.h>
-#include <linux/brcmstb/7445a0/bchp_hif_cpubiuctrl.h>
-#include <linux/brcmstb/7445a0/bchp_hif_intr2.h>
-#include <linux/brcmstb/7445a0/bchp_hif_mspi.h>
-#include <linux/brcmstb/7445a0/bchp_hif_spi_intr2.h>
-#include <linux/brcmstb/7445a0/bchp_hif_top_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_irq0.h>
-#include <linux/brcmstb/7445a0/bchp_irq1.h>
-#include <linux/brcmstb/7445a0/bchp_memc_arb_1.h>
-#include <linux/brcmstb/7445a0/bchp_memc_ddr_0.h>
-#include <linux/brcmstb/7445a0/bchp_memc_ddr_1.h>
-#include <linux/brcmstb/7445a0/bchp_memc_ddr_2.h>
-#include <linux/brcmstb/7445a0/bchp_memc_misc_1.h>
-#include <linux/brcmstb/7445a0/bchp_moca_hostmisc.h>
-#include <linux/brcmstb/7445a0/bchp_nand.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_dma.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_ext_cfg.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_intr2.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_misc.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_misc_perst.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_pcie.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_type1.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_rc_cfg_vendor.h>
-#include <linux/brcmstb/7445a0/bchp_pcie_0_rgr1.h>
-#include <linux/brcmstb/7445a0/bchp_sata_top_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_sdio_0_cfg.h>
-#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_0.h>
-#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_1.h>
-#include <linux/brcmstb/7445a0/bchp_shimphy_addr_cntl_2.h>
-#include <linux/brcmstb/7445a0/bchp_sun_top_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_timer.h>
-#include <linux/brcmstb/7445a0/bchp_uarta.h>
-#include <linux/brcmstb/7445a0/bchp_uartb.h>
-#include <linux/brcmstb/7445a0/bchp_uartc.h>
-#include <linux/brcmstb/7445a0/bchp_usb1_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_usb_ctrl.h>
-#include <linux/brcmstb/7445a0/bchp_wktmr.h>
-#include <linux/brcmstb/7445a0/brcmirq.h>
-
 #elif defined(CONFIG_BCM7543A0)
 #include <linux/brcmstb/7543a0/bchp_aon_ctrl.h>
 #include <linux/brcmstb/7543a0/bchp_aon_pin_ctrl.h>
@@ -624,14 +558,12 @@
 /* Don't shut down DDR PLL */
 #define BRCM_STANDBY_DDR_PLL_ON		0x20
 
-#if defined(CONFIG_BRCM_HAS_AON)
 #if defined(BCHP_AON_CTRL_SYSTEM_DATA_00)
 #define AON_RAM_BASE		BCHP_AON_CTRL_SYSTEM_DATA_00
 #else
 #define AON_RAM_BASE		BCHP_AON_CTRL_SYSTEM_DATA_RAMi_ARRAY_BASE
 #endif
 #define AON_RAM(idx)		(AON_RAM_BASE + (idx << 2))
-#endif
 
 #define UPGTMR_FREQ		27000000
 

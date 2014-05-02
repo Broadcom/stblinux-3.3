@@ -337,7 +337,6 @@ int ethsw_reset_ports(struct net_device *dev)
 	unsigned long flags;
 	int i;
 	unsigned char v8;
-	struct BcmEnet_devctrl *priv = netdev_priv(dev);
 
 	local_irq_save(flags);
 

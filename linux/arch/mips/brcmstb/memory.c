@@ -331,15 +331,17 @@ int brcm_map_coherent(dma_addr_t dma_handle, void *cac_va, size_t size,
 		c->vm_start, idx, off, pte);
 
 	do {
+		if (off >= PTRS_PER_PTE) {
+			off = 0;
+			BUG_ON(idx >= NUM_CONSISTENT_PTES - 1);
+			pte = consistent_pte[++idx];
+		}
+
 		BUG_ON(!pte_none(*pte));
 		set_pte(pte, mk_pte(page, PAGE_KERNEL_UNCACHED));
 		page++;
 		pte++;
 		off++;
-		if (off >= PTRS_PER_PTE) {
-			off = 0;
-			pte = consistent_pte[++idx];
-		}
 	} while (size -= PAGE_SIZE);
 
 	*uncac_va = (void *)c->vm_start;
@@ -376,13 +378,15 @@ void *brcm_unmap_coherent(void *vaddr)
 		addr, idx, off, pte);
 
 	do {
+		if (off >= PTRS_PER_PTE) {
+			off = 0;
+			BUG_ON(idx >= NUM_CONSISTENT_PTES - 1);
+			pte = consistent_pte[++idx];
+		}
+
 		pte_clear(&init_mm, addr, pte);
 		pte++;
 		off++;
-		if (off >= PTRS_PER_PTE) {
-			off = 0;
-			pte = consistent_pte[++idx];
-		}
 		addr += PAGE_SIZE;
 	} while (addr < c->vm_end);
 	flush_tlb_kernel_range(c->vm_start, c->vm_end);

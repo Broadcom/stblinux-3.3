@@ -454,7 +454,6 @@ static void bcmgenet_gphy_link_timer(unsigned long data)
 	mod_timer(&pDevCtrl->timer, jiffies + HZ);
 }
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
 static int bcmgenet_wakeup_enable(void *ref)
 {
 	struct BcmEnet_devctrl *pDevCtrl = (struct BcmEnet_devctrl *)ref;
@@ -504,7 +503,6 @@ static struct brcm_wakeup_ops bcmgenet_wakeup_ops = {
 	.disable = bcmgenet_wakeup_disable,
 	.poll = bcmgenet_wakeup_poll,
 };
-#endif
 
 /* --------------------------------------------------------------------------
 Name: bcmgenet_open
@@ -603,10 +601,8 @@ static int bcmgenet_open(struct net_device *dev)
 
 	umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
 	brcm_pm_wakeup_register(&bcmgenet_wakeup_ops, pDevCtrl, dev->name);
 	device_set_wakeup_capable(&dev->dev, 1);
-#endif
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_PASSIVE);
@@ -3152,6 +3148,10 @@ static int bcmgenet_get_settings(struct net_device *dev,
 	} else {
 		if (!netif_running(dev))
 			return -EINVAL;
+
+		if (pDevCtrl->extPhy)
+			cmd->transceiver = XCVR_EXTERNAL;
+
 		rc = mii_ethtool_gset(&pDevCtrl->mii, cmd);
 	}
 

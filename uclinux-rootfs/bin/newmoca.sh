@@ -35,7 +35,7 @@ fi
 oldver=$(cat $mocadir/version)
 
 tc=$(cat toolchain)
-if [ -d /opt/toolschains/$tc/bin ]; then
+if [ -d /opt/toolchains/$tc/bin ]; then
 	export PATH=/opt/toolchains/$tc/bin:$PATH
 elif [ -d /projects/stbtc/$tc/bin ]; then
 	export PATH=/projects/stbtc/$tc/bin:$PATH

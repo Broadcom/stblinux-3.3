@@ -26,6 +26,7 @@
 #include <linux/ahci_platform.h>
 #include <linux/bootmem.h>
 #include <linux/spinlock.h>
+#include <linux/irqflags.h>
 #include <linux/mm.h>
 #include <linux/kernel.h>
 #include <linux/pci.h>
@@ -933,15 +934,10 @@ void brcm_machine_restart(const char *command)
 
 void brcm_machine_halt(void)
 {
-#ifdef CONFIG_BRCM_IRW_HALT
-	/* ultra low power standby - on wakeup, system will restart */
-	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 0);
-	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, irw_top_sw_pwroff, 1);
-#endif
-#ifdef CONFIG_BRCM_HAS_AON
 	/* may be S3 cold boot */
 	brcm_pm_s3_cold_boot();
-#endif
+
+	local_irq_disable();
 	while (1)
 		;
 }

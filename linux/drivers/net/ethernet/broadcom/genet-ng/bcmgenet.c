@@ -241,7 +241,6 @@ static void bcmgenet_gphy_link_timer(unsigned long data)
 	mod_timer(&pDevCtrl->timer, jiffies + HZ);
 }
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
 static int bcmgenet_wakeup_enable(void *ref)
 {
 	struct BcmEnet_devctrl *pDevCtrl = (struct BcmEnet_devctrl *)ref;
@@ -291,7 +290,6 @@ static struct brcm_wakeup_ops bcmgenet_wakeup_ops = {
 	.disable = bcmgenet_wakeup_disable,
 	.poll = bcmgenet_wakeup_poll,
 };
-#endif
 
 /* --------------------------------------------------------------------------
 Name: bcmgenet_open
@@ -383,10 +381,8 @@ static int bcmgenet_open(struct net_device *dev)
 
 	umac->cmd |= (CMD_TX_EN | CMD_RX_EN);
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
 	brcm_pm_wakeup_register(&bcmgenet_wakeup_ops, pDevCtrl, dev->name);
 	device_set_wakeup_capable(&dev->dev, 1);
-#endif
 
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT)
 		bcmgenet_power_up(pDevCtrl, GENET_POWER_PASSIVE);
@@ -1538,11 +1534,9 @@ static int init_umac(struct BcmEnet_devctrl *pDevCtrl)
 
 	/* Monitor cable plug/unpluged event for internal PHY */
 	if (pDevCtrl->phyType == BRCM_PHY_TYPE_INT) {
-#if !defined(CONFIG_BCM7445A0)
 		/* HW7445-870: energy detect on A0 silicon is unreliable */
 		intrl2->cpu_mask_clear |= (UMAC_IRQ_PHY_DET_R |
 				UMAC_IRQ_PHY_DET_F);
-#endif /* !defined(CONFIG_BCM7445A0) */
 		intrl2->cpu_mask_clear |= (UMAC_IRQ_LINK_DOWN |
 				UMAC_IRQ_LINK_UP);
 		/* Turn on ENERGY_DET interrupt in bcmgenet_open()

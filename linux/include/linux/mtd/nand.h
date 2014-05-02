@@ -200,6 +200,7 @@ typedef enum {
 /* Device behaves just like nand, but is readonly */
 #define NAND_ROM		0x00000800
 
+
 /* Options valid for Samsung large page devices */
 #define NAND_SAMSUNG_LP_OPTIONS \
 	(NAND_NO_PADDING | NAND_CACHEPRG | NAND_COPYBACK)
@@ -225,6 +226,13 @@ typedef enum {
 #define NAND_OWN_BUFFERS	0x00020000
 /* Chip may not exist, so silence any errors in scan */
 #define NAND_SCAN_SILENT_NODEV	0x00040000
+
+/*
+ * This option is defined to protect against kmapped buffers
+ * being passed from highmem when using DMA
+ */
+#define NAND_USE_BOUNCE_BUFFER	0x00080000
+
 
 /* Options set by nand scan */
 /* Nand scan has allocated controller struct */

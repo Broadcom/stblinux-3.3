@@ -38,6 +38,7 @@
 #include <linux/err.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+#include <linux/mm.h>
 #include <linux/types.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -1476,6 +1477,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 		mtd->oobavail : mtd->oobsize;
 
 	uint8_t *bufpoi, *oob, *buf;
+	int use_bufpoi;
 
 	stats = mtd->ecc_stats;
 
@@ -1495,9 +1497,16 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 		bytes = min(mtd->writesize - col, readlen);
 		aligned = (bytes == mtd->writesize);
 
+		use_bufpoi = (chip->options & NAND_USE_BOUNCE_BUFFER) ?
+			      !virt_addr_valid(buf) : 0;
+
 		/* Is the current page in the buffer? */
 		if (realpage != chip->pagebuf || oob) {
-			bufpoi = aligned ? buf : chip->buffers->databuf;
+			bufpoi = (aligned && !use_bufpoi) ? buf :
+				chip->buffers->databuf;
+
+			if (use_bufpoi && aligned)
+				pr_debug("%s: using bounce buffer\n", __func__);
 
 			chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
 
@@ -1508,19 +1517,19 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 							      page);
 			else if (!aligned && NAND_SUBPAGE_READ(chip) && !oob)
 				ret = chip->ecc.read_subpage(mtd, chip,
-							col, bytes, bufpoi);
+						     col, bytes, bufpoi);
 			else
 				ret = chip->ecc.read_page(mtd, chip, bufpoi,
 							  oob_required, page);
 			if (ret < 0) {
-				if (!aligned)
+				if (!aligned || use_bufpoi)
 					/* Invalidate page cache */
 					chip->pagebuf = -1;
 				break;
 			}
 
 			/* Transfer not aligned data */
-			if (!aligned) {
+			if (!aligned || use_bufpoi) {
 				if (!NAND_SUBPAGE_READ(chip) && !oob &&
 				    !(mtd->ecc_stats.failed - stats.failed) &&
 				    (ops->mode != MTD_OPS_RAW))
@@ -2233,11 +2242,17 @@ static int nand_do_write_ops(struct mtd_info *mtd, loff_t to,
 		int bytes = mtd->writesize;
 		int cached = writelen > bytes && page != blockmask;
 		uint8_t *wbuf = buf;
-
-		/* Partial page write? */
-		if (unlikely(column || writelen < (mtd->writesize - 1))) {
+		int use_bufpoi = (chip->options & NAND_USE_BOUNCE_BUFFER ?
+				  !virt_addr_valid(buf) : 0);
+		int part_pagewr = unlikely(column ||
+					   writelen < (mtd->writesize - 1));
+		/* Partial page write?, or need to use bounce buffer */
+		if (part_pagewr || use_bufpoi) {
+			pr_debug("%s: using write bounce buffer\n", __func__);
 			cached = 0;
-			bytes = min_t(int, bytes - column, (int) writelen);
+			if (part_pagewr)
+				bytes = min_t(int,
+					      bytes - column, (int) writelen);
 			chip->pagebuf = -1;
 			memset(chip->buffers->databuf, 0xff, mtd->writesize);
 			memcpy(&chip->buffers->databuf[column], buf, bytes);

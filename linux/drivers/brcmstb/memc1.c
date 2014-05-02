@@ -26,7 +26,7 @@
 #define DBG(...)		do { } while (0)
 #endif
 
-#if defined(CONFIG_BRCM_HAS_STANDBY) && defined(BCHP_MEMC_DDR_1_SSPD_CMD)
+#if defined(BCHP_MEMC_DDR_1_SSPD_CMD)
 
 #define MAX_CLIENT_INFO_NUM		NUM_MEMC_CLIENTS
 #define MAX_DDR_PARAMS_NUM		16
@@ -41,10 +41,10 @@ static int  __brcm_pm_memc1_initialized(void);
 static void __brcm_pm_memc1_clock_start(void);
 static void __brcm_pm_memc1_clock_stop(void);
 static int  __brcm_pm_memc1_clock_running(void);
-static void __brcm_pm_memc1_suspend(int mode);
-static void __brcm_pm_memc1_resume(int mode);
-static void __brcm_pm_memc1_powerdown(void);
-static int  __brcm_pm_memc1_powerup(void);
+static void brcm_pm_memc1_enable_idle_pad(void);
+static void brcm_pm_memc1_disable_idle_pad(void);
+static void brcm_pm_memc1_enable_plls(void);
+static void brcm_pm_memc1_disable_plls(void);
 
 struct memc_config {
 	u32	client_info[MAX_CLIENT_INFO_NUM];
@@ -83,6 +83,14 @@ static void brcm_pm_memc1_sspd_control(int enable)
 		while (BDEV_RD_F(MEMC_DDR_1_POWER_DOWN_STATUS, SSPD))
 			udelay(1);
 	}
+}
+
+static void brcm_pm_memc1_suspend_s3(void)
+{
+	/* clear standby field */
+	BDEV_UNSET(BCHP_DDR40_PHY_CONTROL_REGS_1_STANDBY_CONTROL, 0x0f);
+	/* inhibit DDR_RSTb pulse, Arm for standby */
+	BDEV_SET(BCHP_DDR40_PHY_CONTROL_REGS_1_STANDBY_CONTROL, BIT(5) | 0x05);
 }
 
 static void brcm_pm_memc1_ddr_params(int restore)
@@ -204,36 +212,34 @@ static int brcm_pm_memc1_initialized(void)
 		return -1; \
 	}
 
-int brcm_pm_memc1_suspend(void)
+int brcm_pm_memc1_suspend(int is_s3)
 {
 	CHECK_MEMC1_INIT();
 
-	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_1_REG_START,
-		memc1_config.client_info, 0);
-	brcm_pm_memc1_ddr_params(0);
-	brcm_pm_memc1_arb_params(0);
-	__brcm_pm_memc1_suspend(0);
-	/* Stop the clocks */
-	brcm_pm_memc1_clock_stop();
+	/*
+	 * Force all dirty cache lines to be written
+	 * If a dirty cache line for memc1 were to be written later,
+	 * it might hang the cache unit and/or cpu.
+	 */
+	_dma_cache_wback_inv(0, ~0);
+	if (is_s3)
+		brcm_pm_memc1_suspend_s3();
+	else
+		brcm_pm_memc1_sspd_control(1);
 
 	return 0;
 }
 
-int brcm_pm_memc1_resume(void)
+int brcm_pm_memc1_resume(int is_s3)
 {
 	CHECK_MEMC1_INIT();
 
-	/* Restart the clocks */
-	brcm_pm_memc1_clock_start();
-	__brcm_pm_memc1_resume(0);
-	brcm_pm_memc1_ddr_params(1);
-	brcm_pm_memc1_arb_params(1);
-	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_1_REG_START,
-		memc1_config.client_info, 1);
-	brcm_pm_memc1_sspd_control(0);
+	if (is_s3 == 0)
+		brcm_pm_memc1_sspd_control(0);
 
 	return 0;
 }
+
 
 int brcm_pm_memc1_powerdown(void)
 {
@@ -245,7 +251,27 @@ int brcm_pm_memc1_powerdown(void)
 		memc1_config.client_info, 0);
 	brcm_pm_memc1_ddr_params(0);
 	brcm_pm_memc1_arb_params(0);
-	__brcm_pm_memc1_powerdown();
+	brcm_pm_memc1_enable_idle_pad();
+
+	memc1_config.shmoo_valid = 1;
+	memc1_config.valid = 1;
+
+	/*
+	 * Force all dirty cache lines to be written
+	 * If a dirty cache line for memc1 were to be written later,
+	 * it might hang the cache unit and/or cpu.
+	 */
+	_dma_cache_wback_inv(0, ~0);
+	brcm_pm_memc1_sspd_control(1);
+
+	brcm_pm_memc1_disable_plls();
+
+	DBG(KERN_DEBUG "%s reset\n", __func__);
+	BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_DRAM_INIT, 1);
+	BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_CORE, 1);
+	BDEV_WR_F_RB(MEMC_DDR_1_DRAM_INIT_CNTRL, DDR3_INIT_MODE, 1);
+	mdelay(1);
+
 	/* Stop the clocks */
 	brcm_pm_memc1_clock_stop();
 	memc1_config.valid = 1;
@@ -267,8 +293,15 @@ int brcm_pm_memc1_powerup(void)
 
 	/* Restart the clocks */
 	brcm_pm_memc1_clock_start();
-	__brcm_pm_memc1_resume(1);
-	__brcm_pm_memc1_powerup();
+	brcm_pm_memc1_enable_plls();
+	brcm_pm_memc1_disable_idle_pad();
+
+	brcm_pm_memc1_sspd_control(0);
+	BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_DRAM_INIT, 0);
+	BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_CORE, 0);
+	mdelay(1);
+	printk(KERN_DEBUG "memc1: powered up\n");
+
 	brcm_pm_memc1_ddr_params(1);
 	brcm_pm_memc1_arb_params(1);
 	brcm_pm_save_restore_rts(BCHP_MEMC_ARB_1_REG_START,
@@ -277,387 +310,6 @@ int brcm_pm_memc1_powerup(void)
 
 	return 0;
 }
-
-#if defined(CONFIG_BCM7420)
-static int __brcm_pm_memc1_initialized(void)
-{
-	return BDEV_RD_F(MEMC_DDR_1_DRAM_INIT_STATUS, INIT_DONE);
-}
-
-static void __brcm_pm_memc1_clock_start(void)
-{
-	BDEV_WR_F_RB(CLK_DDR23_APHY_1_PM_CTRL, DIS_216M_CLK, 0);
-	BDEV_WR_F_RB(CLK_DDR23_APHY_1_PM_CTRL, DIS_108M_CLK, 0);
-	BDEV_WR_F_RB(CLK_MEMC_1_PM_CTRL, DIS_216M_CLK, 0);
-	BDEV_WR_F_RB(CLK_MEMC_1_PM_CTRL, DIS_108M_CLK, 0);
-}
-
-static void __brcm_pm_memc1_clock_stop(void)
-{
-	BDEV_WR_F_RB(CLK_DDR23_APHY_1_PM_CTRL, DIS_216M_CLK, 1);
-	BDEV_WR_F_RB(CLK_DDR23_APHY_1_PM_CTRL, DIS_108M_CLK, 1);
-	BDEV_WR_F_RB(CLK_MEMC_1_PM_CTRL, DIS_216M_CLK, 1);
-	BDEV_WR_F_RB(CLK_MEMC_1_PM_CTRL, DIS_108M_CLK, 1);
-}
-
-static int __brcm_pm_memc1_clock_running(void)
-{
-	return !(BDEV_RD_F(CLK_DDR23_APHY_1_PM_CTRL, DIS_216M_CLK) ||
-	    BDEV_RD_F(CLK_DDR23_APHY_1_PM_CTRL, DIS_108M_CLK) ||
-	    BDEV_RD_F(CLK_MEMC_1_PM_CTRL, DIS_216M_CLK) ||
-	    BDEV_RD_F(CLK_MEMC_1_PM_CTRL, DIS_108M_CLK));
-}
-
-static void __brcm_pm_memc1_suspend(int mode)
-{
-	DBG(KERN_DEBUG "%s %d\n", __func__, mode);
-
-	if (!memc1_config.shmoo_valid) {
-		memc1_config.shmoo_value[0] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA0);
-		memc1_config.shmoo_value[1] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA1);
-		memc1_config.shmoo_value[2] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA2);
-		memc1_config.shmoo_value[3] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA3);
-		memc1_config.shmoo_value[4] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA4);
-		memc1_config.shmoo_value[5] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA5);
-		memc1_config.shmoo_value[6] =
-			BDEV_RD(BCHP_MEMC_GEN_1_MSA_WR_DATA6);
-		memc1_config.shmoo_value[7] =
-			BDEV_RD(BCHP_MEMC_MISC_1_SCRATCH_0);
-		memc1_config.shmoo_valid = 1;
-		DBG(KERN_DEBUG "%s: SHMOO values saved\n", __func__);
-	}
-
-	/* save VCDL values */
-	memc1_config.vcdl[0] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE0_VCDL_PHASE_CNTL);
-	memc1_config.vcdl[1] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE1_VCDL_PHASE_CNTL);
-	memc1_config.vcdl[2] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE0_VCDL_PHASE_CNTL);
-	memc1_config.vcdl[3] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE1_VCDL_PHASE_CNTL);
-
-	/* MEMC1 */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-		DEVCLK_OFF_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-		HIZ_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_POWERDOWN,
-		PLLCLKS_OFF_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_POWERDOWN,
-		LOWPWR_EN, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 1);
-
-	brcm_pm_memc1_sspd_control(1);
-
-
-	if (mode) {
-		/* CKE_IDDQ */
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-			BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL) | 4);
-
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET,
-			MEMC_DRAM_INIT, 1);
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET,
-			MEMC_CORE, 1);
-		BDEV_WR_F_RB(MEMC_DDR_1_DRAM_INIT_CNTRL,
-			DDR3_INIT_MODE, 1);
-		mdelay(1);
-		printk(KERN_DEBUG "memc1: powered down\n");
-	} else
-		printk(KERN_DEBUG "memc1: suspended\n");
-
-	/* Power down LDOs */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_PLL_CTRL1_REG,
-		LDO_PWRDN, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_WORDSLICE_CNTRL_1,
-		LDO_PWRDN, 1);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_WORDSLICE_CNTRL_1,
-		LDO_PWRDN, 1);
-
-}
-
-static void __brcm_pm_memc1_resume(int mode)
-{
-	u32 val, cur_val;
-	s32 sval, scur_val, inc_val;
-
-	DBG(KERN_DEBUG "%s %d\n", __func__, mode);
-
-	/* power up LDOs */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_PLL_CTRL1_REG,
-		LDO_PWRDN, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_WORDSLICE_CNTRL_1,
-		LDO_PWRDN, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_WORDSLICE_CNTRL_1,
-		LDO_PWRDN, 0);
-
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH4_WL0_DQS0_PHASE_CNTRL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH5_WL0_DQS1_PHASE_CNTRL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH8_WL1_DQS0_PHASE_CNTRL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH9_WL1_DQS1_PHASE_CNTRL, 0);
-
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH3_WL0_DQ_PHASE_CNTRL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH7_WL1_DQ_PHASE_CNTRL, 0);
-
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH2_CLOCK_PHASE_CNTRL, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DESKEW_DLL_CNTRL, BYPASS_PHASE, 0);
-
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_1_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_1_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF, 0);
-
-	BDEV_UNSET(BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-	BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL_DEVCLK_OFF_ON_SELFREF_MASK |
-	BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL_IDDQ_MODE_ON_SELFREF_MASK);
-	mdelay(1);
-
-	/* reset the freq divider */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, FREQ_DIV_RESET, 1);
-	mdelay(1);
-	/* reset DATAPATH_216, RD_DATAPATH_RESET, RESET_DATAPATH_DDR  */
-	BDEV_SET_RB(BCHP_MEMC_DDR23_APHY_AC_1_RESET,
-		BCHP_MEMC_DDR23_APHY_AC_1_RESET_DATAPATH_216_RESET_MASK |
-		BCHP_MEMC_DDR23_APHY_AC_1_RESET_RD_DATAPATH_RESET_MASK |
-		BCHP_MEMC_DDR23_APHY_AC_1_RESET_DATAPATH_DDR_RESET_MASK);
-	mdelay(1);
-	/* reset the vcxo */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, VCXO_RESET, 1);
-	mdelay(1);
-	/* de-assert reset the vcxo */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, VCXO_RESET, 0);
-
-	/* de-assert reset the freq divider */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, FREQ_DIV_RESET, 0);
-	mdelay(1);
-
-	/* check for pll lock */
-	while (!BDEV_RD_F(MEMC_DDR23_APHY_AC_1_DDR_PLL_LOCK_STATUS,
-		LOCK_STATUS))
-		;
-
-	/* reload shmoo values */
-	/* set wl0_dq phase */
-	val = memc1_config.shmoo_value[4];
-	cur_val = 0;
-	while (cur_val <= val) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH3_WL0_DQ_PHASE_CNTRL,
-			cur_val);
-		cur_val++;
-	}
-
-	/* set wl1_dq phase */
-	val = memc1_config.shmoo_value[5];
-	cur_val = 0;
-	while (cur_val <= val) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH7_WL1_DQ_PHASE_CNTRL,
-			cur_val);
-		cur_val++;
-	}
-	/* set ch2 phase */
-	val = memc1_config.shmoo_value[6];
-	cur_val = 0;
-	while (cur_val < val) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH2_CLOCK_PHASE_CNTRL,
-			cur_val);
-		cur_val++;
-	}
-
-	/* set ch6 phase */
-	val = memc1_config.shmoo_value[7];
-	cur_val = 0;
-	while (cur_val < val) {
-		BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_DESKEW_DLL_CNTRL,
-			BYPASS_PHASE, cur_val);
-		cur_val++;
-	}
-
-	/* set wl0_dqs0 phases */
-	sval = memc1_config.shmoo_value[0];
-	scur_val = 0;
-	inc_val = sval > 0 ? 1 : -1;
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH4_WL0_DQS0_PHASE_CNTRL,
-		0);
-	while (sval != scur_val) {
-		scur_val += inc_val;
-		BDEV_WR_RB(
-			BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH4_WL0_DQS0_PHASE_CNTRL,
-			scur_val);
-	}
-
-	/* set wl0_dqs1 phases */
-	sval = memc1_config.shmoo_value[1];
-	scur_val = 0;
-	inc_val = sval > 0 ? 1 : -1;
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH5_WL0_DQS1_PHASE_CNTRL,
-		0);
-	while (sval != scur_val) {
-		scur_val += inc_val;
-		BDEV_WR_RB(
-			BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH5_WL0_DQS1_PHASE_CNTRL,
-			scur_val);
-	}
-
-	/* set wl1_dqs0 phases */
-	sval = memc1_config.shmoo_value[2];
-	scur_val = 0;
-	inc_val = sval > 0 ? 1 : -1;
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH8_WL1_DQS0_PHASE_CNTRL,
-		0);
-	while (sval != scur_val) {
-		scur_val += inc_val;
-		BDEV_WR_RB(
-			BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH8_WL1_DQS0_PHASE_CNTRL,
-			scur_val);
-	}
-
-	/* set wl1_dqs1 phases */
-	sval = memc1_config.shmoo_value[3];
-	scur_val = 0;
-	inc_val = sval > 0 ? 1 : -1;
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH9_WL1_DQS1_PHASE_CNTRL,
-		0);
-	while (sval != scur_val) {
-		scur_val += inc_val;
-		BDEV_WR_RB(
-			BCHP_MEMC_DDR23_APHY_AC_1_PLL_CH9_WL1_DQS1_PHASE_CNTRL,
-			scur_val);
-	}
-
-	/* reset the word slice dll */
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_WORD_SLICE_DLL_RESET, 1);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_WORD_SLICE_DLL_RESET, 1);
-	mdelay(1);
-
-	/* reset VCDL values */
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE0_VCDL_PHASE_CNTL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE1_VCDL_PHASE_CNTL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE0_VCDL_PHASE_CNTL, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE1_VCDL_PHASE_CNTL, 0);
-
-	/* de-assert reset of the word slice dll */
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_WORD_SLICE_DLL_RESET, 0);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_WORD_SLICE_DLL_RESET, 0);
-	mdelay(1);
-
-	/* de-assert reset from DATAPATH_216_RESET */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, DATAPATH_216_RESET, 0);
-	/* de-assert reset from RD_DATAPATH_RESET */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, RD_DATAPATH_RESET, 0);
-	/* de-assert reset from DATAPATH_DDR_RESET */
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_AC_1_RESET, DATAPATH_DDR_RESET, 0);
-	mdelay(1);
-
-	/*
-	 * Reload VCDL values:
-	 */
-	cur_val = 0x0101;
-	while (cur_val <= memc1_config.vcdl[0]) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE0_VCDL_PHASE_CNTL,
-			cur_val);
-		cur_val += 0x0101;
-	}
-	cur_val = 0x0101;
-	while (cur_val <= memc1_config.vcdl[1]) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_BYTE1_VCDL_PHASE_CNTL,
-			cur_val);
-		cur_val += 0x0101;
-	}
-	cur_val = 0x0101;
-	while (cur_val <= memc1_config.vcdl[2]) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE0_VCDL_PHASE_CNTL,
-			cur_val);
-		cur_val += 0x0101;
-	}
-	cur_val = 0x0101;
-	while (cur_val <= memc1_config.vcdl[3]) {
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_BYTE1_VCDL_PHASE_CNTL,
-			cur_val);
-		cur_val += 0x0101;
-	}
-
-	if (mode) {
-		/* Remove CKE_IDDQ */
-		BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL,
-			BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_DDR_PAD_CNTRL) & ~4);
-
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET,
-			MEMC_DRAM_INIT, 0);
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET,
-			MEMC_CORE, 0);
-		mdelay(1);
-		printk(KERN_DEBUG "memc1: powered up\n");
-	} else
-		printk(KERN_DEBUG "memc1: resumed\n");
-
-}
-
-static void __brcm_pm_memc1_powerdown(void)
-{
-	int ii = 0;
-
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CTRL1_REG);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_PLL_FREQ_CNTL);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_CONFIG);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_PAD_SSTL_DDR2_MODE);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL1_1_PAD_SSTL_DDR2_MODE);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_WL0_1_PAD_SSTL_DDR2_MODE);
-	memc1_config.ddr23_aphy_params[ii++] =
-		BDEV_RD(BCHP_MEMC_DDR23_APHY_AC_1_ODT_CONFIG);
-
-	BUG_ON(ii > MAX_DDR_APHY_PARAMS_NUM);
-
-	__brcm_pm_memc1_suspend(1);
-}
-
-static int __brcm_pm_memc1_powerup(void)
-{
-	int ii = 0;
-
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_CTRL1_REG,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PLL_FREQ_CNTL,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_CONFIG,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_PAD_SSTL_DDR2_MODE,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL1_1_PAD_SSTL_DDR2_MODE,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_WL0_1_PAD_SSTL_DDR2_MODE,
-		memc1_config.ddr23_aphy_params[ii++]);
-	BDEV_WR_RB(BCHP_MEMC_DDR23_APHY_AC_1_ODT_CONFIG,
-		memc1_config.ddr23_aphy_params[ii++]);
-
-	return 0;
-}
-#endif
 
 #if defined(CONFIG_BCM7425) || defined(CONFIG_BCM7435)
 static int __brcm_pm_memc1_initialized(void)
@@ -689,13 +341,9 @@ static int __brcm_pm_memc1_clock_running(void)
 			DDR1_108_CLOCK_ENABLE);
 }
 
-static void __brcm_pm_memc1_suspend(int mode)
+static void brcm_pm_memc1_enable_idle_pad(void)
 {
-	DBG(KERN_DEBUG "%s %d\n", __func__, mode);
-
-	memc1_config.shmoo_valid = 1;
-
-	/* power down the pads */
+	/* enable idle pad powerdown */
 	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
 		IDDQ_MODE_ON_SELFREF, 0);
 	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
@@ -710,46 +358,29 @@ static void __brcm_pm_memc1_suspend(int mode)
 	BDEV_WR_RB(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL,
 		BDEV_RD(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL) |
 			0xFFFFF);
-
-	/* enter SSPD */
-	brcm_pm_memc1_sspd_control(1);
-
-	/* power down the PLLs */
-	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_SYS_PLL_PWRDN_ref_clk_sel,
-		PWRDN, 1);
-	BDEV_WR_RB(BCHP_DDR40_PHY_CONTROL_REGS_1_PLL_CONFIG, 3);
-
-	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_POWER_SWITCH_MEMORY,
-		DDR1_POWER_SWITCH_MEMORY, 3);
-	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_MEMORY_STANDBY_ENABLE,
-		DDR1_MEMORY_STANDBY_ENABLE, 1);
-
-#if defined(BCHP_CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT)
-	BDEV_WR_F_RB(CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT,
-		MEMSYS_PLL_PWRDN_POWER_MANAGEMENT, 1);
-#endif
-
-	if (mode) {
-		DBG(KERN_DEBUG "%s reset\n", __func__);
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_DRAM_INIT, 1);
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_CORE, 1);
-		BDEV_WR_F_RB(MEMC_DDR_1_DRAM_INIT_CNTRL, DDR3_INIT_MODE, 1);
-		mdelay(1);
-	} else
-		DBG(KERN_DEBUG "%s suspended\n", __func__);
-
-	memc1_config.valid = 1;
+	DBG(KERN_DEBUG "%s\n", __func__);
 }
 
-static void __brcm_pm_memc1_powerdown(void)
+static void brcm_pm_memc1_disable_idle_pad(void)
 {
-	__brcm_pm_memc1_suspend(1);
+	/* disable idle pad powerdown */
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
+		IDDQ_MODE_ON_SELFREF, 0);
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
+		HIZ_ON_SELFREF, 0);
+	BDEV_WR_RB(BCHP_DDR40_PHY_CONTROL_REGS_1_IDLE_PAD_CONTROL,
+		0);
+	BDEV_WR_RB(BCHP_DDR40_PHY_WORD_LANE_0_1_IDLE_PAD_CONTROL,
+		BDEV_RD(BCHP_DDR40_PHY_WORD_LANE_0_1_IDLE_PAD_CONTROL) |
+			0);
+	BDEV_WR_RB(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL,
+		BDEV_RD(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL) |
+			0);
+
 }
 
-static void __brcm_pm_memc1_resume(int mode)
+static void brcm_pm_memc1_enable_plls(void)
 {
-	DBG(KERN_DEBUG "%s %d\n", __func__, mode);
-
 	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_SYS_PLL_PWRDN_ref_clk_sel,
 		PWRDN, 0);
 	BDEV_WR_RB(BCHP_DDR40_PHY_CONTROL_REGS_1_PLL_CONFIG, 0);
@@ -767,37 +398,26 @@ static void __brcm_pm_memc1_resume(int mode)
 		MEMSYS_PLL_PWRDN_POWER_MANAGEMENT, 0);
 #endif
 
-	/* power up the pads */
-	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
-		IDDQ_MODE_ON_SELFREF, 0);
-	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_DDR_PAD_CNTRL,
-		HIZ_ON_SELFREF, 0);
-	BDEV_WR_RB(BCHP_DDR40_PHY_CONTROL_REGS_1_IDLE_PAD_CONTROL,
-		0);
-	BDEV_WR_RB(BCHP_DDR40_PHY_WORD_LANE_0_1_IDLE_PAD_CONTROL,
-		BDEV_RD(BCHP_DDR40_PHY_WORD_LANE_0_1_IDLE_PAD_CONTROL) |
-			0);
-	BDEV_WR_RB(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL,
-		BDEV_RD(BCHP_DDR40_PHY_WORD_LANE_1_1_IDLE_PAD_CONTROL) |
-			0);
-
-	brcm_pm_memc1_sspd_control(0);
-
-	if (mode) {
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_DRAM_INIT, 0);
-		BDEV_WR_F_RB(MEMC_MISC_1_SOFT_RESET, MEMC_CORE, 0);
-		mdelay(1);
-		printk(KERN_DEBUG "memc1: powered up\n");
-	} else
-		printk(KERN_DEBUG "memc1: resumed\n");
 }
-
-static int __brcm_pm_memc1_powerup(void)
+static void brcm_pm_memc1_disable_plls(void)
 {
-	DBG(KERN_DEBUG "%s\n", __func__);
+	/* power down the PLLs */
+	BDEV_WR_F_RB(MEMC_DDR23_SHIM_ADDR_CNTL_1_SYS_PLL_PWRDN_ref_clk_sel,
+		PWRDN, 1);
+	BDEV_WR_RB(BCHP_DDR40_PHY_CONTROL_REGS_1_PLL_CONFIG, 3);
 
-	return 0;
+	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_POWER_SWITCH_MEMORY,
+		DDR1_POWER_SWITCH_MEMORY, 3);
+	BDEV_WR_F_RB(CLKGEN_MEMSYS_32_1_INST_MEMORY_STANDBY_ENABLE,
+		DDR1_MEMORY_STANDBY_ENABLE, 1);
+
+#if defined(BCHP_CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT)
+	BDEV_WR_F_RB(CLKGEN_MEMSYS_1_32_POWER_MANAGEMENT,
+		MEMSYS_PLL_PWRDN_POWER_MANAGEMENT, 1);
+#endif
 }
+
+
 
 #endif
 

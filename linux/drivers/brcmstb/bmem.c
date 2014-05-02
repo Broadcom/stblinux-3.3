@@ -221,6 +221,9 @@ int bmem_get_page(struct mm_struct *mm, struct vm_area_struct *vma,
 		goto out;
 
 	pfn = pte_pfn(*pte);
+	if (!pfn_valid(pfn))
+		goto out;
+
 	if (likely(bmem_find_region(pfn << PAGE_SHIFT, PAGE_SIZE) < 0))
 		goto out;
 

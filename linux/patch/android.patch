@@ -14114,37 +14114,7 @@ diff -Nur a/linux/drivers/mmc/card/Kconfig b/linux/drivers/mmc/card/Kconfig
 diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
 --- a/linux/drivers/mmc/card/block.c	2012-03-29 17:32:34.161068315 -0700
 +++ b/linux/drivers/mmc/card/block.c	2012-02-24 18:07:06.000000000 -0800
-@@ -35,13 +35,15 @@
- #include <linux/capability.h>
- #include <linux/compat.h>
- 
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/mmc.h>
-+
- #include <linux/mmc/ioctl.h>
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
- #include <linux/mmc/mmc.h>
- #include <linux/mmc/sd.h>
- 
--#include <asm/system.h>
- #include <asm/uaccess.h>
- 
- #include "queue.h"
-@@ -144,11 +146,7 @@
- 
- static inline int mmc_get_devidx(struct gendisk *disk)
- {
--	int devmaj = MAJOR(disk_devt(disk));
--	int devidx = MINOR(disk_devt(disk)) / perdev_minors;
--
--	if (!devmaj)
--		devidx = disk->first_minor / perdev_minors;
-+	int devidx = disk->first_minor / perdev_minors;
- 	return devidx;
- }
- 
-@@ -661,18 +659,22 @@
+@@ -661,18 +661,22 @@
  			req->rq_disk->disk_name, "timed out", name, status);
  
  		/* If the status cmd initially failed, retry the r/w cmd */
@@ -14170,7 +14140,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  		return ERR_ABORT;
  
  	default:
-@@ -862,7 +864,9 @@
+@@ -862,7 +866,9 @@
  		goto retry;
  	if (!err)
  		mmc_blk_reset_success(md, type);
@@ -14181,20 +14151,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	return err ? 0 : 1;
  }
-@@ -935,16 +939,21 @@
- 			goto out;
- 	}
- 
--	if (mmc_can_sanitize(card))
-+	if (mmc_can_sanitize(card)) {
-+		trace_mmc_blk_erase_start(EXT_CSD_SANITIZE_START, 0, 0);
- 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
- 				 EXT_CSD_SANITIZE_START, 1, 0);
-+		trace_mmc_blk_erase_end(EXT_CSD_SANITIZE_START, 0, 0);
-+	}
- out_retry:
- 	if (err && !mmc_blk_reset(md, card->host, type))
- 		goto retry;
+@@ -944,7 +950,9 @@
  	if (!err)
  		mmc_blk_reset_success(md, type);
  out:
@@ -14205,7 +14162,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	return err ? 0 : 1;
  }
-@@ -959,7 +968,9 @@
+@@ -959,7 +967,9 @@
  	if (ret)
  		ret = -EIO;
  
@@ -14216,7 +14173,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	return ret ? 0 : 1;
  }
-@@ -1096,6 +1107,7 @@
+@@ -1096,6 +1106,7 @@
  	struct mmc_blk_request *brq = &mqrq->brq;
  	struct request *req = mqrq->req;
  	struct mmc_blk_data *md = mq->data;
@@ -14224,7 +14181,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	/*
  	 * Reliable writes are used to implement Forced Unit Access and
-@@ -1172,6 +1184,16 @@
+@@ -1172,6 +1183,16 @@
  		mmc_apply_rel_rw(brq, card, req);
  
  	/*
@@ -14241,7 +14198,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	 * Pre-defined multi-block transfers are preferable to
  	 * open ended-ones (and necessary for reliable writes).
  	 * However, it is not sufficient to just send CMD23,
-@@ -1189,13 +1211,13 @@
+@@ -1189,13 +1210,13 @@
  	 * We'll avoid using CMD23-bounded multiblock writes for
  	 * these, while retaining features like reliable writes.
  	 */
@@ -14260,7 +14217,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  		brq->sbc.flags = MMC_RSP_R1 | MMC_CMD_AC;
  		brq->mrq.sbc = &brq->sbc;
  	}
-@@ -1247,10 +1269,14 @@
+@@ -1247,10 +1268,14 @@
  
  		blocks = mmc_sd_num_wr_blocks(card);
  		if (blocks != (u32)-1) {
@@ -14277,7 +14234,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	}
  	return ret;
  }
-@@ -1292,8 +1318,10 @@
+@@ -1292,8 +1317,10 @@
  			 * A block was successfully transferred.
  			 */
  			mmc_blk_reset_success(md, type);
@@ -14289,7 +14246,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  			/*
  			 * If the blk_end_request function returns non-zero even
  			 * though all data has been transferred and no errors
-@@ -1343,8 +1371,10 @@
+@@ -1343,8 +1370,10 @@
  			 * time, so we only reach here after trying to
  			 * read a single sector.
  			 */
@@ -14301,7 +14258,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  			if (!ret)
  				goto start_new_req;
  			break;
-@@ -1365,10 +1395,12 @@
+@@ -1365,10 +1394,12 @@
  	return 1;
  
   cmd_abort:
@@ -14315,7 +14272,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
   start_new_req:
  	if (rqc) {
-@@ -1379,12 +1411,22 @@
+@@ -1379,12 +1410,22 @@
  	return 0;
  }
  
@@ -14338,7 +14295,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	if (req && !mq->mqrq_prev->req)
  		/* claim host only for the first request */
  		mmc_claim_host(card->host);
-@@ -1392,7 +1434,9 @@
+@@ -1392,7 +1433,9 @@
  	ret = mmc_blk_part_switch(card, md);
  	if (ret) {
  		if (req) {
@@ -14349,7 +14306,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  		}
  		ret = 0;
  		goto out;
-@@ -1402,7 +1446,8 @@
+@@ -1402,7 +1445,8 @@
  		/* complete ongoing async transfer before issuing discard */
  		if (card->host->areq)
  			mmc_blk_issue_rw_rq(mq, NULL);
@@ -14359,7 +14316,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  			ret = mmc_blk_issue_secdiscard_rq(mq, req);
  		else
  			ret = mmc_blk_issue_discard_rq(mq, req);
-@@ -1494,6 +1539,7 @@
+@@ -1494,6 +1538,7 @@
  	md->disk->queue = md->queue.queue;
  	md->disk->driverfs_dev = parent;
  	set_disk_ro(md->disk, md->read_only || default_ro);
@@ -14367,7 +14324,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  	/*
  	 * As discussed on lkml, GENHD_FL_REMOVABLE should:
-@@ -1617,24 +1663,6 @@
+@@ -1617,24 +1662,6 @@
  	return ret;
  }
  
@@ -14392,7 +14349,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  static void mmc_blk_remove_req(struct mmc_blk_data *md)
  {
  	struct mmc_card *card;
-@@ -1689,7 +1717,7 @@
+@@ -1689,7 +1716,7 @@
  
  	if ((md->area_type & MMC_BLK_DATA_AREA_BOOT) &&
  	     card->ext_csd.boot_ro_lockable) {
@@ -14401,7 +14358,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  		if (card->ext_csd.boot_ro_lock & EXT_CSD_BOOT_WP_B_PWR_WP_DIS)
  			mode = S_IRUGO;
-@@ -1720,6 +1748,7 @@
+@@ -1720,6 +1747,7 @@
  #define CID_MANFID_SANDISK	0x2
  #define CID_MANFID_TOSHIBA	0x11
  #define CID_MANFID_MICRON	0x13
@@ -14409,7 +14366,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  
  static const struct mmc_fixup blk_fixups[] =
  {
-@@ -1756,13 +1785,34 @@
+@@ -1756,13 +1784,34 @@
  	MMC_FIXUP(CID_NAME_ANY, CID_MANFID_MICRON, 0x200, add_quirk_mmc,
  		  MMC_QUIRK_LONG_READ_TIME),
  
@@ -14445,7 +14402,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	char cap_str[10];
  
  	/*
-@@ -1775,10 +1825,6 @@
+@@ -1775,10 +1824,6 @@
  	if (IS_ERR(md))
  		return PTR_ERR(md);
  
@@ -14456,7 +14413,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	string_get_size((u64)get_capacity(md->disk) << 9, STRING_UNITS_2,
  			cap_str, sizeof(cap_str));
  	pr_info("%s: %s %s %s %s\n",
-@@ -1791,6 +1837,9 @@
+@@ -1791,6 +1836,9 @@
  	mmc_set_drvdata(card, md);
  	mmc_fixup_device(card, blk_fixups);
  
@@ -14466,7 +14423,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  	if (mmc_add_disk(md))
  		goto out;
  
-@@ -1803,7 +1852,7 @@
+@@ -1803,7 +1851,7 @@
   out:
  	mmc_blk_remove_parts(card, md);
  	mmc_blk_remove_req(md);
@@ -14475,7 +14432,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  }
  
  static void mmc_blk_remove(struct mmc_card *card)
-@@ -1816,10 +1865,13 @@
+@@ -1816,10 +1864,13 @@
  	mmc_release_host(card->host);
  	mmc_blk_remove_req(md);
  	mmc_set_drvdata(card, NULL);
@@ -14490,7 +14447,7 @@ diff -Nur a/linux/drivers/mmc/card/block.c b/linux/drivers/mmc/card/block.c
  {
  	struct mmc_blk_data *part_md;
  	struct mmc_blk_data *md = mmc_get_drvdata(card);
-@@ -1839,8 +1891,6 @@
+@@ -1839,8 +1890,6 @@
  	struct mmc_blk_data *md = mmc_get_drvdata(card);
  
  	if (md) {
@@ -14539,7 +14496,8 @@ diff -Nur a/linux/drivers/mmc/core/bus.c b/linux/drivers/mmc/core/bus.c
 +	pm_message_t state = { PM_EVENT_SUSPEND };
  
  	if (dev->driver && drv->suspend)
- 		ret = drv->suspend(card, state);
+-		ret = drv->suspend(card, state);
++  		ret = drv->suspend(card);
  	return ret;
  }
  
@@ -120861,10 +120819,9 @@ diff -Nur a/linux/sound/usb/quirks.c b/linux/sound/usb/quirks.c
 diff -Nur a/linux/drivers/brcmstb/Makefile b/linux/drivers/brcmstb/Makefile
 --- a/linux/drivers/brcmstb/Makefile	2012-06-25 11:43:12.078775000 -0700
 +++ b/linux/drivers/brcmstb/Makefile	2012-11-26 13:20:24.554153439 -0800
-@@ -3,3 +3,7 @@
+@@ -3,2 +3,6 @@
  
  obj-$(CONFIG_PCI)	+= pci.o
- obj-$(CONFIG_BRCM_HAS_AON) += s3.o
 +
 +# Provide status for Android that we are connected to mains (AC power)
 +obj-$(CONFIG_ANDROID)	+= b_ps.o
@@ -121943,3 +121900,41 @@ diff -Nur a/linux/include/linux/uhid.h b/linux/include/linux/uhid.h
 +} __attribute__((__packed__));
 +
 +#endif /* __UHID_H_ */
+diff -Nur a/linux/include/linux/mmc/card.h b/linux/include/linux/mmc/card.h
+--- a/linux/include/linux/mmc/card.h	2014-01-10 15:10:41.875831983 -0800
++++ b/linux/include/linux/mmc/card.h	2014-01-13 11:26:39.135316530 -0800
+@@ -10,6 +10,7 @@
+ #ifndef LINUX_MMC_CARD_H
+ #define LINUX_MMC_CARD_H
+ 
++#include <linux/device.h>
+ #include <linux/mmc/core.h>
+ #include <linux/mod_devicetable.h>
+ 
+@@ -71,6 +72,8 @@
+ 	bool			hpi_en;			/* HPI enablebit */
+ 	bool			hpi;			/* HPI support bit */
+ 	unsigned int		hpi_cmd;		/* cmd used as HPI */
++	unsigned int            data_sector_size;       /* 512 bytes or 4KB */
++	unsigned int            data_tag_unit_size;     /* DATA TAG UNIT size */
+ 	unsigned int		boot_ro_lock;		/* ro lock support */
+ 	bool			boot_ro_lockable;
+ 	u8			raw_partition_support;	/* 160 */
+@@ -231,6 +234,7 @@
+ #define MMC_QUIRK_BLK_NO_CMD23	(1<<7)		/* Avoid CMD23 for regular multiblock */
+ #define MMC_QUIRK_BROKEN_BYTE_MODE_512 (1<<8)	/* Avoid sending 512 bytes in */
+ #define MMC_QUIRK_LONG_READ_TIME (1<<9)		/* Data read time > CSD says */
++#define MMC_QUIRK_SEC_ERASE_TRIM_BROKEN (1<<10)	/* Skip secure for erase/trim */
+ 						/* byte mode */
+ 	unsigned int    poweroff_notify_state;	/* eMMC4.5 notify feature */
+ #define MMC_NO_POWER_NOTIFICATION	0
+@@ -478,7 +482,7 @@
+ 	struct device_driver drv;
+ 	int (*probe)(struct mmc_card *);
+ 	void (*remove)(struct mmc_card *);
+-	int (*suspend)(struct mmc_card *, pm_message_t);
++	int (*suspend)(struct mmc_card *);
+ 	int (*resume)(struct mmc_card *);
+ };
+ 
+

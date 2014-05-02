@@ -221,22 +221,6 @@ void bcmgenet_ephy_workaround(struct net_device *dev)
 	if (pDevCtrl->phyType != BRCM_PHY_TYPE_INT)
 		return;
 
-#ifdef CONFIG_BCM7445A0
-	/* increases ADC latency by 24ns */
-	bcmgenet_mii_write(dev, phy_id, 0x17, 0x0038);
-	bcmgenet_mii_write(dev, phy_id, 0x15, 0xAB95);
-	/* increases internal 1V LDO voltage by 5% */
-	bcmgenet_mii_write(dev, phy_id, 0x17, 0x2038);
-	bcmgenet_mii_write(dev, phy_id, 0x15, 0xBB22);
-	/* reduce RX low pass filter corner frequency */
-	bcmgenet_mii_write(dev, phy_id, 0x17, 0x6038);
-	bcmgenet_mii_write(dev, phy_id, 0x15, 0xFFC5);
-	/* reduce RX high pass filter corner frequency */
-	bcmgenet_mii_write(dev, phy_id, 0x17, 0x003a);
-	bcmgenet_mii_write(dev, phy_id, 0x15, 0x2002);
-	return;
-#endif
-
 	/* workarounds are only needed for 100Mbps PHYs */
 	if (pDevCtrl->phySpeed == SPEED_1000)
 		return;

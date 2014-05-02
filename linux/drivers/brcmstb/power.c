@@ -284,7 +284,7 @@ ssize_t brcm_pm_store_standby_timeout(struct device *dev,
 	brcm_pm_standby_timeout = val;
 	return count;
 }
-#if defined(CONFIG_BRCM_HAS_1GB_MEMC1) || defined(CONFIG_BCM7420)
+#if defined(CONFIG_BRCM_HAS_1GB_MEMC1)
 /*
  * brcm_pm_memc1_power
  * Power state of secondary memory controller
@@ -298,8 +298,8 @@ ssize_t brcm_pm_store_standby_timeout(struct device *dev,
 #define BRCM_PM_MEMC1_SSPD	2
 
 static int brcm_pm_memc1_power = BRCM_PM_MEMC1_ON;
-int __weak brcm_pm_memc1_suspend(void) { return 0; }
-int __weak brcm_pm_memc1_resume(void) { return 0; }
+int __weak brcm_pm_memc1_suspend(int is_s3) { return 0; }
+int __weak brcm_pm_memc1_resume(int is_s3) { return 0; }
 int __weak brcm_pm_memc1_powerdown(void) { return 0; }
 int  __weak brcm_pm_memc1_powerup(void) { return 0; }
 
@@ -343,13 +343,13 @@ ssize_t brcm_pm_store_memc1_power(struct device *dev,
 			if (brcm_pm_memc1_powerup())
 				return -EINVAL;
 		} else if (brcm_pm_memc1_power == BRCM_PM_MEMC1_SSPD)
-			brcm_pm_memc1_resume();
+			brcm_pm_memc1_resume(0);
 		else
 			return -EINVAL;
 		break;
 	case BRCM_PM_MEMC1_SSPD:
 		if (brcm_pm_memc1_power == BRCM_PM_MEMC1_ON)
-			brcm_pm_memc1_suspend();
+			brcm_pm_memc1_suspend(0);
 		else
 			return -EINVAL;
 		break;
@@ -550,7 +550,6 @@ int brcm_pm_unregister_cb(char *name)
 }
 EXPORT_SYMBOL(brcm_pm_unregister_cb);
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
 /***********************************************************************
  * Wakeup source management
  *   All kernel drivers can use this api to register their wakeup
@@ -704,8 +703,6 @@ int brcm_pm_wakeup_init(void)
 }
 early_initcall(brcm_pm_wakeup_init);
 
-#endif
-
 /***********************************************************************
  * USB / ENET / GENET / MoCA / SATA PM implementations (per-chip)
  ***********************************************************************/
@@ -750,8 +747,8 @@ struct brcm_chip_pm_ops {
 	 * For example, shutting down secondary memory controller
 	 * can be done here when system no longer uses highmem regions
 	 */
-	void (*late_suspend)(void);
-	void (*early_resume)(void);
+	void (*late_suspend)(int is_s3);
+	void (*early_resume)(int is_s3);
 	/* for chip specific clock mappings ( see #SWLINUX-1764 ) */
 	struct clk* (*clk_get)(struct device *dev, const char *id);
 };
@@ -805,8 +802,6 @@ void brcm_pm_set_dram_encoder(struct brcm_dram_encoder_ops *ops)
 }
 EXPORT_SYMBOL(brcm_pm_set_dram_encoder);
 
-#ifdef CONFIG_BRCM_HAS_AON
-
 int brcm_pm_dram_encoder_prepare(struct brcm_mem_transfer *param)
 {
 	if (dram_encoder_ops && dram_encoder_ops->prepare)
@@ -829,7 +824,6 @@ void brcm_pm_dram_encoder_start(void)
 		dram_encoder_ops->start();
 }
 EXPORT_SYMBOL(brcm_pm_dram_encoder_start);
-#endif /* CONFIG_BRCM_HAS_AON */
 
 #if defined(CONFIG_BCM7125)
 static void bcm7125_pm_sata_disable(u32 flags)
@@ -1496,303 +1490,6 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 	DEF_BLOCK_PM_OP(network, 7408),
 	DEF_BLOCK_PM_OP(usb, 7408),
 	DEF_SYSTEM_PM_OP(7408),
-};
-#endif
-
-#if defined(CONFIG_BCM7420)
-
-static void bcm7420_pm_usb_disable(u32 flags)
-{
-	/* power down ports */
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI1_PWDNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY1_PWDNB, 0);
-	/* power down USB PLL */
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 0);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 0);
-	/* disable the clocks */
-	BDEV_SET_RB(BCHP_CLK_USB_PM_CTRL,
-		BCHP_CLK_USB_PM_CTRL_DIS_108M_CLK_MASK|
-		BCHP_CLK_USB_PM_CTRL_DIS_216M_CLK_MASK);
-	/* power down system PLL */
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 1);
-}
-
-static void bcm7420_pm_usb_enable(u32 flags)
-{
-	/* power up system PLL */
-	BDEV_WR_F_RB(CLK_SYS_PLL_0_PLL_4, DIS_CH, 0);
-	/* enable the clocks */
-	BDEV_UNSET_RB(BCHP_CLK_USB_PM_CTRL,
-		BCHP_CLK_USB_PM_CTRL_DIS_108M_CLK_MASK|
-		BCHP_CLK_USB_PM_CTRL_DIS_216M_CLK_MASK);
-	/* power up PLL */
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, PLL_PWRDWNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_PLL_CTL_1, XTAL_PWRDWNB, 1);
-	/* power up ports */
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI_PWDNB, 3);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY_PWDNB, 3);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, UTMI1_PWDNB, 1);
-	BDEV_WR_F_RB(USB_CTRL_UTMI_CTL_1, PHY1_PWDNB, 1);
-}
-
-static void bcm7420_pm_sata_disable(u32 flags)
-{
-	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 1);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 1);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 1);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 1);
-	PLL_CH_DIS(CLK_GENET_NETWORK_PLL_4);
-}
-
-static void bcm7420_pm_sata_enable(u32 flags)
-{
-	PLL_CH_ENA(CLK_GENET_NETWORK_PLL_4);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_216M_CLK, 0);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_108M_CLK, 0);
-	BDEV_WR_F_RB(CLK_SATA_CLK_PM_CTRL, DIS_SATA_PCI_CLK, 0);
-	BDEV_WR_F_RB(SUN_TOP_CTRL_GENERAL_CTRL_1, sata_ana_pwrdn, 0);
-}
-
-static void bcm7420_pm_moca_disable(u32 flags)
-{
-	if (MOCA_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_CLK_SEL, 1);
-		BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 1);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL,
-			DIS_MOCA_ENET_L2_INTR_27_108M_CLK, 1);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL,
-			DIS_MOCA_ENET_UNIMAC_SYS_TX_27_108M_CLK, 1);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_216M_CLK, 1);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_MOCA_54M_CLK, 1);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_108M_CLK, 1);
-		return;
-	}
-
-	PLL_CH_DIS(CLK_SYS_PLL_1_3);
-	PLL_CH_DIS(CLK_SYS_PLL_1_4);
-	PLL_CH_DIS(CLK_SYS_PLL_1_5);
-	PLL_CH_DIS(CLK_SYS_PLL_1_6);
-	BDEV_SET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
-}
-
-static void bcm7420_pm_moca_enable(u32 flags)
-{
-	if (MOCA_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL,
-			DIS_MOCA_ENET_L2_INTR_27_108M_CLK, 0);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL,
-			DIS_MOCA_ENET_UNIMAC_SYS_TX_27_108M_CLK, 0);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_216M_CLK, 0);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_MOCA_54M_CLK, 0);
-		BDEV_WR_F_RB(CLK_MOCA_CLK_PM_CTRL, DIS_108M_CLK, 0);
-		BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_CLK_SEL, 0);
-		BDEV_WR_F_RB(CLK_MISC, MOCA_ENET_GMII_TX_CLK_SEL, 0);
-		return;
-	}
-
-	BDEV_UNSET_RB(BCHP_CLK_MOCA_CLK_PM_CTRL, 0x7bf);
-	PLL_CH_ENA(CLK_SYS_PLL_1_6);
-	PLL_CH_ENA(CLK_SYS_PLL_1_5);
-	PLL_CH_ENA(CLK_SYS_PLL_1_4);
-	PLL_CH_ENA(CLK_SYS_PLL_1_3);
-}
-
-static void bcm7420_pm_genet_disable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	if (ENET_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_MISC, GENET_CLK_SEL, 1);
-		BDEV_WR_F_RB(CLK_MISC, GENET_GMII_TX_CLK_SEL, 1);
-		PLL_CH_DIS(CLK_GENET_NETWORK_PLL_5);
-		BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x143);
-		return;
-	}
-	PLL_CH_DIS(CLK_GENET_NETWORK_PLL_3);
-	PLL_CH_DIS(CLK_GENET_NETWORK_PLL_5);
-	PLL_CH_DIS(CLK_GENET_NETWORK_PLL_6);
-	BDEV_SET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x77F);
-}
-
-static void bcm7420_pm_genet_enable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	if (ENET_WOL(flags)) {
-		BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x143);
-		PLL_CH_ENA(CLK_GENET_NETWORK_PLL_5);
-		BDEV_WR_F_RB(CLK_MISC, GENET_CLK_SEL, 0);
-		BDEV_WR_F_RB(CLK_MISC, GENET_GMII_TX_CLK_SEL, 0);
-		return;
-	}
-	BDEV_UNSET_RB(BCHP_CLK_GENET_CLK_PM_CTRL, 0x77F);
-	PLL_CH_ENA(CLK_GENET_NETWORK_PLL_3);
-	PLL_CH_ENA(CLK_GENET_NETWORK_PLL_5);
-	PLL_CH_ENA(CLK_GENET_NETWORK_PLL_6);
-}
-
-static void bcm7420_pm_network_disable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	if (ANY_WOL(flags))
-		return;
-
-	/* TODO - this clock is shared with HDMI */
-	PLL_CH_DIS(CLK_GENET_NETWORK_PLL_1);
-	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, POWERDOWN, 1);
-	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, RESET, 1);
-}
-
-static void bcm7420_pm_network_enable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	if (ANY_WOL(flags))
-		return;
-
-	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, RESET, 0);
-	BDEV_WR_F_RB(CLK_GENET_NETWORK_PLL_CTRL, POWERDOWN, 0);
-	PLL_CH_ENA(CLK_GENET_NETWORK_PLL_1);
-}
-
-static void bcm7420_pm_suspend(u32 flags)
-{
-	/* BT */
-	PLL_CH_DIS(CLK_SYS_PLL_1_1);
-	BDEV_SET_RB(BCHP_CLK_BLUETOOTH_CLK_PM_CTRL, 1);
-
-	if (!MOCA_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, POWERDOWN, 1);
-		BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, RESET, 1);
-	}
-
-	/* PCI/EBI */
-	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_PM_CTRL, 0x3fff);
-	BDEV_WR_RB(BCHP_CLK_PCI_OUT_CLK_PM_CTRL, 0x1);
-	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_5, 0x2);
-
-	/* system PLLs */
-	if (!ANY_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
-			FREQ_DOUBLER_POWER_DOWN, 0);
-		BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1, CML_2_N_P_EN, 1);
-		BDEV_WR_F_RB(CLK_SCRATCH, CML_REPEATER_2_POWERDOWN, 1);
-	}
-
-	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_6, 0x2);
-
-	/* disable self-refresh since it interferes with suspend */
-	brcm_pm_set_ddr_timeout(0);
-
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL0_0_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF,
-		!(brcm_pm_standby_flags & BRCM_STANDBY_DDR_PLL_ON));
-	BDEV_WR_F_RB(MEMC_DDR23_APHY_WL1_0_WORDSLICE_CNTRL_1,
-		PWRDN_DLL_ON_SELFREF,
-		!(brcm_pm_standby_flags & BRCM_STANDBY_DDR_PLL_ON));
-}
-
-static void bcm7420_pm_resume(u32 flags)
-{
-	brcm_ddr_phy_initialize();
-
-	/* system PLLs */
-	BDEV_WR_F_RB(CLK_SCRATCH, CML_REPEATER_2_POWERDOWN, 0);
-	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_6, 0x1);
-
-	if (!ANY_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1, CML_2_N_P_EN, 0);
-		BDEV_WR_F_RB(CLK_THIRD_OT_CONTROL_1,
-			FREQ_DOUBLER_POWER_DOWN, 1);
-	}
-
-	/* Sundry */
-	BDEV_WR_F(CLK_SUN_27M_CLK_PM_CTRL, DIS_SUN_27M_CLK, 0);
-
-	/* PCI/EBI */
-	BDEV_WR_RB(BCHP_CLK_SYS_PLL_0_PLL_5, 0x1);
-	BDEV_WR_RB(BCHP_CLK_PCI_OUT_CLK_PM_CTRL, 0x0);
-	BDEV_WR_RB(BCHP_HIF_TOP_CTRL_PM_CTRL, 0x0);
-
-	if (!MOCA_WOL(flags)) {
-		BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, RESET, 0);
-		BDEV_WR_F_RB(CLK_SYS_PLL_1_CTRL, POWERDOWN, 0);
-	}
-
-	/* BT */
-	BDEV_UNSET_RB(BCHP_CLK_BLUETOOTH_CLK_PM_CTRL, 1);
-	PLL_CH_ENA(CLK_SYS_PLL_1_1);
-}
-
-static void bcm7420_pm_late_suspend(void)
-{
-	/* if MEMC1 is powered down/suspended, do not touch it */
-	if (brcm_pm_memc1_power == BRCM_PM_MEMC1_ON) {
-		brcm_pm_memc1_suspend();
-		brcm_pm_memc1_power = BRCM_PM_MEMC1_SSPD;
-	}
-}
-
-static void bcm7420_pm_early_resume(void)
-{
-	/* if MEMC1 was powered down before standby, do not power it up */
-	if (brcm_pm_memc1_power == BRCM_PM_MEMC1_SSPD) {
-		brcm_pm_memc1_resume();
-		brcm_pm_memc1_power = BRCM_PM_MEMC1_ON;
-	}
-}
-
-static void bcm7420_pm_pcie_disable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, 1);
-	PLL_CH_DIS(CLK_SYS_PLL_1_2);
-	BDEV_SET_RB(BCHP_CLK_PCIE_CLK_PM_CTRL, 1);
-}
-
-static void bcm7420_pm_pcie_enable(u32 flags)
-{
-	PRINT_PM_CALLBACK;
-
-	BDEV_UNSET_RB(BCHP_CLK_PCIE_CLK_PM_CTRL, 1);
-	PLL_CH_ENA(CLK_SYS_PLL_1_2);
-	BDEV_WR_F_RB(HIF_RGR1_SW_RESET_1, PCIE_SW_PERST, 0);
-}
-
-static struct clk clk_pcie = {
-	.name		= "pcie",
-	.disable	= &bcm7420_pm_pcie_disable,
-	.enable		= &bcm7420_pm_pcie_enable,
-	.refcnt		= 1, /* enabled on boot */
-};
-
-static void bcm7420_initialize(void)
-{
-	struct clk *nclk, *sclk;
-	brcm_ddr_phy_initialize();
-	/* extra clock dependency. See #SWLINUX-1913 */
-	nclk = clk_get(NULL, "network");
-	sclk = clk_get(NULL, "sata");
-	if (nclk && sclk)
-		clk_set_parent(sclk, nclk);
-	__clk_dyn_add(&clk_pcie);
-}
-
-#define PM_OPS_DEFINED
-static struct brcm_chip_pm_ops chip_pm_ops = {
-	DEF_BLOCK_PM_OP(sata, 7420),
-	DEF_BLOCK_PM_OP(usb, 7420),
-	DEF_BLOCK_PM_OP(moca, 7420),
-	DEF_BLOCK_PM_OP(genet, 7420),
-	DEF_BLOCK_PM_OP(network, 7420),
-	DEF_SYSTEM_PM_OP(7420),
-	DEF_SYSTEM_LATE_PM_OP(7420),
-	.clk_get		= brcm_pm_clk_get,
-	.initialize		= bcm7420_initialize,
 };
 #endif
 
@@ -3361,7 +3058,7 @@ static void bcm7425_pm_resume(u32 flags)
 #endif
 }
 
-static void bcm7425_pm_late_suspend(void)
+static void bcm7425_pm_late_suspend(int is_s3)
 {
 	/*
 	 * 7425 will not go to S2/S3 standby unless both memory controllers
@@ -3375,15 +3072,15 @@ static void bcm7425_pm_late_suspend(void)
 		brcm_pm_memc1_power = BRCM_PM_MEMC1_ON;
 	}
 	if (brcm_pm_memc1_power == BRCM_PM_MEMC1_ON) {
-		brcm_pm_memc1_suspend();
+		brcm_pm_memc1_suspend(is_s3);
 		brcm_pm_memc1_power = BRCM_PM_MEMC1_SSPD;
 	}
 }
 
-static void bcm7425_pm_early_resume(void)
+static void bcm7425_pm_early_resume(int is_s3)
 {
 	if (brcm_pm_memc1_power == BRCM_PM_MEMC1_SSPD) {
-		brcm_pm_memc1_resume();
+		brcm_pm_memc1_resume(is_s3);
 		brcm_pm_memc1_power = BRCM_PM_MEMC1_ON;
 	}
 }
@@ -4208,8 +3905,6 @@ static void brcm_pm_set_ddr_timeout(int val)
 #endif
 }
 
-#ifdef CONFIG_BRCM_HAS_STANDBY
-
 /***********************************************************************
  * Passive standby - per-chip
  ***********************************************************************/
@@ -4225,16 +3920,16 @@ static void brcm_system_resume(void)
 		chip_pm_ops.resume(brcm_pm_flags);
 }
 
-static void brcm_system_late_standby(void)
+static void brcm_system_late_standby(int is_s3)
 {
 	if (chip_pm_ops.late_suspend)
-		chip_pm_ops.late_suspend();
+		chip_pm_ops.late_suspend(is_s3);
 }
 
-static void brcm_system_early_resume(void)
+static void brcm_system_early_resume(int is_s3)
 {
 	if (chip_pm_ops.early_resume)
-		chip_pm_ops.early_resume();
+		chip_pm_ops.early_resume(is_s3);
 }
 
 /***********************************************************************
@@ -4437,7 +4132,7 @@ static void brcm_pm_clear_alarm(void)
 #if defined(CONFIG_BCM7468) || defined(CONFIG_BCM7550)
 #define NON_RELOCATABLE_VEC
 #endif
-static int brcm_pm_standby(int mode)
+static int brcm_pm_standby(int is_s3)
 {
 	int ret = 0, valid_event = 1;
 	u32 l2_mask;
@@ -4596,19 +4291,18 @@ static int brcm_pm_standby(int mode)
 #endif
 		brcm_pm_set_pll_on();
 		brcm_pm_handshake();
-		brcm_system_late_standby();
-#ifdef CONFIG_BRCM_HAS_AON
-		if (mode)
+		brcm_system_late_standby(is_s3);
+
+		if (is_s3)
 			ret = brcm_pm_s3_standby(
 				current_cpu_data.dcache.linesz,
 				brcm_pm_standby_flags);
 		else
-#endif
 			ret = brcm_pm_standby_asm(
 				current_cpu_data.icache.linesz,
 				restart_vec, restart_vec_size,
 				brcm_pm_standby_flags);
-		brcm_system_early_resume();
+		brcm_system_early_resume(is_s3);
 		brcm_pm_clear_alarm();
 		valid_event = brcm_pm_wakeup_poll(l2_mask);
 	}
@@ -4629,18 +4323,15 @@ static int brcm_pm_standby(int mode)
 	brcm_irq_standby_exit();
 	} while (!ret && !valid_event);
 
-	if (ret && !mode)
+	if (ret && !is_s3)
 		printk(KERN_WARNING "%s: standby failed with code %d\n",
 			__func__, ret);
 
-#ifdef CONFIG_BRCM_HAS_AON
 	brcm_pm_time_at_wakeup[0] = BDEV_RD(AON_RAM(0));
 	brcm_pm_time_at_wakeup[1] = BDEV_RD(AON_RAM(1));
-#endif
 	return 0;
 }
 
-#ifdef CONFIG_BRCM_HAS_AON
 #if defined(BCHP_AON_CTRL_PM_CTRL_pm_clk_divider_reset_en_MASK) || \
 defined(BCHP_SUN_TOP_CTRL_PM_CTRL_pm_clk_divider_reset_en_MASK)
 #define PM_CMD_BASE		0x1A
@@ -4681,7 +4372,6 @@ void brcm_pm_s3_cold_boot(void)
 	"	wait\n"
 	: : : "memory");
 }
-#endif
 
 static int brcm_pm_enter(suspend_state_t unused)
 {
@@ -4692,11 +4382,9 @@ static int brcm_pm_enter(suspend_state_t unused)
 	case PM_SUSPEND_STANDBY:
 		ret = brcm_pm_standby(0);
 		break;
-#ifdef CONFIG_BRCM_HAS_AON
 	case PM_SUSPEND_MEM:
 		ret = brcm_pm_standby(1);
 		break;
-#endif
 	default:
 		ret = -EINVAL;
 	}
@@ -4707,9 +4395,7 @@ static int brcm_pm_enter(suspend_state_t unused)
 static void brcm_pm_finish(void)
 {
 	DBG("%s:%d\n", __func__, __LINE__);
-#ifdef CONFIG_BRCM_HAS_AON
 	BDEV_WR_RB(AON_RAM(0), 0);
-#endif
 }
 
 static int brcm_pm_begin(suspend_state_t state)
@@ -4732,11 +4418,7 @@ static void brcm_pm_end(void)
 
 static int brcm_pm_valid(suspend_state_t state)
 {
-#ifdef CONFIG_BRCM_HAS_AON
 	return (state == PM_SUSPEND_STANDBY) || (state == PM_SUSPEND_MEM);
-#else
-	return state == PM_SUSPEND_STANDBY;
-#endif
 }
 
 static const struct platform_suspend_ops brcm_pm_ops = {
@@ -4757,15 +4439,9 @@ static int brcm_suspend_init(void)
 }
 late_initcall(brcm_suspend_init);
 
-#endif /* CONFIG_BRCM_HAS_STANDBY */
-
 int brcm_pm_deep_sleep(void)
 {
-#ifdef CONFIG_BRCM_HAS_STANDBY
 	return suspend_state == PM_SUSPEND_MEM;
-#else
-	return 0;
-#endif
 }
 EXPORT_SYMBOL(brcm_pm_deep_sleep);
 

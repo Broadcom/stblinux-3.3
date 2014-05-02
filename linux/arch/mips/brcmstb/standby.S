@@ -56,17 +56,10 @@
 #define RELOAD_VCDL		0
 #endif
 
-#if defined(CONFIG_BRCM_HAS_AON)
 #define PM_WAIT_COUNT		BCHP_AON_CTRL_PM_MIPS_WAIT_COUNT
 #define PM_CONTROL		BCHP_AON_CTRL_PM_CTRL
 #define PM_STATUS		BCHP_AON_CTRL_PM_STATUS
 #define PM_STATUS_bsp_ready	BCHP_AON_CTRL_PM_STATUS_pm_bsp_ready_for_pwrdn_MASK
-#else
-#define PM_WAIT_COUNT		BCHP_SUN_TOP_CTRL_PM_MIPS_WAIT_COUNT
-#define PM_CONTROL		BCHP_SUN_TOP_CTRL_PM_CTRL
-#define PM_STATUS		PM_CONTROL
-#define PM_STATUS_bsp_ready	BCHP_SUN_TOP_CTRL_PM_CTRL_pm_bsp_ready_for_pwrdn_MASK
-#endif
 
 #define FLAGREG			s5
 
@@ -287,14 +280,12 @@ wait_loop:
 /***********************************************************************
  * Save wakeup timestamp in AON
  ***********************************************************************/
-#ifdef CONFIG_BRCM_HAS_AON
 	li	t0, REG(BCHP_WKTMR_COUNTER)
 	lw	a0, 0(t0)	/* WKTMR_COUNTER */
 	lw	a1, 12(t0)	/* WKTMR_PRESCALER_VAL */
 	li	t0, REG(AON_RAM_BASE)
 	sw	a0, 0(t0)
 	sw	a1, 4(t0)
-#endif
 
 /***********************************************************************
  * Bring MEMC back up

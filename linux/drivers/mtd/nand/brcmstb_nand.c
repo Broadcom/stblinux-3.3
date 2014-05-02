@@ -1452,13 +1452,8 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 
 	if (!brcmstb_nand_config_match(&orig_cfg, &new_cfg)) {
 #if CONTROLLER_VER >= 50
-#ifdef CONFIG_BCM7445A0
-		/* HW7445-750: 7445A0 NAND is broken for SECTOR_SIZE = 1024B */
-		new_cfg.sector_size_1k = 0;
-#else
 		/* default to 1K sector size (if page is large enough) */
 		new_cfg.sector_size_1k = (new_cfg.page_size >= 1024) ? 1 : 0;
-#endif /* CONFIG_BCM7445A0 */
 #endif
 
 		WR_ACC_CONTROL(host->cs, RD_ECC_EN, 1);
@@ -1491,14 +1486,6 @@ static int __devinit brcmstb_nand_setup_dev(struct brcmstb_nand_host *host)
 			dev_info(&host->pdev->dev, "detected %s\n", msg);
 		}
 	} else {
-#ifdef CONFIG_BCM7445A0
-		/* HW7445-750 */
-		if (orig_cfg.sector_size_1k != 0) {
-			dev_err(&host->pdev->dev, "1KB ECC sectors not "
-					"supported on 7445A0\n");
-			return -ENXIO;
-		}
-#endif
 		/*
 		 * Set oobsize to be consistent with controller's
 		 * spare_area_size. This helps nandwrite testing.
@@ -1538,6 +1525,13 @@ static int brcmstb_check_exceptions(struct mtd_info *mtd)
 	chip->options |= NAND_SCAN_SILENT_NODEV;
 	nand_scan_ident(mtd, 1, brcmstb_empty_flash_table);
 	chip->options &= ~NAND_SCAN_SILENT_NODEV;
+	/*
+	 * NAND_USE_BOUNCE_BUFFER option prevents us from getting
+	 * passed kmapped buffer that we cannot DMA.
+	 * When option is set nand_base passes preallocated poi
+	 * buffer that is used as bounce buffer for DMA
+	 */
+	chip->options |= NAND_USE_BOUNCE_BUFFER;
 
 	/* Send the command for reading device ID */
 	chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
@@ -1888,15 +1882,7 @@ static int __init brcmstb_nand_init(void)
 #else
 	wp_on = 0;
 #endif
-
-#ifdef CONFIG_BCM7445A0
-	/* HACK: 7445A0 GIC will map HIF interrupt with an offset of 32 */
-	ctrl.irq = 32 + (BRCM_IRQ_HIF - 1);
-#elif defined(CONFIG_OF)
-#error Legacy driver cannot initialize NAND with OF/DeviceTree
-#else
 	ctrl.irq = BRCM_IRQ_HIF;
-#endif
 
 	HIF_ACK_IRQ(NAND_CTLRDY);
 	HIF_ENABLE_IRQ(NAND_CTLRDY);

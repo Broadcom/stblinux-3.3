@@ -44,7 +44,6 @@ config BCM7231B0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -73,7 +72,6 @@ config BCM7344B0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -103,7 +101,6 @@ config BCM7346B0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -123,7 +120,6 @@ config BCM7358A0
 	select BRCM_HAS_NAND_MINOR_0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V0
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -145,7 +141,6 @@ config BCM7360A0
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -169,7 +164,6 @@ config BCM7362A0
 	select BRCM_HAS_SATA3
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -201,7 +195,6 @@ config BCM7425B0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
 	select BRCM_HAS_1GB_MEMC1
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -232,7 +225,6 @@ config BCM7429B0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -267,38 +259,8 @@ config BCM7435B0
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_2GB_MEMC0
 	select BRCM_HAS_1GB_MEMC1
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
-
-config BCM7445A0
-	bool "7445 Ax"
-	depends on ARM
-	select BRCM_ARM_DEFAULTS
-	select BCM7445
-	select BRCM_UARTA_IS_16550
-	#select BRCM_UARTB_IS_16550
-	#select BRCM_UARTC_IS_16550
-	select BRCM_HAS_USB_CAPS
-	#select BRCM_HAS_PCIE
-	#select BRCM_HAS_MOCA_20_GEN23
-	select BRCM_GENET_V4
-	#select BRCM_HAS_NOR
-	select BRCM_HAS_NAND_MAJOR_7
-	select BRCM_HAS_NAND_MINOR_0
-	#select BRCM_HAS_EDU
-	#select BRCM_HAS_FLASH_DMA
-	#select BRCM_HAS_BSPI_V4
-	#select BRCM_MSPI_64B_WORDS
-	#select BRCM_HAS_SDIO_V1
-	#select BRCM_HAS_EMMC
-	#select BRCM_HAS_SATA3
-	select BRCM_HAS_WKTMR
-	#select BRCM_HAS_2GB_MEMC0
-	#select BRCM_HAS_1GB_MEMC1
-	#select BRCM_HAS_AON
-	#select BRCM_PWR_HANDSHAKE_V1
-	#select BRCM_HAS_DIGITAL_DDR_PHY
 
 config BCM7543A0
 	bool "7543 Ax"
@@ -315,7 +277,6 @@ config BCM7543A0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -336,7 +297,6 @@ config BCM7552B0
 	select BRCM_HAS_BSPI_V4
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -361,7 +321,6 @@ config BCM7563A0
 	select BRCM_HAS_SDIO_V1
 	select BRCM_HAS_EMMC
 	select BRCM_HAS_WKTMR
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 	select BRCM_HAS_UPPER_MEMORY
@@ -392,7 +351,6 @@ config BCM7584A0
 	select BRCM_HAS_WKTMR
 	select BRCM_HAS_UPPER_MEMORY
 	select BRCM_HAS_1GB_MEMC0
-	select BRCM_HAS_AON
 	select BRCM_PWR_HANDSHAKE_V1
 	select BRCM_HAS_DIGITAL_DDR_PHY
 
@@ -1164,12 +1122,6 @@ config BRCM_HAS_ANALOG_DDR_PHY
 config BRCM_HAS_DIGITAL_DDR_PHY
 	bool
 
-config BRCM_HAS_STANDBY
-	bool
-
-config BRCM_HAS_AON
-	bool
-	select BRCM_HAS_STANDBY
 
 # no handshake (no bsp_rdy signal) means the SW has to manually set SSPD
 config BRCM_PWR_HANDSHAKE
@@ -1249,9 +1201,6 @@ config BCM7429
 	bool
 
 config BCM7435
-	bool
-
-config BCM7445
 	bool
 
 config BCM7543

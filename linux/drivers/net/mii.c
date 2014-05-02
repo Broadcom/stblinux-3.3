@@ -69,8 +69,13 @@ int mii_ethtool_gset(struct mii_if_info *mii, struct ethtool_cmd *ecmd)
 	/* only supports twisted-pair */
 	ecmd->port = PORT_MII;
 
-	/* only supports internal transceiver */
+#ifndef CONFIG_BRCMSTB
+	/* only supports internal transceiver, except with CONFIG_BRCMSTB
+	 * where our drivers update the transceiver type accordingly to
+	 * give accurate information to user-space
+	 */
 	ecmd->transceiver = XCVR_INTERNAL;
+#endif
 
 	/* this isn't fully supported at higher layers */
 	ecmd->phy_address = mii->phy_id;
