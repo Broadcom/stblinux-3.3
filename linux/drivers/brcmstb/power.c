@@ -1592,7 +1592,8 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 
 /* 40nm chips start here */
 
-#if	defined(CONFIG_BCM7425) || \
+#if	defined(CONFIG_BCM7228) || \
+	defined(CONFIG_BCM7425) || \
 	defined(CONFIG_BCM7429) || \
 	defined(CONFIG_BCM7435) || \
 	defined(CONFIG_BCM7346) || \
@@ -1931,9 +1932,34 @@ static void bcm40nm_pm_sata_enable(u32 flags)
 		SATA_TOP_CTRL_PHY_CTRL_1_DIS_HW_SLUMBER_MASK);
 }
 
+/* If GENET_1 uses the RGMII_0 pad which is controlled by GENET_0's
+ * clocks, then we need to make sure we do not disable that clock
+ */
+static inline unsigned int genet_needs_clk_250(void)
+{
+	u32 mac_select = 0;
+
+#ifdef BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0_mii_genet_mac_select_MASK
+	mac_select = BDEV_RD_F(SUN_TOP_CTRL_GENERAL_CTRL_0,
+			mii_genet_mac_select);
+#endif
+	/* GENET_1 does not use the RGMII_0 pad */
+	if (mac_select == 0)
+		return 0;
+
+	/* MoCA and internal PHY do not use the RGMII pad */
+	switch (genet_pdata[1].phy_type) {
+	case BRCM_PHY_TYPE_INT:
+	case BRCM_PHY_TYPE_MOCA:
+		return 0;
+	default:
+		return 1;
+	}
+}
 
 static void bcm40nm_pm_genet_disable(u32 flags)
 {
+	unsigned int __maybe_unused needs_clk_250 = genet_needs_clk_250();
 	PRINT_PM_CALLBACK;
 
 #if defined(BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_POWER_SWITCH_MEMORY_A)
@@ -1964,10 +1990,15 @@ static void bcm40nm_pm_genet_disable(u32 flags)
 		    BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_DISABLE,
 		    0xe);
 
-		/* Every genet0 clock except 108 */
-		BDEV_UNSET(
-		 BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_ENABLE_GENET0,
-		    0x1fe);
+		/* Every genet0 clock except 108 or 250 for RGMII */
+		if (!needs_clk_250)
+			BDEV_UNSET(
+			  BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_ENABLE_GENET0,
+			  0x1fe);
+		else
+			BDEV_UNSET(
+			  BCHP_CLKGEN_DUAL_GENET_TOP_DUAL_RGMII_INST_CLOCK_ENABLE_GENET0,
+			  0x1fc);
 	}
 
 #elif defined(BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_INST_CLOCK_SELECT_GENET0)
@@ -1994,10 +2025,15 @@ static void bcm40nm_pm_genet_disable(u32 flags)
 		    BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_INST_CLOCK_DISABLE_GENET0,
 		    0x1e);
 
-		/* Every genet0 clock except 108  */
-		BDEV_UNSET(
-		    BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_INST_CLOCK_ENABLE_GENET0,
-		    0x1fe);
+		/* Every genet0 clock except 108 or 250 */
+		if (!needs_clk_250)
+			BDEV_UNSET(
+			  BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_INST_CLOCK_ENABLE_GENET0,
+			  0x1fe);
+		else
+			BDEV_UNSET(
+			  BCHP_CLKGEN_DUAL_GENET_TOP_RGMII_INST_CLOCK_ENABLE_GENET0,
+			  0x1fc);
 	}
 #else
 
@@ -3206,7 +3242,8 @@ static struct brcm_chip_pm_ops chip_pm_ops = {
 };
 #endif
 
-#if	defined(CONFIG_BCM7552) || \
+#if	defined(CONFIG_BCM7228) || \
+	defined(CONFIG_BCM7552) || \
 	defined(CONFIG_BCM7358) || \
 	defined(CONFIG_BCM7360) || \
 	defined(CONFIG_BCM7362)

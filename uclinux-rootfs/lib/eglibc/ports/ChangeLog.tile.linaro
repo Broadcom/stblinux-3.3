@@ -1,0 +1,4 @@
+2013-09-22  Carlos O'Donell  <carlos@redhat.com>
+
+	[BZ #15754]
+	* sysdeps/tile/stackguard-macros.h: Define POINTER_CHK_GUARD.

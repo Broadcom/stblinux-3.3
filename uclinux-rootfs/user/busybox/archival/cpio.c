@@ -12,7 +12,7 @@
  *
  */
 #include "libbb.h"
-#include "archive.h"
+#include "bb_archive.h"
 
 //usage:#define cpio_trivial_usage
 //usage:       "[-dmvu] [-F FILE]" IF_FEATURE_CPIO_O(" [-H newc]")
@@ -253,24 +253,24 @@ static NOINLINE int cpio_o(void)
 		}
 
 		bytes += printf("070701"
-		                "%08X%08X%08X%08X%08X%08X%08X"
-		                "%08X%08X%08X%08X" /* GNU cpio uses uppercase hex */
+				"%08X%08X%08X%08X%08X%08X%08X"
+				"%08X%08X%08X%08X" /* GNU cpio uses uppercase hex */
 				/* strlen+1: */ "%08X"
 				/* chksum: */   "00000000" /* (only for "070702" files) */
 				/* name,NUL: */ "%s%c",
-		                (unsigned)(uint32_t) st.st_ino,
-		                (unsigned)(uint32_t) st.st_mode,
-		                (unsigned)(uint32_t) st.st_uid,
-		                (unsigned)(uint32_t) st.st_gid,
-		                (unsigned)(uint32_t) st.st_nlink,
-		                (unsigned)(uint32_t) st.st_mtime,
-		                (unsigned)(uint32_t) st.st_size,
-		                (unsigned)(uint32_t) major(st.st_dev),
-		                (unsigned)(uint32_t) minor(st.st_dev),
-		                (unsigned)(uint32_t) major(st.st_rdev),
-		                (unsigned)(uint32_t) minor(st.st_rdev),
-		                (unsigned)(strlen(name) + 1),
-		                name, '\0');
+				(unsigned)(uint32_t) st.st_ino,
+				(unsigned)(uint32_t) st.st_mode,
+				(unsigned)(uint32_t) st.st_uid,
+				(unsigned)(uint32_t) st.st_gid,
+				(unsigned)(uint32_t) st.st_nlink,
+				(unsigned)(uint32_t) st.st_mtime,
+				(unsigned)(uint32_t) st.st_size,
+				(unsigned)(uint32_t) major(st.st_dev),
+				(unsigned)(uint32_t) minor(st.st_dev),
+				(unsigned)(uint32_t) major(st.st_rdev),
+				(unsigned)(uint32_t) minor(st.st_rdev),
+				(unsigned)(strlen(name) + 1),
+				name, '\0');
 		bytes = cpio_pad4(bytes);
 
 		if (st.st_size) {
@@ -384,6 +384,7 @@ int cpio_main(int argc UNUSED_PARAM, char **argv)
 			goto dump;
 		}
 		/* parent */
+		USE_FOR_NOMMU(argv[-optind][0] &= 0x7f); /* undo fork_or_rexec() damage */
 		xchdir(*argv++);
 		close(pp.wr);
 		xmove_fd(pp.rd, STDIN_FILENO);

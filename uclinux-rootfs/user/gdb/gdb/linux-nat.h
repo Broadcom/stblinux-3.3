@@ -60,7 +60,7 @@ struct lwp_info
 
   /* Non-zero si_signo if this LWP stopped with a trap.  si_addr may
      be the address of a hardware watchpoint.  */
-  struct siginfo siginfo;
+  siginfo_t siginfo;
 
   /* STOPPED_BY_WATCHPOINT is non-zero if this LWP stopped with a data
      watchpoint trap.  */
@@ -160,7 +160,7 @@ void linux_nat_set_new_thread (struct target_ops *, void (*) (ptid_t));
    that ptrace returns, and the layout in the architecture of the
    inferior.  */
 void linux_nat_set_siginfo_fixup (struct target_ops *,
-				  int (*) (struct siginfo *,
+				  int (*) (siginfo_t *,
 					   gdb_byte *,
 					   int));
 
@@ -169,7 +169,7 @@ void linux_nat_set_siginfo_fixup (struct target_ops *,
 void linux_nat_switch_fork (ptid_t new_ptid);
 
 /* Return the saved siginfo associated with PTID.  */
-struct siginfo *linux_nat_get_siginfo (ptid_t ptid);
+siginfo_t *linux_nat_get_siginfo (ptid_t ptid);
 
 /* Compute and return the processor core of a given thread.  */
 int linux_nat_core_of_thread_1 (ptid_t ptid);

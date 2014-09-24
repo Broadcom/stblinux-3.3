@@ -27,10 +27,10 @@ all:
 	make -f Makefile
 
 clean:
-	make -f Makefile clean
+	[ ! -f Makefile ] || make -f Makefile clean
 
 distclean: clean
-	make -f Makefile distclean
+	[ ! -f Makefile ] || make -f Makefile distclean
 	-rm -f Makefile config.cache config.h config.status
 
 romfs:

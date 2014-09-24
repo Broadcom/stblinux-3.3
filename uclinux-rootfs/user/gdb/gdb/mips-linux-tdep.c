@@ -906,7 +906,7 @@ static const struct tramp_frame mips_linux_n64_rt_sigframe = {
    struct rt_sigframe {
      u32 rs_ass[4];            [argument save space for o32]
      u32 rs_code[2]            [signal trampoline or fill]
-     struct siginfo rs_info;
+     siginfo_t rs_info;
      struct ucontext rs_uc;
    };
 
@@ -1034,7 +1034,7 @@ mips_linux_o32_sigframe_init (const struct tramp_frame *self,
   struct rt_sigframe_n32 {
     u32 rs_ass[4];                  [ argument save space for o32 ]
     u32 rs_code[2];                 [ signal trampoline or fill ]
-    struct siginfo rs_info;
+    siginfo_t rs_info;
     struct ucontextn32 rs_uc;
   };
 
@@ -1049,7 +1049,7 @@ mips_linux_o32_sigframe_init (const struct tramp_frame *self,
   struct rt_sigframe {
     u32 rs_ass[4];                  [ argument save space for o32 ]
     u32 rs_code[2];                 [ signal trampoline ]
-    struct siginfo rs_info;
+    siginfo_t rs_info;
     struct ucontext rs_uc;
   };
 

@@ -290,9 +290,10 @@
 #endif
 
 
-#define OPT_STRING "FIlnrdvxt:i:m:p:q:s:w:z:f:" \
-		    IF_FEATURE_TRACEROUTE_SOURCE_ROUTE("g:") \
-		    "4" IF_TRACEROUTE6("6")
+#define OPT_STRING \
+	"FIlnrdvxt:i:m:p:q:s:w:z:f:" \
+	IF_FEATURE_TRACEROUTE_SOURCE_ROUTE("g:") \
+	"4" IF_TRACEROUTE6("6")
 enum {
 	OPT_DONT_FRAGMNT = (1 << 0),    /* F */
 	OPT_USE_ICMP     = (1 << 1) * ENABLE_FEATURE_TRACEROUTE_USE_ICMP, /* I */
@@ -418,39 +419,6 @@ wait_for_reply(len_and_sockaddr *from_lsa, struct sockaddr *to, unsigned *timest
 	return read_len;
 }
 
-/*
- * Checksum routine for Internet Protocol family headers (C Version)
- */
-static uint16_t
-in_cksum(uint16_t *addr, int len)
-{
-	int nleft = len;
-	uint16_t *w = addr;
-	uint16_t answer;
-	int sum = 0;
-
-	/*
-	 * Our algorithm is simple, using a 32 bit accumulator (sum),
-	 * we add sequential 16 bit words to it, and at the end, fold
-	 * back all the carry bits from the top 16 bits into the lower
-	 * 16 bits.
-	 */
-	while (nleft > 1) {
-		sum += *w++;
-		nleft -= 2;
-	}
-
-	/* mop up an odd byte, if necessary */
-	if (nleft == 1)
-		sum += *(unsigned char *)w;
-
-	/* add back carry outs from top 16 bits to low 16 bits */
-	sum = (sum >> 16) + (sum & 0xffff);     /* add hi 16 to low 16 */
-	sum += (sum >> 16);                     /* add carry */
-	answer = ~sum;                          /* truncate to 16 bits */
-	return answer;
-}
-
 static void
 send_probe(int seq, int ttl)
 {
@@ -477,7 +445,7 @@ send_probe(int seq, int ttl)
 
 			/* Always calculate checksum for icmp packets */
 			outicmp->icmp_cksum = 0;
-			outicmp->icmp_cksum = in_cksum((uint16_t *)outicmp,
+			outicmp->icmp_cksum = inet_cksum((uint16_t *)outicmp,
 						packlen - (sizeof(*outip) + optlen));
 			if (outicmp->icmp_cksum == 0)
 				outicmp->icmp_cksum = 0xffff;

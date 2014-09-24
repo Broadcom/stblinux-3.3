@@ -15,7 +15,10 @@ int64_t FAST_FUNC read_key(int fd, char *buffer, int timeout)
 	const char *seq;
 	int n;
 
-	/* Known escape sequences for cursor and function keys */
+	/* Known escape sequences for cursor and function keys.
+	 * See "Xterm Control Sequences"
+	 * http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+	 */
 	static const char esccmds[] ALIGN1 = {
 		'O','A'        |0x80,KEYCODE_UP      ,
 		'O','B'        |0x80,KEYCODE_DOWN    ,
@@ -40,13 +43,16 @@ int64_t FAST_FUNC read_key(int fd, char *buffer, int timeout)
 		'[','C'        |0x80,KEYCODE_RIGHT   ,
 		'[','D'        |0x80,KEYCODE_LEFT    ,
 		/* ESC [ 1 ; 2 x, where x = A/B/C/D: Shift-<arrow> */
-		/* ESC [ 1 ; 3 x, where x = A/B/C/D: Alt-<arrow> */
+		/* ESC [ 1 ; 3 x, where x = A/B/C/D: Alt-<arrow> - implemented below */
 		/* ESC [ 1 ; 4 x, where x = A/B/C/D: Alt-Shift-<arrow> */
 		/* ESC [ 1 ; 5 x, where x = A/B/C/D: Ctrl-<arrow> - implemented below */
 		/* ESC [ 1 ; 6 x, where x = A/B/C/D: Ctrl-Shift-<arrow> */
+		/* ESC [ 1 ; 7 x, where x = A/B/C/D: Ctrl-Alt-<arrow> */
+		/* ESC [ 1 ; 8 x, where x = A/B/C/D: Ctrl-Alt-Shift-<arrow> */
 		'[','H'        |0x80,KEYCODE_HOME    , /* xterm */
-		/* [ESC] ESC [ [2] H - [Alt-][Shift-]Home */
 		'[','F'        |0x80,KEYCODE_END     , /* xterm */
+		/* [ESC] ESC [ [2] H - [Alt-][Shift-]Home (End similarly?) */
+		/* '[','Z'        |0x80,KEYCODE_SHIFT_TAB, */
 		'[','1','~'    |0x80,KEYCODE_HOME    , /* vt100? linux vt? or what? */
 		'[','2','~'    |0x80,KEYCODE_INSERT  ,
 		/* ESC [ 2 ; 3 ~ - Alt-Insert */
@@ -63,10 +69,10 @@ int64_t FAST_FUNC read_key(int fd, char *buffer, int timeout)
 		'[','7','~'    |0x80,KEYCODE_HOME    , /* vt100? linux vt? or what? */
 		'[','8','~'    |0x80,KEYCODE_END     , /* vt100? linux vt? or what? */
 #if 0
-		'[','1','1','~'|0x80,KEYCODE_FUN1    ,
-		'[','1','2','~'|0x80,KEYCODE_FUN2    ,
-		'[','1','3','~'|0x80,KEYCODE_FUN3    ,
-		'[','1','4','~'|0x80,KEYCODE_FUN4    ,
+		'[','1','1','~'|0x80,KEYCODE_FUN1    , /* old xterm, deprecated by ESC O P */
+		'[','1','2','~'|0x80,KEYCODE_FUN2    , /* old xterm... */
+		'[','1','3','~'|0x80,KEYCODE_FUN3    , /* old xterm... */
+		'[','1','4','~'|0x80,KEYCODE_FUN4    , /* old xterm... */
 		'[','1','5','~'|0x80,KEYCODE_FUN5    ,
 		/* [ESC] ESC [ 1 5 [;2] ~ - [Alt-][Shift-]F5 */
 		'[','1','7','~'|0x80,KEYCODE_FUN6    ,
@@ -86,8 +92,12 @@ int64_t FAST_FUNC read_key(int fd, char *buffer, int timeout)
 		/* '[','1',';','5','B' |0x80,KEYCODE_CTRL_DOWN , - unused */
 		'[','1',';','5','C' |0x80,KEYCODE_CTRL_RIGHT,
 		'[','1',';','5','D' |0x80,KEYCODE_CTRL_LEFT ,
+		/* '[','1',';','3','A' |0x80,KEYCODE_ALT_UP    , - unused */
+		/* '[','1',';','3','B' |0x80,KEYCODE_ALT_DOWN  , - unused */
+		'[','1',';','3','C' |0x80,KEYCODE_ALT_RIGHT,
+		'[','1',';','3','D' |0x80,KEYCODE_ALT_LEFT ,
+		/* '[','3',';','3','~' |0x80,KEYCODE_ALT_DELETE, - unused */
 		0
-		/* ESC [ Z - Shift-Tab */
 	};
 
 	pfd.fd = fd;

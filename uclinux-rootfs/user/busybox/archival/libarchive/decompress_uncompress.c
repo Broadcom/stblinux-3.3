@@ -25,7 +25,7 @@
  */
 
 #include "libbb.h"
-#include "archive.h"
+#include "bb_archive.h"
 
 
 /* Default input buffer size */
@@ -73,12 +73,11 @@
  */
 
 IF_DESKTOP(long long) int FAST_FUNC
-unpack_Z_stream(int fd_in, int fd_out)
+unpack_Z_stream(transformer_aux_data_t *aux, int src_fd, int dst_fd)
 {
 	IF_DESKTOP(long long total_written = 0;)
 	IF_DESKTOP(long long) int retval = -1;
 	unsigned char *stackp;
-	long code;
 	int finchar;
 	long oldcode;
 	long incode;
@@ -103,16 +102,19 @@ unpack_Z_stream(int fd_in, int fd_out)
 	/* block compress mode -C compatible with 2.0 */
 	int block_mode; /* = BLOCK_MODE; */
 
+	if (check_signature16(aux, src_fd, COMPRESS_MAGIC))
+		return -1;
+
 	inbuf = xzalloc(IBUFSIZ + 64);
 	outbuf = xzalloc(OBUFSIZ + 2048);
-	htab = xzalloc(HSIZE);  /* wsn't zeroed out before, maybe can xmalloc? */
+	htab = xzalloc(HSIZE);  /* wasn't zeroed out before, maybe can xmalloc? */
 	codetab = xzalloc(HSIZE * sizeof(codetab[0]));
 
 	insize = 0;
 
 	/* xread isn't good here, we have to return - caller may want
 	 * to do some cleanup (e.g. delete incomplete unpacked file etc) */
-	if (full_read(fd_in, inbuf, 1) != 1) {
+	if (full_read(src_fd, inbuf, 1) != 1) {
 		bb_error_msg("short read");
 		goto err;
 	}
@@ -140,8 +142,10 @@ unpack_Z_stream(int fd_in, int fd_out)
 	/* As above, initialize the first 256 entries in the table. */
 	/*clear_tab_prefixof(); - done by xzalloc */
 
-	for (code = 255; code >= 0; --code) {
-		tab_suffixof(code) = (unsigned char) code;
+	{
+		int i;
+		for (i = 255; i >= 0; --i)
+			tab_suffixof(i) = (unsigned char) i;
 	}
 
 	do {
@@ -162,7 +166,7 @@ unpack_Z_stream(int fd_in, int fd_out)
 		}
 
 		if (insize < (int) (IBUFSIZ + 64) - IBUFSIZ) {
-			rsize = safe_read(fd_in, inbuf + insize, IBUFSIZ);
+			rsize = safe_read(src_fd, inbuf + insize, IBUFSIZ);
 			if (rsize < 0)
 				bb_error_msg_and_die(bb_msg_read_error);
 			insize += rsize;
@@ -172,6 +176,8 @@ unpack_Z_stream(int fd_in, int fd_out)
 				  (insize << 3) - (n_bits - 1));
 
 		while (inbits > posbits) {
+			long code;
+
 			if (free_ent > maxcode) {
 				posbits =
 					((posbits - 1) +
@@ -188,12 +194,11 @@ unpack_Z_stream(int fd_in, int fd_out)
 			}
 			{
 				unsigned char *p = &inbuf[posbits >> 3];
-
-				code = ((((long) (p[0])) | ((long) (p[1]) << 8) |
-				         ((long) (p[2]) << 16)) >> (posbits & 0x7)) & bitmask;
+				code = ((p[0]
+					| ((long) (p[1]) << 8)
+					| ((long) (p[2]) << 16)) >> (posbits & 0x7)) & bitmask;
 			}
 			posbits += n_bits;
-
 
 			if (oldcode == -1) {
 				if (code >= 256)
@@ -223,15 +228,16 @@ unpack_Z_stream(int fd_in, int fd_out)
 			/* Special case for KwKwK string. */
 			if (code >= free_ent) {
 				if (code > free_ent) {
+/*
 					unsigned char *p;
 
 					posbits -= n_bits;
 					p = &inbuf[posbits >> 3];
-
 					bb_error_msg
 						("insize:%d posbits:%d inbuf:%02X %02X %02X %02X %02X (%d)",
-						 insize, posbits, p[-1], p[0], p[1], p[2], p[3],
-						 (posbits & 07));
+						insize, posbits, p[-1], p[0], p[1], p[2], p[3],
+						(posbits & 07));
+*/
 					bb_error_msg("corrupted data");
 					goto err;
 				}
@@ -241,7 +247,7 @@ unpack_Z_stream(int fd_in, int fd_out)
 			}
 
 			/* Generate output characters in reverse order */
-			while ((long) code >= (long) 256) {
+			while (code >= 256) {
 				if (stackp <= &htabof(0))
 					bb_error_msg_and_die("corrupted data");
 				*--stackp = tab_suffixof(code);
@@ -268,7 +274,7 @@ unpack_Z_stream(int fd_in, int fd_out)
 						}
 
 						if (outpos >= OBUFSIZ) {
-							xwrite(fd_out, outbuf, outpos);
+							xwrite(dst_fd, outbuf, outpos);
 							IF_DESKTOP(total_written += outpos;)
 							outpos = 0;
 						}
@@ -282,11 +288,10 @@ unpack_Z_stream(int fd_in, int fd_out)
 			}
 
 			/* Generate the new entry. */
-			code = free_ent;
-			if (code < maxmaxcode) {
-				tab_prefixof(code) = (unsigned short) oldcode;
-				tab_suffixof(code) = (unsigned char) finchar;
-				free_ent = code + 1;
+			if (free_ent < maxmaxcode) {
+				tab_prefixof(free_ent) = (unsigned short) oldcode;
+				tab_suffixof(free_ent) = (unsigned char) finchar;
+				free_ent++;
 			}
 
 			/* Remember previous code.  */
@@ -296,7 +301,7 @@ unpack_Z_stream(int fd_in, int fd_out)
 	} while (rsize > 0);
 
 	if (outpos > 0) {
-		xwrite(fd_out, outbuf, outpos);
+		xwrite(dst_fd, outbuf, outpos);
 		IF_DESKTOP(total_written += outpos;)
 	}
 

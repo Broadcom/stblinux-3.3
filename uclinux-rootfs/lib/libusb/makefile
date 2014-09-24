@@ -8,11 +8,13 @@ all-% install-% clean-% distclean-%:
 	$(MAKE) -f Makefile $@
 
 clean:
-	make -f Makefile clean SUBDIRS="."
+	[ ! -f Makefile ] || make -f Makefile clean SUBDIRS="."
 
 distclean: clean
-	-make -f Makefile distclean SUBDIRS="."
+	[ ! -f Makefile ] || make -f Makefile distclean SUBDIRS="."
 	rm -f Makefile
 
 romfs:
 	make -f Makefile install SUBDIRS="."
+
+.PHONY: all clean distclean romfs all-% install-% clean-% distclean-%

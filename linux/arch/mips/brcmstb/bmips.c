@@ -100,6 +100,21 @@ void brcmstb_cpu_setup(void)
 	/* enable RDHWR, BRDHWR */
 	set_c0_brcm_config(BIT(17) | BIT(21));
 
+	/* Disable JTB */
+	__asm__ __volatile__(
+	"	.set	noreorder\n"
+	"	li	$8, 0x5a455048\n"
+	"	.word	0x4088b00f\n"	/* mtc0	t0, $22, 15 */
+	"	.word	0x4008b008\n"	/* mfc0	t0, $22, 8 */
+	"	li	$9, 0x00008000\n"
+	"	or	$8, $8, $9\n"
+	"	.word	0x4088b008\n"	/* mtc0	t0, $22, 8 */
+	"	sync\n"
+	"	li	$8, 0x0\n"
+	"	.word	0x4088b00f\n"	/* mtc0	t0, $22, 15 */
+	"	.set	reorder\n"
+	: : : "$8", "$9");
+
 	if (kernel_uses_smartmips_rixi) {
 		/* XI enable */
 		set_c0_brcm_config(BIT(27));

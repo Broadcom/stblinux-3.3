@@ -42,6 +42,10 @@ all::
 	fi
 	$(MAKE) -C build
 
+.PHONY: clean
+clean::
+	[ ! -f build/Makefile ] || $(MAKE) -C build $@
+
 .PHONY: romfs
 romfs::
 	rm -rf build/romfs
@@ -51,10 +55,6 @@ romfs::
 	cp -rf build/romfs/lib/* $(ROMFSDIR)/lib/
 	cp -rf brcmscripts/* $(ROMFSDIR)/
 	mkdir -p $(ROMFSDIR)/{cgroup,var/lib/lxc}
-
-.PHONY: clean
-clean::
-	$(MAKE) -C build clean
 
 .PHONY: distclean
 distclean::

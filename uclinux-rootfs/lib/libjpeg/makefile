@@ -4,8 +4,10 @@ default:
 	make CC=$(CC) LIBTOOL=$(ROOTDIR)/tools/libtool -f Makefile
 	make CC=$(CC) LIBTOOL=$(ROOTDIR)/tools/libtool -f Makefile install-lib
 
-distclean clean:
-	make -f Makefile distclean
+clean distclean:
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
 
 romfs:
 	rm -f $(ROMFSDIR)/lib/libjpeg.*a
+
+.PHONY: default clean distclean romfs

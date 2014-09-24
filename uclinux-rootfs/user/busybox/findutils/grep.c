@@ -85,6 +85,7 @@
 //usage:     "\n	-r	Recurse"
 //usage:     "\n	-i	Ignore case"
 //usage:     "\n	-w	Match whole words only"
+//usage:     "\n	-x	Match whole lines only"
 //usage:     "\n	-F	PATTERN is a literal (not regexp)"
 //usage:	IF_FEATURE_GREP_EGREP_ALIAS(
 //usage:     "\n	-E	PATTERN is an extended regexp"
@@ -113,7 +114,7 @@
 //usage:#define fgrep_full_usage ""
 
 #define OPTSTR_GREP \
-	"lnqvscFiHhe:f:Lorm:w" \
+	"lnqvscFiHhe:f:Lorm:wx" \
 	IF_FEATURE_GREP_CONTEXT("A:B:C:") \
 	IF_FEATURE_GREP_EGREP_ALIAS("E") \
 	IF_EXTRA_COMPAT("z") \
@@ -138,6 +139,7 @@ enum {
 	OPTBIT_r, /* recurse dirs */
 	OPTBIT_m, /* -m MAX_MATCHES */
 	OPTBIT_w, /* -w whole word match */
+	OPTBIT_x, /* -x whole line match */
 	IF_FEATURE_GREP_CONTEXT(    OPTBIT_A ,) /* -A NUM: after-match context */
 	IF_FEATURE_GREP_CONTEXT(    OPTBIT_B ,) /* -B NUM: before-match context */
 	IF_FEATURE_GREP_CONTEXT(    OPTBIT_C ,) /* -C NUM: -A and -B combined */
@@ -160,6 +162,7 @@ enum {
 	OPT_r = 1 << OPTBIT_r,
 	OPT_m = 1 << OPTBIT_m,
 	OPT_w = 1 << OPTBIT_w,
+	OPT_x = 1 << OPTBIT_x,
 	OPT_A = IF_FEATURE_GREP_CONTEXT(    (1 << OPTBIT_A)) + 0,
 	OPT_B = IF_FEATURE_GREP_CONTEXT(    (1 << OPTBIT_B)) + 0,
 	OPT_C = IF_FEATURE_GREP_CONTEXT(    (1 << OPTBIT_C)) + 0,
@@ -341,10 +344,34 @@ static int grep_file(FILE *file)
 		while (pattern_ptr) {
 			gl = (grep_list_data_t *)pattern_ptr->data;
 			if (FGREP_FLAG) {
-				found |= (((option_mask32 & OPT_i)
-					? strcasestr(line, gl->pattern)
-					: strstr(line, gl->pattern)
-					) != NULL);
+				char *match;
+				char *str = line;
+ opt_f_again:
+				match = ((option_mask32 & OPT_i)
+					? strcasestr(str, gl->pattern)
+					: strstr(str, gl->pattern)
+					);
+				if (match) {
+					if (option_mask32 & OPT_x) {
+						if (match != str)
+							goto opt_f_not_found;
+						if (str[strlen(gl->pattern)] != '\0')
+							goto opt_f_not_found;
+					} else
+					if (option_mask32 & OPT_w) {
+						char c = (match != str) ? match[-1] : ' ';
+						if (!isalnum(c) && c != '_') {
+							c = match[strlen(gl->pattern)];
+							if (!c || (!isalnum(c) && c != '_'))
+								goto opt_f_found;
+						}
+						str = match + 1;
+						goto opt_f_again;
+					}
+ opt_f_found:
+					found = 1;
+ opt_f_not_found: ;
+				}
 			} else {
 				if (!(gl->flg_mem_alocated_compiled & COMPILED)) {
 					gl->flg_mem_alocated_compiled |= COMPILED;
@@ -370,9 +397,13 @@ static int grep_file(FILE *file)
 							&gl->matched_range) >= 0
 #endif
 				) {
-					if (!(option_mask32 & OPT_w))
+					if (option_mask32 & OPT_x) {
+						found = (gl->matched_range.rm_so == 0
+						         && line[gl->matched_range.rm_eo] == '\0');
+					} else
+					if (!(option_mask32 & OPT_w)) {
 						found = 1;
-					else {
+					} else {
 						char c = ' ';
 						if (gl->matched_range.rm_so)
 							c = line[gl->matched_range.rm_so - 1];
@@ -381,6 +412,8 @@ static int grep_file(FILE *file)
 							if (!c || (!isalnum(c) && c != '_'))
 								found = 1;
 						}
+//BUG: "echo foop foo | grep -w foo" should match, but doesn't:
+//we bail out on first "mismatch" because it's not a word.
 					}
 				}
 			}
@@ -632,7 +665,7 @@ int grep_main(int argc UNUSED_PARAM, char **argv)
 
 	if (opts & OPT_C) {
 		/* -C unsets prev -A and -B, but following -A or -B
-		   may override it */
+		 * may override it */
 		if (!(opts & OPT_A)) /* not overridden */
 			lines_after = Copt;
 		if (!(opts & OPT_B)) /* not overridden */

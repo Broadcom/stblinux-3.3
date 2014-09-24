@@ -6,7 +6,7 @@ default:
 	make -f Makefile install
 
 distclean clean:
-	make -f Makefile distclean
+	[ ! -f Makefile ] || make -f Makefile distclean
 
 romfs:
 	rm -f $(ROMFSDIR)/bin/freetype-config

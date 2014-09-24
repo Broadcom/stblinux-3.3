@@ -132,12 +132,12 @@ endif
 ifeq ($(findstring y,$(CONFIG_LIB_LIBUTIL_FORCE)$(CONFIG_LIB_LIBUTIL)),y)
 	-$(RM) -f $(ROMFSDIR)/lib/libutil.so*
 	cp -af $(GCCSYSROOT)/lib/libutil* $(ROMFSDIR)/lib/
-	$(STRIP) $(ROMFSDIR)/lib/libutil.so.0
+	$(STRIP) $(ROMFSDIR)/lib/libutil.so.[0-9]
 endif
 ifeq ($(findstring y,$(CONFIG_LIB_LIBCRYPT_FORCE)$(CONFIG_LIB_LIBCRYPT)),y)
 	-$(RM) -f $(ROMFSDIR)/lib/libcrypt.so*
 	cp -af $(GCCSYSROOT)/lib/libcrypt* $(ROMFSDIR)/lib/
-	$(STRIP) $(ROMFSDIR)/lib/libcrypt.so.0
+	$(STRIP) $(ROMFSDIR)/lib/libcrypt.so.[0-9]
 endif
 endif
 

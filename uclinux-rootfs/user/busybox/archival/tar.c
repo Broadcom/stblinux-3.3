@@ -44,7 +44,7 @@
 
 #include <fnmatch.h>
 #include "libbb.h"
-#include "archive.h"
+#include "bb_archive.h"
 /* FIXME: Stop using this non-standard feature */
 #ifndef FNM_LEADING_DIR
 # define FNM_LEADING_DIR 0
@@ -60,8 +60,8 @@
 
 #if !ENABLE_FEATURE_SEAMLESS_GZ && !ENABLE_FEATURE_SEAMLESS_BZ2
 /* Do not pass gzip flag to writeTarFile() */
-#define writeTarFile(tar_fd, verboseFlag, dereferenceFlag, include, exclude, gzip) \
-	writeTarFile(tar_fd, verboseFlag, dereferenceFlag, include, exclude)
+#define writeTarFile(tar_fd, verboseFlag, recurseFlags, include, exclude, gzip) \
+	writeTarFile(tar_fd, verboseFlag, recurseFlags, include, exclude)
 #endif
 
 
@@ -333,13 +333,13 @@ static int writeTarHeader(struct TarBallInfo *tbInfo,
 		 && (filesize <= 0x3fffffffffffffffffffffffLL)
 #endif
 		) {
-	                /* GNU tar uses "base-256 encoding" for very large numbers.
-	                 * Encoding is binary, with highest bit always set as a marker
-	                 * and sign in next-highest bit:
-	                 * 80 00 .. 00 - zero
-	                 * bf ff .. ff - largest positive number
-	                 * ff ff .. ff - minus 1
-	                 * c0 00 .. 00 - smallest negative number
+			/* GNU tar uses "base-256 encoding" for very large numbers.
+			 * Encoding is binary, with highest bit always set as a marker
+			 * and sign in next-highest bit:
+			 * 80 00 .. 00 - zero
+			 * bf ff .. ff - largest positive number
+			 * ff ff .. ff - minus 1
+			 * c0 00 .. 00 - smallest negative number
 			 */
 			char *p8 = header.size + sizeof(header.size);
 			do {
@@ -598,7 +598,7 @@ static void NOINLINE vfork_compressor(int tar_fd, int gzip)
 
 /* gcc 4.2.1 inlines it, making code bigger */
 static NOINLINE int writeTarFile(int tar_fd, int verboseFlag,
-	int dereferenceFlag, const llist_t *include,
+	int recurseFlags, const llist_t *include,
 	const llist_t *exclude, int gzip)
 {
 	int errorFlag = FALSE;
@@ -621,8 +621,7 @@ static NOINLINE int writeTarFile(int tar_fd, int verboseFlag,
 
 	/* Read the directory/files and iterate over them one at a time */
 	while (include) {
-		if (!recursive_action(include->data, ACTION_RECURSE |
-				(dereferenceFlag ? ACTION_FOLLOWLINKS : 0),
+		if (!recursive_action(include->data, recurseFlags,
 				writeFileToTarball, writeFileToTarball, &tbInfo, 0)
 		) {
 			errorFlag = TRUE;
@@ -662,7 +661,7 @@ static NOINLINE int writeTarFile(int tar_fd, int verboseFlag,
 }
 #else
 int writeTarFile(int tar_fd, int verboseFlag,
-	int dereferenceFlag, const llist_t *include,
+	int recurseFlags, const llist_t *include,
 	const llist_t *exclude, int gzip);
 #endif /* FEATURE_TAR_CREATE */
 
@@ -690,58 +689,11 @@ static llist_t *append_file_list_to_list(llist_t *list)
 # define append_file_list_to_list(x) 0
 #endif
 
-#if ENABLE_FEATURE_SEAMLESS_Z
-static char FAST_FUNC get_header_tar_Z(archive_handle_t *archive_handle)
-{
-	/* Can't lseek over pipes */
-	archive_handle->seek = seek_by_read;
-
-	/* do the decompression, and cleanup */
-	if (xread_char(archive_handle->src_fd) != 0x1f
-	 || xread_char(archive_handle->src_fd) != 0x9d
-	) {
-		bb_error_msg_and_die("invalid magic");
-	}
-
-	open_transformer(archive_handle->src_fd, unpack_Z_stream, "uncompress");
-	archive_handle->offset = 0;
-	while (get_header_tar(archive_handle) == EXIT_SUCCESS)
-		continue;
-
-	/* Can only do one file at a time */
-	return EXIT_FAILURE;
-}
-#else
-# define get_header_tar_Z NULL
-#endif
-
-#ifdef CHECK_FOR_CHILD_EXITCODE
-/* Looks like it isn't needed - tar detects malformed (truncated)
- * archive if e.g. bunzip2 fails */
-static int child_error;
-
-static void handle_SIGCHLD(int status)
-{
-	/* Actually, 'status' is a signo. We reuse it for other needs */
-
-	/* Wait for any child without blocking */
-	if (wait_any_nohang(&status) < 0)
-		/* wait failed?! I'm confused... */
-		return;
-
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-		/* child exited with 0 */
-		return;
-	/* Cannot happen?
-	if (!WIFSIGNALED(status) && !WIFEXITED(status)) return; */
-	child_error = 1;
-}
-#endif
-
 //usage:#define tar_trivial_usage
 //usage:	"-[" IF_FEATURE_TAR_CREATE("c") "xt"
 //usage:	IF_FEATURE_SEAMLESS_Z("Z")
 //usage:	IF_FEATURE_SEAMLESS_GZ("z")
+//usage:	IF_FEATURE_SEAMLESS_XZ("J")
 //usage:	IF_FEATURE_SEAMLESS_BZ2("j")
 //usage:	IF_FEATURE_SEAMLESS_LZMA("a")
 //usage:	IF_FEATURE_TAR_CREATE("h")
@@ -767,6 +719,9 @@ static void handle_SIGCHLD(int status)
 //usage:	)
 //usage:	IF_FEATURE_SEAMLESS_GZ(
 //usage:     "\n	z	(De)compress using gzip"
+//usage:	)
+//usage:	IF_FEATURE_SEAMLESS_XZ(
+//usage:     "\n	J	(De)compress using xz"
 //usage:	)
 //usage:	IF_FEATURE_SEAMLESS_BZ2(
 //usage:     "\n	j	(De)compress using bzip2"
@@ -797,6 +752,7 @@ static void handle_SIGCHLD(int status)
 //	o	no-same-owner
 //	p	same-permissions
 //	k	keep-old
+//	no-recursion
 //	numeric-owner
 //	no-same-permissions
 //	overwrite
@@ -813,9 +769,11 @@ enum {
 	IF_FEATURE_TAR_FROM(     OPTBIT_INCLUDE_FROM,)
 	IF_FEATURE_TAR_FROM(     OPTBIT_EXCLUDE_FROM,)
 	IF_FEATURE_SEAMLESS_GZ(  OPTBIT_GZIP        ,)
-	IF_FEATURE_SEAMLESS_Z(   OPTBIT_COMPRESS    ,) // 16th bit
+	IF_FEATURE_SEAMLESS_XZ(  OPTBIT_XZ          ,) // 16th bit
+	IF_FEATURE_SEAMLESS_Z(   OPTBIT_COMPRESS    ,)
 	IF_FEATURE_TAR_NOPRESERVE_TIME(OPTBIT_NOPRESERVE_TIME,)
 #if ENABLE_FEATURE_TAR_LONG_OPTIONS
+	OPTBIT_NORECURSION,
 	IF_FEATURE_TAR_TO_COMMAND(OPTBIT_2COMMAND   ,)
 	OPTBIT_NUMERIC_OWNER,
 	OPTBIT_NOPRESERVE_PERM,
@@ -837,12 +795,16 @@ enum {
 	OPT_INCLUDE_FROM = IF_FEATURE_TAR_FROM(     (1 << OPTBIT_INCLUDE_FROM)) + 0, // T
 	OPT_EXCLUDE_FROM = IF_FEATURE_TAR_FROM(     (1 << OPTBIT_EXCLUDE_FROM)) + 0, // X
 	OPT_GZIP         = IF_FEATURE_SEAMLESS_GZ(  (1 << OPTBIT_GZIP        )) + 0, // z
+	OPT_XZ           = IF_FEATURE_SEAMLESS_XZ(  (1 << OPTBIT_XZ          )) + 0, // J
 	OPT_COMPRESS     = IF_FEATURE_SEAMLESS_Z(   (1 << OPTBIT_COMPRESS    )) + 0, // Z
 	OPT_NOPRESERVE_TIME = IF_FEATURE_TAR_NOPRESERVE_TIME((1 << OPTBIT_NOPRESERVE_TIME)) + 0, // m
+	OPT_NORECURSION     = IF_FEATURE_TAR_LONG_OPTIONS((1 << OPTBIT_NORECURSION    )) + 0, // no-recursion
 	OPT_2COMMAND        = IF_FEATURE_TAR_TO_COMMAND(  (1 << OPTBIT_2COMMAND       )) + 0, // to-command
 	OPT_NUMERIC_OWNER   = IF_FEATURE_TAR_LONG_OPTIONS((1 << OPTBIT_NUMERIC_OWNER  )) + 0, // numeric-owner
 	OPT_NOPRESERVE_PERM = IF_FEATURE_TAR_LONG_OPTIONS((1 << OPTBIT_NOPRESERVE_PERM)) + 0, // no-same-permissions
 	OPT_OVERWRITE       = IF_FEATURE_TAR_LONG_OPTIONS((1 << OPTBIT_OVERWRITE      )) + 0, // overwrite
+
+	OPT_ANY_COMPRESS = (OPT_BZIP2 | OPT_LZMA | OPT_GZIP | OPT_XZ | OPT_COMPRESS),
 };
 #if ENABLE_FEATURE_TAR_LONG_OPTIONS
 static const char tar_longopts[] ALIGN1 =
@@ -875,12 +837,16 @@ static const char tar_longopts[] ALIGN1 =
 # if ENABLE_FEATURE_SEAMLESS_GZ
 	"gzip\0"                No_argument       "z"
 # endif
+# if ENABLE_FEATURE_SEAMLESS_XZ
+	"xz\0"                  No_argument       "J"
+# endif
 # if ENABLE_FEATURE_SEAMLESS_Z
 	"compress\0"            No_argument       "Z"
 # endif
 # if ENABLE_FEATURE_TAR_NOPRESERVE_TIME
 	"touch\0"               No_argument       "m"
 # endif
+	"no-recursion\0"	No_argument       "\xfa"
 # if ENABLE_FEATURE_TAR_TO_COMMAND
 	"to-command\0"		Required_argument "\xfb"
 # endif
@@ -901,7 +867,6 @@ static const char tar_longopts[] ALIGN1 =
 int tar_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
 int tar_main(int argc UNUSED_PARAM, char **argv)
 {
-	char FAST_FUNC (*get_header_ptr)(archive_handle_t *) = get_header_tar;
 	archive_handle_t *tar_handle;
 	char *base_dir = NULL;
 	const char *tar_filename = "-";
@@ -968,6 +933,7 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 		IF_FEATURE_SEAMLESS_LZMA("a"   )
 		IF_FEATURE_TAR_FROM(     "T:X:")
 		IF_FEATURE_SEAMLESS_GZ(  "z"   )
+		IF_FEATURE_SEAMLESS_XZ(  "J"   )
 		IF_FEATURE_SEAMLESS_Z(   "Z"   )
 		IF_FEATURE_TAR_NOPRESERVE_TIME("m")
 		, &base_dir // -C dir
@@ -1016,18 +982,6 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 		tar_handle->ah_flags &= ~ARCHIVE_UNLINK_OLD;
 		tar_handle->ah_flags |= ARCHIVE_O_TRUNC;
 	}
-
-	if (opt & OPT_GZIP)
-		get_header_ptr = get_header_tar_gz;
-
-	if (opt & OPT_BZIP2)
-		get_header_ptr = get_header_tar_bz2;
-
-	if (opt & OPT_LZMA)
-		get_header_ptr = get_header_tar_lzma;
-
-	if (opt & OPT_COMPRESS)
-		get_header_ptr = get_header_tar_Z;
 
 	if (opt & OPT_NOPRESERVE_TIME)
 		tar_handle->ah_flags &= ~ARCHIVE_RESTORE_DATE;
@@ -1081,7 +1035,7 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 		} else {
 			if (ENABLE_FEATURE_TAR_AUTODETECT
 			 && flags == O_RDONLY
-			 && get_header_ptr == get_header_tar
+			 && !(opt & OPT_ANY_COMPRESS)
 			) {
 				tar_handle->src_fd = open_zipped(tar_filename);
 				if (tar_handle->src_fd < 0)
@@ -1095,10 +1049,9 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 	if (base_dir)
 		xchdir(base_dir);
 
-#ifdef CHECK_FOR_CHILD_EXITCODE
-	/* We need to know whether child (gzip/bzip/etc) exits abnormally */
-	signal(SIGCHLD, handle_SIGCHLD);
-#endif
+	//if (SEAMLESS_COMPRESSION || OPT_COMPRESS)
+	//	/* We need to know whether child (gzip/bzip/etc) exits abnormally */
+	//	signal(SIGCHLD, check_errors_in_children);
 
 	/* Create an archive */
 	if (opt & OPT_CREATE) {
@@ -1110,12 +1063,40 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 			zipMode = 2;
 #endif
 		/* NB: writeTarFile() closes tar_handle->src_fd */
-		return writeTarFile(tar_handle->src_fd, verboseFlag, opt & OPT_DEREFERENCE,
+		return writeTarFile(tar_handle->src_fd, verboseFlag,
+				(opt & OPT_DEREFERENCE ? ACTION_FOLLOWLINKS : 0)
+				| (opt & OPT_NORECURSION ? 0 : ACTION_RECURSE),
 				tar_handle->accept,
 				tar_handle->reject, zipMode);
 	}
 
-	while (get_header_ptr(tar_handle) == EXIT_SUCCESS)
+	if (opt & OPT_ANY_COMPRESS) {
+		USE_FOR_MMU(IF_DESKTOP(long long) int FAST_FUNC (*xformer)(transformer_aux_data_t *aux, int src_fd, int dst_fd);)
+		USE_FOR_NOMMU(const char *xformer_prog;)
+
+		if (opt & OPT_COMPRESS)
+			USE_FOR_MMU(xformer = unpack_Z_stream;)
+			USE_FOR_NOMMU(xformer_prog = "uncompress";)
+		if (opt & OPT_GZIP)
+			USE_FOR_MMU(xformer = unpack_gz_stream;)
+			USE_FOR_NOMMU(xformer_prog = "gunzip";)
+		if (opt & OPT_BZIP2)
+			USE_FOR_MMU(xformer = unpack_bz2_stream;)
+			USE_FOR_NOMMU(xformer_prog = "bunzip2";)
+		if (opt & OPT_LZMA)
+			USE_FOR_MMU(xformer = unpack_lzma_stream;)
+			USE_FOR_NOMMU(xformer_prog = "unlzma";)
+		if (opt & OPT_XZ)
+			USE_FOR_MMU(xformer = unpack_xz_stream;)
+			USE_FOR_NOMMU(xformer_prog = "unxz";)
+
+		open_transformer_with_sig(tar_handle->src_fd, xformer, xformer_prog);
+		/* Can't lseek over pipes */
+		tar_handle->seek = seek_by_read;
+		/*tar_handle->offset = 0; - already is */
+	}
+
+	while (get_header_tar(tar_handle) == EXIT_SUCCESS)
 		continue;
 
 	/* Check that every file that should have been extracted was */
@@ -1131,5 +1112,9 @@ int tar_main(int argc UNUSED_PARAM, char **argv)
 	if (ENABLE_FEATURE_CLEAN_UP /* && tar_handle->src_fd != STDIN_FILENO */)
 		close(tar_handle->src_fd);
 
+	if (SEAMLESS_COMPRESSION || OPT_COMPRESS) {
+		check_errors_in_children(0);
+		return bb_got_signal;
+	}
 	return EXIT_SUCCESS;
 }

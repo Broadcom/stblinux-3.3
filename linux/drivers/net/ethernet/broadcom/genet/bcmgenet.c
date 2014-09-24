@@ -684,6 +684,9 @@ static int bcmgenet_close(struct net_device *dev)
 	 */
 	cancel_work_sync(&pDevCtrl->bcmgenet_irq_work);
 
+	/* Set carrier state as down */
+	netif_carrier_off(dev);
+
 	if (brcm_pm_deep_sleep())
 		save_state(pDevCtrl);
 
@@ -1107,6 +1110,12 @@ static int bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
 		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
 		return NETDEV_TX_OK;
 	}
+
+	if (skb && skb_padto(skb, ETH_ZLEN)) {
+		spin_unlock_irqrestore(&pDevCtrl->lock, flags);
+		return NETDEV_TX_OK;
+	}
+
 #if (CONFIG_BRCM_GENET_VERSION > 1) && defined(CONFIG_NET_SCH_MULTIQ)
 	if (skb) {
 		index = skb_get_queue_mapping(skb);
@@ -1487,6 +1496,10 @@ int __maybe_unused bcmgenet_ring_xmit(struct sk_buff *skb,
 
 	if (!skb)
 		return 0;
+
+	if (skb_padto(skb, ETH_ZLEN))
+		return 0;
+
 	/* Obtain a tx control block */
 	txCBPtr = pDevCtrl->txRingCBs[index] + p_index;
 	txCBPtr->skb = skb;
@@ -1505,6 +1518,7 @@ int __maybe_unused bcmgenet_ring_xmit(struct sk_buff *skb,
 				(unsigned int)skb->head);
 		BUG();
 	}
+
 	Status = (struct status_64 *)skb->head;
 	Status->length_status = ((unsigned long)((skb->len < ETH_ZLEN) ?
 				ETH_ZLEN : skb->len)) << 16;
@@ -3758,6 +3772,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	TRACE(("%s: base=0x%x\n", __func__, (unsigned int)base));
 
 	if (!base) {
+		release_mem_region(mres->start, res_size);
 		printk(KERN_ERR "%s: can't ioremap\n", __func__);
 		return -EIO;
 	}
@@ -3781,7 +3796,7 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	dev->watchdog_timeo         = 2*HZ;
 	SET_ETHTOOL_OPS(dev, &bcmgenet_ethtool_ops);
 	dev->netdev_ops = &bcmgenet_netdev_ops;
-	netif_napi_add(dev, &pDevCtrl->napi, bcmgenet_poll, 64);
+	netif_napi_add(dev, &pDevCtrl->napi, bcmgenet_poll, TOTAL_DESC);
 	netif_napi_add(dev, &pDevCtrl->ring_napi, bcmgenet_ring_poll, 64);
 
 	netdev_boot_setup_check(dev);
@@ -3838,10 +3853,6 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 
 	INIT_WORK(&pDevCtrl->bcmgenet_irq_work, bcmgenet_irq_task);
 
-	err = register_netdev(dev);
-	if (err != 0)
-		goto err2;
-
 	if (pDevCtrl->extPhy) {
 		/* No Link status IRQ */
 		INIT_WORK(&pDevCtrl->bcmgenet_link_work,
@@ -3855,9 +3866,12 @@ static int bcmgenet_drv_probe(struct platform_device *pdev)
 	}
 
 	netif_carrier_off(pDevCtrl->dev);
-	pDevCtrl->next_dev = eth_root_dev;
-	eth_root_dev = dev;
+
 	bcmgenet_clock_disable(pDevCtrl);
+
+	err = register_netdev(dev);
+	if (err != 0)
+		goto err2;
 
 	return 0;
 

@@ -298,7 +298,7 @@ arm_linux_sigtramp_cache (struct frame_info *this_frame,
 
 /* There are three elements in an rt_sigframe before the ucontext:
    pinfo, puc, and info.  The first two are pointers and the third
-   is a struct siginfo, with size 128 bytes.  We could follow puc
+   is a siginfo_t, with size 128 bytes.  We could follow puc
    to the ucontext, but it's simpler to skip the whole thing.  */
 #define ARM_OLD_RT_SIGFRAME_SIGINFO 0x8
 #define ARM_OLD_RT_SIGFRAME_UCONTEXT 0x88

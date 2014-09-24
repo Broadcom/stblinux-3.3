@@ -49,9 +49,6 @@
 #include <fnmatch.h>
 
 #define MAX_OPT_DEPTH 10
-#define EUNBALBRACK 10001
-#define EUNDEFVAR   10002
-#define EUNBALPER   10000
 
 #if ENABLE_FEATURE_IFUPDOWN_MAPPING
 #define MAX_INTERFACE_LENGTH 10
@@ -87,7 +84,6 @@ struct mapping_defn_t {
 
 	char *script;
 
-	int max_mappings;
 	int n_mappings;
 	char **mapping;
 };
@@ -102,7 +98,6 @@ struct interface_defn_t {
 	const struct method_t *method;
 
 	char *iface;
-	int max_options;
 	int n_options;
 	struct variable_t *option;
 };
@@ -136,6 +131,14 @@ struct globals {
 } FIX_ALIASING;
 #define G (*(struct globals*)&bb_common_bufsiz1)
 #define INIT_G() do { } while (0)
+
+
+static const char keywords_up_down[] ALIGN1 =
+	"up\0"
+	"down\0"
+	"pre-up\0"
+	"post-down\0"
+;
 
 
 #if ENABLE_FEATURE_IFUPDOWN_IPV4 || ENABLE_FEATURE_IFUPDOWN_IPV6
@@ -227,7 +230,7 @@ static int count_netmask_bits(const char *dotted_quad)
 static char *parse(const char *command, struct interface_defn_t *ifd)
 {
 	size_t old_pos[MAX_OPT_DEPTH] = { 0 };
-	int okay[MAX_OPT_DEPTH] = { 1 };
+	smallint okay[MAX_OPT_DEPTH] = { 1 };
 	int opt_depth = 1;
 	char *result = NULL;
 
@@ -238,13 +241,10 @@ static char *parse(const char *command, struct interface_defn_t *ifd)
 			command++;
 			break;
 		case '\\':
-			if (command[1]) {
-				addstr(&result, command + 1, 1);
-				command += 2;
-			} else {
-				addstr(&result, command, 1);
+			if (command[1])
 				command++;
-			}
+			addstr(&result, command, 1);
+			command++;
 			break;
 		case '[':
 			if (command[1] == '[' && opt_depth < MAX_OPT_DEPTH) {
@@ -253,7 +253,7 @@ static char *parse(const char *command, struct interface_defn_t *ifd)
 				opt_depth++;
 				command += 2;
 			} else {
-				addstr(&result, "[", 1);
+				addstr(&result, command, 1);
 				command++;
 			}
 			break;
@@ -265,7 +265,7 @@ static char *parse(const char *command, struct interface_defn_t *ifd)
 				}
 				command += 2;
 			} else {
-				addstr(&result, "]", 1);
+				addstr(&result, command, 1);
 				command++;
 			}
 			break;
@@ -277,7 +277,7 @@ static char *parse(const char *command, struct interface_defn_t *ifd)
 				command++;
 				nextpercent = strchr(command, '%');
 				if (!nextpercent) {
-					errno = EUNBALPER;
+					/* Unterminated %var% */
 					free(result);
 					return NULL;
 				}
@@ -322,13 +322,13 @@ static char *parse(const char *command, struct interface_defn_t *ifd)
 	}
 
 	if (opt_depth > 1) {
-		errno = EUNBALBRACK;
+		/* Unbalanced bracket */
 		free(result);
 		return NULL;
 	}
 
 	if (!okay[0]) {
-		errno = EUNDEFVAR;
+		/* Undefined variable and we aren't in a bracket */
 		free(result);
 		return NULL;
 	}
@@ -395,11 +395,11 @@ static int FAST_FUNC static_up6(struct interface_defn_t *ifd, execfn *exec)
 	result = execute("ip addr add %address%/%netmask% dev %iface%[[ label %label%]]", ifd, exec);
 	result += execute("ip link set[[ mtu %mtu%]][[ addr %hwaddress%]] %iface% up", ifd, exec);
 	/* Was: "[[ ip ....%gateway% ]]". Removed extra spaces w/o checking */
-	result += execute("[[ip route add ::/0 via %gateway%]]", ifd, exec);
+	result += execute("[[ip route add ::/0 via %gateway%]][[ prio %metric%]]", ifd, exec);
 # else
 	result = execute("ifconfig %iface%[[ media %media%]][[ hw %hwaddress%]][[ mtu %mtu%]] up", ifd, exec);
 	result += execute("ifconfig %iface% add %address%/%netmask%", ifd, exec);
-	result += execute("[[route -A inet6 add ::/0 gw %gateway%]]", ifd, exec);
+	result += execute("[[route -A inet6 add ::/0 gw %gateway%[[ metric %metric%]]]]", ifd, exec);
 # endif
 	return ((result == 3) ? 3 : 0);
 }
@@ -482,7 +482,7 @@ static int FAST_FUNC static_up(struct interface_defn_t *ifd, execfn *exec)
 	result = execute("ip addr add %address%/%bnmask%[[ broadcast %broadcast%]] "
 			"dev %iface%[[ peer %pointopoint%]][[ label %label%]]", ifd, exec);
 	result += execute("ip link set[[ mtu %mtu%]][[ addr %hwaddress%]] %iface% up", ifd, exec);
-	result += execute("[[ip route add default via %gateway% dev %iface%]]", ifd, exec);
+	result += execute("[[ip route add default via %gateway% dev %iface%[[ prio %metric%]]]]", ifd, exec);
 	return ((result == 3) ? 3 : 0);
 # else
 	/* ifconfig said to set iface up before it processes hw %hwaddress%,
@@ -492,7 +492,7 @@ static int FAST_FUNC static_up(struct interface_defn_t *ifd, execfn *exec)
 	result += execute("ifconfig %iface% %address% netmask %netmask%"
 				"[[ broadcast %broadcast%]][[ pointopoint %pointopoint%]] ",
 				ifd, exec);
-	result += execute("[[route add default gw %gateway% %iface%]]", ifd, exec);
+	result += execute("[[route add default gw %gateway%[[ metric %metric%]] %iface%]]", ifd, exec);
 	return ((result == 3) ? 3 : 0);
 # endif
 }
@@ -803,7 +803,6 @@ static struct interfaces_file_t *read_interfaces(const char *filename)
 				currmap->match = xrealloc_vector(currmap->match, 4, currmap->n_matches);
 				currmap->match[currmap->n_matches++] = xstrdup(first_word);
 			}
-			/*currmap->max_mappings = 0; - done by xzalloc */
 			/*currmap->n_mappings = 0;*/
 			/*currmap->mapping = NULL;*/
 			/*currmap->script = NULL;*/
@@ -888,23 +887,21 @@ static struct interfaces_file_t *read_interfaces(const char *filename)
 				if (rest_of_line[0] == '\0')
 					bb_error_msg_and_die("option with empty value \"%s\"", buf);
 
-				if (strcmp(first_word, "up") != 0
-				 && strcmp(first_word, "down") != 0
-				 && strcmp(first_word, "pre-up") != 0
-				 && strcmp(first_word, "post-down") != 0
-				) {
+				if (strcmp(first_word, "post-up") == 0)
+					first_word += 5; /* "up" */
+				else if (strcmp(first_word, "pre-down") == 0)
+					first_word += 4; /* "down" */
+
+				/* If not one of "up", "down",... words... */
+				if (index_in_strings(keywords_up_down, first_word) < 0) {
 					int i;
 					for (i = 0; i < currif->n_options; i++) {
 						if (strcmp(currif->option[i].name, first_word) == 0)
 							bb_error_msg_and_die("duplicate option \"%s\"", buf);
 					}
 				}
-				if (currif->n_options >= currif->max_options) {
-					currif->max_options += 10;
-					currif->option = xrealloc(currif->option,
-						sizeof(*currif->option) * currif->max_options);
-				}
 				debug_noise("\t%s=%s\n", first_word, rest_of_line);
+				currif->option = xrealloc_vector(currif->option, 4, currif->n_options);
 				currif->option[currif->n_options].name = xstrdup(first_word);
 				currif->option[currif->n_options].value = xstrdup(rest_of_line);
 				currif->n_options++;
@@ -916,11 +913,7 @@ static struct interfaces_file_t *read_interfaces(const char *filename)
 						bb_error_msg_and_die("duplicate script in mapping \"%s\"", buf);
 					currmap->script = xstrdup(next_word(&rest_of_line));
 				} else if (strcmp(first_word, "map") == 0) {
-					if (currmap->n_mappings >= currmap->max_mappings) {
-						currmap->max_mappings = currmap->max_mappings * 2 + 1;
-						currmap->mapping = xrealloc(currmap->mapping,
-							sizeof(char *) * currmap->max_mappings);
-					}
+					currmap->mapping = xrealloc_vector(currmap->mapping, 2, currmap->n_mappings);
 					currmap->mapping[currmap->n_mappings] = xstrdup(next_word(&rest_of_line));
 					currmap->n_mappings++;
 				} else {
@@ -967,7 +960,7 @@ static char *setlocalenv(const char *format, const char *name, const char *value
 	return result;
 }
 
-static void set_environ(struct interface_defn_t *iface, const char *mode)
+static void set_environ(struct interface_defn_t *iface, const char *mode, const char *opt)
 {
 	int i;
 	char **pp;
@@ -980,15 +973,11 @@ static void set_environ(struct interface_defn_t *iface, const char *mode)
 	}
 
 	/* note: last element will stay NULL: */
-	G.my_environ = xzalloc(sizeof(char *) * (iface->n_options + 6));
+	G.my_environ = xzalloc(sizeof(char *) * (iface->n_options + 7));
 	pp = G.my_environ;
 
 	for (i = 0; i < iface->n_options; i++) {
-		if (strcmp(iface->option[i].name, "up") == 0
-		 || strcmp(iface->option[i].name, "down") == 0
-		 || strcmp(iface->option[i].name, "pre-up") == 0
-		 || strcmp(iface->option[i].name, "post-down") == 0
-		) {
+		if (index_in_strings(keywords_up_down, iface->option[i].name) >= 0) {
 			continue;
 		}
 		*pp++ = setlocalenv("IF_%s=%s", iface->option[i].name, iface->option[i].value);
@@ -998,6 +987,7 @@ static void set_environ(struct interface_defn_t *iface, const char *mode)
 	*pp++ = setlocalenv("%s=%s", "ADDRFAM", iface->address_family->name);
 	*pp++ = setlocalenv("%s=%s", "METHOD", iface->method->name);
 	*pp++ = setlocalenv("%s=%s", "MODE", mode);
+	*pp++ = setlocalenv("%s=%s", "PHASE", opt);
 	if (G.startup_PATH)
 		*pp++ = setlocalenv("%s=%s", "PATH", G.startup_PATH);
 }
@@ -1052,19 +1042,21 @@ static int check(char *str)
 static int iface_up(struct interface_defn_t *iface)
 {
 	if (!iface->method->up(iface, check)) return -1;
-	set_environ(iface, "start");
+	set_environ(iface, "start", "pre-up");
 	if (!execute_all(iface, "pre-up")) return 0;
 	if (!iface->method->up(iface, doit)) return 0;
+	set_environ(iface, "start", "post-up");
 	if (!execute_all(iface, "up")) return 0;
 	return 1;
 }
 
 static int iface_down(struct interface_defn_t *iface)
 {
-	if (!iface->method->down(iface,check)) return -1;
-	set_environ(iface, "stop");
+	if (!iface->method->down(iface, check)) return -1;
+	set_environ(iface, "stop", "pre-down");
 	if (!execute_all(iface, "down")) return 0;
 	if (!iface->method->down(iface, doit)) return 0;
+	set_environ(iface, "stop", "post-down");
 	if (!execute_all(iface, "post-down")) return 0;
 	return 1;
 }
@@ -1317,9 +1309,9 @@ int ifupdown_main(int argc UNUSED_PARAM, char **argv)
 			llist_t *state_list = read_iface_state();
 			llist_t *iface_state = find_iface_state(state_list, iface);
 
-			if (cmds == iface_up) {
-				char * const newiface = xasprintf("%s=%s", iface, liface);
-				if (iface_state == NULL) {
+			if (cmds == iface_up && !any_failures) {
+				char *newiface = xasprintf("%s=%s", iface, liface);
+				if (!iface_state) {
 					llist_add_to_end(&state_list, newiface);
 				} else {
 					free(iface_state->data);

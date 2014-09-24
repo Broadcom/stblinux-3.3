@@ -23,8 +23,8 @@ romfs::
 
 .PHONY: clean distclean
 clean distclean::
+	[ ! -f .configured ] || $(MAKE) -f Makefile clean
 	rm -f .configured
-	$(MAKE) -f Makefile clean
 
 # These targets must not be passed through to the original Makefile
 .PHONY: $(BOGUS_TARGETS)

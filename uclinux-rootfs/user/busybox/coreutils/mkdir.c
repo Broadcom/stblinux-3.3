@@ -48,13 +48,14 @@ static const char mkdir_longopts[] ALIGN1 =
 #if ENABLE_SELINUX
 	"context\0" Required_argument "Z"
 #endif
+	"verbose\0" No_argument       "v"
 	;
 #endif
 
 int mkdir_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
 int mkdir_main(int argc UNUSED_PARAM, char **argv)
 {
-	mode_t mode = (mode_t)(-1);
+	long mode = -1;
 	int status = EXIT_SUCCESS;
 	int flags = 0;
 	unsigned opt;
@@ -66,12 +67,13 @@ int mkdir_main(int argc UNUSED_PARAM, char **argv)
 #if ENABLE_FEATURE_MKDIR_LONG_OPTIONS
 	applet_long_options = mkdir_longopts;
 #endif
-	opt = getopt32(argv, "m:p" IF_SELINUX("Z:"), &smode IF_SELINUX(,&scontext));
+	opt = getopt32(argv, "m:p" IF_SELINUX("Z:") "v", &smode IF_SELINUX(,&scontext));
 	if (opt & 1) {
-		mode = 0777;
-		if (!bb_parse_mode(smode, &mode)) {
+		mode_t mmode = 0777;
+		if (!bb_parse_mode(smode, &mmode)) {
 			bb_error_msg_and_die("invalid mode '%s'", smode);
 		}
+		mode = mmode;
 	}
 	if (opt & 2)
 		flags |= FILEUTILS_RECUR;

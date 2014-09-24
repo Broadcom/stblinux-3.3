@@ -288,8 +288,11 @@ void board_pinmux_setup(void)
 	PINMUX(18, vo_656_7, 1);	/* SDIO_CMD */
 	PINMUX(18, vo_656_6, 2);	/* SDIO_WPROT */
 
-#elif defined(CONFIG_BCM7358) || defined(CONFIG_BCM7552) || \
-	defined(CONFIG_BCM7360) || defined(CONFIG_BCM7362)
+#elif	defined(CONFIG_BCM7228) || \
+	defined(CONFIG_BCM7358) || \
+	defined(CONFIG_BCM7552) || \
+	defined(CONFIG_BCM7360) || \
+	defined(CONFIG_BCM7362)
 
 	PINMUX(11, gpio_89, 1);		/* UARTB TX */
 	PINMUX(11, gpio_90, 1);		/* UARTB RX */
@@ -467,8 +470,6 @@ void board_pinmux_setup(void)
 		 */
 		if (BRCM_PROD_ID() == 0x7428) {
 			PINMUX(11, gpio_093, 5);
-			BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6,
-						 gpio_093_pad_ctrl, 0);
 		} else
 			PINMUX(15, gpio_130, 1);
 

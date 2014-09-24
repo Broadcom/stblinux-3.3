@@ -6,22 +6,24 @@ CC			:= $(MACHINE)-linux-gcc
 STRIP			:= $(MACHINE)-linux-strip
 CFLAGS			:= -Os
 
-export CC CFLAGS
+ifeq ($(LIBCDIR),uClibc)
+LDFLAGS += -L$(ROOTDIR)/lib/gettext/intl/.libs -lintl
+CFLAGS  += -I$(ROOTDIR)/lib/libuargp -I$(ROOTDIR)/lib/gettext/intl
+endif
 
-MY_LIBS = -lintl
-MY_LDFLAGS = -L$(ROOTDIR)/lib/gettext/intl/.libs -lintl
-UCLIBC_INC = -I$(ROOTDIR)/lib/libuargp -I$(ROOTDIR)/lib/gettext/intl
-MY_CFLAGS = $(UCLIBC_INC)
+export CC CFLAGS
 
 .PHONY: all
 all:
 	if [ ! -e Makefile ]; then \
-		CFLAGS="$(MY_CFLAGS)" \
-		LDFLAGS="$(MY_LDFLAGS)" \
 		./configure --host=$(MACHINE)-linux --prefix=$(ROMFSDIR) \
 		--disable-nls --disable-werror; \
 	fi
 	make -f Makefile SUBDIRS=libelf
+
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
 
 .PHONY: romfs
 romfs:

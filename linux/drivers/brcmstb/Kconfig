@@ -21,6 +21,29 @@ choice
 	help
 	  Select the Broadcom chipset you are building for.
 
+config BCM7228A0
+	bool "7228 Ax"
+	depends on MIPS
+	select BRCM_MIPS_DEFAULTS
+	select BCM7228
+	select BRCM_HAS_BMIPS4380
+	select BRCM_HAS_XKS01
+	select BRCM_UARTA_IS_16550
+	select BRCM_UARTB_IS_16550
+	select BRCM_UARTC_IS_16550
+	select BRCM_HAS_GENET_0
+	select BRCM_GENET_V2
+	select BRCM_HAS_NOR
+	select BRCM_HAS_NAND_MAJOR_5
+	select BRCM_HAS_NAND_MINOR_0
+	select BRCM_HAS_BSPI_V4
+	select BRCM_HAS_SDIO_V1
+	select BRCM_HAS_SATA3
+	select BRCM_HAS_WKTMR
+	select BRCM_HAS_UPPER_MEMORY
+	select BRCM_PWR_HANDSHAKE_V1
+	select BRCM_HAS_DIGITAL_DDR_PHY
+
 config BCM7231B0
 	bool "7231 Bx"
 	depends on MIPS
@@ -1175,6 +1198,8 @@ config BRCM_ARM_DEFAULTS
 # Hidden options: Chip shortcuts
 #####################################################################
 
+config BCM7228
+	bool
 
 config BCM7231
 	bool

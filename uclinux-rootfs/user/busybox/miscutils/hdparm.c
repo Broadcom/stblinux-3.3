@@ -433,6 +433,7 @@ struct BUG_G_too_big {
 #define hwif_data          (G.hwif_data              )
 #define hwif_ctrl          (G.hwif_ctrl              )
 #define hwif_irq           (G.hwif_irq               )
+#define INIT_G() do { } while (0)
 
 
 /* Busybox messages and functions */
@@ -1021,8 +1022,8 @@ static void identify(uint16_t *val)
 		}
 		if ((like_std > 3) && (val[CMDS_SUPP_1] & 0x0008)) {
 			/* We print out elsewhere whether the APM feature is enabled or
-			   not.  If it's not enabled, let's not repeat the info; just print
-			   nothing here. */
+			 * not.  If it's not enabled, let's not repeat the info; just print
+			 * nothing here. */
 			printf("\tAdvancedPM level: ");
 			if ((val[ADV_PWR] & 0xFF00) == 0x4000) {
 				uint8_t apm_level = val[ADV_PWR] & 0x00FF;
@@ -1037,7 +1038,7 @@ static void identify(uint16_t *val)
 				val[ACOUSTIC] & 0x00ff);
 		}
 	} else {
-		 /* ATAPI */
+		/* ATAPI */
 		if (eqpt != CDROM && (val[CAPAB_0] & SWRST_REQ))
 			printf("\tATA sw reset required\n");
 
@@ -2058,6 +2059,8 @@ int hdparm_main(int argc, char **argv)
 {
 	int c;
 	int flagcount = 0;
+
+	INIT_G();
 
 	while ((c = getopt(argc, argv, hdparm_options)) >= 0) {
 		flagcount++;

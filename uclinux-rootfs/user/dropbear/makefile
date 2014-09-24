@@ -20,6 +20,10 @@ all::
 	fi
 	$(MAKE) -f Makefile PROGRAMS="dropbear dbclient dropbearkey scp"
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs::
 	$(STRIP) dropbear dropbearkey dbclient scp

@@ -238,8 +238,17 @@ void bcmgenet_ephy_workaround(struct net_device *dev)
 	 */
 	bcmgenet_mii_write(dev, phy_id, 0x13, 0x7555);
 
+	/* HW7362-51: A EEE coupling issue has been detected on the 40nm EPHYs
+	 * during a DUT LPI request. The issue occurs when the TX powers
+	 * down/up while receiving packet data on RX. The issue appears as a
+	 * BER rate around 1e-10.
+	 */
+	bcmgenet_mii_write(dev, phy_id, 0xe, 0x0007);
+	bcmgenet_mii_write(dev, phy_id, 0xf, 0x0002);
+
 	/* reset shadow mode 2 */
 	bcmgenet_mii_set_clr_bits(dev, 0x1f, 0x0004, 0);
+
 }
 
 void bcmgenet_mii_reset(struct net_device *dev)

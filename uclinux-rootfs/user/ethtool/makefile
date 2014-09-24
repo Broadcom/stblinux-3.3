@@ -21,6 +21,10 @@ romfs::
 	$(STRIP) ethtool 
 	$(ROMFSINST) -e CONFIG_USER_ETHTOOL ethtool /bin/ethtool
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 # These targets must not be passed through to the original Makefile
 .PHONY: $(BOGUS_TARGETS)
 $(BOGUS_TARGETS)::

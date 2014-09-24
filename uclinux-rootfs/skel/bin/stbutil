@@ -95,21 +95,43 @@ function get_mtd_attr()
 	return 0
 }
 
+function lookup_root()
+{
+	# on squashfs or ext4:
+	#   /proc/mounts shows /dev/root, which might not even exist
+	#   rdev prints something like "/dev/mtdblock4 /"
+	local devnode=$(rdev || true)
+	if [ -n "$devnode" ]; then
+		devnode=${devnode% /}
+		echo "${devnode##*/}"
+		return
+	fi
+
+	# on ubifs:
+	#   /proc/mounts shows ubi0:rootfs
+	#   rdev fails, because nothing under /dev/ matches the major/minor
+	local mountpoint fstype slop
+	while read devnode mountpoint fstype slop; do
+		if [ "$mountpoint" = "/" -a "$fstype" != "rootfs" ]; then
+			echo "${devnode##*/}"
+			return
+		fi
+	done < /proc/mounts
+}
+
 function check_root()
 {
 	# make sure that we are not reformatting the active rootfs
-	if [ -h /dev/root ]; then
-		rootdev=$(readlink /dev/root)
-		while [ ! -z $1 ]; do
-			if [[ $rootdev = ${1}* ]]; then
-				echo ""
-				echo "ERROR: please run stbutil from the initrd kernel."
-				echo ""
-				exit 1
-			fi
-			shift
-		done
-	fi
+	local rootdev=$(lookup_root)
+	while [ ! -z "$1" -a ! -z "$rootdev" ]; do
+		if [[ $rootdev = ${1}* ]]; then
+			echo ""
+			echo "ERROR: please run stbutil from the initrd kernel."
+			echo ""
+			exit 1
+		fi
+		shift
+	done
 }
 
 # create rootfs image at /mnt/hd

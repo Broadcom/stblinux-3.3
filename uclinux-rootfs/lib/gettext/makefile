@@ -15,6 +15,10 @@ all:
 	fi
 	$(MAKE) -f Makefile SUBDIRS=intl
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs:
 	make -f Makefile SUBDIRS=intl install-exec

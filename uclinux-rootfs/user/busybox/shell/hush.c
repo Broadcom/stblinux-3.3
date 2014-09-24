@@ -106,10 +106,6 @@
 # define PIPE_BUF 4096  /* amount of buffering in a pipe */
 #endif
 
-/* Not every libc has sighandler_t. Fix it */
-typedef void (*hush_sighandler_t)(int);
-#define sighandler_t hush_sighandler_t
-
 //config:config HUSH
 //config:	bool "hush"
 //config:	default y
@@ -324,6 +320,8 @@ typedef void (*hush_sighandler_t)(int);
 # define ENABLE_FEATURE_EDITING 0
 # undef ENABLE_FEATURE_EDITING_FANCY_PROMPT
 # define ENABLE_FEATURE_EDITING_FANCY_PROMPT 0
+# undef ENABLE_FEATURE_EDITING_SAVE_ON_EXIT
+# define ENABLE_FEATURE_EDITING_SAVE_ON_EXIT 0
 #endif
 
 /* Do we support ANY keywords? */
@@ -524,7 +522,6 @@ typedef enum redir_type {
 struct command {
 	pid_t pid;                  /* 0 if exited */
 	int assignment_cnt;         /* how many argv[i] are assignments? */
-	smallint is_stopped;        /* is the command currently running? */
 	smallint cmd_type;          /* CMD_xxx */
 #define CMD_NORMAL   0
 #define CMD_SUBSHELL 1
@@ -1541,6 +1538,10 @@ static sighandler_t pick_sighandler(unsigned sig)
 static void hush_exit(int exitcode) NORETURN;
 static void hush_exit(int exitcode)
 {
+#if ENABLE_FEATURE_EDITING_SAVE_ON_EXIT
+	save_history(G.line_input_state);
+#endif
+
 	fflush_all();
 	if (G.exiting <= 0 && G.traps && G.traps[0] && G.traps[0][0]) {
 		char *argv[3];
@@ -4218,7 +4219,7 @@ static struct pipe *parse_stream(char **pstring,
 			/* (this makes bare "&" cmd a no-op.
 			 * bash says: "syntax error near unexpected token '&'") */
 			if (pi->num_cmds == 0
-			    IF_HAS_KEYWORDS( && pi->res_word == RES_NONE)
+			IF_HAS_KEYWORDS(&& pi->res_word == RES_NONE)
 			) {
 				free_pipe_list(pi);
 				pi = NULL;
@@ -4371,7 +4372,7 @@ static struct pipe *parse_stream(char **pstring,
 			debug_printf_parse("dest.o_assignment='%s'\n", assignment_flag[dest.o_assignment]);
 			/* Do we sit outside of any if's, loops or case's? */
 			if (!HAS_KEYWORDS
-			 IF_HAS_KEYWORDS(|| (ctx.ctx_res_w == RES_NONE && ctx.old_flag == 0))
+			IF_HAS_KEYWORDS(|| (ctx.ctx_res_w == RES_NONE && ctx.old_flag == 0))
 			) {
 				o_free(&dest);
 #if !BB_MMU
@@ -6763,7 +6764,6 @@ static int checkjobs(struct pipe *fg_pipe)
 					}
 					fg_pipe->cmds[i].cmd_exitcode = ex;
 				} else {
-					fg_pipe->cmds[i].is_stopped = 1;
 					fg_pipe->stopped_cmds++;
 				}
 				debug_printf_jobs("fg_pipe: alive_cmds %d stopped_cmds %d\n",
@@ -6824,7 +6824,6 @@ static int checkjobs(struct pipe *fg_pipe)
 			}
 		} else {
 			/* child stopped */
-			pi->cmds[i].is_stopped = 1;
 			pi->stopped_cmds++;
 		}
 #endif
@@ -7817,26 +7816,6 @@ int hush_main(int argc, char **argv)
 
 #if ENABLE_FEATURE_EDITING
 	G.line_input_state = new_line_input_t(FOR_SHELL);
-# if MAX_HISTORY > 0 && ENABLE_HUSH_SAVEHISTORY
-	{
-		const char *hp = get_local_var_value("HISTFILE");
-		if (!hp) {
-			hp = get_local_var_value("HOME");
-			if (hp)
-				hp = concat_path_file(hp, ".hush_history");
-		} else {
-			hp = xstrdup(hp);
-		}
-		if (hp) {
-			G.line_input_state->hist_file = hp;
-			//set_local_var(xasprintf("HISTFILE=%s", ...));
-		}
-#  if ENABLE_FEATURE_SH_HISTFILESIZE
-		hp = get_local_var_value("HISTFILESIZE");
-		G.line_input_state->max_history = size_from_HISTFILESIZE(hp);
-#  endif
-	}
-# endif
 #endif
 
 	/* Initialize some more globals to non-zero values */
@@ -8108,6 +8087,27 @@ int hush_main(int argc, char **argv)
 		/* -1 is special - makes xfuncs longjmp, not exit
 		 * (we reset die_sleep = 0 whereever we [v]fork) */
 		enable_restore_tty_pgrp_on_exit(); /* sets die_sleep = -1 */
+
+# if ENABLE_HUSH_SAVEHISTORY && MAX_HISTORY > 0
+		{
+			const char *hp = get_local_var_value("HISTFILE");
+			if (!hp) {
+				hp = get_local_var_value("HOME");
+				if (hp)
+					hp = concat_path_file(hp, ".hush_history");
+			} else {
+				hp = xstrdup(hp);
+			}
+			if (hp) {
+				G.line_input_state->hist_file = hp;
+				//set_local_var(xasprintf("HISTFILE=%s", ...));
+			}
+#  if ENABLE_FEATURE_SH_HISTFILESIZE
+			hp = get_local_var_value("HISTFILESIZE");
+			G.line_input_state->max_history = size_from_HISTFILESIZE(hp);
+#  endif
+		}
+# endif
 	} else {
 		install_special_sighandlers();
 	}
@@ -8281,7 +8281,7 @@ static int FAST_FUNC builtin_exit(char **argv)
 	 * (if there are _stopped_ jobs, running ones don't count)
 	 * # exit
 	 * exit
-	 # EEE (then bash exits)
+	 * EEE (then bash exits)
 	 *
 	 * TODO: we can use G.exiting = -1 as indicator "last cmd was exit"
 	 */
@@ -8591,7 +8591,6 @@ static int FAST_FUNC builtin_fg_bg(char **argv)
 	debug_printf_jobs("reviving %d procs, pgrp %d\n", pi->num_cmds, pi->pgrp);
 	for (i = 0; i < pi->num_cmds; i++) {
 		debug_printf_jobs("reviving pid %d\n", pi->cmds[i].pid);
-		pi->cmds[i].is_stopped = 0;
 	}
 	pi->stopped_cmds = 0;
 

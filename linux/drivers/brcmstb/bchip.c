@@ -266,13 +266,18 @@ void bchip_sata3_init(void)
 #ifdef CONFIG_BRCM_HAS_SATA3
 	int i, ports = fls(BDEV_RD(SATA_AHCI_GHC_PORTS_IMPLEMENTED));
 
+	brcm_sata3_disable_ncq();
+
+	/*
+	 * On BE systems, the AHCI register data is endian-swapped past
+	 * this point.  This affects SATA_AHCI_GHC_* and other ranges,
+	 * but not SATA_TOP_CONTROL or MDIO.
+	 */
 	BDEV_WR(BCHP_SATA_TOP_CTRL_BUS_CTRL, (DATA_ENDIAN << 4) |
 			(DATA_ENDIAN << 2) | (MMIO_ENDIAN << 0));
 
 	for (i = 0; i < ports; i++)
 		brcm_sata3_init_freq(i, sata3_enable_ssc & (1 << i));
-
-	brcm_sata3_disable_ncq();
 #endif
 }
 

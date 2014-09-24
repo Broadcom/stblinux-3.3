@@ -17,6 +17,10 @@ all::
 	fi
 	$(MAKE) -f Makefile SUBDIRS="fdisk"
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs::
 	$(STRIP) fdisk/fdisk fdisk/sfdisk

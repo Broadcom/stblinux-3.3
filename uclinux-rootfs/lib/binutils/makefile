@@ -16,6 +16,10 @@ all::
 	fi
 	$(MAKE) -f Makefile CC=$(CC) CFLAGS=$(CFLAGS)
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs:
 	$(STRIP) binutils/objdump

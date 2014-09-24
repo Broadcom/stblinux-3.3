@@ -4,13 +4,12 @@
  *
  * Copyright (C) 2007 Bernhard Reutner-Fischer
  *
- * Based on a older version that was in busybox which was 1k big..
+ * Based on a older version that was in busybox which was 1k big.
  *   Copyright (C) 2001 by Emanuele Aina <emanuele.aina@tiscali.it>
  *
  * Based on the Debian run-parts program, version 1.15
  *   Copyright (C) 1996 Jeff Noxon <jeff@router.patch.net>,
  *   Copyright (C) 1996-1999 Guy Maor <maor@debian.org>
- *
  *
  * Licensed under GPLv2 or later, see file LICENSE in this source tree.
  */
@@ -19,7 +18,7 @@
  * attempt to write a program! :-) . */
 
 /* This piece of code is heavily based on the original version of run-parts,
- * taken from debian-utils. I've only removed the long options and a the
+ * taken from debian-utils. I've only removed the long options and the
  * report mode. As the original run-parts support only long options, I've
  * broken compatibility because the BusyBox policy doesn't allow them.
  * The supported options are:
@@ -31,15 +30,15 @@
  */
 
 //usage:#define run_parts_trivial_usage
-//usage:       "[-t] "IF_FEATURE_RUN_PARTS_FANCY("[-l] ")"[-a ARG] [-u MASK] DIRECTORY"
+//usage:       "[-t"IF_FEATURE_RUN_PARTS_FANCY("l")"] [-a ARG]... [-u MASK] DIRECTORY"
 //usage:#define run_parts_full_usage "\n\n"
 //usage:       "Run a bunch of scripts in DIRECTORY\n"
-//usage:     "\n	-t	Print what would be run, but don't actually run anything"
-//usage:     "\n	-a ARG	Pass ARG as argument for every program"
-//usage:     "\n	-u MASK	Set the umask to MASK before running every program"
+//usage:     "\n	-t	Dry run"
 //usage:	IF_FEATURE_RUN_PARTS_FANCY(
-//usage:     "\n	-l	Print names of all matching files even if they are not executable"
+//usage:     "\n	-l	Print names of matching files even if they are not executable"
 //usage:	)
+//usage:     "\n	-a ARG	Pass ARG as argument to programs"
+//usage:     "\n	-u MASK	Set umask to MASK before running programs"
 //usage:
 //usage:#define run_parts_example_usage
 //usage:       "$ run-parts -a start /etc/init.d\n"
@@ -66,6 +65,7 @@ struct globals {
 #define names (G.names)
 #define cur   (G.cur  )
 #define cmd   (G.cmd  )
+#define INIT_G() do { } while (0)
 
 enum { NUM_CMD = (COMMON_BUFSIZE - sizeof(G)) / sizeof(cmd[0]) - 1 };
 
@@ -142,6 +142,8 @@ int run_parts_main(int argc UNUSED_PARAM, char **argv)
 	llist_t *arg_list = NULL;
 	unsigned n;
 	int ret;
+
+	INIT_G();
 
 #if ENABLE_FEATURE_RUN_PARTS_LONG_OPTIONS
 	applet_long_options = runparts_longopts;

@@ -150,7 +150,7 @@ linux_get_siginfo_type (struct gdbarch *gdbarch)
   append_composite_type_field (type, "si_fd", int_type);
   append_composite_type_field (sifields_type, "_sigpoll", type);
 
-  /* struct siginfo */
+  /* siginfo_t */
   siginfo_type = arch_composite_type (gdbarch, NULL, TYPE_CODE_STRUCT);
   TYPE_NAME (siginfo_type) = xstrdup ("siginfo");
   append_composite_type_field (siginfo_type, "si_signo", int_type);

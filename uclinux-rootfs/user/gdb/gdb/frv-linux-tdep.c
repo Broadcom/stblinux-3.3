@@ -95,9 +95,9 @@ frv_linux_pc_in_sigtramp (struct gdbarch *gdbarch, CORE_ADDR pc, char *name)
       {
 	      void (*pretcode)(void);
 	      int sig;
-	      struct siginfo *pinfo;
+	      siginfo_t *pinfo;
 	      void *puc;
-	      struct siginfo info;
+	      siginfo_t info;
 	      struct ucontext uc;
 	      uint32_t retcode[2];
       };

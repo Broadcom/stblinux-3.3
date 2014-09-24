@@ -45,7 +45,7 @@ romfs::
 
 .PHONY: clean distclean
 clean distclean::
-	$(MAKE) -f Makefile clean
+	[ ! -f Makefile ] || $(MAKE) -f Makefile clean
 
 # These targets must not be passed through to the original Makefile
 .PHONY: $(BOGUS_TARGETS)

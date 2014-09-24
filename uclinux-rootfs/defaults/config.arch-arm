@@ -32,12 +32,11 @@ RANLIB    = $(CROSS_COMPILE)ranlib
 STRIPTOOL = $(CROSS_COMPILE)strip
 STRIP     = $(STRIPTOOL)
 
-#THT Does not work if toolchain has been relocated
-#GCCLIB    = $(shell $(CC) -print-search-dirs | grep install | cut -d" " -f2)
-GCC_INC_SUFFIX=$(shell $(CC) -print-search-dirs | sed -ne "s,install: *.*\(/lib/gcc-lib/.*\),\1,gp")
-GCCTOOL_DIR_PREFIX=$(shell dirname $(shell which $(CC)))/..
-GCCLIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)-uclibcgnueabi/lib
-GCCSYSROOT = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)-uclibcgnueabi/sys-root
+GCCTOOL_DIR_PREFIX = $(shell dirname $(shell which $(CC)))/..
+GCCLIB             = $(GCCTOOL_DIR_PREFIX)/$(shell $(CC) -dumpmachine)/lib
+GCCSYSROOT         = $(GCCTOOL_DIR_PREFIX)/$(shell $(CC) -dumpmachine)/sys-root
+
+LIBCDIR = @CONFIG_PL_LIBCDIR@
 
 UCLINUX_BUILD_SET = 0					# have we set a special config below
 
@@ -73,13 +72,7 @@ endif
 
 ifdef UCLINUX_BUILD_USER
 
-	#THT Does not work if toolchain has been relocated
-	#GCC_DIR = $(shell $(CC) -v 2>&1|grep specs|sed -e 's/.* \(.*\)specs/\1\./')
-	#GCC_LIB = /opt/toolchains/uclibc/mips-linux/lib
-
-	GCC_DIR=$(GCCTOOL_DIR_PREFIX)/$(GCC_INC_SUFFIX)
 	GCC_LIB = $(GCCTOOL_DIR_PREFIX)/$(CROSS:linux-=linux)/lib
-
 
 	SLIBC        = -lc
 	SLIBM        = -lm

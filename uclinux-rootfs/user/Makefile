@@ -2,15 +2,15 @@
 #	Makefile -- Build instructions for user level apps
 #
 
+CURRENT_MAKEFILE_LIST := $(MAKEFILE_LIST)
+
 .EXPORT_ALL_VARIABLES:
 
 #
 # Include architecture specific build rules.
 #
 
-ifndef ROOTDIR
-ROOTDIR=..
-endif
+ROOTDIR ?= $(dir $(abspath $(lastword $(CURRENT_MAKEFILE_LIST))))..
 
 UCLINUX_BUILD_USER=1
 -include $(LINUX_CONFIG)
@@ -126,7 +126,8 @@ dir_$(CONFIG_USER_FTP_FTP_FTP)              += ftp
 dir_$(CONFIG_USER_GDBSERVER_GDBREPLAY)      += gdb/gdb/gdbserver
 dir_$(CONFIG_USER_GDBSERVER_GDBSERVER)      += gdb/gdb/gdbserver
 dir_$(CONFIG_USER_GDB_GDB)                  += gdb
-dir_$(CONFIG_USER_GDISK_GDISK)              += gdisk
+dir_$(CONFIG_USER_GPTFDISK_GDISK)           += gptfdisk
+dir_$(CONFIG_USER_GPTFDISK_SGDISK)          += gptfdisk
 dir_$(CONFIG_USER_GETTYD_GETTYD)            += gettyd
 dir_$(CONFIG_USER_HD_HD)                    += hd
 dir_$(CONFIG_USER_HDPARM_HDPARM)            += hdparm

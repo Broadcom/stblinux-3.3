@@ -1,5 +1,3 @@
-PASSTHRU		:= clean distclean
-
 ifdef CONFIG_USER_GDB
 
 all:
@@ -60,16 +58,11 @@ all:
 	fi
 	make -f Makefile  CFLAGS+=-L../../../../romfs/lib/
 
-#distclean: clean
-#	-rm config.cache
-#	make -f Makefile distclean
-#	rm Makefile
-
 endif
 
-.PHONY: $(PASSTHRU)
-$(PASSTHRU):
-	make -f Makefile $@
+.PHONY: clean distclean
+clean distclean:
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
 
 romfs:
 	$(ROMFSINST) -e CONFIG_USER_GDBSERVER_GDBSERVER /bin/gdbserver

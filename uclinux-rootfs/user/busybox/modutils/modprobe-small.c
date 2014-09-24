@@ -594,11 +594,18 @@ static void process_module(char *name, const char *cmdline_options)
 				bb_perror_msg("remove '%s'", name);
 			goto ret;
 		}
-		/* N.B. we do not stop here -
+
+		if (applet_name[0] == 'r') {
+			/* rmmod: do not remove dependencies, exit */
+			goto ret;
+		}
+
+		/* modprobe -r: we do not stop here -
 		 * continue to unload modules on which the module depends:
 		 * "-r --remove: option causes modprobe to remove a module.
 		 * If the modules it depends on are also unused, modprobe
-		 * will try to remove them, too." */
+		 * will try to remove them, too."
+		 */
 	}
 
 	if (!info) {
@@ -695,6 +702,10 @@ The following options are useful for people managing distributions:
 */
 
 //usage:#if ENABLE_MODPROBE_SMALL
+
+//// Note: currently, help system shows modprobe --help text for all aliased cmds
+//// (see APPLET_ODDNAME macro definition).
+//// All other help texts defined below are not used. FIXME?
 
 //usage:#define depmod_trivial_usage NOUSAGE_STR
 //usage:#define depmod_full_usage ""
@@ -805,7 +816,7 @@ int modprobe_main(int argc UNUSED_PARAM, char **argv)
 	opt_complementary = "-1";
 	/* only -q (quiet) and -r (rmmod),
 	 * the rest are accepted and ignored (compat) */
-	getopt32(argv, "qrfsvw");
+	getopt32(argv, "qrfsvwb");
 	argv += optind;
 
 	/* are we rmmod? -> simulate modprobe -r */

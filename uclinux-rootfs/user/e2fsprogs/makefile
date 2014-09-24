@@ -64,6 +64,10 @@ romfs::
 	$(ROMFSINST) -e CONFIG_USER_E2FSPROGS_DEBUGFS_DEBUGFS \
 		debugfs/debugfs /sbin/debugfs
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 # These targets must not be passed through to the original Makefile
 .PHONY: $(BOGUS_TARGETS)
 $(BOGUS_TARGETS)::

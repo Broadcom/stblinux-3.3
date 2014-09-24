@@ -21,6 +21,10 @@ all::
 	fi
 	$(MAKE) -j1 -C build SUBDIRS="$(SUBDIRS)"
 
+.PHONY: clean
+clean::
+	[ ! -f build/Makefile ] || $(MAKE) -C build $@
+
 .PHONY: distclean
 distclean::
 	rm -rf build

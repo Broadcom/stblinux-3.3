@@ -18,4 +18,10 @@ romfs:
 #	rm -f $(ROMFSDIR)/lib/libdirectfb.*a
 	rm -rf $(ROMFSDIR)/lib/pkgconfig
 
+.PHONY: clean distclean
+clean distclean:
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
+# FIXME: change this makefile to be saner (that include won't work if
+# Makefile doesn't exist yet)
 include Makefile

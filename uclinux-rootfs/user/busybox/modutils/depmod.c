@@ -10,11 +10,6 @@
 
 //applet:IF_DEPMOD(APPLET(depmod, BB_DIR_SBIN, BB_SUID_DROP))
 
-//usage:#if !ENABLE_MODPROBE_SMALL
-//usage:#define depmod_trivial_usage NOUSAGE_STR
-//usage:#define depmod_full_usage ""
-//usage:#endif
-
 #include "libbb.h"
 #include "modutils.h"
 #include <sys/utsname.h> /* uname() */
@@ -36,7 +31,7 @@ typedef struct module_info {
 } module_info;
 
 static int FAST_FUNC parse_module(const char *fname, struct stat *sb UNUSED_PARAM,
-				  void *data, int depth UNUSED_PARAM)
+				void *data, int depth UNUSED_PARAM)
 {
 	char modname[MODULE_NAME_LEN];
 	module_info **first = (module_info **) data;
@@ -100,7 +95,7 @@ static module_info *find_module(module_info *modules, const char *modname)
 }
 
 static void order_dep_list(module_info *modules, module_info *start,
-			   llist_t *add)
+			llist_t *add)
 {
 	module_info *m;
 	llist_t *n;
@@ -131,7 +126,16 @@ static void xfreopen_write(const char *file, FILE *f)
 		bb_perror_msg_and_die("can't open '%s'", file);
 }
 
-/* Usage:
+//usage:#if !ENABLE_MODPROBE_SMALL
+//usage:#define depmod_trivial_usage "[-n] [-b BASE] [VERSION] [MODFILES]..."
+//usage:#define depmod_full_usage "\n\n"
+//usage:       "Generate modules.dep, alias, and symbols files"
+//usage:     "\n"
+//usage:     "\n	-b BASE	Use BASE/lib/modules/VERSION"
+//usage:     "\n	-n	Dry run: print files to stdout"
+//usage:#endif
+
+/* Upstream usage:
  * [-aAenv] [-C FILE or DIR] [-b BASE] [-F System.map] [VERSION] [MODFILES]...
  *	-a --all
  *		Probe all modules. Default if no MODFILES.
@@ -142,7 +146,7 @@ static void xfreopen_write(const char *file, FILE *f)
  *	-C --config FILE or DIR
  *		Path to /etc/depmod.conf or /etc/depmod.d/
  *	-e --errsyms
- *		When combined with the -F option, this reports any symbols which
+ *		When combined with the -F option, this reports any symbols
  *		which are not supplied by other modules or kernel.
  *	-F --filesyms System.map
  *	-n --dry-run
@@ -154,8 +158,13 @@ static void xfreopen_write(const char *file, FILE *f)
  *	-u	No-op
  *	-q	No-op
  *
- * So far we only support: [-rn] [-b BASE] [VERSION] [MODFILES]...
- * -aAeF are accepted but ignored. -vC are not accepted.
+ * So far we only support: [-n] [-b BASE] [VERSION] [MODFILES]...
+ * Accepted but ignored:
+ * -aAe
+ * -F System.map
+ * -C FILE/DIR
+ *
+ * Not accepted: -v
  */
 enum {
 	//OPT_a = (1 << 0), /* All modules, ignore mods in argv */
@@ -207,7 +216,7 @@ int depmod_main(int argc UNUSED_PARAM, char **argv)
 		} while (*++argv);
 	} else {
 		recursive_action(".", ACTION_RECURSE,
-				 parse_module, NULL, &modules, 0);
+				parse_module, NULL, &modules, 0);
 	}
 
 	/* Generate dependency and alias files */

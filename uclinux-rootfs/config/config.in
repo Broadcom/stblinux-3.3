@@ -102,11 +102,14 @@ bool 'Install libstdc++'	CONFIG_LIB_LIBSTDCXX_FORCE
 bool 'Install libgcc_s'		CONFIG_LIB_LIBGCC_FORCE
 bool 'Install libssp'		CONFIG_LIB_LIBSSP_FORCE
 
-# copy uClibc utils
-bool 'Install ldd'			CONFIG_LIB_UCLIBC_LDD
-bool 'Install ldconfig'		CONFIG_LIB_UCLIBC_LDCONFIG
+comment "C library configuration"
+bool 'Build libc from rootfs (normally copied from toolchain)'	CONFIG_LIB_LIBC_FROM_ROOTFS
 
-comment 'Library Configuration'
+# copy libc utils
+bool 'Install ldd'		CONFIG_LIB_LIBC_LDD
+bool 'Install ldconfig'		CONFIG_LIB_LIBC_LDCONFIG
+
+comment 'uClibc-specific Configuration'
 bool 'Support time zones'	CONFIG_LIB_UC_LIBC_TIMEZONE
 if [ "$CONFIG_LIB_UC_LIBC_TIMEZONE" = "y" ]; then
 	bool '  Always load from file'	CONFIG_LIB_UC_LIBC_TZ_FROM_FILE
@@ -189,8 +192,10 @@ fi
 bool 'mount'			CONFIG_USER_MOUNT_MOUNT
 bool 'umount'			CONFIG_USER_MOUNT_UMOUNT
 bool 'fdisk'			CONFIG_USER_FDISK_FDISK
-bool 'gdisk'			CONFIG_USER_GDISK_GDISK
-if [ "$CONFIG_USER_GDISK_GDISK" = "y" ]; then
+bool 'gdisk'			CONFIG_USER_GPTFDISK_GDISK
+bool 'sgdisk'			CONFIG_USER_GPTFDISK_SGDISK
+if [ "$CONFIG_USER_GPTFDISK_GDISK" = "y" \
+		-o "$CONFIG_USER_GPTFDISK_SGDISK" = "y" ]; then
 	define_bool	CONFIG_LIB_LIBSTDCXX y
 	define_bool	CONFIG_LIB_POPT y
 	define_bool	CONFIG_LIB_LIBGCC y
@@ -895,7 +900,6 @@ if [ "$CONFIG_USER_PERF" = "y" ]; then
 fi
 
 #############################################################################
-
 
 #source ../user/busybox/sysdeps/linux/Config.in
 

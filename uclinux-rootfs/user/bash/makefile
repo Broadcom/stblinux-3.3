@@ -20,6 +20,10 @@ all::
 	fi
 	$(MAKE) -j1 -C build
 
+.PHONY: clean
+clean::
+	[ ! -f build/Makefile ] || $(MAKE) -C build clean
+
 .PHONY: distclean
 distclean::
 	rm -rf build

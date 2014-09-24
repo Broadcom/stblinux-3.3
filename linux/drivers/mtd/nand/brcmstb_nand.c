@@ -963,11 +963,8 @@ static int brcmstb_nand_verify_uncorr_err(struct mtd_info *mtd,
 		data_buf += len;
 		err_addr += len;
 
-		/*
-		 * if oob is all ffs or we are within ecc_level
-		 * then we assume erased page sector
-		 */
-		if (!oob_bitflips || total_bitflips < threshold) {
+		/* if we are within ecc_level, then this sector is erased */
+		if (total_bitflips < threshold) {
 			uncorr_err = 0;
 			total_bitflips = 0;
 		} else {
@@ -981,6 +978,9 @@ static int brcmstb_nand_verify_uncorr_err(struct mtd_info *mtd,
 		dev_warn(&host->pdev->dev,
 			 "bitflips in apparent erased page at 0x%llx\n",
 			 (unsigned long long)addr);
+
+	/* Invalidate page cache as we've used chip->buffers->databuf */
+	chip->pagebuf = -1;
 
 	return uncorr_err;
 }

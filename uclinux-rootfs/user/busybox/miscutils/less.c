@@ -42,14 +42,11 @@
 //config:	  brackets, facilitating programming.
 //config:
 //config:config FEATURE_LESS_FLAGS
-//config:	bool "Enable extra flags"
+//config:	bool "Enable -m/-M"
 //config:	default y
 //config:	depends on LESS
 //config:	help
-//config:	  The extra flags provided do the following:
-//config:
-//config:	  The -M flag enables a more sophisticated status line.
-//config:	  The -m flag enables a simpler status line with a percentage.
+//config:	  The -M/-m flag enables a more sophisticated status line.
 //config:
 //config:config FEATURE_LESS_MARKS
 //config:	bool "Enable marks"
@@ -101,15 +98,17 @@
 //config:	  Enables "-N" command.
 
 //usage:#define less_trivial_usage
-//usage:       "[-EMNmh~I?] [FILE]..."
+//usage:       "[-E" IF_FEATURE_LESS_FLAGS("Mm") "Nh~I?] [FILE]..."
 //usage:#define less_full_usage "\n\n"
 //usage:       "View FILE (or stdin) one screenful at a time\n"
 //usage:     "\n	-E	Quit once the end of a file is reached"
+//usage:	IF_FEATURE_LESS_FLAGS(
 //usage:     "\n	-M,-m	Display status line with line numbers"
 //usage:     "\n		and percentage through the file"
+//usage:	)
 //usage:     "\n	-N	Prefix line number to each line"
 //usage:     "\n	-I	Ignore case in all searches"
-//usage:     "\n	-~	Suppress ~s displayed past the end of the file"
+//usage:     "\n	-~	Suppress ~s displayed past EOF"
 
 #include <sched.h>  /* sched_yield() */
 
@@ -710,9 +709,9 @@ static void print_found(const char *line)
 	/* buf[] holds quarantined version of str */
 
 	/* Each part of the line that matches has the HIGHLIGHT
-	   and NORMAL escape sequences placed around it.
-	   NB: we regex against line, but insert text
-	   from quarantined copy (buf[]) */
+	 * and NORMAL escape sequences placed around it.
+	 * NB: we regex against line, but insert text
+	 * from quarantined copy (buf[]) */
 	str = buf;
 	growline = NULL;
 	eflags = 0;

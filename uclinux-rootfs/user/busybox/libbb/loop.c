@@ -84,7 +84,7 @@ int FAST_FUNC del_loop(const char *device)
    search will re-use an existing loop device already bound to that
    file/offset if it finds one.
  */
-int FAST_FUNC set_loop(char **device, const char *file, unsigned long long offset)
+int FAST_FUNC set_loop(char **device, const char *file, unsigned long long offset, int ro)
 {
 	char dev[LOOP_NAMESIZE];
 	char *try;
@@ -93,11 +93,13 @@ int FAST_FUNC set_loop(char **device, const char *file, unsigned long long offse
 	int i, dfd, ffd, mode, rc = -1;
 
 	/* Open the file.  Barf if this doesn't work.  */
-	mode = O_RDWR;
+	mode = ro ? O_RDONLY : O_RDWR;
 	ffd = open(file, mode);
 	if (ffd < 0) {
-		mode = O_RDONLY;
-		ffd = open(file, mode);
+		if (mode != O_RDONLY) {
+			mode = O_RDONLY;
+			ffd = open(file, mode);
+		}
 		if (ffd < 0)
 			return -errno;
 	}
@@ -148,9 +150,9 @@ int FAST_FUNC set_loop(char **device, const char *file, unsigned long long offse
 			}
 
 		/* If this block device already set up right, re-use it.
-		   (Yes this is racy, but associating two loop devices with the same
-		   file isn't pretty either.  In general, mounting the same file twice
-		   without using losetup manually is problematic.)
+		 * (Yes this is racy, but associating two loop devices with the same
+		 * file isn't pretty either.  In general, mounting the same file twice
+		 * without using losetup manually is problematic.)
 		 */
 		} else
 		if (strcmp(file, (char *)loopinfo.lo_file_name) != 0

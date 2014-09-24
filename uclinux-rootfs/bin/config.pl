@@ -30,16 +30,19 @@
 #
 use strict;
 use warnings;
+use File::Basename;
 use File::Copy;
 use POSIX;
 
 my %linux = ( );
+my %eglibc = ( );
 my %uclibc = ( );
 my %busybox = ( );
 my %vendor = ( );
 
 my $topdir = getcwd();
 
+my $eglibc_defaults = "defaults/config.eglibc";
 my $uclibc_defaults = "defaults/config.uClibc";
 my $busybox_defaults = "defaults/config.busybox";
 my $vendor_defaults = "defaults/config.vendor";
@@ -52,6 +55,7 @@ my $LINUXDIR = "linux";
 
 my $ARCH;
 my $linux_config = "$LINUXDIR/.config";
+my $eglibc_config = "lib/eglibc/build/option-groups.config";
 my $uclibc_config = "lib/uClibc/.config";
 my $busybox_config = "user/busybox/.config";
 my $vendor_config = "config/.config";
@@ -88,9 +92,9 @@ sub read_cfg($$)
 	close(F);
 }
 
-sub write_cfg($$$)
+sub write_cfg_common($$$$)
 {
-	my($in, $out, $h) = @_;
+	my($in, $out, $h, $disable_n) = @_;
 	my @outbuf = ( );
 
 	open(IN, "<${in}") or die "can't open ${in}: $!";
@@ -101,7 +105,7 @@ sub write_cfg($$$)
 			my $val = $$h{$var};
 
 			if(defined($val)) {
-				if($val eq "n") {
+				if($disable_n && $val eq "n") {
 					push(@outbuf, "# $var is not set\n");
 				} else {
 					push(@outbuf, "${var}=${val}\n");
@@ -117,6 +121,9 @@ sub write_cfg($$$)
 	close(IN);
 
 	unlink($out);
+	unless (-e dirname($out) or mkdir(dirname($out))) {
+		die "can't make directory " . dirname($out);
+	}
 	open(OUT, ">${out}") or die "can't open ${out}: $!";
 
 	foreach my $x (@outbuf) {
@@ -129,14 +136,21 @@ sub write_cfg($$$)
 		if(! defined($val)) {
 			next;
 		}
-
-		if($val eq "n") {
-			print OUT "# $var is not set\n";
-		} else {
-			print OUT "${var}=${val}\n";
-		}
+		print OUT "${var}=${val}\n";
 	}
 	close(OUT);
+}
+
+sub write_cfg($$$)
+{
+	my($in, $out, $h) = @_;
+	write_cfg_common($in, $out, $h, 1);
+}
+
+sub write_cfg_n($$$)
+{
+	my($in, $out, $h) = @_;
+	write_cfg_common($in, $out, $h, 0);
 }
 
 sub whitelist_cfg($$)
@@ -297,7 +311,7 @@ sub get_chiplist()
 	return(@out);
 }
 
-sub set_opt($$)
+sub set_opt_common($$)
 {
 	my($file, $settings) = @_;
 	my %h;
@@ -321,8 +335,19 @@ sub set_opt($$)
 		}
 		$h{$key} = $val;
 	}
+	return \%h;
+}
 
-	write_cfg($file, $file, \%h);
+sub set_opt($$)
+{
+	my($file, $settings) = @_;
+	write_cfg($file, $file, set_opt_common($file, $settings));
+}
+
+sub set_opt_n($$)
+{
+	my($file, $settings) = @_;
+	write_cfg_n($file, $file, set_opt_common($file, $settings));
 }
 
 sub test_opt($$)
@@ -375,15 +400,38 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		unlink(".target");
 	}
 
+	unlink($arch_config);
+	copy($ARCH eq "arm" ? $arch_defaults_arm :
+		($be ? $arch_defaults_be : $arch_defaults_le), $arch_config) or
+		die "can't create $arch_config";
+
+	# This section is temporary and will be removed for SWLINUX-2680
+	open(F, "<$arch_config")
+		or die "can't read $arch_config";
+	my @lines = <F>;
+	close(F);
+	open(F, ">$arch_config")
+		or die "can't read $arch_config";
+	foreach(@lines) {
+		if (m/LIBCDIR/) {
+			s/\@CONFIG_PL_LIBCDIR\@/uClibc/;
+		}
+		print F;
+	}
+	close(F);
+	# End temporary section
+
+
 	unlink($linux_config);
 	system("make -C $LINUXDIR ARCH=$ARCH bcm${chip}_defconfig");
 
 	read_cfg($linux_config, \%linux);
+	read_cfg($eglibc_defaults, \%eglibc);
 	read_cfg($uclibc_defaults, \%uclibc);
 	read_cfg($busybox_defaults, \%busybox);
 	read_cfg($vendor_defaults, \%vendor);
 
-	# set architecture
+	# set architecture (only for uClibc)
 
 	if($ARCH eq "arm") {
 		my %uclibc_o;
@@ -463,6 +511,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			# reduced footprint (-small builds)
 
 			$uclibc{"PTHREADS_DEBUG_SUPPORT"} = "n";
+			$uclibc{"SUPPORT_LD_DEBUG"} = "n";
 			$uclibc{"DODEBUG"} = "n";
 			$uclibc{"DOSTRIP"} = "y";
 
@@ -547,8 +596,10 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			# $vendor{"CONFIG_USER_DHCPCV6_DHCPCV6"} = "y";
 
 			$uclibc{"UCLIBC_HAS_IPV6"} = "y";
+			$eglibc{"OPTION_EGLIBC_ADVANCED_INET6"} = "y";
 			$busybox{"CONFIG_FEATURE_IPV6"} = "y";
 			$busybox{"CONFIG_PING6"} = "y";
+			$busybox{"CONFIG_UDHCPC6"} = "y";
 		} elsif($mod eq "docsis") {
 
 			# enable tftp server for DOCSIS firmware download
@@ -569,7 +620,8 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$busybox{"CONFIG_MKSWAP"} = "n";
 			$busybox{"CONFIG_SWAPONOFF"} = "n";
 			$busybox{"CONFIG_FDISK"} = "n";
-			$vendor{"CONFIG_USER_GDISK_GDISK"} = "n";
+			$vendor{"CONFIG_USER_GPTFDISK_GDISK"} = "n";
+			$vendor{"CONFIG_USER_GPTFDISK_SGDISK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_E2FSCK_E2FSCK"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_MISC_MKE2FS"} = "n";
 			$vendor{"CONFIG_USER_E2FSPROGS_MISC_TUNE2FS"} = "n";
@@ -683,6 +735,23 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 
 			$vendor{"CONFIG_USER_PERF"} = "y";
+		} elsif($mod eq "eglibc") {
+			# This section is temporary and will be cleaned up for
+			# SWLINUX-2680
+			open(F, "<$arch_config")
+				or die "can't read $arch_config";
+			my @lines = <F>;
+			close(F);
+			open(F, ">$arch_config")
+				or die "can't read $arch_config";
+			foreach(@lines) {
+				if (m/LIBCDIR/) {
+					s/uClibc/eglibc/;
+				}
+				print F;
+			}
+			close(F);
+			# End temporary section
 		} else {
 			print "\n";
 			print "ERROR: Unrecognized suffix '$mod' in '$tgt'\n";
@@ -730,7 +799,15 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		die "can't invoke $CC to find sysroot";
 	}
 	$sysroot =~ s/\s//g;
+	$busybox{"CONFIG_SYSROOT"} = "\"$sysroot\"";
 	$uclibc{"KERNEL_HEADERS"} = "\"$sysroot/usr/include\"";
+
+	if ($eglibc{"OPTION_EGLIBC_NSSWITCH"} eq "n") {
+		$eglibc{"OPTION_EGLIBC_NSSWITCH_FIXED_CONFIG"} =
+			"$topdir/lib/eglibc/nss/fixed-nsswitch.conf";
+		$eglibc{"OPTION_EGLIBC_NSSWITCH_FIXED_FUNCTIONS"} =
+			"$topdir/lib/eglibc/nss/fixed-nsswitch.functions";
+	}
 
 	# apply/reverse kernel patches
 
@@ -773,18 +850,15 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 	# write out the new configuration
 	write_cfg($linux_config, $linux_config, \%linux);
+	write_cfg_n($eglibc_defaults, $eglibc_config, \%eglibc);
 	write_cfg($uclibc_defaults, $uclibc_config, \%uclibc);
 	write_cfg($busybox_defaults, $busybox_config, \%busybox);
 	write_cfg($vendor_defaults, $vendor_config, \%vendor);
-
-	unlink($arch_config);
-	copy($ARCH eq "arm" ? $arch_defaults_arm :
-		($be ? $arch_defaults_be : $arch_defaults_le), $arch_config) or
-		die "can't create $arch_config";
 } elsif($cmd eq "save_defaults") {
 	get_tgt(shift @ARGV);
 
 	read_cfg($linux_config, \%linux);
+	read_cfg($eglibc_config, \%eglibc);
 	read_cfg($uclibc_config, \%uclibc);
 	read_cfg($busybox_config, \%busybox);
 	read_cfg($vendor_config, \%vendor);
@@ -793,6 +867,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	system("make -C $LINUXDIR savedefconfig");
 	copy("$LINUXDIR/defconfig", $linux_defaults);
 
+	write_cfg_n($eglibc_config, $eglibc_defaults, \%eglibc);
 	write_cfg($uclibc_config, $uclibc_defaults, \%uclibc);
 	write_cfg($busybox_config, $busybox_defaults, \%busybox);
 	write_cfg($vendor_config, $vendor_defaults, \%vendor);
@@ -843,6 +918,8 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	set_opt($linux_config, \@ARGV);
 } elsif($cmd eq "busybox") {
 	set_opt($busybox_config, \@ARGV);
+} elsif($cmd eq "eglibc") {
+	set_opt_n($eglibc_config, \@ARGV);
 } elsif($cmd eq "uclibc") {
 	set_opt($uclibc_config, \@ARGV);
 } elsif($cmd eq "vendor") {

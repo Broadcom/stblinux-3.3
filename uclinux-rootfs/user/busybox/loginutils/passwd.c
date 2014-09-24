@@ -15,6 +15,7 @@
 
 #include "libbb.h"
 #include <syslog.h>
+#include <sys/resource.h> /* setrlimit */
 
 static void nuke_str(char *str)
 {
@@ -94,7 +95,7 @@ int passwd_main(int argc UNUSED_PARAM, char **argv)
 	};
 	unsigned opt;
 	int rc;
-	const char *opt_a = "d"; /* des */
+	const char *opt_a = CONFIG_FEATURE_DEFAULT_PASSWD_ALGO;
 	const char *filename;
 	char *myname;
 	char *name;

@@ -556,7 +556,7 @@ LEAF(set_zephyr)
 	.word	0x4088b00f      /* mtc0    t0, $22, 15 */
 
 	.word	0x4008b008      /* mfc0    t0, $22, 8 */
-        li      t1, 0x09000000	/* turn off pref */
+        li      t1, 0x09008000	/* turn off pref, jtb */
         or      t0, t0, t1
 	.word	0x4088b008      /* mtc0    t0, $22, 8 */
         sync

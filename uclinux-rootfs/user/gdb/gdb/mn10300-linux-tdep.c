@@ -529,9 +529,9 @@ struct rt_sigframe
 {
 	void (*pretcode)(void);
 	int sig;
-	struct siginfo *pinfo;
+	siginfo_t *pinfo;
 	void *puc;
-	struct siginfo info;
+	siginfo_t info;
 	struct ucontext uc;
 	struct fpucontext fpuctx;
 	char retcode[8];

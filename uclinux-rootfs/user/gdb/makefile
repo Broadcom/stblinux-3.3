@@ -27,6 +27,10 @@ romfs::
 	$(STRIP) gdb/gdb
 	$(ROMFSINST) -e CONFIG_USER_GDB_GDB gdb/gdb /bin/gdb
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 # These targets must not be passed through to the original Makefile
 .PHONY: $(BOGUS_TARGETS)
 $(BOGUS_TARGETS)::

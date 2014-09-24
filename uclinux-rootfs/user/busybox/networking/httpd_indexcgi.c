@@ -35,6 +35,7 @@ httpd_indexcgi.c -o index.cgi
  *   2576       4    2048    4628    1214 index.cgi.o
  */
 
+#define _GNU_SOURCE 1  /* for strchrnul */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -221,20 +222,25 @@ int main(int argc, char *argv[])
 	unsigned long long size_total;
 	int odd;
 	DIR *dirp;
-	char *QUERY_STRING;
+	char *location;
 
-	QUERY_STRING = getenv("QUERY_STRING");
-	if (!QUERY_STRING
-	 || QUERY_STRING[0] != '/'
-	 || strstr(QUERY_STRING, "//")
-	 || strstr(QUERY_STRING, "/../")
-	 || strcmp(strrchr(QUERY_STRING, '/'), "/..") == 0
+	location = getenv("REQUEST_URI");
+	if (!location)
+		return 1;
+
+	/* drop URL arguments if any */
+	strchrnul(location, '?')[0] = '\0';
+
+	if (location[0] != '/'
+	 || strstr(location, "//")
+	 || strstr(location, "/../")
+	 || strcmp(strrchr(location, '/'), "/..") == 0
 	) {
 		return 1;
 	}
 
 	if (chdir("..")
-	 || (QUERY_STRING[1] && chdir(QUERY_STRING + 1))
+	 || (location[1] && chdir(location + 1))
 	) {
 		return 1;
 	}
@@ -271,14 +277,14 @@ int main(int argc, char *argv[])
 		"\r\n" /* Mandatory empty line after headers */
 		"<html><head><title>Index of ");
 	/* Guard against directories with &, > etc */
-	fmt_html(QUERY_STRING);
+	fmt_html(location);
 	fmt_str(
 		"</title>\n"
 		STYLE_STR
 		"</head>" "\n"
 		"<body>" "\n"
 		"<h1>Index of ");
-	fmt_html(QUERY_STRING);
+	fmt_html(location);
 	fmt_str(
 		"</h1>" "\n"
 		"<table>" "\n"

@@ -31,7 +31,6 @@ CONFIG_CONFIG	:= $(ROOTDIR)/config/.config
 ARCH_CONFIG	:= $(ROOTDIR)/config.arch
 ROMFSDIR	:= $(ROOTDIR)/romfs
 ROMFSINST	:= $(ROOTDIR)/bin/romfs-inst.sh
-LIBCDIR		:= uClibc
 
 CFG		:= perl -w bin/config.pl
 CHKPATH		:= perl -w bin/checkpath.pl
@@ -39,7 +38,7 @@ CHKPATH		:= perl -w bin/checkpath.pl
 SHELL		:= /bin/bash
 PATH		:= $(shell $(CHKPATH) -a)
 export ROOTDIR LINUXDIR LINUX_CONFIG CONFIG_CONFIG ARCH_CONFIG ROMFSDIR \
-	ROMFSINST LIBCDIR SHELL PATH
+	ROMFSINST SHELL PATH
 
 # hostname of TFTP server (defaults to the build machine)
 TFTPHOST	:= $(shell hostname)

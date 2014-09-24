@@ -115,7 +115,7 @@ alpha_linux_sigcontext_addr (struct frame_info *this_frame)
   /* __NR_rt_sigreturn has a couple of structures on the stack.  This is:
 
 	struct rt_sigframe {
-	  struct siginfo info;
+	  siginfo_t info;
 	  struct ucontext uc;
         };
 

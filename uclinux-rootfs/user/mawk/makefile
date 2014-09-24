@@ -17,6 +17,10 @@ all::
 	touch scancode.c
 	$(MAKE) -f Makefile
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs::
 	$(STRIP) mawk

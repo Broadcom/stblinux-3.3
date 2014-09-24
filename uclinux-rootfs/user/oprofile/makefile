@@ -31,6 +31,10 @@ all::
 	fi
 	$(MAKE) -f Makefile
 
+.PHONY: clean distclean
+clean distclean::
+	[ ! -f Makefile ] || $(MAKE) -f Makefile $@
+
 .PHONY: romfs
 romfs::
 	$(STRIP) pp/opannotate pp/oparchive pp/opgprof pp/opreport \

@@ -968,6 +968,13 @@ static int bcmspi_transfer(struct spi_device *spi, struct spi_message *msg)
 		if (trans && trans->len && trans->tx_buf) {
 			u8 command = ((u8 *)trans->tx_buf)[0];
 			switch (command) {
+			case OPCODE_FAST_READ_4B:
+				if (!bcmspi_is_4_byte_mode(priv) &&
+						bcmbspi_flash_type(priv) ==
+						BSPI_FLASH_TYPE_SPANSION)
+					bcmspi_set_mode(priv, -1,
+						 BSPI_ADDRLEN_4BYTES, -1);
+				/* fall through */
 			case OPCODE_FAST_READ:
 				if (bcmspi_emulate_flash_read(priv, msg) == 0)
 					return 0;
