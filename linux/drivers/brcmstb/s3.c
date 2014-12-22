@@ -526,15 +526,6 @@ int brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 
 	local_irq_restore(flags);
 
-#if defined(CONFIG_BRCM_HAS_PCIE) && defined(CONFIG_PCI)
-	BDEV_WR_F_RB(WKTMR_EVENT, wktmr_alarm_event, 1);
-	BDEV_WR_F_RB(WKTMR_PRESCALER, wktmr_prescaler, WKTMR_FREQ);
-
-	if (brcm_pcie_enabled) {
-		brcm_early_pcie_setup();
-		brcm_setup_pcie_bridge();
-	}
-#endif
 
 #if CALCULATE_MEM_HASH
 	for (ii = 0; ii < 4; ii++)

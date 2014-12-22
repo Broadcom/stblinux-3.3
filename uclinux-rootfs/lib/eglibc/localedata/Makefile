@@ -91,7 +91,7 @@ locale_test_suite := tst_iswalnum tst_iswalpha tst_iswcntrl            \
 tests-$(OPTION_EGLIBC_LOCALE_CODE) \
      += $(locale_test_suite) tst-digits tst-setlocale bug-iconv-trans \
 	tst-leaks tst-mbswcs6 tst-xlocale1 tst-xlocale2 bug-usesetlocale \
-	tst-strfmon1 tst-sscanf bug-setlocale1 tst-setlocale2
+	tst-strfmon1 tst-sscanf bug-setlocale1 tst-setlocale2 tst-setlocale3
 ifeq (y,$(OPTION_EGLIBC_LOCALE_CODE))
 tests-static = bug-setlocale1-static
 tests += $(tests-static)

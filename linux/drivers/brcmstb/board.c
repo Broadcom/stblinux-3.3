@@ -429,6 +429,32 @@ void board_pinmux_setup(void)
 		AON_PINMUX(2, gpio_100, 5);
 	}
 
+	/* set RGMII lines to 2.5V */
+	BDEV_WR_F(SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0, rgmii_0_pad_sel, 1);
+
+	/* If GENET_0 is not configured for internal mode, set
+	 * the pins in EMAC0_ mode
+	 */
+	if (strcmp(brcm_eth0_phy, "INT")) {
+		PINMUX(5, gpio_003, 1);	/* RX_EN_CTL */
+		PINMUX(5, gpio_002, 1); /* RX_CLK */
+		PINMUX(5, gpio_001, 1); /* ENET_LINK */
+		PINMUX(5, gpio_000, 1); /* ENET_ACTIVITY */
+		PINMUX(6, gpio_011, 1); /* TXD_01 */
+		PINMUX(6, gpio_010, 1); /* TXD_00 */
+		PINMUX(6, gpio_009, 1); /* TX_EN_CTL */
+		PINMUX(6, gpio_008, 1); /* TX_CLK */
+		PINMUX(6, gpio_007, 1); /* RXD_03 */
+		PINMUX(6, gpio_006, 1); /* RXD_02 */
+		PINMUX(6, gpio_005, 1); /* RXD_01 */
+		PINMUX(6, gpio_004, 1); /* RXD_00 */
+		PINMUX(7, gpio_015, 2); /* EMAC0_MDC */
+		PINMUX(7, gpio_014, 2); /* EMAC0_MDIO */
+		PINMUX(7, gpio_013, 1); /* TXD_03 */
+		PINMUX(7, gpio_012, 1); /* TXD_02 */
+	}
+
+
 #elif defined(CONFIG_BCM7429)
 
 	PINMUX(11, gpio_094, 1);	/* UARTB TX */

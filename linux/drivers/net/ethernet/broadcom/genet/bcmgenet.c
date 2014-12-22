@@ -684,8 +684,9 @@ static int bcmgenet_close(struct net_device *dev)
 	 */
 	cancel_work_sync(&pDevCtrl->bcmgenet_irq_work);
 
-	/* Set carrier state as down */
-	netif_carrier_off(dev);
+	/* Set carrier state as down, except for MoCA interfaces */
+	if (pDevCtrl->phyType != BRCM_PHY_TYPE_MOCA)
+		netif_carrier_off(dev);
 
 	if (brcm_pm_deep_sleep())
 		save_state(pDevCtrl);

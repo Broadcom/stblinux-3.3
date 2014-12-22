@@ -3142,7 +3142,21 @@ static void bcm7425_pm_pcie_enable(u32 flags)
 #if defined(BCHP_CLKGEN_PLL_HIF_PLL_CHANNEL_CTRL_CH_1)
 	PLL_CH_ENA(CLKGEN_PLL_HIF_PLL_CHANNEL_CTRL, 1);
 #endif
+	/* take the bridge out of reset to be able to write serdes */
+	BDEV_WR_F_RB(HIF_RGR1_SW_INIT_1, PCIE_BRIDGE_SW_INIT, 0);
 	BDEV_WR_F(PCIE_MISC_HARD_PCIE_HARD_DEBUG, SERDES_IDDQ, 0);
+	/* delay to allow SERDES to be stable */
+	udelay(100);
+
+#if defined(CONFIG_BRCM_HAS_PCIE) && defined(CONFIG_PCI)
+	BDEV_WR_F_RB(WKTMR_EVENT, wktmr_alarm_event, 1);
+	BDEV_WR_F_RB(WKTMR_PRESCALER, wktmr_prescaler, WKTMR_FREQ);
+
+	if (brcm_pcie_enabled) {
+		brcm_early_pcie_setup();
+		brcm_setup_pcie_bridge();
+	}
+#endif
 }
 
 static struct clk clk_pcie = {
