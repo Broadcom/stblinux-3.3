@@ -128,6 +128,7 @@ openlog_intern(const char *ident, int logstat, int logfac)
 {
 	int fd;
 	int logType = SOCK_DGRAM;
+	static const struct timeval tv = { 1, 0 };
 
 	if (ident != NULL)
 		LogTag = ident;
@@ -153,6 +154,9 @@ openlog_intern(const char *ident, int logstat, int logfac)
 
 	if (fd != -1 && !connected) {
 		if (connect(fd, &SyslogAddr, sizeof(SyslogAddr)) != -1) {
+			/* We want to block send if e.g. syslogd is SIGSTOPed */
+			fcntl(fd, F_SETFL, ~O_NONBLOCK & fcntl(fd, F_GETFL));
+			setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 			connected = 1;
 		} else {
 			if (fd != -1) {

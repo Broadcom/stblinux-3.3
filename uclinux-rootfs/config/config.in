@@ -590,6 +590,9 @@ dep_bool '  irexec'		CONFIG_USER_LIRC_IREXEC   $CONFIG_USER_LIRC
 dep_bool '  irw'		CONFIG_USER_LIRC_IRW      $CONFIG_USER_LIRC
 dep_bool '  mode2'		CONFIG_USER_LIRC_MODE2    $CONFIG_USER_LIRC
 
+comment 'I2C-Tools'
+bool 'i2c-tools'               CONFIG_USER_I2C_TOOLS
+
 comment 'Editors'
 bool 'vi (leevee)'		CONFIG_USER_LEVEE_VI
 bool 'vi (elvis-tiny)'		CONFIG_USER_ELVISTINY_VI

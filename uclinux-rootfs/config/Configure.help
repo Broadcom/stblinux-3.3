@@ -113,6 +113,13 @@ CONFIG_USER_INIT_EXPAND_NOZEROES
   write every byte with zero initially.  Enabling this
   option may save you a lot of memory on mostly empty ram disks.
 
+CONFIG_USER_I2C_TOOLS
+  Heterogeneous set of I2C tools for Linux
+  This package contains a heterogeneous set of I2C tools for Linux:
+  a bus probing tool, a chip dumper, register-level access helpers,
+  EEPROM decoding scripts, and more.
+  http://www.lm-sensors.org
+
 CONFIG_USER_FLASHW_FLASHW
   A tool for writing to the non-volatile FLASH chips.
   Approx. binary size: 10k

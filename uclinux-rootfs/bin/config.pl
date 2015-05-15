@@ -456,10 +456,13 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$vendor{"CONFIG_USER_MOCA_GEN1"} = "y";
 		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_11_PLUS"})) {
 			$vendor{"CONFIG_USER_MOCA_GEN2"} = "y";
-		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN21"})) {
-			$vendor{"CONFIG_USER_MOCA_GEN3"} = "y";
-		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN22"})) {
-			$vendor{"CONFIG_USER_MOCA_GEN3"} = "y";
+		} elsif(defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN21"}) ||
+				defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN22"}) ||
+				defined($linux{"CONFIG_BRCM_HAS_MOCA_20_GEN23"})) {
+			$vendor{"CONFIG_USER_MOCA_MOCA1"} = "n";
+			$vendor{"CONFIG_USER_MOCA_MOCA2"} = "y";
+		} else {
+			die "No recognized moca version in kernel config";
 		}
 	}
 
@@ -528,6 +531,86 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			$linux{"CONFIG_NETWORK_FILESYSTEMS"} = "n";
 			$linux{"CONFIG_INPUT"} = "n";
 			$linux{"CONFIG_VT"} = "n";
+		} elsif($mod eq "i2c" ) {
+
+		    # I2C core driver configuration
+		    $linux{"CONFIG_I2C_BRCMSTB"} = "y";
+		    $linux{"CONFIG_I2C"} = "y";
+		    $linux{"CONFIG_I2C_COMPAT"} = "y";
+		    $linux{"CONFIG_I2C_CHARDEV"} = "y";
+		    $linux{"CONFIG_I2C_HELPER_AUTO"} = "y";
+		    $linux{"CONFIG_I2C_STUB"} = "n";
+		    $linux{"CONFIG_I2C_DEBUG_CORE"} = "n";
+		    $linux{"CONFIG_I2C_DEBUG_ALGO"} = "n";
+		    $linux{"CONFIG_I2C_DEBUG_BUS"} = "n";
+		    #  Other I2C/SMBus bus drivers
+		    $linux{"CONFIG_MFD_88PM860X"} = "n";
+		    $linux{"CONFIG_TPS6105X"} = "n";
+		    $linux{"CONFIG_TPS6507X"} = "n";
+		    $linux{"CONFIG_TWL4030_CORE"} = "n";
+		    $linux{"CONFIG_MFD_TC3589X"} = "n";
+		    $linux{"CONFIG_PMIC_DA903X"} = "n";
+		    $linux{"CONFIG_MFD_DA9052_I2C"} = "n";
+		    $linux{"CONFIG_PMIC_ADP5520"} = "n";
+		    $linux{"CONFIG_MFD_MAX8925"} = "n";
+		    $linux{"CONFIG_MFD_MAX8997"} = "n";
+		    $linux{"CONFIG_MFD_MAX8998"} = "n";
+		    $linux{"CONFIG_MFD_S5M_CORE"} = "n";
+		    $linux{"CONFIG_MFD_WM8400"} = "n";
+		    $linux{"CONFIG_MFD_WM831X_I2C"} = "n";
+		    $linux{"CONFIG_MFD_WM8350_I2C"} = "n";
+		    $linux{"CONFIG_MFD_WM8994"} = "n";
+		    $linux{"CONFIG_MFD_PCF50633"} = "n";
+		    $linux{"CONFIG_MFD_WL1273_CORE"} = "n";
+		    $linux{"CONFIG_ICS932S401"} = "n";
+		    $linux{"CONFIG_APDS9802ALS"} = "n";
+		    $linux{"CONFIG_ISL29003"} = "n";
+		    $linux{"CONFIG_ISL29020"} = "n";
+		    $linux{"CONFIG_SENSORS_TSL2550"} = "n";
+		    $linux{"CONFIG_SENSORS_BH1780"} = "n";
+		    $linux{"CONFIG_SENSORS_BH1770"} = "n";
+		    $linux{"CONFIG_SENSORS_APDS990X"} = "n";
+		    $linux{"CONFIG_HMC6352"} = "n";
+		    $linux{"CONFIG_DS1682"} = "n";
+		    $linux{"CONFIG_BMP085"} = "n";
+		    $linux{"CONFIG_USB_SWITCH_FSA9480"} = "n";
+		    $linux{"CONFIG_EEPROM_AT24"} = "n";
+		    $linux{"CONFIG_EEPROM_LEGACY"} = "n";
+		    $linux{"CONFIG_EEPROM_MAX6875"} = "n";
+		    $linux{"CONFIG_SENSORS_LIS3_I2C"} = "n";
+		    $linux{"CONFIG_ALTERA_STAPL"} = "n";
+		    $linux{"CONFIG_I2C_MUX"} = "n";
+		    # I2C Hardware Bus support
+		    $linux{"CONFIG_I2C_ALI1535"} = "n";
+		    $linux{"CONFIG_I2C_ALI1563"} = "n";
+		    $linux{"CONFIG_I2C_ALI15X3"} = "n";
+		    $linux{"CONFIG_I2C_AMD756"} = "n";
+		    $linux{"CONFIG_I2C_AMD8111"} = "n";
+		    $linux{"CONFIG_I2C_I801"} = "n";
+		    $linux{"CONFIG_I2C_ISCH"} = "n";
+		    $linux{"CONFIG_I2C_PIIX4"} = "n";
+		    $linux{"CONFIG_I2C_NFORCE2"} = "n";
+		    $linux{"CONFIG_I2C_SIS5595"} = "n";
+		    $linux{"CONFIG_I2C_SIS630"} = "n";
+		    $linux{"CONFIG_I2C_SIS96X"} = "n";
+		    $linux{"CONFIG_I2C_VIA"} = "n";
+		    $linux{"CONFIG_I2C_VIAPRO"} = "n";
+		    # I2C system bus drivers (mostly embedded / system-on-chip)
+		    $linux{"CONFIG_I2C_DESIGNWARE_PCI"} = "n";
+		    $linux{"CONFIG_I2C_INTEL_MID"} = "n";
+		    $linux{"CONFIG_I2C_OCORES"} = "n";
+		    $linux{"CONFIG_I2C_PCA_PLATFORM"} = "n";
+		    $linux{"CONFIG_I2C_PXA_PCI"} = "n";
+		    $linux{"CONFIG_I2C_SIMTEC"} = "n";
+		    $linux{"CONFIG_I2C_XILINX"} = "n";
+		    $linux{"CONFIG_I2C_EG20T"} = "n";
+		    # External I2C/SMBus adapter drivers
+		    $linux{"CONFIG_I2C_DIOLAN_U2C"} = "n";
+		    $linux{"CONFIG_I2C_PARPORT_LIGHT"} = "n";
+		    $linux{"CONFIG_I2C_TAOS_EVM"} = "n";
+		    $linux{"CONFIG_I2C_TINY_USB"} = "n";
+
+
 		} elsif($mod eq "ikos") {
 
 			# IKOS pre-tapeout emulation (internal Broadcom use)
@@ -671,7 +754,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			override_cfg(\%linux, \%linux_o);
 
 			$vendor{"CONFIG_USER_LTT_CONTROL"} = "y";
-			
+
 			$busybox{"CONFIG_FEATURE_FIND_PRUNE"} = "y";
 			$busybox{"CONFIG_FEATURE_FIND_PATH"} = "y";
 		} elsif($mod eq "android") {

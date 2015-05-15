@@ -133,6 +133,7 @@ dir_$(CONFIG_USER_HD_HD)                    += hd
 dir_$(CONFIG_USER_HDPARM_HDPARM)            += hdparm
 dir_$(CONFIG_USER_HTTPD_HTTPD)              += httpd
 dir_$(CONFIG_USER_HWCLOCK_HWCLOCK)          += hwclock
+dir_$(CONFIG_USER_I2C_TOOLS)                += i2c-tools
 dir_$(CONFIG_USER_IFATTACH_IFATTACH)        += ifattach
 dir_$(CONFIG_USER_INETD_INETD)              += inetd
 dir_$(CONFIG_USER_INETUTILS)                += inetutils

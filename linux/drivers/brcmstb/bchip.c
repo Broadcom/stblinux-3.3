@@ -110,17 +110,23 @@ void __init bchip_check_compat(void)
 	MAIN_CHIP_ID(7358, a0);
 #elif defined(CONFIG_BCM7360)
 	MAIN_CHIP_ID(7360, a0);
+#elif defined(CONFIG_BCM7362)
+	ALT_CHIP_ID(73625, a0);
+	MAIN_CHIP_ID(7362, a0);
 #elif defined(CONFIG_BCM7425)
 	MAIN_CHIP_ID(7425, b0);
 #elif defined(CONFIG_BCM7429)
+	ALT_CHIP_ID(74295, a0);
 	MAIN_CHIP_ID(7429, a0);
 #elif defined(CONFIG_BCM7435)
 	MAIN_CHIP_ID(7435, a0);
 #elif defined(CONFIG_BCM7552)
 	MAIN_CHIP_ID(7552, b0);
 #elif defined(CONFIG_BCM7563)
+	ALT_CHIP_ID(75635, a0);
 	MAIN_CHIP_ID(7563, a0);
 #elif defined(CONFIG_BCM7584)
+	ALT_CHIP_ID(75845, a0);
 	MAIN_CHIP_ID(7584, a0);
 #endif
 	if (!kernel_chip_id)

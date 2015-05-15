@@ -479,7 +479,7 @@ void board_pinmux_setup(void)
 		 * leave it alone. We don't need SDIO0_VCTL because the board
 		 * is 3.3V only and doesn't use it.
 		 */
-		if (BRCM_PROD_ID() != 0x7241)
+		if (BRCM_PROD_ID() != 0x7241 && BRCM_PROD_ID() != 0x7242)
 			PINMUX(11, gpio_092, 5);
 		PINMUX(14, gpio_122, 1);
 		PINMUX(14, gpio_123, 1);
@@ -500,7 +500,7 @@ void board_pinmux_setup(void)
 			PINMUX(15, gpio_130, 1);
 
 		/* enable internal pullups */
-		if (BRCM_PROD_ID() != 0x7241)
+		if (BRCM_PROD_ID() != 0x7241 && BRCM_PROD_ID() != 0x7242)
 			BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6,
 						 gpio_092_pad_ctrl, 2);
 		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,

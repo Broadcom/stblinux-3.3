@@ -54,6 +54,7 @@
 #define MOCA_IOCTL_GET_DRV_INFO	_IOR(MOCA_IOC_MAGIC, 0, struct moca_kdrv_info)
 #define MOCA_IOCTL_SET_CPU_RATE	_IOR(MOCA_IOC_MAGIC, 7, unsigned int)
 #define MOCA_IOCTL_SET_PHY_RATE	_IOR(MOCA_IOC_MAGIC, 8, unsigned int)
+#define MOCA_IOCTL_GET_PROC_INFO _IOR(MOCA_IOC_MAGIC, 13, unsigned long)
 
 #define MOCA_DEVICE_ID_UNREGISTERED  (-1)
 

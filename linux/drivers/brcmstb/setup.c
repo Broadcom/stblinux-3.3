@@ -34,6 +34,7 @@
 #include <linux/compiler.h>
 #include <linux/bmoca.h>
 #include <linux/io.h>
+#include <linux/i2c/i2c-brcmstb.h>
 #include <linux/delay.h>
 #include <linux/time.h>
 #include <linux/version.h>
@@ -74,7 +75,7 @@ static struct resource brcm_ahci_resource[] = {
 	},
 	[1] = {
 		.start	= BRCM_IRQ_SATA,
-		.end 	= BRCM_IRQ_SATA,
+		.end	= BRCM_IRQ_SATA,
 		.flags	= IORESOURCE_IRQ,
 	},
 };
@@ -162,6 +163,109 @@ static struct platform_device brcm_16550_uarts = {
 static inline void brcm_bogus_release(struct device *dev)
 {
 }
+
+#if defined(CONFIG_I2C_BRCMSTB)
+
+static const char bsc_pdev_name[] = "brcmstb-i2c";
+
+#define BRCM_PLAT_DEVICE_DATA(_base, _end, _name, _id, _irq)	\
+	{							\
+			.reg_start = (_base),			\
+			.reg_end  = (_end),			\
+			.clk_rate = 375000,			\
+			.bus_name = (_name),			\
+			.flags = BRCMSTB_I2C_BUS_ENABLE,	\
+			.bus_id = (_id),			\
+			.irq = (_irq),				\
+	},
+
+static struct brcmstb_i2c_platform_data bsc_pdata[] = {
+#ifdef BCHP_BSCA_REG_START
+	BRCM_PLAT_DEVICE_DATA(BCHP_BSCA_REG_START, BCHP_BSCA_REG_END, "BSC_A",
+			      0, -1)
+#endif
+
+#ifdef BCHP_BSCB_REG_START
+	BRCM_PLAT_DEVICE_DATA(BCHP_BSCB_REG_START, BCHP_BSCB_REG_END, "BSC_B",
+			      1, -1)
+#endif
+
+#ifdef BCHP_BSCC_REG_START
+	BRCM_PLAT_DEVICE_DATA(BCHP_BSCC_REG_START, BCHP_BSCC_REG_END, "BSC_C",
+			      2, -1)
+#endif
+
+#ifdef BCHP_BSCD_REG_START
+	BRCM_PLAT_DEVICE_DATA(BCHP_BSCD_REG_START, BCHP_BSCD_REG_END, "BSC_D",
+			      3, -1)
+#endif
+
+#ifdef BCHP_BSCE_REG_START
+	BRCM_PLAT_DEVICE_DATA(BCHP_BSCE_REG_START, BCHP_BSCE_REG_END, "BSC_E",
+			      4, -1)
+#endif
+};
+
+static int __init brcm_add_bsc_master(int pdev_id,
+				struct brcmstb_i2c_platform_data *pdata)
+{
+	struct resource res[2];
+	struct platform_device *pdev;
+
+	memset(&res, 0, sizeof(res));
+	res[0].start = BPHYSADDR(pdata->reg_start);
+	res[0].end = BPHYSADDR(pdata->reg_end);
+	res[0].flags = IORESOURCE_MEM;
+
+	res[1].start = res[1].end = pdata->irq;
+	res[1].flags = IORESOURCE_IRQ;
+
+	pdev = platform_device_alloc("brcmstb-i2c", pdev_id);
+	if (!pdev ||
+	    platform_device_add_resources(pdev, res, ARRAY_SIZE(res)) ||
+	    platform_device_add_data(pdev, pdata, sizeof(*pdata)) ||
+	    platform_device_add(pdev)) {
+		platform_device_put(pdev);
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
+/*
+ * This function allow to override the default I2C bus speed for given I2C
+ * bus with a command line option.
+ * Format: i2c_bus=bus_id,clkrate (in hz)
+ */
+static int __init brcm_i2c_bus_cmdline(char *str)
+{
+	int ports;
+	int ints[3];
+	int i;
+
+	ports = ARRAY_SIZE(bsc_pdata);
+	get_options(str, 3, ints);
+	if (ints[0] < 2 || ints[1] < 0 || ints[1] > BRCMSTB_I2C_MAX_BUS_ID)
+		return 0;
+
+	for (i = 0; i < ports; i++) {
+		if (bsc_pdata[i].bus_id == ints[1]) {
+			bsc_pdata[ints[1]].clk_rate = ints[2];
+			bsc_pdata[ints[1]].flags =
+				BRCMSTB_I2C_BUS_ENABLE_CMDLINE;
+		} else {
+			/* disable other channels if we have a cmdline argument
+			   let the user choose the channels */
+			if (bsc_pdata[i].flags & BRCMSTB_I2C_BUS_ENABLE)
+				bsc_pdata[i].flags = BRCMSTB_I2C_BUS_DISABLE;
+		}
+	}
+
+	return 1;
+}
+__setup("i2c_bus=", brcm_i2c_bus_cmdline);
+
+#endif /* CONFIG_I2C_BRCMSTB */
 
 #if defined(CONFIG_BRCM_SDIO)
 
@@ -450,6 +554,11 @@ static int __init platform_devices_setup(void)
 {
 	int i;
 
+#ifdef CONFIG_I2C_BRCMSTB
+	int j = 0;
+	int ret = 0;
+#endif
+
 #ifdef CONFIG_OF
 	return 0;
 #endif
@@ -504,6 +613,23 @@ static int __init platform_devices_setup(void)
 	if (brcm_sata_enabled)
 		platform_device_register(&brcm_ahci_pdev);
 #endif
+
+#if defined(CONFIG_I2C_BRCMSTB)
+	for (i = 0; i < ARRAY_SIZE(bsc_pdata); i++) {
+		if (bsc_pdata[i].flags & (BRCMSTB_I2C_BUS_ENABLE |
+					 BRCMSTB_I2C_BUS_ENABLE_CMDLINE)) {
+			ret = brcm_add_bsc_master(j++, &bsc_pdata[i]);
+			if (ret < 0) {
+				printk(KERN_WARNING
+					"%s: cannot register bsc master chan %d"
+				       "(error %d)\n", __func__, i, ret);
+				break;
+			}
+
+		}
+	}
+#endif
+
 	return 0;
 }
 

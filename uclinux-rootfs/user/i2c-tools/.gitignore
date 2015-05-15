@@ -1,0 +1,16 @@
+# object files
+*.o
+.dep
+.ltdep
+*.lo
+*.la
+.libs
+
+# binaries
+tools/i2cdump
+tools/i2cget
+tools/i2cset
+tools/i2cdetect
+eepromer/eeprog
+eepromer/eeprom
+eepromer/eepromer

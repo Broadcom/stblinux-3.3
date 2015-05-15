@@ -848,7 +848,7 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 	}
 	bcmspi_set_chip_select(priv, msg->spi->chip_select);
 
-	/* first transfer - OPCODE_READ + 3-byte address */
+	/* first transfer - OPCODE_READ + {3,4}-byte address */
 	trans = list_entry(msg->transfers.next, struct spi_transfer,
 		transfer_list);
 	buf = (void *)trans->tx_buf;
@@ -862,20 +862,29 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 		priv->bspi_hw->flash_upper_addr_byte = 0;
 #endif
 
-	/*
-	 * addr coming into this function is a raw flash offset
-	 * we need to convert it to the BSPI address
-	 */
 	addr = (buf[idx] << 16) | (buf[idx+1] << 8) | buf[idx+2];
-	addr = (addr + 0xc00000) & 0xffffff;
 
 	/* second transfer - read result into buffer */
 	trans = list_entry(msg->transfers.next->next, struct spi_transfer,
 		transfer_list);
 
 	buf = (void *)trans->rx_buf;
-
 	len = trans->len;
+
+#if CONFIG_BRCM_BSPI_MAJOR_VERS < 4
+	/*
+	 * The address coming into this function is a raw flash offset.  But
+	 * for BSPI <= V3, we need to convert it to a remapped BSPI address.
+	 * If it crosses a 4MB boundary, just revert back to using MSPI.
+	 */
+	addr = (addr + 0xc00000) & 0xffffff;
+
+	if (ADDR_TO_4MBYTE_SEGMENT(addr) ^
+	    ADDR_TO_4MBYTE_SEGMENT(addr + len - 1)) {
+		spin_unlock_irqrestore(&priv->lock, flags);
+		return -1;
+	}
+#endif
 
 	/* non-aligned and very short transfers are handled by MSPI */
 	if (unlikely(!DWORD_ALIGNED(addr) ||
@@ -892,12 +901,6 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 
 	DBG("%s: dst %p src %p len %x addr BSPI %06x\n",
 		__func__, buf, src, len, addr);
-
-	/* We assume address will never cross 4Mbyte boundary
-	 * within one transfer. If it does
-	 * read might be incorrect */
-	BUG_ON(ADDR_TO_4MBYTE_SEGMENT(addr) ^
-		ADDR_TO_4MBYTE_SEGMENT(addr+len-1));
 
 	len_in_dwords = (len + 3) >> 2;
 
@@ -1210,6 +1213,12 @@ static void bcmspi_hw_init(struct bcmspi_priv *priv)
 
 	priv->bspi_enabled = 1;
 	bcmspi_disable_bspi(priv);
+
+#if CONFIG_BRCM_BSPI_MAJOR_VERS >= 4
+	/* Force a sane 1:1 mapping of BSPI address -> flash offset */
+	priv->bspi_hw->xor_enable = 1;
+	priv->bspi_hw->xor_value = 0;
+#endif
 
 	priv->bspi_hw->b0_ctrl = 0;
 	priv->bspi_hw->b1_ctrl = 0;
