@@ -475,11 +475,14 @@ void board_pinmux_setup(void)
 
 	if (!sdio_0_disabled) {
 		/*
-		 * 7241 uses GPIO_092 for UART_TX0 instead of SDIO0_VCTL so
+		 * 7241[5] uses GPIO_092 for UART_TX0 instead of SDIO0_VCTL so
 		 * leave it alone. We don't need SDIO0_VCTL because the board
 		 * is 3.3V only and doesn't use it.
 		 */
-		if (BRCM_PROD_ID() != 0x7241 && BRCM_PROD_ID() != 0x7242)
+		if (!(BRCM_PROD_ID() == 0x7241 ||
+		      BRCM_PROD_ID() == 0x7242 ||
+		      BRCM_PROD_ID() == 0x72415 ||
+		      BRCM_PROD_ID() == 0x72425))
 			PINMUX(11, gpio_092, 5);
 		PINMUX(14, gpio_122, 1);
 		PINMUX(14, gpio_123, 1);
@@ -491,16 +494,19 @@ void board_pinmux_setup(void)
 		PINMUX(15, gpio_129, 1);
 		PINMUX(15, gpio_131, 1);
 		/*
-		 * 7428 pinout uses GPIO_93 for SDIO0_PRES
-		 * 7429 pinout uses GPIO_130 for SDIO0_PRES
+		 * 7428[5] pinout uses GPIO_93 for SDIO0_PRES
+		 * 7429[5] pinout uses GPIO_130 for SDIO0_PRES
 		 */
-		if (BRCM_PROD_ID() == 0x7428) {
+		if (BRCM_PROD_ID() == 0x7428 || BRCM_PROD_ID() == 0x74285) {
 			PINMUX(11, gpio_093, 5);
 		} else
 			PINMUX(15, gpio_130, 1);
 
 		/* enable internal pullups */
-		if (BRCM_PROD_ID() != 0x7241 && BRCM_PROD_ID() != 0x7242)
+		if (!(BRCM_PROD_ID() == 0x7241 ||
+		      BRCM_PROD_ID() == 0x7242 ||
+		      BRCM_PROD_ID() == 0x72415 ||
+		      BRCM_PROD_ID() == 0x72425))
 			BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_6,
 						 gpio_092_pad_ctrl, 2);
 		BDEV_WR_F_RB(SUN_TOP_CTRL_PIN_MUX_PAD_CTRL_8,
@@ -607,7 +613,28 @@ void board_pinmux_setup(void)
 
 #elif defined(CONFIG_BCM7584)
 
-	if (BRCM_PROD_ID() == 0x7584) {
+	if (BRCM_PROD_ID() == 0x7583) {
+		/* 7583 ballout - SD card on alt pins, GENET_1 disabled */
+		AON_PINMUX(1, aon_gpio_12, 5);
+		AON_PINMUX(1, aon_gpio_13, 5);
+		AON_PINMUX(2, aon_gpio_14, 4);
+		AON_PINMUX(2, aon_gpio_15, 5);
+		AON_PINMUX(2, aon_gpio_16, 5);
+		AON_PINMUX(2, aon_gpio_17, 5);
+		AON_PINMUX(2, aon_gpio_18, 5);
+		AON_PINMUX(2, aon_gpio_19, 5);
+		AON_PINMUX(2, aon_gpio_20, 5);
+
+		AON_PADCTRL(1, aon_gpio_12_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_13_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_14_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_15_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_16_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_17_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_18_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_19_pad_ctrl, 2);
+		AON_PADCTRL(1, aon_gpio_20_pad_ctrl, 2);
+	} else {
 		/* external BCM3349 on GENET_1 using reverse MII */
 		PINMUX(0, gpio_00, 2);
 		PINMUX(0, gpio_01, 2);
@@ -678,27 +705,6 @@ void board_pinmux_setup(void)
 		PADCTRL(8, gpio_120_pad_ctrl, 2);
 		PADCTRL(8, gpio_121_pad_ctrl, 2);
 		PADCTRL(8, gpio_122_pad_ctrl, 2);
-	} else {
-		/* 7583 ballout - SD card on alt pins, GENET_1 disabled */
-		AON_PINMUX(1, aon_gpio_12, 5);
-		AON_PINMUX(1, aon_gpio_13, 5);
-		AON_PINMUX(2, aon_gpio_14, 4);
-		AON_PINMUX(2, aon_gpio_15, 5);
-		AON_PINMUX(2, aon_gpio_16, 5);
-		AON_PINMUX(2, aon_gpio_17, 5);
-		AON_PINMUX(2, aon_gpio_18, 5);
-		AON_PINMUX(2, aon_gpio_19, 5);
-		AON_PINMUX(2, aon_gpio_20, 5);
-
-		AON_PADCTRL(1, aon_gpio_12_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_13_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_14_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_15_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_16_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_17_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_18_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_19_pad_ctrl, 2);
-		AON_PADCTRL(1, aon_gpio_20_pad_ctrl, 2);
 	}
 
 	PINMUX(11, gpio_89, 1);		/* UARTB TX */
@@ -711,6 +717,9 @@ void board_pinmux_setup(void)
 	PINMUX(13, gpio_105, 1);	/* ENET activity */
 
 #endif /* chip type */
+#if defined(BCHP_SDIO_1_BOOT_REG_START)
+	BDEV_UNSET(BCHP_SDIO_1_BOOT_REG_START, 1);
+#endif
 #endif /* !defined(CONFIG_BRCM_IKOS) */
 }
 

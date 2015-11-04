@@ -40,7 +40,8 @@
 #include <linux/version.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/flash.h>
-#include "../drivers/mmc/host/sdhci-pltfm.h"
+#include <linux/mmc/host.h>
+#include "../drivers/mmc/host/sdhci-brcmstb.h"
 
 #include <linux/brcmstb/brcmstb.h>
 
@@ -283,12 +284,14 @@ static void __init brcm_add_sdio_host(int id, uintptr_t cfg_base,
 	uintptr_t host_base, int irq)
 {
 	struct resource res[3];
+	struct sdhci_brcmstb_pdata pdata;
 
 	if (nommc) {
 		printk(KERN_INFO "SDIO_%d: disabled via command line\n", id);
 		return;
 	}
 	memset(&res, 0, sizeof(res));
+	memset(&pdata, 0, sizeof(res));
 	res[0].start = BPHYSADDR(host_base);
 	res[0].end = BPHYSADDR(host_base + 0xff);
 	res[0].flags = IORESOURCE_MEM;
@@ -300,8 +303,14 @@ static void __init brcm_add_sdio_host(int id, uintptr_t cfg_base,
 	res[2].start = res[2].end = irq;
 	res[2].flags = IORESOURCE_IRQ;
 
-	platform_device_register_simple("sdhci-brcmstb", id, res,
-					ARRAY_SIZE(res));
+	/* second controller is for eMMC */
+	if (id == 1) {
+		pdata.caps |= (MMC_CAP_NONREMOVABLE | MMC_CAP_8_BIT_DATA);
+		pdata.caps2 |= MMC_CAP2_NO_SLEEP_CMD;
+	}
+	platform_device_register_resndata(NULL, "sdhci-brcmstb", id, res,
+					ARRAY_SIZE(res), &pdata,
+					sizeof(pdata));
 }
 
 #endif /* defined(CONFIG_BRCM_SDIO) */
@@ -509,6 +518,7 @@ static void __init brcm_register_moca(int enet_id)
 	struct platform_device *pdev;
 	struct moca_platform_data pdata;
 	u8 macaddr[ETH_ALEN];
+	u32 val;
 
 	bchip_moca_init();
 
@@ -531,7 +541,14 @@ static void __init brcm_register_moca(int enet_id)
 	pdata.enet_id = enet_id;
 	pdata.bcm3450_i2c_addr = 0x70;
 	pdata.bcm3450_i2c_base = brcm_moca_i2c_base;
-	pdata.chip_id = (BRCM_CHIP_ID() << 16) | (BRCM_CHIP_REV() + 0xa0);
+
+	val = BDEV_RD(BCHP_SUN_TOP_CTRL_CHIP_FAMILY_ID);
+	/* Handle 4 vs. 5 digits chip ID */
+	if (val >> 28)
+		pdata.chip_id = (val >> 16) << 16;
+	else
+		pdata.chip_id = (val >> 8) << 8;
+	pdata.chip_id |= (BRCM_CHIP_REV() + 0xa0);
 	pdata.hw_rev = CONFIG_BRCM_MOCA_VERS;
 	pdata.rf_band = brcm_moca_rf_band;
 

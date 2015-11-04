@@ -1519,6 +1519,54 @@ static u32 moca_3450_read_i2c(struct moca_priv_data *priv, u8 addr)
 #define BCM3450_PACNTL		0x18
 #define BCM3450_MISC		0x1c
 
+static int moca_3450_get_reg(struct moca_priv_data *priv, void __user *arg)
+{
+	struct moca_xfer x;
+	u32 *dst;
+	u32 val;
+
+	if (!priv->i2c_base)
+		return -ENODEV;
+
+	if (copy_from_user(&x, arg, sizeof(x)))
+		return -EFAULT;
+
+	dst = (u32 *)(uintptr_t)x.buf;
+
+	mutex_lock(&priv->moca_i2c_mutex);
+	val = moca_3450_read(priv, x.moca_addr);
+	mutex_unlock(&priv->moca_i2c_mutex);
+
+	if (put_user(val, dst))
+		return -EFAULT;
+
+	return 0;
+}
+
+static int moca_3450_set_reg(struct moca_priv_data *priv, void __user *arg)
+{
+	struct moca_xfer x;
+	u32 val, ret = 0;
+
+	if (!priv->i2c_base)
+		return -ENODEV;
+
+	if (copy_from_user(&x, arg, sizeof(x)))
+		return -EFAULT;
+
+	mutex_lock(&priv->moca_i2c_mutex);
+	if (get_user(val, (u32 *)(uintptr_t)x.buf)) {
+		ret = -EFAULT;
+		goto err_out;
+	}
+	moca_3450_write(priv, x.moca_addr, val);
+
+err_out:
+	mutex_unlock(&priv->moca_i2c_mutex);
+
+	return ret;
+}
+
 static void moca_3450_init(struct moca_priv_data *priv, int action)
 {
 	u32 data;
@@ -1920,6 +1968,12 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 		break;
 	case MOCA_IOCTL_GET_PROC_INFO:
 		ret = moca_get_proc_info(priv, (void __user *)arg);
+		break;
+	case MOCA_IOCTL_GET_3450_REG:
+		ret = moca_3450_get_reg(priv, (void __user *)arg);
+		break;
+	case MOCA_IOCTL_SET_3450_REG:
+		ret = moca_3450_set_reg(priv, (void __user *)arg);
 		break;
 	}
 	mutex_unlock(&priv->dev_mutex);

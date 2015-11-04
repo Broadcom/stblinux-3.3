@@ -24,6 +24,7 @@
 #include <linux/brcmstb/brcmstb.h>
 
 #include "sdhci-pltfm.h"
+#include "sdhci-brcmstb.h"
 
 #define SDIO_CFG_REG(x, y)	(x + BCHP_SDIO_0_CFG_##y - \
 				 BCHP_SDIO_0_CFG_REG_START)
@@ -135,7 +136,8 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 #elif defined(CONFIG_BCM7425)
 	/*
 	 * HW7425-1352: Disable TUNING because it's broken.
-	 * Use manual input clock delay to work around 7425B2 timing issues.
+	 * Use manual input and output clock delays to work around
+	 * 7425B2 timing issues.
 	 */
 	if (BRCM_CHIP_REV() == 0x12) {
 		/* disable tuning */
@@ -146,6 +148,11 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 		SDIO_CFG_FIELD(cfg_base, IP_DLY, IP_TAP_DELAY, 8);
 		SDIO_CFG_FIELD(cfg_base, IP_DLY, IP_DELAY_CTRL, 1);
 		SDIO_CFG_SET(cfg_base, IP_DLY, IP_TAP_EN);
+
+		/* enable output delay */
+		SDIO_CFG_FIELD(cfg_base, OP_DLY, OP_TAP_DELAY, 4);
+		SDIO_CFG_FIELD(cfg_base, OP_DLY, OP_DELAY_CTRL, 3);
+		SDIO_CFG_SET(cfg_base, OP_DLY, OP_TAP_EN);
 
 		/* Use the manual clock delay */
 		SDIO_CFG_FIELD(cfg_base, SD_CLOCK_DELAY, INPUT_CLOCK_DELAY, 8);
@@ -210,7 +217,7 @@ static struct sdhci_ops sdhci_brcmstb_ops = {
 	.write_l	= sdhci_brcmstb_writel,
 };
 
-static struct sdhci_pltfm_data sdhci_brcmstb_pdata = {
+static struct sdhci_pltfm_data sdhci_brcmstb_pltfm_data = {
 	.ops	= &sdhci_brcmstb_ops,
 	.quirks2 = SDHCI_QUIRK2_NO_1_8_V
 };
@@ -218,13 +225,22 @@ static struct sdhci_pltfm_data sdhci_brcmstb_pdata = {
 
 static int __devinit sdhci_brcmstb_probe(struct platform_device *pdev)
 {
+	int res;
+	struct sdhci_brcmstb_pdata *pdata = pdev->dev.platform_data;
+
 	if (!sdhci_brcmstb_supported()) {
 		dev_info(&pdev->dev, "Disabled, unsupported chip revision\n");
 		return -ENODEV;
 	}
 	if (sdhci_brcmstb_config(pdev) != 0)
 		return -ENODEV;
-	return sdhci_pltfm_register(pdev, &sdhci_brcmstb_pdata);
+	res = sdhci_pltfm_register(pdev, &sdhci_brcmstb_pltfm_data);
+	if (!res) {
+		struct sdhci_host *host = platform_get_drvdata(pdev);
+		host->mmc->caps |= pdata->caps;
+		host->mmc->caps2 |= pdata->caps2;
+	}
+	return res;
 }
 
 static int __devexit sdhci_brcmstb_remove(struct platform_device *pdev)
