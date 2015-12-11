@@ -3,26 +3,26 @@
     Copyright (c) 2001-2007 Broadcom Corporation                 /\
                                                           _     /  \     _
     _____________________________________________________/ \   /    \   / \_
-                                                            \_/      \_/  
+                                                            \_/      \_/
 
  Copyright (c) 2007 Broadcom Corporation
  All rights reserved.
- 
+
  Redistribution and use of this software in source and binary forms, with or
  without modification, are permitted provided that the following conditions
  are met:
- 
+
  * Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
- 
+
  * Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
- 
+
  * Neither the name of Broadcom Corporation nor the names of its contributors
    may be used to endorse or promote products derived from this software
    without specific prior written permission of Broadcom Corporation.
- 
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -179,7 +179,7 @@ static int run(char *prog, ...)
 	pid = fork();
 	if(pid < 0)
 		return(-1);
-	
+
 	if(pid != 0)
 	{
 		wait(&status);
@@ -218,7 +218,9 @@ static int brcm_pm_eth1_check(void)
 
 	drvinfo.cmd = ETHTOOL_GDRVINFO;
 	ifr.ifr_data = (caddr_t)&drvinfo;
-	strcpy(ifr.ifr_name, "eth1");
+	strncpy(ifr.ifr_name, "eth1", sizeof(ifr.ifr_name));
+	/* strncpy doesn't guarantee NULL termination, so we have to */
+	ifr.ifr_name[sizeof(ifr.ifr_name) - 1] = '\0';
 
 	if(ioctl(fd, SIOCETHTOOL, &ifr) == 0) {
 		if(strcmp(drvinfo.driver, "BCMINTMAC") == 0)
@@ -247,12 +249,12 @@ void *brcm_pm_init(void)
 		/* cpufreq not supported on this platform */
 		ctx->last_state.cpu_base = BRCM_PM_UNDEF;
 	}
-	
+
 	if(brcm_pm_get_status(ctx, &ctx->last_state) != 0)
 		goto bad_free;
-	
+
 	ctx->has_eth1 = brcm_pm_eth1_check();
-	
+
 	return(ctx);
 
 bad_free:
@@ -311,8 +313,12 @@ static char* chomp(char* string)
 static int check_if_directory(char* path)
 {
 	struct stat stat;
-	lstat(path, &stat);
-	/* uclibc glob() did not accept GLOB_ONLYDIR, so filter out 
+
+	/* It's not a directory if it doesn't exist. */
+	if (lstat(path, &stat) < 0)
+		return 0;
+
+	/* uclibc glob() did not accept GLOB_ONLYDIR, so filter out
 	 * non-directories and symlinks.
 	 * This will guarantee we will eventually break recursion
 	 */
@@ -327,8 +333,7 @@ static int brcm_pm_scan_tree(char* path, int (*func)(char*, int), int status)
 	glob_t g;
 	int i, retval = 0;
 	/* Going one level lower */
-	strcpy(newpath, path);
-	strcat(newpath, "/*");
+	snprintf(newpath, sizeof(newpath), "%s/*", path);
 	if (glob(newpath, GLOB_NOSORT, NULL, &g) != 0)
 		return 0;
 	for (i = 0; i < (int)g.gl_pathc; i++) {
@@ -340,7 +345,7 @@ static int brcm_pm_scan_tree(char* path, int (*func)(char*, int), int status)
 	globfree(&g);
 
 	return retval;
-	
+
 }
 
 static int brcm_pm_get_one_status(char* path, int status)
@@ -352,8 +357,8 @@ static int brcm_pm_get_one_status(char* path, int status)
 		return 0;
 
 	/* This is strictly 2.6.31 case */
-	strcpy(level_file_path, path);
-	strcat(level_file_path, POWER_LEVEL);
+	snprintf(level_file_path, sizeof(level_file_path), "%s%s", path,
+		 POWER_LEVEL);
 	if (sysfs_get_string(level_file_path, level_string, sizeof level_string))
 		return 0;
 
@@ -373,7 +378,7 @@ static int brcm_pm_usb_get_status(void)
 	if (glob(USB_RT_STATUS_GLOB POWER_RT_STATUS, GLOB_NOSORT, NULL, &g) != 0) {
 		/* No 'runtime_status' files found - must be 2.6.31
 		 * In this case (1) traverse the whole tree,
-		 * (2) check if any level file is 'on'. If none are found assume 
+		 * (2) check if any level file is 'on'. If none are found assume
 		 * USB is suspended. This may be not true, but it is the best we can do.
 		 */
 		if (glob(USB_RT_STATUS_GLOB, GLOB_NOSORT, NULL, &g) != 0)
@@ -415,8 +420,8 @@ static int brcm_pm_set_one_status(char* path, int status)
 	char status_string[32];
 
 	/* Verify runtime_status */
-	strcpy(status_file_path, path);
-	strcat(status_file_path, POWER_RT_STATUS);
+	snprintf(status_file_path, sizeof(status_file_path), "%s%s", path,
+		 POWER_RT_STATUS);
 	if (!sysfs_get_string(status_file_path, status_string, sizeof status_string)) {
 		chomp(status_string);
 		if (!strncmp(status_string, STATUS_UNSUPPORTED, strlen(status_string)))
@@ -426,26 +431,26 @@ static int brcm_pm_set_one_status(char* path, int status)
 	/* Okay, autosuspend is supported by the device */
 	if (status) {
 		/* turn device on, autosuspend off */
-		strcpy(status_file_path, path);
-		strcat(status_file_path, POWER_CONTROL);
+		snprintf(status_file_path, sizeof(status_file_path), "%s%s",
+			 path, POWER_CONTROL);
 		if (sysfs_set_string(status_file_path, CONTROL_ON)) {
 			/* for 2.6.31 which does not have "control" entry */
-			strcpy(status_file_path, path);
-			strcat(status_file_path, POWER_LEVEL);
+			snprintf(status_file_path, sizeof(status_file_path),
+				 "%s%s", path, POWER_LEVEL);
 			sysfs_set_string(status_file_path, CONTROL_ON);
 		}
 	}
 	else {
 		/* autosuspend on, default timeout 2 seconds */
-		strcpy(status_file_path, path);
-		strcat(status_file_path, POWER_AUTOSUSPEND);
+		snprintf(status_file_path, sizeof(status_file_path), "%s%s",
+			 path, POWER_AUTOSUSPEND);
 		sysfs_set(status_file_path, 2);
-		strcpy(status_file_path, path);
-		strcat(status_file_path, POWER_CONTROL);
+		snprintf(status_file_path, sizeof(status_file_path), "%s%s",
+			 path, POWER_CONTROL);
 		if (sysfs_set_string(status_file_path, CONTROL_AUTO)) {
 			/* for 2.6.31 which does not have "control" entry */
-			strcpy(status_file_path, path);
-			strcat(status_file_path, POWER_LEVEL);
+			snprintf(status_file_path, sizeof(status_file_path),
+				 "%s%s", path, POWER_LEVEL);
 			sysfs_set_string(status_file_path, CONTROL_AUTO);
 		}
 	}
@@ -461,7 +466,7 @@ static int brcm_pm_usb_set_status(int status)
 	 * and all the devices attached.
 	 * NOTE: this does not guarantee that USB is suspended,
 	 * because interface drivers must be closed as well.
-	 * How it is done depends on class of the interface - for 
+	 * How it is done depends on class of the interface - for
 	 * usbnet it is ifdown, for usb-storage - unmount, etc.
 	 */
 	if (glob(USB_RT_STATUS_GLOB, GLOB_NOSORT, NULL, &g) != 0)
@@ -572,7 +577,7 @@ int brcm_pm_set_status(void *vctx, struct brcm_pm_state *st)
 	((st->element != BRCM_PM_UNDEF) && \
 	 (st->element != ctx->last_state.element))
 
-	
+
 	if(CHANGED(usb_status))
 	{
 		brcm_pm_usb_set_status(!!st->usb_status);

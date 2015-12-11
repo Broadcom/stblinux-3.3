@@ -868,7 +868,6 @@ static int bcmspi_emulate_flash_read(struct bcmspi_priv *priv,
 #endif
 
 	addr = (buf[idx] << 16) | (buf[idx+1] << 8) | buf[idx+2];
-	addr = (addr + 0xc00000) & 0xffffff;
 	addr |= priv->bspi_hw->flash_upper_addr_byte;
 
 	/* second transfer - read result into buffer */
@@ -1520,15 +1519,6 @@ static int bcmspi_probe(struct platform_device *pdev)
 
 	tasklet_init(&priv->tasklet, bcmspi_tasklet, (unsigned long)priv);
 
-	if (bcmspi_is_4_byte_mode(priv))
-		bcmspi_enable_disable_4byte_addressing(priv,
-						       BSPI_ADDRLEN_4BYTES);
-
-	ret = spi_register_master(master);
-	if (ret < 0) {
-		dev_err(&pdev->dev, "can't register master\n");
-		goto err1;
-	}
 	if (!default_master)
 		default_master = master;
 
@@ -1538,14 +1528,25 @@ static int bcmspi_probe(struct platform_device *pdev)
 	priv->flex_mode.hp = -1;
 
 	if (priv->bspi_chip_select) {
-		if ((BDEV_RD(BCHP_BSPI_STRAP_OVERRIDE_CTRL) &
-		     BCHP_BSPI_STRAP_OVERRIDE_CTRL_data_quad_MASK)) {
+		if (bspi_width == BSPI_WIDTH_4BIT ||
+		    ((BDEV_RD(BCHP_BSPI_STRAP_OVERRIDE_CTRL) &
+		      BCHP_BSPI_STRAP_OVERRIDE_CTRL_data_quad_MASK))) {
 			if (bcmspi_set_quad_mode(priv, BSPI_WIDTH_4BIT))
 				bspi_width = BSPI_WIDTH_1BIT;
 			else
 				bspi_width = BSPI_WIDTH_4BIT;
 		}
 		bcmspi_set_mode(priv, bspi_width, bspi_addrlen, bspi_hp);
+	}
+
+	if (bcmspi_is_4_byte_mode(priv))
+		bcmspi_enable_disable_4byte_addressing(priv,
+						       BSPI_ADDRLEN_4BYTES);
+
+	ret = spi_register_master(master);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "can't register master\n");
+		goto err1;
 	}
 
 	return 0;

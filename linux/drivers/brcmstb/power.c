@@ -1719,8 +1719,10 @@ static __maybe_unused void bcm40nm_pm_usb_disable_s3(void)
 	usb_cfg[1] = BDEV_RD(BCHP_USB_CTRL_EBRIDGE);
 #endif
 #ifdef BCHP_USB1_CTRL_SETUP
-	usb_cfg[2] = BDEV_RD(BCHP_USB1_CTRL_SETUP);
-	usb_cfg[3] = BDEV_RD(BCHP_USB1_CTRL_EBRIDGE);
+	if (BRCM_PROD_ID() != 0x74285) {
+		usb_cfg[2] = BDEV_RD(BCHP_USB1_CTRL_SETUP);
+		usb_cfg[3] = BDEV_RD(BCHP_USB1_CTRL_EBRIDGE);
+	}
 #endif
 }
 
@@ -1734,8 +1736,10 @@ static __maybe_unused void bcm40nm_pm_usb_enable_s3(void)
 	BDEV_WR_RB(BCHP_USB_CTRL_EBRIDGE, usb_cfg[1]);
 #endif
 #ifdef BCHP_USB1_CTRL_SETUP
-	BDEV_WR_RB(BCHP_USB1_CTRL_SETUP, usb_cfg[2]);
-	BDEV_WR_RB(BCHP_USB1_CTRL_EBRIDGE, usb_cfg[3]);
+	if (BRCM_PROD_ID() != 0x74285) {
+		BDEV_WR_RB(BCHP_USB1_CTRL_SETUP, usb_cfg[2]);
+		BDEV_WR_RB(BCHP_USB1_CTRL_EBRIDGE, usb_cfg[3]);
+	}
 #endif
 	mdelay(500);
 	bchip_usb_init();
@@ -1813,11 +1817,13 @@ static void bcm40nm_pm_usb_disable(u32 flags)
 
 	/* USB1 */
 	/* power down USB PHY */
-	BDEV_SET(BCHP_USB1_CTRL_PLL_CTL,
-		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
-	/* power down USB PLL */
-	BDEV_UNSET(BCHP_USB1_CTRL_PLL_CTL,
-		BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+	if (BRCM_PROD_ID() != 0x74285) {
+		BDEV_SET(BCHP_USB1_CTRL_PLL_CTL,
+			BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+		/* power down USB PLL */
+		BDEV_UNSET(BCHP_USB1_CTRL_PLL_CTL,
+			BCHP_USB_CTRL_PLL_CTL_PLL_PWRDWNB_MASK);
+	}
 
 	SRAM_OFF_1i(USB1);
 
@@ -1868,11 +1874,13 @@ static void bcm40nm_pm_usb_enable(u32 flags)
 	SRAM_ON_1i(USB1);
 
 	/* power up USB PLL */
-	BDEV_SET(BCHP_USB1_CTRL_PLL_CTL,
-		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
-	/* power up USB PHY */
-	BDEV_UNSET(BCHP_USB1_CTRL_PLL_CTL,
-		BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+	if (BRCM_PROD_ID() != 0x74285) {
+		BDEV_SET(BCHP_USB1_CTRL_PLL_CTL,
+			BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+		/* power up USB PHY */
+		BDEV_UNSET(BCHP_USB1_CTRL_PLL_CTL,
+			BCHP_USB_CTRL_PLL_CTL_PLL_IDDQ_PWRDN_MASK);
+	}
 
 	bcm40nm_pm_usb_enable_s3();
 }

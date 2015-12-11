@@ -291,7 +291,7 @@ static void __init brcm_add_sdio_host(int id, uintptr_t cfg_base,
 		return;
 	}
 	memset(&res, 0, sizeof(res));
-	memset(&pdata, 0, sizeof(res));
+	memset(&pdata, 0, sizeof(pdata));
 	res[0].start = BPHYSADDR(host_base);
 	res[0].end = BPHYSADDR(host_base + 0xff);
 	res[0].flags = IORESOURCE_MEM;
@@ -381,6 +381,10 @@ static void __init brcm_add_usb_hosts(void)
 				    0 };
 	unsigned long capp, cap;
 	int i, ehci_id = 0, ohci_id = 0;
+
+	/* The second USB is OTP'd out */
+	if (BRCM_PROD_ID() == 0x74285)
+		caplist[1] = 0;
 
 	for (i = 0; caplist[i] != 0; i++) {
 		capp = caplist[i];

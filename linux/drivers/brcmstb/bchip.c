@@ -381,7 +381,8 @@ void bchip_usb_init(void)
 {
 	bchip_usb_init_one(0, BCHP_USB_CTRL_REG_START);
 #ifdef BCHP_USB1_CTRL_REG_START
-	bchip_usb_init_one(1, BCHP_USB1_CTRL_REG_START);
+	if (BRCM_PROD_ID() != 0x74285)
+		bchip_usb_init_one(1, BCHP_USB1_CTRL_REG_START);
 #endif
 }
 
