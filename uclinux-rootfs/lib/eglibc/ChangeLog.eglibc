@@ -1,3 +1,11 @@
+2015-09-23  Dragan Stancevic  <dragans@broadcom.com>
+
+	* include/stdc-predef.h:  Added predefs.h contents.
+	* include/stdc-predef.h:  Added if __arm__ macros.
+	* Makefile (headers): Remove bits/predefs.h.
+	* bits/predefs.h: Remove file.
+	* ports/sysdeps/arm/bits/predefs.h: Remove file.
+
 2013-05-17  Joseph Myers  <joseph@codesourcery.com>
 
 	* configure.in, math/Makefile, math/gen-libm-test.pl,

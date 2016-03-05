@@ -124,6 +124,7 @@ void __init bchip_check_compat(void)
 #elif defined(CONFIG_BCM7552)
 	MAIN_CHIP_ID(7552, b0);
 #elif defined(CONFIG_BCM7563)
+	ALT_CHIP_ID(75525, a0);
 	ALT_CHIP_ID(75635, a0);
 	MAIN_CHIP_ID(7563, a0);
 #elif defined(CONFIG_BCM7584)

@@ -26,8 +26,20 @@
    explicitly includes a system header.  GCC knows the name of this
    header in order to preinclude it.  */
 
-/* Define __STDC_IEC_559__ and other similar macros.  */
-#include <bits/predefs.h>
+#if defined(__arm__) // __arm__
+/* We do support the IEC 559 math functionality, real and complex, but only
+   if a VFP coprocessor is present. If we don't have one, we fall back to
+   software emulation and the functions won't work properly. So in general,
+   we don't claim to support this functionality.  */
+#if defined (__VFP_FP__) && !defined(__SOFTFP__)
+#define __STDC_IEC_559__		1
+#define __STDC_IEC_559_COMPLEX__	1
+#endif
+#else // __arm__
+/* We do support the IEC 559 math functionality, real and complex.  */
+#define __STDC_IEC_559__		1
+#define __STDC_IEC_559_COMPLEX__	1
+#endif // __arm__
 
 /* wchar_t uses ISO/IEC 10646 (2nd ed., published 2011-03-15) /
    Unicode 6.0.  */
@@ -37,3 +49,4 @@
 #define __STDC_NO_THREADS__		1
 
 #endif
+

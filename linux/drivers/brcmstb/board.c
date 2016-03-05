@@ -611,6 +611,20 @@ void board_pinmux_setup(void)
 	AON_PADCTRL(1, aon_gpio_19_pad_ctrl, 2);
 	AON_PADCTRL(1, aon_gpio_20_pad_ctrl, 2);
 
+/*
+ * 75525 workarounds are needed because the RDB has changed but
+ * 75525 support is done using ALT_CHIP_ID() for the 7563 which
+ * means we can't included the proper RDB header files.
+ * 1. Locally define the new SD_PIN_SEL register.
+ * 2. The BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0 has a new field,
+ *    "sdio1_alt_pin_sel", which needs to be cleared when
+ *    selecting the AON pins via pinmux.
+ */
+#define BCHP_SDIO_0_CFG_SD_PIN_SEL 0x00410354
+	if (BRCM_CHIP_ID() == 0x75525) {
+		BDEV_WR(SDIO_CFG_REG(0, SD_PIN_SEL), 0x00000002);
+		BDEV_UNSET(BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0, 0x00000001);
+	}
 #elif defined(CONFIG_BCM7584)
 
 	if (BRCM_PROD_ID() == 0x7583) {
@@ -715,6 +729,11 @@ void board_pinmux_setup(void)
 
 	AON_PINMUX(0, aon_gpio_01, 1);	/* ENET link */
 	PINMUX(13, gpio_105, 1);	/* ENET activity */
+
+	/* Bootloader indicates disable of SDIO_1 in SCRATCH reg */
+	if ((BDEV_RD(SDIO_CFG_REG(1, SCRATCH)) & 0x01) == 0)
+		/* Set SDIO1 to eMMC */
+		BDEV_SET(BCHP_HIF_TOP_CTRL_EMMC_PIN_CTRL, 0x00000001);
 
 #endif /* chip type */
 #if defined(BCHP_SDIO_1_BOOT_REG_START)

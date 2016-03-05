@@ -11,6 +11,7 @@ export CC CFLAGS
 .PHONY: all
 all::
 	if [ ! -e Makefile ]; then \
+		MAKEINFO=missing \
 		./configure --disable-shared --host=$(MACHINE)-linux || \
 			exit 1 ; \
 	fi

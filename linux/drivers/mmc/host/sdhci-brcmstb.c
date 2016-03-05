@@ -159,6 +159,11 @@ static int sdhci_brcmstb_config(struct platform_device *pdev)
 	}
 #elif defined(CONFIG_BCM7563A0)
 	sdhci_override_caps(cfg_base, 50, 50, SDHCI_OVERRIDE_OPTIONS_NONE);
+#elif defined(CONFIG_BCM7584A0)
+	/* enable output delay */
+	SDIO_CFG_FIELD(cfg_base, OP_DLY, OP_TAP_DELAY, 4);
+	SDIO_CFG_FIELD(cfg_base, OP_DLY, OP_DELAY_CTRL, 3);
+	SDIO_CFG_SET(cfg_base, OP_DLY, OP_TAP_EN);
 #endif
 	return 0;
 }

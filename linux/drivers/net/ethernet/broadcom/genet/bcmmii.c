@@ -247,7 +247,7 @@ void bcmgenet_ephy_workaround(struct net_device *dev)
 	bcmgenet_mii_write(dev, phy_id, 0xf, 0x0002);
 
 	/* reset shadow mode 2 */
-	bcmgenet_mii_set_clr_bits(dev, 0x1f, 0x0004, 0);
+	bcmgenet_mii_set_clr_bits(dev, 0x1f, 0, 0x0004);
 
 }
 
