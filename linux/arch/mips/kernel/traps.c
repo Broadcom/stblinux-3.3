@@ -681,15 +681,20 @@ asmlinkage void do_ov(struct pt_regs *regs)
 
 static int process_fpemu_return(int sig, void __user *fault_addr)
 {
+	struct vm_area_struct *vma;
+
 	if (sig == SIGSEGV || sig == SIGBUS) {
 		struct siginfo si = {0};
 		si.si_addr = fault_addr;
 		si.si_signo = sig;
 		if (sig == SIGSEGV) {
-			if (find_vma(current->mm, (unsigned long)fault_addr))
+			down_read(&current->mm->mmap_sem);
+			vma = find_vma(current->mm, (unsigned long)fault_addr);
+			if (vma && (vma->vm_start <= (unsigned long)fault_addr))
 				si.si_code = SEGV_ACCERR;
 			else
 				si.si_code = SEGV_MAPERR;
+			up_read(&current->mm->mmap_sem);
 		} else {
 			si.si_code = BUS_ADRERR;
 		}
