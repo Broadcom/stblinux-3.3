@@ -305,8 +305,8 @@ static void bmips_fixup_irqs(void)
 	 *  All interrupts for this cpu must be disabled.
 	 *  If an interrupt was only routed to this cpu,
 	 *  it must be migrated to another cpu.
-	 *  Code TBD, see SWLINUX-2624
 	 */
+	irq_cpu_offline();
 
 	/*
 	 * MIPS CPUs have a per-processor counter compare register.

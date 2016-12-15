@@ -152,7 +152,7 @@ ACLOCAL_AMFLAGS = -I m4
 MAKEINFO = env LANG= LANGUAGE= @MAKEINFO@
 
 gettextsrcdir = $(datadir)/gettext
-gettextsrc_DATA = ABOUT-NLS
+gettextsrc_DATA =
 gettextsrc_SCRIPTS = config.rpath mkinstalldirs
 
 SUBDIRS = doc intl intl-java lib libuniname src po projects misc man m4 tests

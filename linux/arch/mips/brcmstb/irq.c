@@ -208,6 +208,30 @@ static int brcm_intc_set_affinity(struct irq_data *d,
 	local_irq_restore(flags);
 	return 0;
 }
+
+static void brcm_intc_cpu_offline(struct irq_data *data)
+{
+	int cpu = smp_processor_id();
+	cpumask_t new_affinity;
+
+	/* This CPU was not present on the affinity mask, don't care */
+	if (!cpumask_test_cpu(cpu, data->affinity))
+		return;
+
+	if (cpumask_weight(data->affinity) > 1) {
+		/* Multiple CPU affinity, remove this CPU from
+		 * the affinity set
+		 */
+		cpumask_copy(&new_affinity, data->affinity);
+		cpumask_clear_cpu(cpu, &new_affinity);
+	} else {
+		/* Put on the lowest numbered online CPU */
+		cpumask_clear(&new_affinity);
+		cpumask_set_cpu(cpumask_first(cpu_online_mask), &new_affinity);
+	}
+	__irq_set_affinity_locked(data, &new_affinity);
+
+}
 #endif /* CONFIG_SMP */
 
 /*
@@ -221,6 +245,7 @@ static struct irq_chip brcm_intc_type = {
 	.irq_unmask		= brcm_intc_enable,
 #ifdef CONFIG_SMP
 	.irq_set_affinity	= brcm_intc_set_affinity,
+	.irq_cpu_offline	= brcm_intc_cpu_offline,
 #endif /* CONFIG_SMP */
 	NULL
 };
