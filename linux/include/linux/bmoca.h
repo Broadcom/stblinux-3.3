@@ -56,7 +56,6 @@
 #define MOCA_IOCTL_SET_PHY_RATE	_IOR(MOCA_IOC_MAGIC, 8, unsigned int)
 #define MOCA_IOCTL_GET_3450_REG	_IOR(MOCA_IOC_MAGIC, 9, unsigned int) /* Reserved */
 #define MOCA_IOCTL_SET_3450_REG	_IOR(MOCA_IOC_MAGIC, 10, unsigned int) /* Reserved */
-#define MOCA_IOCTL_GET_PROC_INFO _IOR(MOCA_IOC_MAGIC, 13, unsigned long)
 
 #define MOCA_DEVICE_ID_UNREGISTERED  (-1)
 

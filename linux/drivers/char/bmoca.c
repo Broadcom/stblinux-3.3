@@ -175,7 +175,6 @@ struct moca_priv_data {
 	struct work_struct	work;
 	void __iomem		*base;
 	void __iomem		*i2c_base;
-	void __iomem		*proc_base;
 
 	unsigned int		mbx_offset[2]; /* indexed by MoCA cpu */
 	struct page		*fw_pages[MAX_FW_PAGES];
@@ -1839,54 +1838,6 @@ static int moca_ioctl_check_for_data(struct moca_priv_data *priv,
 	return 0;
 }
 
-unsigned int moca_get_proc_info(struct moca_priv_data *priv,
-		unsigned int *arg)
-{
-#ifdef BCHP_JTAG_OTP_REG_START
-#define JTAG_OTP_GENERAL_CTRL_0_OFFSET		0x0
-#define JTAG_OTP_GENERAL_CTRL_1_OFFSET		0x4
-#define JTAG_OTP_GENERAL_CTRL_3_OFFSET		0xc
-#define JTAG_OTP_GENERAL_STATUS_0_OFFSET	0x14
-#define JTAG_OTP_GENERAL_STATUS_1_OFFSET	0x18
-
-	unsigned int reg;
-	unsigned int read_data = 0;
-	int count = 0;
-
-	if (priv->proc_base) {
-		reg = MOCA_RD(priv->proc_base +
-			      JTAG_OTP_GENERAL_CTRL_1_OFFSET);
-		MOCA_WR(priv->proc_base + JTAG_OTP_GENERAL_CTRL_1_OFFSET,
-			(reg | 1));
-		MOCA_WR(priv->proc_base + JTAG_OTP_GENERAL_CTRL_3_OFFSET,
-			96);
-		MOCA_WR(priv->proc_base + JTAG_OTP_GENERAL_CTRL_0_OFFSET,
-			0);
-		MOCA_WR(priv->proc_base + JTAG_OTP_GENERAL_CTRL_0_OFFSET,
-			0xA00001);
-
-		reg = MOCA_RD(priv->proc_base +
-			      JTAG_OTP_GENERAL_STATUS_1_OFFSET);
-		while ((reg & 1) == 0) {
-			msleep(10);
-			reg = MOCA_RD(priv->proc_base +
-				      JTAG_OTP_GENERAL_STATUS_1_OFFSET);
-			count++;
-		}
-		read_data = MOCA_RD(priv->proc_base +
-				    JTAG_OTP_GENERAL_STATUS_0_OFFSET);
-		MOCA_WR(priv->proc_base + JTAG_OTP_GENERAL_CTRL_0_OFFSET, 0);
-	}
-
-	if (copy_to_user((void *)arg, &read_data, sizeof(read_data)))
-		return -EFAULT;
-
-	return 0;
-#else
-	return -EOPNOTSUPP;
-#endif
-}
-
 static long moca_file_ioctl(struct file *file, unsigned int cmd,
 	unsigned long arg)
 {
@@ -1965,9 +1916,6 @@ static long moca_file_ioctl(struct file *file, unsigned int cmd,
 			ret = -EIO;
 		else
 			ret = clk_set_rate(priv->phy_clk, (unsigned int)arg);
-		break;
-	case MOCA_IOCTL_GET_PROC_INFO:
-		ret = moca_get_proc_info(priv, (void __user *)arg);
 		break;
 	case MOCA_IOCTL_GET_3450_REG:
 		ret = moca_3450_get_reg(priv, (void __user *)arg);
@@ -2229,8 +2177,6 @@ static int moca_probe(struct platform_device *pdev)
 	priv->cpu_clk = clk_get(&pdev->dev, "moca-cpu");
 	priv->phy_clk = clk_get(&pdev->dev, "moca-phy");
 
-	priv->proc_base = NULL;
-
 	priv->hw_rev = pd->hw_rev;
 	if (pd->hw_rev == HWREV_MOCA_11_PLUS)
 		priv->regs = &regs_11_plus;
@@ -2239,13 +2185,9 @@ static int moca_probe(struct platform_device *pdev)
 	else if (pd->hw_rev == HWREV_MOCA_11)
 		priv->regs = &regs_11;
 	else if ((pd->hw_rev == HWREV_MOCA_20_GEN21) ||
-		(pd->hw_rev == HWREV_MOCA_20_GEN22)) {
+		(pd->hw_rev == HWREV_MOCA_20_GEN22))
 		priv->regs = &regs_20;
-#ifdef BCHP_JTAG_OTP_REG_START
-		priv->proc_base = ioremap(BCHP_JTAG_OTP_REG_START,
-			(BCHP_JTAG_OTP_REG_END - BCHP_JTAG_OTP_REG_START + 4));
-#endif
-	} else {
+	else {
 		pr_err("unsupported MoCA HWREV: %x\n", pd->hw_rev);
 		err = -EINVAL;
 		goto bad;
@@ -2328,8 +2270,6 @@ bad2:
 	if (priv->i2c_base)
 		iounmap(priv->i2c_base);
 bad:
-	if (priv->proc_base)
-		iounmap(priv->proc_base);
 	kfree(priv);
 	return err;
 }
@@ -2348,9 +2288,6 @@ static int moca_remove(struct platform_device *pdev)
 	free_irq(priv->irq, priv);
 	iounmap(priv->i2c_base);
 	iounmap(priv->base);
-	if (priv->proc_base)
-		iounmap(priv->proc_base);
-
 	kfree(priv);
 
 	clk_put(cpu_clk);
@@ -2440,3 +2377,4 @@ module_exit(moca_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Broadcom Corporation");
 MODULE_DESCRIPTION("MoCA messaging driver");
+
