@@ -117,6 +117,10 @@ static inline void set_io_port_base(unsigned long base)
  */
 static inline unsigned long virt_to_phys(volatile const void *address)
 {
+#ifdef CONFIG_BRCM_UPPER_256MB
+	if ((unsigned long)address >= CAC_BASE_UPPER)
+		return (unsigned long)address - CAC_BASE_UPPER + UPPERMEM_START;
+#endif
 	return (unsigned long)address - PAGE_OFFSET + PHYS_OFFSET;
 }
 
@@ -134,6 +138,10 @@ static inline unsigned long virt_to_phys(volatile const void *address)
  */
 static inline void * phys_to_virt(unsigned long address)
 {
+#ifdef CONFIG_BRCM_UPPER_256MB
+	if (address >= UPPERMEM_START)
+		return (void *)(address + CAC_BASE_UPPER - UPPERMEM_START);
+#endif
 	return (void *)(address + PAGE_OFFSET - PHYS_OFFSET);
 }
 

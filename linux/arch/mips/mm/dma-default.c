@@ -123,7 +123,7 @@ static void *mips_dma_alloc_coherent(struct device *dev, size_t size,
 
 		if (!plat_device_is_coherent(dev)) {
 			dma_cache_wback_inv((unsigned long) ret, size);
-#ifdef CONFIG_BRCM_UPPER_768MB
+#ifdef CONFIG_BRCM_CONSISTENT_DMA
 			if (brcm_map_coherent(*dma_handle, ret, PFN_ALIGN(size),
 					&ret, gfp)) {
 				free_pages((unsigned long)ret, size);
@@ -158,7 +158,7 @@ static void mips_dma_free_coherent(struct device *dev, size_t size, void *vaddr,
 
 	plat_unmap_dma_mem(dev, dma_handle, size, DMA_BIDIRECTIONAL);
 
-#ifdef CONFIG_BRCM_UPPER_768MB
+#ifdef CONFIG_BRCM_CONSISTENT_DMA
 	addr = (unsigned long)brcm_unmap_coherent(vaddr);
 #else
 	if (!plat_device_is_coherent(dev))

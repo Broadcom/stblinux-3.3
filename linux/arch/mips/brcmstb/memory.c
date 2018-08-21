@@ -66,6 +66,21 @@ int __uncached_access(struct file *file, unsigned long addr)
 /* GLOBAL | !VALID */
 #define ENTRYLO_INVALID()	(0x01)
 
+#define OFFS_16MB(x)		((x) * (16 << 20))
+
+/*
+ * One pair of 16MB pages, UPPERMEM_START -> CAC_BASE_UPPER
+ * BMIPS3300 does not support 256MB pagemasks.
+ */
+#define CACHED_16MB_PAIR(i)	\
+	.entrylo0		= ENTRYLO_CACHED(UPPERMEM_START + \
+						 OFFS_16MB(i * 2)), \
+	.entrylo1		= ENTRYLO_CACHED(UPPERMEM_START + \
+						 OFFS_16MB(i * 2 + 1)), \
+	.entryhi		= CAC_BASE_UPPER + OFFS_16MB(i * 2), \
+	.pagemask		= PM_16M,
+
+
 struct tlb_entry {
 	unsigned long entrylo0;
 	unsigned long entrylo1;
@@ -74,14 +89,30 @@ struct tlb_entry {
 };
 
 static struct tlb_entry __maybe_unused uppermem_mappings[] = {
+#if   defined(CONFIG_BRCM_UPPER_256MB) && !defined(CONFIG_CPU_BMIPS3300)
 {
-#if defined(CONFIG_BRCM_UPPER_768MB)
+	.entrylo0		= ENTRYLO_CACHED(UPPERMEM_START),
+	.entrylo1		= ENTRYLO_UNCACHED(UPPERMEM_START),
+	.entryhi		= CAC_BASE_UPPER,
+	.pagemask		= PM_256M,
+},
+#elif defined(CONFIG_BRCM_UPPER_256MB) && defined(CONFIG_CPU_BMIPS3300)
+	{ CACHED_16MB_PAIR(0) },
+	{ CACHED_16MB_PAIR(1) },
+	{ CACHED_16MB_PAIR(2) },
+	{ CACHED_16MB_PAIR(3) },
+	{ CACHED_16MB_PAIR(4) },
+	{ CACHED_16MB_PAIR(5) },
+	{ CACHED_16MB_PAIR(6) },
+	{ CACHED_16MB_PAIR(7) },
+#elif defined(CONFIG_BRCM_UPPER_768MB)
+{
 	.entrylo0		= ENTRYLO_CACHED(TLB_UPPERMEM_PA),
 	.entrylo1		= ENTRYLO_INVALID(),
 	.entryhi		= TLB_UPPERMEM_VA,
 	.pagemask		= PM_256M,
-#endif
 },
+#endif
 };
 
 static inline void __cpuinit brcm_write_tlb_entry(int idx,
@@ -176,7 +207,7 @@ asmlinkage void plat_wired_tlb_setup(void)
 #endif
 }
 
-#ifdef CONFIG_BRCM_UPPER_768MB
+#ifdef CONFIG_BRCM_CONSISTENT_DMA
 
 /***********************************************************************
  * Special allocator for coherent (uncached) memory
@@ -400,7 +431,7 @@ void *brcm_unmap_coherent(void *vaddr)
 	return ret;
 }
 
-#endif /* CONFIG_BRCM_UPPER_768MB */
+#endif /* CONFIG_BRCM_CONSISTENT_DMA */
 
 void __iomem *plat_ioremap(phys_t offset, unsigned long size,
 	unsigned long flags)

@@ -545,24 +545,6 @@ void board_pinmux_setup(void)
 	if (!strcmp(brcm_cfe_boardname, "BCM97241PLC") ||
 		!strcmp(brcm_cfe_boardname, "BCM97241DCSFBTSFF")) {
 		/* set GENET_1 MII pinmuxing */
-		PINMUX(15, gpio_132, 1);	/* MII_RX_DV */
-		PINMUX(16, gpio_133, 1);	/* MII_RX_ER */
-		PINMUX(16, gpio_134, 1);	/* MII_RX_CLK */
-		PINMUX(16, gpio_135, 1);	/* MII_COL */
-		PINMUX(16, gpio_136, 1);	/* MII_CRS */
-		PINMUX(16, gpio_137, 1);	/* MII_MDIO */
-		PINMUX(16, gpio_138, 1);	/* MII_TX_CLK */
-		PINMUX(16, gpio_139, 1);	/* MII_RXD_03 */
-		PINMUX(16, gpio_140, 1);	/* MII_RXD_02 */
-		PINMUX(17, gpio_141, 1);	/* MII_RXD_01 */
-		PINMUX(17, gpio_142, 1);	/* MII_RXD_00 */
-		PINMUX(17, gpio_143, 1);	/* MII_TXD_03 */
-		PINMUX(17, gpio_144, 1);	/* MII_TXD_02 */
-		PINMUX(17, gpio_145, 1);	/* MII_TXD_01 */
-		PINMUX(17, gpio_146, 1);	/* MII_TXD_00 */
-		PINMUX(17, gpio_147, 1);	/* MII_TX_EN */
-		PINMUX(17, gpio_148, 1);	/* MII_TX_ER */
-		PINMUX(18, gpio_149, 1);	/* MII_MDC */
 
 		/* Switch MII control over GENET_1 */
 		BDEV_WR(BCHP_SUN_TOP_CTRL_GENERAL_CTRL_0,
@@ -579,6 +561,28 @@ void board_pinmux_setup(void)
 
 		if (!strcmp(brcm_cfe_boardname, "BCM97241DCSFBTSFF"))
 			genet_pdata[1].sw_type = 0x53101;
+	}
+
+	if (strcmp(brcm_eth0_phy, "INT")) {
+		PINMUX(15, gpio_132, 1);	/* MII_RX_DV */
+		PINMUX(16, gpio_133, 1);	/* MII_RX_ER */
+		PINMUX(16, gpio_134, 1);	/* MII_RX_CLK */
+		PINMUX(16, gpio_135, 1);	/* MII_COL */
+		PINMUX(16, gpio_136, 1);	/* MII_CRS */
+		PINMUX(16, gpio_138, 1);	/* MII_TX_CLK */
+		PINMUX(16, gpio_139, 1);	/* MII_RXD_03 */
+		PINMUX(16, gpio_140, 1);	/* MII_RXD_02 */
+		PINMUX(17, gpio_141, 1);	/* MII_RXD_01 */
+		PINMUX(17, gpio_142, 1);	/* MII_RXD_00 */
+		PINMUX(17, gpio_143, 1);	/* MII_TXD_03 */
+		PINMUX(17, gpio_144, 1);	/* MII_TXD_02 */
+		PINMUX(17, gpio_145, 1);	/* MII_TXD_01 */
+		PINMUX(17, gpio_146, 1);	/* MII_TXD_00 */
+		PINMUX(17, gpio_147, 1);	/* MII_TX_EN */
+		PINMUX(17, gpio_148, 1);	/* MII_TX_ER */
+
+		/* set RGMII lines to 2.5V */
+		BDEV_WR_F(SUN_TOP_CTRL_GENERAL_CTRL_NO_SCAN_0, rgmii_0_pad_sel, 1);
 	}
 
 #elif defined(CONFIG_BCM7563)
