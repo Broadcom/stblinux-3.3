@@ -809,6 +809,26 @@ void __init brcm_wraparound_check(void);
 
 void ebi_restore_settings(void);
 
+static inline u32 ebi_readl(u32 offset)
+{
+#ifdef CONFIG_BCM7362A0
+	if (BRCM_PROD_ID() == 0x73627)
+		return BDEV_RD((offset + 0x400));
+	else
+#endif
+		return BDEV_RD(offset);
+}
+
+static inline void ebi_writel(u32 offset, u32 val)
+{
+#ifdef CONFIG_BCM7362A0
+	if (BRCM_PROD_ID() == 0x73627)
+		BDEV_WR((offset + 0x400), val);
+	else
+#endif
+		BDEV_WR(offset, val);
+}
+
 int __init bchip_strap_flash_type(void);
 void brcmstb_cpu_setup(void);
 void bchip_sata3_init(void);
@@ -957,6 +977,8 @@ extern unsigned long brcm_dram1_size_mb;
 extern unsigned long brcm_dram1_linux_mb;
 extern unsigned long brcm_dram1_start;
 extern unsigned long brcm_min_auth_region_size;
+extern unsigned long brcm_srr_base_mb;
+extern unsigned long brcm_srr_size_mb;
 
 /* NMI / TP1 reset vector */
 extern char brcm_reset_nmi_vec[];

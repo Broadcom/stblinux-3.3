@@ -11,9 +11,9 @@ all clean distclean:
 romfs:
 	mkdir -p $(ROMFSDIR)/etc/moca
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA1 \
-		$(MACHINE)/mocad /bin/mocad
+		$(MACHINE).$(LIBCDIR)/mocad /bin/mocad
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA1 \
-		$(MACHINE)/mocactl /bin/mocactl
+		$(MACHINE).$(LIBCDIR)/mocactl /bin/mocactl
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA1 \
 		$(MACHINE)/soapserver /bin/soapserver
 	$(ROMFSINST) -e CONFIG_USER_MOCA_GEN1 \

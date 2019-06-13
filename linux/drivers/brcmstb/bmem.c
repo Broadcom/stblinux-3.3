@@ -275,6 +275,19 @@ static void __init brcm_set_default_bmem(void)
 				  brcm_dram0_size_mb : BRCM_MAX_LOWER_MB) -
 				 LINUX_MIN_MEM) << 20;
 		}
+
+	}
+
+	/* Register SRR as a BMEM region, always */
+	if (brcm_srr_size_mb) {
+		n_bmem_regions++;
+		bmem_regions[n_bmem_regions].addr = brcm_srr_base_mb;
+		bmem_regions[n_bmem_regions].size = brcm_srr_size_mb;
+		bmem_regions[n_bmem_regions].valid = 1;
+		pr_info("bmem: adding SRR %lu MB RESERVED region at "
+			"%lu MB (0x%08lx@0x%08lx)\n",
+			brcm_srr_size_mb, brcm_srr_base_mb,
+			brcm_srr_size_mb << 20, brcm_srr_base_mb << 20);
 	}
 }
 

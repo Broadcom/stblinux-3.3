@@ -16,6 +16,7 @@ export CPPFLAGS LDFLAGS
 .PHONY: all
 all::
 	if [ ! -e Makefile ]; then \
+		MAKEINFO=missing \
 		./configure --host=$(MACHINE)-linux --disable-nls \
 			--without-included-gettext --without-uiout \
 			--disable-tui --disable-gdbtk --without-x || exit 1 ; \

@@ -503,9 +503,10 @@ static void bcmspi_set_chip_select(struct bcmspi_priv *priv, int cs)
 	if (priv->curr_cs != cs) {
 		DBG("Switching CS%1d => CS%1d\n",
 			priv->curr_cs, cs);
-		BDEV_WR_RB(BCHP_EBI_CS_SPI_SELECT,
-			(BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & ~0xff) |
-			(1 << cs));
+		ebi_writel(BCHP_EBI_CS_SPI_SELECT,
+			   ebi_readl(BCHP_EBI_CS_SPI_SELECT) & ~0xff |
+			   (1 << cs));
+		(void)ebi_readl(BCHP_EBI_CS_SPI_SELECT);
 		udelay(10);
 	}
 	priv->curr_cs = cs;

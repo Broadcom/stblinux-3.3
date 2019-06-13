@@ -140,6 +140,14 @@ struct brcm_wakeup_ops {
 int brcm_pm_wakeup_register(struct brcm_wakeup_ops *ops, void* ref, char* name);
 int brcm_pm_wakeup_unregister(struct brcm_wakeup_ops *ops, void* ref);
 
+struct brcm_srr_info {
+	uint64_t	base;
+	uint64_t	size;
+};
+
+#define BRCMSTB_BRCMAPI_SRR_GET_INFO
+void brcm_get_srr_info(struct brcm_srr_info *info);
+
 #endif /* __KERNEL__ */
 
 #endif /* _ASM_BRCMSTB_BRCMAPI_H */

@@ -1,3 +1,7 @@
+2011-02-09  William Cohen  <wcohen@redhat.com>
+
+	* libpp/format_output.h: Do not use mutable for reference variable.
+
 2009-11-24  Maynard Johnson  <maynardj@us.ibm.com>
 
 	* configure.in: bump version in AM_INIT_AUTOMAKE to 0.9.6

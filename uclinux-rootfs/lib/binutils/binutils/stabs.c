@@ -2575,7 +2575,7 @@ parse_stab_members (void *dhandle, struct stab_handle *info,
 	  bfd_boolean constp, volatilep, staticp;
 	  bfd_vma voffset;
 	  debug_type context;
-	  const char *physname;
+	  const char *physname = NULL;
 	  bfd_boolean varargs;
 
 	  if (look_ahead_type != DEBUG_TYPE_NULL)

@@ -319,6 +319,7 @@ clean:
 	fi
 
 .PHONY: distclean
+.NOTPARALLEL: distclean
 distclean:
 	if [ -e .target ]; then \
 		$(MAKE) -C lib distclean clean ; \

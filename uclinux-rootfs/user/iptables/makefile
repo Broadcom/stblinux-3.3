@@ -11,6 +11,7 @@ export CC CFLAGS
 .PHONY: all
 all::
 	if [ ! -e Makefile ]; then \
+		PKG_CONFIG="" \
 		./configure --host=$(MACHINE)-linux \
 			--disable-shared --enable-static || exit 1 ; \
 	fi

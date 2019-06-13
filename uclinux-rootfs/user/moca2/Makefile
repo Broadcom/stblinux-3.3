@@ -11,9 +11,9 @@ all clean distclean:
 romfs:
 	mkdir -p $(ROMFSDIR)/etc/moca
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
-		$(MACHINE)/mocad /bin/mocad
+		$(MACHINE).$(LIBCDIR)/mocad /bin/mocad
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
-		$(MACHINE)/mocap /bin/mocap
+		$(MACHINE).$(LIBCDIR)/mocap /bin/mocap
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \
 		fw/moca20core-gen21.bin /etc/moca/moca20core-gen21.bin
 	$(ROMFSINST) -e CONFIG_USER_MOCA_MOCA2 \

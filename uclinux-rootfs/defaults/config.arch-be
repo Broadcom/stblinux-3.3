@@ -15,7 +15,7 @@ LINUXTARGET = vmlinux
 # First settings we always want for all build
 #
 
-# ARCH = kernel,  TARGET_ARCH = uClibc
+# ARCH = kernel,  TARGET_ARCH = eglibc
 
 MACHINE       = mips
 ARCH          = mips

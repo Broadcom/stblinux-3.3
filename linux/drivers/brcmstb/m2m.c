@@ -44,6 +44,40 @@ static int brcm_mem_dma_prepare_transfer(struct brcm_mem_transfer *xfer);
 static int brcm_mem_dma_complete_transfer(struct brcm_mem_transfer *xfer);
 static void brcm_mem_dma_start_transfer(void);
 
+#define MEM_DMA_WR_RB(x, y) do { \
+	mem_dma_writel((x), (y)); mem_dma_readl(x); \
+	} while (0)
+#define MEM_DMA_RD_F(reg, field) \
+	((mem_dma_readl(BCHP_##reg) & BCHP_##reg##_##field##_MASK) >> \
+	 BCHP_##reg##_##field##_SHIFT)
+#define MEM_DMA_WR_F_RB(reg, field, val) do { \
+	mem_dma_writel(BCHP_##reg, \
+	(mem_dma_readl(BCHP_##reg) & ~BCHP_##reg##_##field##_MASK) | \
+	(((val) << BCHP_##reg##_##field##_SHIFT) & \
+	 BCHP_##reg##_##field##_MASK)); \
+	mem_dma_readl(BCHP_##reg); \
+        } while (0)
+
+static inline u32 mem_dma_readl(u32 offset)
+{
+#ifdef CONFIG_BCM7362A0
+	if (BRCM_PROD_ID() == 0x73627)
+		return BDEV_RD((offset + 0x2000));
+	else
+#endif
+		return BDEV_RD(offset);
+}
+
+static inline void mem_dma_writel(u32 offset, u32 val)
+{
+#ifdef CONFIG_BCM7362A0
+	if (BRCM_PROD_ID() == 0x73627)
+		BDEV_WR((offset + 0x2000), val);
+	else
+#endif
+		BDEV_WR(offset, val);
+}
+
 #if BRCM_MEM_DMA_DEBUG
 #define DBG			printk
 static void brcm_mem_dma_dump_regs(const char *title)
@@ -51,14 +85,14 @@ static void brcm_mem_dma_dump_regs(const char *title)
 	printk(KERN_DEBUG "=== MEM DMA registers ===\n");
 	printk(KERN_DEBUG
 	       "FIRST_DESC = 0x%08x CTRL       = 0x%08x WAKE_CTRL  = 0x%08x\n",
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_FIRST_DESC),
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_CTRL),
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_WAKE_CTRL));
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_FIRST_DESC),
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_CTRL),
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_WAKE_CTRL));
 	printk(KERN_DEBUG
 	       "STATUS     = 0x%08x CUR_DESC   = 0x%08x CUR_BYTE   = 0x%08x\n",
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_STATUS),
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_CUR_DESC),
-	       (unsigned int)BDEV_RD(BCHP_MEM_DMA_0_CUR_BYTE));
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_STATUS),
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_CUR_DESC),
+	       (unsigned int)mem_dma_readl(BCHP_MEM_DMA_0_CUR_BYTE));
 }
 
 static void brcm_mem_dma_dump_descr(struct brcm_mem_dma_descr *d, int num)
@@ -173,7 +207,7 @@ static inline void brcm_mem_dma_set_scram(struct brcm_mem_dma_descr *descr,
  ***********************************************************************/
 static int brcm_mem_dma_wait_for_ready(int timeout)
 {
-	while (BDEV_RD_F(MEM_DMA_0_STATUS, DMA_STATUS) == 1) {
+	while (MEM_DMA_RD_F(MEM_DMA_0_STATUS, DMA_STATUS) == 1) {
 		if (timeout > 0)
 			if (!--timeout)
 				return -1;
@@ -298,7 +332,7 @@ static dma_addr_t brcm_mem_dma_prepare_descriptors(
 	dma_addr_t pa_d;
 	pa_d = dma_map_single(NULL, d, size, DMA_TO_DEVICE);
 	brcm_mem_dma_wait_for_ready(0);
-	BDEV_WR_RB(BCHP_MEM_DMA_0_FIRST_DESC, pa_d);
+	MEM_DMA_WR_RB(BCHP_MEM_DMA_0_FIRST_DESC, pa_d);
 
 	return pa_d;
 }
@@ -323,11 +357,11 @@ static dma_addr_t cur_pa_d;
 static void _brcm_mem_dma_start_transfer(int on, int sync)
 {
 	/* clear RUN bit and wait for IDLE */
-	BDEV_WR_F_RB(MEM_DMA_0_CTRL, RUN, 0);
+	MEM_DMA_WR_F_RB(MEM_DMA_0_CTRL, RUN, 0);
 	brcm_mem_dma_wait_for_ready(BRCM_MEM_DMA_TIMEOUT);
 
 	if (on) {
-		BDEV_WR_F_RB(MEM_DMA_0_CTRL, RUN, 1);
+		MEM_DMA_WR_F_RB(MEM_DMA_0_CTRL, RUN, 1);
 		if (sync)
 			brcm_mem_dma_wait_for_ready(BRCM_MEM_DMA_TIMEOUT);
 	}

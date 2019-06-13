@@ -322,6 +322,26 @@ void board_pinmux_setup(void)
 	AON_PADCTRL(1, aon_gpio_19_pad_ctrl, 2);
 	AON_PADCTRL(1, aon_gpio_20_pad_ctrl, 2);
 
+	if (!strcmp(brcm_cfe_boardname, "BCM973627SVMB")) {
+		PINMUX(14, gpio_111, 1);	/* RGMII_RX_DV */
+		PINMUX(14, gpio_112, 1);	/* RGMII_RX_CLK */
+		PINMUX(14, gpio_113, 1);	/* RGMII_TX_CLK */
+		PINMUX(14, gpio_114, 1);	/* RGMII_RXD_03 */
+		PINMUX(14, gpio_115, 1);	/* RGMII_RXD_02 */
+		PINMUX(14, gpio_116, 1);	/* RGMII_RXD_01 */
+		PINMUX(14, gpio_117, 1);	/* RGMII_RXD_00 */
+		PINMUX(14, gpio_118, 1);	/* RGMII_TXD_03 */
+		PINMUX(15, gpio_119, 1);	/* RGMII_TXD_02 */
+		PINMUX(15, gpio_120, 1);	/* RGMII_TXD_01 */
+		PINMUX(15, gpio_121, 1);	/* RGMII_TXD_00 */
+		PINMUX(15, gpio_122, 1);	/* RGMII_TX_EN */
+		PINMUX(15, gpio_123, 1);	/* RGMII_MDIO */
+		PINMUX(15, gpio_124, 1);	/* RGMII_MDC */
+
+		PADCTRL(8, gpio_123_pad_ctrl, 2);	/* Pull-up MDC */
+		PADCTRL(8, gpio_124_pad_ctrl, 2);	/* Pull-up MDIO */
+	}
+
 #elif defined(CONFIG_BCM7425)
 
 	if (sdio_0_disabled < 0)
@@ -821,3 +841,10 @@ void brcm_get_ocap_info(struct brcm_ocap_info *info)
 	info->docsis_platform = brcm_docsis_platform;
 }
 EXPORT_SYMBOL(brcm_get_ocap_info);
+
+void brcm_get_srr_info(struct brcm_srr_info *info)
+{
+	info->base = (uint64_t)brcm_srr_base_mb << 20;
+	info->size = (uint64_t)brcm_srr_size_mb << 20;
+}
+EXPORT_SYMBOL(brcm_get_srr_info);

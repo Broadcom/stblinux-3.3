@@ -22,8 +22,9 @@
 /* Make the block special device PATH available to the system for swapping.
    This call is restricted to the super-user.  */
 int
-swapon (path)
+swapon (path, flags)
      const char *path;
+     int flags;
 {
   __set_errno (ENOSYS);
   return -1;

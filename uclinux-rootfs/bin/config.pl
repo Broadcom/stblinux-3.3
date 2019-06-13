@@ -414,7 +414,7 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 		or die "can't read $arch_config";
 	foreach(@lines) {
 		if (m/LIBCDIR/) {
-			s/\@CONFIG_PL_LIBCDIR\@/uClibc/;
+			s/\@CONFIG_PL_LIBCDIR\@/eglibc/;
 		}
 		print F;
 	}
@@ -835,6 +835,23 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 			}
 			close(F);
 			# End temporary section
+		} elsif($mod eq "uclibc") {
+			# This section is temporary and will be cleaned up for
+			# SWLINUX-2680
+			open(F, "<$arch_config")
+				or die "can't read $arch_config";
+			my @lines = <F>;
+			close(F);
+			open(F, ">$arch_config")
+				or die "can't read $arch_config";
+			foreach(@lines) {
+				if (m/LIBCDIR/) {
+					s/eglibc/uClibc/;
+				}
+				print F;
+			}
+			close(F);
+			# End temporary section
 		} else {
 			print "\n";
 			print "ERROR: Unrecognized suffix '$mod' in '$tgt'\n";
@@ -933,8 +950,8 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 
 	# write out the new configuration
 	write_cfg($linux_config, $linux_config, \%linux);
-	write_cfg_n($eglibc_defaults, $eglibc_config, \%eglibc);
-	write_cfg($uclibc_defaults, $uclibc_config, \%uclibc);
+	write_cfg($eglibc_defaults, $eglibc_config, \%eglibc);
+	write_cfg_n($uclibc_defaults, $uclibc_config, \%uclibc);
 	write_cfg($busybox_defaults, $busybox_config, \%busybox);
 	write_cfg($vendor_defaults, $vendor_config, \%vendor);
 } elsif($cmd eq "save_defaults") {
@@ -950,8 +967,8 @@ if($cmd eq "defaults" || $cmd eq "quickdefaults") {
 	system("make -C $LINUXDIR savedefconfig");
 	copy("$LINUXDIR/defconfig", $linux_defaults);
 
-	write_cfg_n($eglibc_config, $eglibc_defaults, \%eglibc);
-	write_cfg($uclibc_config, $uclibc_defaults, \%uclibc);
+	write_cfg($eglibc_config, $eglibc_defaults, \%eglibc);
+	write_cfg_n($uclibc_config, $uclibc_defaults, \%uclibc);
 	write_cfg($busybox_config, $busybox_defaults, \%busybox);
 	write_cfg($vendor_config, $vendor_defaults, \%vendor);
 } elsif($cmd eq "initramfs") {

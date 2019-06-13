@@ -67,6 +67,7 @@ int __uncached_access(struct file *file, unsigned long addr)
 #define ENTRYLO_INVALID()	(0x01)
 
 #define OFFS_16MB(x)		((x) * (16 << 20))
+#define OFFS_64MB(x)		((x) * (64 << 20))
 
 /*
  * One pair of 16MB pages, UPPERMEM_START -> CAC_BASE_UPPER
@@ -144,15 +145,72 @@ static inline void __cpuinit brcm_add_wired_entry(unsigned long entrylo0,
 extern void tlb_init(void);
 extern void build_tlb_refill_handler(void);
 
+/* We have two possible SRR layout:
+ *
+ * If (DDR Size <= 2GB)
+ * 	SRR Addr = DDR Size – SRR Size
+ * Else
+ * 	SRR Addr = 2GB – SRR Size
+ *
+ * only the first one can possibly collide with our wired entry though which
+ * we split into the following:
+ *
+ * 1 pair of 64MB -> 128MB
+ * 1 entry of 64MB -> 64MB (total: 192MB)
+ *
+ * mixing and matching pagemasks is not permitted.
+ */
+
+static struct tlb_entry __maybe_unused srr_uppermem_mappings[] = {
+#if defined(CONFIG_BRCM_UPPER_768MB)
+	{
+		.entrylo0		= ENTRYLO_CACHED(TLB_UPPERMEM_PA),
+		.entrylo1		= ENTRYLO_CACHED(TLB_UPPERMEM_PA +
+							 OFFS_64MB(1)),
+		.entryhi		= TLB_UPPERMEM_VA,
+		.pagemask		= PM_64M,
+	},
+	{
+		.entrylo0		= ENTRYLO_CACHED(TLB_UPPERMEM_PA +
+							 OFFS_64MB(2)),
+		.entrylo1		= ENTRYLO_INVALID(),
+		.entryhi		= TLB_UPPERMEM_VA + OFFS_64MB(2),
+		.pagemask		= PM_64M,
+	},
+#endif
+};
+
+#ifdef CONFIG_BRCM_UPPER_MEMORY
+static struct tlb_entry *__cpuinit brcm_tlb_srr(int *size)
+{
+#if defined(CONFIG_BRCM_UPPER_768MB)
+	unsigned long uppermem_mb = TLB_UPPERMEM_PA >> 20;
+
+	if (!brcm_srr_size_mb)
+		goto out;
+
+	if (brcm_srr_base_mb >= uppermem_mb &&
+	    (brcm_srr_base_mb + brcm_srr_size_mb) <=
+	    (uppermem_mb + 256)) {
+		*size = ARRAY_SIZE(srr_uppermem_mappings);
+		return srr_uppermem_mappings;
+	}
+out:
+#endif
+	*size = ARRAY_SIZE(uppermem_mappings);
+	return uppermem_mappings;
+}
+#endif
+
 void __cpuinit brcm_tlb_init(void)
 {
 #ifdef CONFIG_BRCM_UPPER_MEMORY
 	if (smp_processor_id() == 0) {
-		int i;
-		struct tlb_entry *e = uppermem_mappings;
+		int i, size = 0;
+		struct tlb_entry *e = brcm_tlb_srr(&size);
 
 		tlb_init();
-		for (i = 0; i < ARRAY_SIZE(uppermem_mappings); i++, e++)
+		for (i = 0; i < size; i++, e++)
 			brcm_add_wired_entry(e->entrylo0, e->entrylo1,
 				e->entryhi, e->pagemask);
 		write_c0_pagemask(PM_DEFAULT_MASK);
@@ -177,7 +235,8 @@ void __cpuinit brcm_tlb_init(void)
 asmlinkage void plat_wired_tlb_setup(void)
 {
 #ifdef CONFIG_BRCM_UPPER_MEMORY
-	int i, tlbsz;
+	int i, tlbsz, size = 0;
+	struct tlb_entry *e = brcm_tlb_srr(&size);
 
 	/* Flush TLB.  local_flush_tlb_all() is not available yet. */
 	write_c0_entrylo0(0);
@@ -197,11 +256,9 @@ asmlinkage void plat_wired_tlb_setup(void)
 	write_c0_wired(0);
 	mtc0_tlbw_hazard();
 
-	for (i = 0; i < ARRAY_SIZE(uppermem_mappings); i++) {
-		struct tlb_entry *e = &uppermem_mappings[i];
+	for (i = 0; i < size; i++, e++)
 		brcm_add_wired_entry(e->entrylo0, e->entrylo1, e->entryhi,
 			e->pagemask);
-	}
 
 	write_c0_pagemask(PM_DEFAULT_MASK);
 #endif

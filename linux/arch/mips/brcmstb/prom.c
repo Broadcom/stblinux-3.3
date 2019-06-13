@@ -229,6 +229,9 @@ static void __init __maybe_unused cfe_read_configuration(void)
 	FETCH("FLASH_SIZE", parse_ulong, &brcm_mtd_flash_size_mb);
 	FETCH("FLASH_TYPE", parse_string, brcm_mtd_flash_type);
 
+	FETCH("SRR_BASE", parse_ulong, &brcm_srr_base_mb);
+	FETCH("SRR_SIZE", parse_ulong, &brcm_srr_size_mb);
+
 	printk(KERN_CONT "found %d vars.\n", fetched);
 }
 
@@ -363,6 +366,16 @@ void __init prom_init(void)
 #ifdef CONFIG_BRCM_UPPER_MEMORY
 		mb = min(dram0_mb, BRCM_MAX_UPPER_MB);
 		dram0_mb -= mb;
+
+		if (brcm_srr_base_mb >= (UPPERMEM_START >> 20) &&
+		    (brcm_srr_base_mb + brcm_srr_size_mb <=
+		    ((UPPERMEM_START >> 20) + mb))) {
+			pr_info("Clamping to account for SRR\n");
+			/* We remove the last 64MB, see srr_uppermem_mappings[]
+			 * for details.
+			 */
+			mb -= 64;
+		}
 
 		plat_wired_tlb_setup();
 		add_memory_region(UPPERMEM_START, mb << 20, BOOT_MEM_RAM);

@@ -48,6 +48,8 @@ unsigned long brcm_dram1_size_mb;
 unsigned long brcm_dram1_linux_mb;
 unsigned long brcm_dram1_start = MEMC1_START;
 unsigned long brcm_min_auth_region_size = 0x1000;
+unsigned long brcm_srr_base_mb;
+unsigned long brcm_srr_size_mb;
 
 unsigned char brcm_eth0_phy[CFE_STRING_SIZE];
 unsigned long brcm_eth0_speed;
@@ -113,6 +115,7 @@ void __init bchip_check_compat(void)
 	MAIN_CHIP_ID(7360, a0);
 #elif defined(CONFIG_BCM7362)
 	ALT_CHIP_ID(73625, a0);
+	ALT_CHIP_ID(73627, a0);
 	MAIN_CHIP_ID(7362, a0);
 #elif defined(CONFIG_BCM7425)
 	MAIN_CHIP_ID(7425, b0);
@@ -428,6 +431,8 @@ void __init bchip_set_features(void)
 			otp_option_sata_disable) == 1)
 		brcm_sata_enabled = 0;
 #endif
+	if (BRCM_PROD_ID() == 0x73627)
+		brcm_sata_enabled = 0;
 
 #ifdef BCHP_SUN_TOP_CTRL_OTP_OPTION_STATUS_0_otp_option_usb_disable_MASK
 	if (BDEV_RD_F(SUN_TOP_CTRL_OTP_OPTION_STATUS_0,

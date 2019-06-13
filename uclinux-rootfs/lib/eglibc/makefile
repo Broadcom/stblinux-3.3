@@ -4,6 +4,8 @@ unexport MAKEFILE_LIST
 
 BOGUS_TARGETS		:= FORCE makefile $(ROOTDIR)/config.arch
 
+SHELL			:= /bin/bash
+
 # This guard is necessary because the generated Makefile in the build folder
 # does make -C on this directory causing an infinite loop.
 ifneq ($(EGLIBC_MAKEFILE_GUARD),1)
@@ -22,6 +24,7 @@ all:: all-$(libc-source)
 .PHONY: all-rootfs
 all-rootfs:
 	if [ ! -e build/Makefile ]; then \
+		MAKEINFO=missing \
 		mkdir -p build; \
 		cd build; \
 		../configure --host=$(shell $(CC) -dumpmachine) \
@@ -60,7 +63,9 @@ romfs-rootfs::
 romfs-toolchain::
 	mkdir -p temp/{bin,lib,sbin}
 	cp -df $(GCCSYSROOT)/lib/*.so* temp/lib
-	rm temp/lib/libgcc*.so*  # gets installed elsewhere
+	# FIXME: libgcc was removed from sysroot in stbgcc-4.8-1.1, eventually
+	# delete the next line
+	rm -f temp/lib/libgcc*.so*
 	cp $(GCCSYSROOT)/usr/bin/ldd temp/bin/ldd
 	cp $(GCCSYSROOT)/sbin/ldconfig temp/sbin/ldconfig
 

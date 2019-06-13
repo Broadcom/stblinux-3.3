@@ -16,8 +16,6 @@ LDFLAGS			:= -L$(ROOTDIR)/lib/popt/.libs
 LDFLAGS			+= -L$(ROOTDIR)/lib/zlib
 LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/bfd
 LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/libiberty
-LDFLAGS			+= -L$(ROOTDIR)/lib/binutils/intl
-LDFLAGS			+= -lintl
 
 export CC CFLAGS CXXFLAGS
 

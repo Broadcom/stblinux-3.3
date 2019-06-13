@@ -873,9 +873,9 @@ void ebi_restore_settings(void)
 {
 	int i;
 	for (i = 0; i < NUM_CS; i++) {
-		BDEV_WR(BCHP_EBI_CS_BASE_0 + (i * 8), cs_info[i].base_reg);
+		ebi_writel(BCHP_EBI_CS_BASE_0 + (i * 8), cs_info[i].base_reg);
 #ifdef BCHP_EBI_CS_CONFIG_0
-		BDEV_WR(BCHP_EBI_CS_CONFIG_0 + (i * 8), cs_info[i].config_reg);
+		ebi_writel(BCHP_EBI_CS_CONFIG_0 + (i * 8), cs_info[i].config_reg);
 #endif
 	}
 }
@@ -933,7 +933,7 @@ static int __init brcmstb_mtd_setup(void)
 
 		cs_info[i].type = TYPE_NONE;
 
-		base = BDEV_RD(BCHP_EBI_CS_BASE_0 + (i * 8));
+		base = ebi_readl(BCHP_EBI_CS_BASE_0 + (i * 8));
 		size = base & 0x0f;
 
 		cs_info[i].base_reg = base;
@@ -941,7 +941,7 @@ static int __init brcmstb_mtd_setup(void)
 		cs_info[i].len = 8192UL << (base & 0xf);
 
 #ifdef BCHP_EBI_CS_CONFIG_0
-		config = BDEV_RD(BCHP_EBI_CS_CONFIG_0 + (i * 8));
+		config = ebi_readl(BCHP_EBI_CS_CONFIG_0 + (i * 8));
 		cs_info[i].config_reg = config;
 		if (config & BCHP_EBI_CS_CONFIG_0_enable_MASK)
 			cs_info[i].type = TYPE_NOR;
@@ -960,7 +960,7 @@ static int __init brcmstb_mtd_setup(void)
 		 * 65nm chips don't have SW bits 15:8 so EXTRA_SPI_CS
 		 * should be set at compile time for multiple SPI flashes.
 		 */
-		if ((BDEV_RD(BCHP_EBI_CS_SPI_SELECT) & (0x101 << i)) ||
+		if ((ebi_readl(BCHP_EBI_CS_SPI_SELECT) & (0x101 << i)) ||
 				(extra_spi_cs & (0x01 << i)))
 			cs_info[i].type = TYPE_SPI;
 #endif

@@ -445,7 +445,12 @@ int brcm_pm_s3_standby(int dcache_linesz, unsigned long options)
 
 	/* M2M DMA descriptor address */
 	if (brcm_pm_hash_enabled)
-		AON_SAVE_CPB(2, BDEV_RD(BCHP_MEM_DMA_0_FIRST_DESC));
+#ifdef CONFIG_BCM7362A0
+		if (BRCM_PROD_ID() == 0x73627)
+			AON_SAVE_CPB(2, BDEV_RD(BCHP_MEM_DMA_0_FIRST_DESC + 0x2000));
+		else
+#endif
+			AON_SAVE_CPB(2, BDEV_RD(BCHP_MEM_DMA_0_FIRST_DESC));
 	else
 		AON_SAVE_CPB(2, 0);
 	/* Encryption key slot */

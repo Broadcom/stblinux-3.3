@@ -668,7 +668,7 @@ static int bcmgenet_close(struct net_device *dev)
 	/* Disable MAC receive */
 	pDevCtrl->umac->cmd &= ~CMD_RX_EN;
 
-	netif_tx_stop_all_queues(dev);
+	netif_tx_disable(dev);
 
 	/* Disable TDMA to stop add more frames in TX DMA */
 	pDevCtrl->txDma->tdma_ctrl &= ~DMA_EN;
@@ -3942,6 +3942,7 @@ static int bcmgenet_drv_suspend(struct device *dev)
 	 */
 	pDevCtrl->dev_opened = netif_running(pDevCtrl->dev);
 	if (pDevCtrl->dev_opened && !pDevCtrl->dev_asleep) {
+		netif_device_detach(pDevCtrl->dev);
 		pDevCtrl->dev_asleep = 1;
 		val = bcmgenet_close(pDevCtrl->dev);
 	}
@@ -3954,9 +3955,10 @@ static int bcmgenet_drv_resume(struct device *dev)
 	int val = 0;
 	struct BcmEnet_devctrl *pDevCtrl = dev_get_drvdata(dev);
 
-	if (pDevCtrl->dev_opened)
+	if (pDevCtrl->dev_opened) {
 		val = bcmgenet_open(pDevCtrl->dev);
-	else {
+		netif_device_attach(pDevCtrl->dev);
+	} else {
 		bcmgenet_init_dev(pDevCtrl, false);
 		bcmgenet_clock_disable(pDevCtrl);
 	}
